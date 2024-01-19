@@ -10,6 +10,7 @@ export const NavBar = async () => {
     return (<nav className="container flex items-center py-2 max-w-lg m-auto gap-1 justify-end">
         <ThemeToggle />
         {session?.user ? <UserProfil /> : <LoginButton label={'Se connecter'} />}
+
     </nav>)
 
 }

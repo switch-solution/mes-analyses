@@ -1,6 +1,14 @@
 import { CardPricing } from "@/src/features/layout/CardPricing";
 import { LoginButton } from "@/src/features/auth/LoginButton";
+import { getUser } from "@/src/query/user.query";
+import { redirect } from 'next/navigation';
+
 export default async function Home() {
+  const session = await getUser();
+
+  if (session) {
+    redirect('/home');
+  }
   return (
     <main className="flex h-full w-full flex-col items-center justify-start p-12">
       <div className="flex flex-col">

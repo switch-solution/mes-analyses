@@ -46,11 +46,78 @@ model VerificationToken {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String          @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?         @unique
   emailVerified DateTime?
   image         String?
+  username      String?
   accounts      Account[]
   sessions      Session[]
+  UserOtherData UserOtherData[]
+  UserClient    UserClient[]
+}
+
+model UserOtherData {
+  id        String   @id @default(cuid())
+  userId    String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Client {
+  id              String       @id @default(cuid())
+  socialReason    String       @unique
+  dateStartTrial  DateTime
+  dateEndTrial    DateTime
+  siret           String       @unique
+  ape             String
+  address1        String
+  address2        String?
+  address3        String?
+  address4        String?
+  city            String
+  codeZip         String
+  country         String
+  billingAddress1 String
+  billingAddress2 String?
+  billingAddress3 String?
+  billingAddress4 String?
+  billingCity     String
+  billingCodeZip  String
+  billingCountry  String
+  isBlocked       Boolean
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  createdBy       String
+  UserClient      UserClient[]
+  Invitation      Invitation[]
+}
+
+model UserClient {
+  id              String   @id @default(cuid())
+  userId          String
+  clientId        String
+  isBlocked       Boolean
+  isBillable      Boolean
+  isAdministrator Boolean
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  sendEmail Boolean
+  firstName String
+  lastName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }

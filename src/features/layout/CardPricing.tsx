@@ -1,3 +1,4 @@
+'use client'
 import {
     Card,
     CardContent,
@@ -6,7 +7,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-
+import Link from "next/link"
 type CardProps = {
     title: string
     description: string
@@ -15,11 +16,12 @@ type CardProps = {
 
 }
 
+import { LogIn } from "lucide-react";
+
 export const CardPricing = ({
     title,
     description,
     content,
-    footer
 }: CardProps) => {
     return (
         <Card>
@@ -31,12 +33,9 @@ export const CardPricing = ({
                 <p>{content}</p>
             </CardContent>
             <CardFooter>
-                <p>{footer}</p>
+                <Link href={`/register`}> <LogIn />Essayer</Link>
             </CardFooter>
         </Card>
-
-
-
 
     )
 

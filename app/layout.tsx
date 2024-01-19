@@ -17,15 +17,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" className='h-full'>
+    <html lang="fr" className='h-full' suppressHydrationWarning>
       <body className={clsx(inter.className, 'bg-background h-full')}>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           <Header />
-          <div className='flex flex-col'>
-            {children}
+          <main className='flex flex-col w-full h-full items-center'>
+            <div className='flex flex-col justify-center w-3/4'>
+              {children}
 
-          </div>
+            </div>
+          </main>
+
         </ThemeProvider>
+
       </body>
     </html>
   )
