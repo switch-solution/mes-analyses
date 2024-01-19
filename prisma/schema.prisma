@@ -62,6 +62,7 @@ model UserOtherData {
   id        String   @id @default(cuid())
   userId    String
   password  String
+  civility  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -94,6 +95,22 @@ model Client {
   createdBy       String
   UserClient      UserClient[]
   Invitation      Invitation[]
+  Contact         Contact[]
+  Software        Software[]
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+  civility  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cretaedBy String
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 model UserClient {
@@ -113,6 +130,7 @@ model Invitation {
   id        String   @id @default(cuid())
   email     String   @unique
   sendEmail Boolean
+  civility  String
   firstName String
   lastName  String
   createdAt DateTime @default(now())
@@ -120,4 +138,87 @@ model Invitation {
   createdBy String
   clientId  String
   client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Software {
+  id            String          @id @default(cuid())
+  provider      String
+  name          String          @unique
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  createdBy     String
+  clientId      String
+  client        Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Standard_Book Standard_Book[]
+}
+
+model Standard_Book {
+  id                      String                    @id @default(cuid())
+  name                    String
+  chapter                 String                    @unique
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  createdBy               String
+  softwareId              String
+  software                Software                  @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  Standard_Book_Composant Standard_Book_Composant[]
+}
+
+model Standard_Composant {
+  id                       String                     @id @default(cuid())
+  name                     String
+  type                     String
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+  createdBy                String
+  Standard_Book_Composant  Standard_Book_Composant[]
+  Standard_Composant_Input Standard_Composant_Input[]
+}
+
+model Standard_Composant_Input {
+  id                   String             @id @default(cuid())
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  createdBy            String
+  Standard_Composant   Standard_Composant @relation(fields: [standard_ComposantId], references: [id])
+  standard_ComposantId String
+  Standard_Input       Standard_Input     @relation(fields: [standard_InputId], references: [id])
+  standard_InputId     String
+}
+
+model Standard_Input {
+  id                       String                     @id @default(cuid())
+  name                     String
+  type                     String
+  label                    String
+  maxLength                Int?
+  minLength                Int?
+  minValue                 Int?
+  maxValue                 Int?
+  required                 Boolean
+  readonly                 Boolean
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+  createdBy                String
+  Standard_Select_Option   Standard_Select_Option[]
+  Standard_Composant_Input Standard_Composant_Input[]
+}
+
+model Standard_Select_Option {
+  id              String         @id @default(cuid())
+  value           String
+  label           String
+  standardInputId String
+  standardInput   Standard_Input @relation(fields: [standardInputId], references: [id], onDelete: Cascade)
+}
+
+model Standard_Book_Composant {
+  id                  String             @id @default(cuid())
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  createdBy           String
+  standardBookId      String
+  standardBook        Standard_Book      @relation(fields: [standardBookId], references: [id], onDelete: Cascade)
+  standardComposantId String
+  standardComposant   Standard_Composant @relation(fields: [standardComposantId], references: [id], onDelete: Cascade)
 }

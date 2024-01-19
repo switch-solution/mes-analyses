@@ -1,24 +1,15 @@
 "use server";
-import { z } from 'zod';
 import { getUserByEmail } from "@/src/query/user.query";
 import bcrypt from 'bcrypt'
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
-const RegisterSchema = z.object({
-    email: z.string().email(),
-    firstname: z.string(),
-    lastname: z.string(),
-    password: z.string(),
-    confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirm"], // path of error
-});
+import { RegisterSchema } from '@/src/helpers/definition';
 
 export const createUser = async (formdata: FormData) => {
 
-    const { firstname, lastname, email, password } = RegisterSchema.parse({
+    const { firstname, lastname, email, password, civility } = RegisterSchema.parse({
         firstname: formdata.get('firstname'),
+        civivity: formdata.get('civility'),
         lastname: formdata.get('lastname'),
         email: formdata.get('email'),
         password: formdata.get('password'),
@@ -36,7 +27,7 @@ export const createUser = async (formdata: FormData) => {
         data: {
             email: email, name: `${lastname} ${firstname}`,
             UserOtherData: {
-                create: { password: hashedPassword }
+                create: { password: hashedPassword, civility: civility }
             }
         }
     })

@@ -18,6 +18,9 @@ export const formSchema = z.object({
     email: z.string().email({
         message: "L'email doit être valide.",
     }),
+    civility: z.string().min(2, {
+        message: "La civilité doit contenir au moins 2 caractères.",
+    }),
     firstname: z.string().min(2, {
         message: "Le prénom doit contenir au moins 2 caractères.",
     }),
@@ -26,3 +29,17 @@ export const formSchema = z.object({
     })
 
 })
+
+export const RegisterSchema = z.object({
+    email: z.string().email(),
+    firstname: z.string(),
+    lastname: z.string(),
+    civility: z.string().min(2, {
+        message: "La civilité doit contenir au moins 2 caractères.",
+    }),
+    password: z.string(),
+    confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirm"], // path of error
+});
