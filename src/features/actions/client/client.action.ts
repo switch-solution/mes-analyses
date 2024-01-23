@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getAuthSession } from '@/lib/auth';
-import { clientFormSchema } from "@/src/helpers/definition";
+import { ClientFormSchema } from "@/src/helpers/definition";
 
 
 export const createClient = async (formdata: FormData) => {
@@ -16,7 +16,7 @@ export const createClient = async (formdata: FormData) => {
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
 
 
-    const { siret, ape, address1, address2, address3, address4, city, codeZip, country, socialReason } = clientFormSchema.parse({
+    const { siret, ape, address1, address2, address3, address4, city, codeZip, country, socialReason } = ClientFormSchema.parse({
         siret: formdata.get('siret'),
         ape: formdata.get('ape'),
         address1: formdata.get('address1'),
@@ -74,6 +74,7 @@ export const createClient = async (formdata: FormData) => {
                         isBlocked: false,
                         isBillable: true,
                         isAdministrator: true,
+                        isEditor: true,
 
                     }
 

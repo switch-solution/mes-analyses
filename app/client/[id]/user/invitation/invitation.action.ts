@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { formSchema } from "@/src/helpers/definition"
+import { InvitationSchema } from "@/src/helpers/definition"
 import { getAuthSession } from '@/lib/auth';
 import { userIsAdminClient } from "@/src/query/security.query";
 
@@ -15,7 +15,7 @@ export const createInvitation = async (formdata: FormData) => {
     const userId = session.user.id;
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
 
-    const { clientId, email, firstname, lastname } = formSchema.parse({
+    const { clientId, email, firstname, lastname, civility } = InvitationSchema.parse({
         clientId: formdata.get('clientId'),
         email: formdata.get('email'),
         firstname: formdata.get('firstname'),
@@ -40,14 +40,15 @@ export const createInvitation = async (formdata: FormData) => {
             data: {
                 clientId,
                 email,
+                civility,
                 sendEmail: false,
                 createdBy: userId,
                 firstName: firstname,
-                lastName: lastname
+                lastname: lastname
             }
         })
     }
-    revalidatePath(`/client/${clientId}/user/invitation`)
-    return redirect(`/client/${clientId}/user/`)
+    revalidatePath(`/client/${clientId}/user/`)
+    redirect(`/client/${clientId}/user/`)
 
 }

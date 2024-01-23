@@ -1,5 +1,5 @@
 import { z } from 'zod';
-export const clientFormSchema = z.object({
+export const ClientFormSchema = z.object({
     socialReason: z.string().max(50, { message: "La raison sociale doit contenir au moins 2 caractères." }),
     siret: z.string().length(14),
     ape: z.string().length(5),
@@ -13,33 +13,43 @@ export const clientFormSchema = z.object({
 
 })
 
-export const formSchema = z.object({
-    clientId: z.string().min(2),
-    email: z.string().email({
-        message: "L'email doit être valide.",
-    }),
-    civility: z.string().min(2, {
-        message: "La civilité doit contenir au moins 2 caractères.",
-    }),
-    firstname: z.string().min(2, {
-        message: "Le prénom doit contenir au moins 2 caractères.",
-    }),
-    lastname: z.string().min(2, {
-        message: "Le nom doit contenir au moins 2 caractères",
-    })
+export const BookFormSchema = z.object({
+    name: z.string().max(50, { message: "Le nom du livre doit contenir au moins 2 caractères." }),
+    status: z.enum(['actif', 'archivé']),
+    softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+})
 
+export const ChapterFormSchema = z.object({
+    bookId: z.string().min(1, { message: "Le livre est obligatoire." }),
+    level: z.string().min(1, { message: "Le niveau doit contenir au moins 2 caractères." }),
+    label: z.string().min(1, { message: "Le label doit contenir au moins 2 caractères." }),
 })
 
 export const RegisterSchema = z.object({
     email: z.string().email(),
-    firstname: z.string(),
-    lastname: z.string(),
-    civility: z.string().min(2, {
+    firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
+    civility: z.string().min(1, {
         message: "La civilité doit contenir au moins 2 caractères.",
     }),
-    password: z.string(),
-    confirmPassword: z.string()
+    password: z.string().min(8, { message: "Le mot de passe doit contenir au moins 8 caractères." }),
+    confirmPassword: z.string().min(8, { message: "Le mot de passe doit contenir au moins 8 caractères." })
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirm"], // path of error
 });
+
+export const SoftwaresSchema = z.object({
+    provider: z.string().min(2, { message: "Le nom du fournisseur doit contenir au moins 2 caractères." }),
+    name: z.string().min(2, { message: "Le nom du logiciel doit contenir au moins 2 caractères." }),
+    clientId: z.string().min(1, { message: "Le client id est obligatoire." })
+})
+
+export const InvitationSchema = z.object({
+    clientId: z.string().uuid(),
+    civility: z.string().min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
+    email: z.string().email(),
+    firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
+
+})

@@ -4,7 +4,7 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { createClient } from "./client.action";
+import { createClient } from "@/src/features/actions/client/client.action";
 import {
     Form,
     FormControl,
@@ -14,12 +14,12 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { clientFormSchema } from "@/src/helpers/definition";
+import { ClientFormSchema } from "@/src/helpers/definition";
 
 export default function CreateClient() {
 
-    const form = useForm<z.infer<typeof clientFormSchema>>({
-        resolver: zodResolver(clientFormSchema),
+    const form = useForm<z.infer<typeof ClientFormSchema>>({
+        resolver: zodResolver(ClientFormSchema),
         defaultValues: {
             socialReason: "",
             siret: "",
@@ -134,7 +134,7 @@ export default function CreateClient() {
                         name="address4"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Complément d'adresse</FormLabel>
+                                <FormLabel>Complément d&apos;adresse</FormLabel>
                                 <FormControl>
                                     <Input maxLength={50} placeholder="Rue de la victoire" {...field} />
                                 </FormControl>
@@ -187,9 +187,7 @@ export default function CreateClient() {
 
                     />
                     <Button type="submit">Envoyer</Button>
-
                 </form>
-
             </Form>
         </div>
 

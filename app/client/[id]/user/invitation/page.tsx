@@ -4,7 +4,7 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { formSchema } from "@/src/helpers/definition"
+import { InvitationSchema } from "@/src/helpers/definition"
 import { createInvitation } from "./invitation.action";
 import {
     Form,
@@ -18,9 +18,10 @@ import {
 import { Input } from "@/components/ui/input"
 
 export default function FormInvitation({ params }: { params: { id: string } }) {
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof InvitationSchema>>({
+        resolver: zodResolver(InvitationSchema),
         defaultValues: {
+            civility: "",
             clientId: params.id,
             email: "",
             firstname: "",
@@ -34,12 +35,29 @@ export default function FormInvitation({ params }: { params: { id: string } }) {
                 <form action={createInvitation} className="space-y-8">
                     <FormField
                         control={form.control}
+                        name="civility"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Client Id</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                    Votre nom
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
                         name="clientId"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Client Id</FormLabel>
                                 <FormControl>
-                                    <Input readOnly {...field} />
+                                    <Input type="hidden" readOnly {...field} required />
                                 </FormControl>
                                 <FormDescription>
                                     Votre nom

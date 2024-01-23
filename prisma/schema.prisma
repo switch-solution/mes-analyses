@@ -69,34 +69,35 @@ model UserOtherData {
 }
 
 model Client {
-  id              String       @id @default(cuid())
-  socialReason    String       @unique
-  dateStartTrial  DateTime
-  dateEndTrial    DateTime
-  siret           String       @unique
-  ape             String
-  address1        String
-  address2        String?
-  address3        String?
-  address4        String?
-  city            String
-  codeZip         String
-  country         String
-  billingAddress1 String
-  billingAddress2 String?
-  billingAddress3 String?
-  billingAddress4 String?
-  billingCity     String
-  billingCodeZip  String
-  billingCountry  String
-  isBlocked       Boolean
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  createdBy       String
-  UserClient      UserClient[]
-  Invitation      Invitation[]
-  Contact         Contact[]
-  Software        Software[]
+  id                 String               @id @default(cuid())
+  socialReason       String               @unique
+  dateStartTrial     DateTime
+  dateEndTrial       DateTime
+  siret              String               @unique
+  ape                String
+  address1           String
+  address2           String?
+  address3           String?
+  address4           String?
+  city               String
+  codeZip            String
+  country            String
+  billingAddress1    String
+  billingAddress2    String?
+  billingAddress3    String?
+  billingAddress4    String?
+  billingCity        String
+  billingCodeZip     String
+  billingCountry     String
+  isBlocked          Boolean
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  createdBy          String
+  UserClient         UserClient[]
+  Invitation         Invitation[]
+  Contact            Contact[]
+  Software           Software[]
+  Standard_Composant Standard_Composant[]
 }
 
 model Contact {
@@ -119,7 +120,8 @@ model UserClient {
   clientId        String
   isBlocked       Boolean
   isBillable      Boolean
-  isAdministrator Boolean
+  isAdministrator Boolean  @default(false)
+  isEditor        Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -132,7 +134,7 @@ model Invitation {
   sendEmail Boolean
   civility  String
   firstName String
-  lastName  String
+  lastname  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   createdBy String
@@ -153,15 +155,15 @@ model Software {
 }
 
 model Standard_Book {
-  id                      String                    @id @default(cuid())
-  name                    String
-  chapter                 String                    @unique
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
-  createdBy               String
-  softwareId              String
-  software                Software                  @relation(fields: [softwareId], references: [id], onDelete: Cascade)
-  Standard_Book_Composant Standard_Book_Composant[]
+  id         String    @id @default(cuid())
+  name       String
+  status     String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  String
+  softwareId String
+  software   Software  @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  Chapter    Chapter[]
 }
 
 model Standard_Composant {
@@ -171,54 +173,62 @@ model Standard_Composant {
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
   createdBy                String
-  Standard_Book_Composant  Standard_Book_Composant[]
+  clientId                 String
+  client                   Client                     @relation(fields: [clientId], references: [id], onDelete: Cascade)
   Standard_Composant_Input Standard_Composant_Input[]
+  ChapterStdComposant      ChapterStdComposant[]
 }
 
 model Standard_Composant_Input {
   id                   String             @id @default(cuid())
+  name                 String
+  type                 String
+  label                String
+  maxLength            Int?
+  minLength            Int?
+  minValue             Int?
+  maxValue             Int?
+  required             Boolean
+  readonly             Boolean
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   createdBy            String
   Standard_Composant   Standard_Composant @relation(fields: [standard_ComposantId], references: [id])
   standard_ComposantId String
-  Standard_Input       Standard_Input     @relation(fields: [standard_InputId], references: [id])
-  standard_InputId     String
+  Standard_Input       Standard_Input     @relation(fields: [standard_InputName], references: [name])
+  standard_InputName   String
 }
 
 model Standard_Input {
-  id                       String                     @id @default(cuid())
-  name                     String
+  name                     String                     @id
   type                     String
   label                    String
-  maxLength                Int?
-  minLength                Int?
-  minValue                 Int?
-  maxValue                 Int?
-  required                 Boolean
-  readonly                 Boolean
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
   createdBy                String
-  Standard_Select_Option   Standard_Select_Option[]
   Standard_Composant_Input Standard_Composant_Input[]
 }
 
-model Standard_Select_Option {
-  id              String         @id @default(cuid())
-  value           String
-  label           String
-  standardInputId String
-  standardInput   Standard_Input @relation(fields: [standardInputId], references: [id], onDelete: Cascade)
+model Chapter {
+  id                  String                @id @default(cuid())
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  createdBy           String
+  level               String
+  label               String
+  bookId              String
+  book                Standard_Book         @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  ChapterStdComposant ChapterStdComposant[]
 }
 
-model Standard_Book_Composant {
-  id                  String             @id @default(cuid())
+model ChapterStdComposant {
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   createdBy           String
-  standardBookId      String
-  standardBook        Standard_Book      @relation(fields: [standardBookId], references: [id], onDelete: Cascade)
+  chapterId           String
+  chapter             Chapter            @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   standardComposantId String
   standardComposant   Standard_Composant @relation(fields: [standardComposantId], references: [id], onDelete: Cascade)
+
+  @@id([chapterId, standardComposantId])
 }

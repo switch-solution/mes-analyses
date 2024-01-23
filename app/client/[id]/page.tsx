@@ -1,5 +1,5 @@
 import { getAuthSession } from "@/lib/auth"
-import { getCountUsersClient, getCountInvitation } from "@/src/query/client.query"
+import { getCountUsersClient, getCountInvitation, getCountSoftwareClient } from "@/src/query/client.query"
 import { redirect } from 'next/navigation';
 import { userIsAdminClient } from "@/src/query/security.query";
 import { Suspense } from 'react';
@@ -30,19 +30,34 @@ export default async function Client({ params }: { params: { id: string } }) {
 
     const countUser = await getCountUsersClient(params.id)
     const countInvitation = await getCountInvitation(params.id)
-
+    const countSoftware = await getCountSoftwareClient(params.id)
     return (<>
         <div className="py-2">
             <Suspense fallback={<Skeleton />}>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Nombre d'utilisateurs</CardTitle>
+                        <CardTitle>Nombre d&apos;utilisateurs</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="text-zinc-950 text-2xl text-center"> {countUser}</p>
                     </CardContent>
                     <CardFooter>
                         <Link href={`/client/${params.id}/user`}> <UserRound /> Voir la liste</Link>
+                    </CardFooter>
+                </Card>
+            </Suspense>
+        </div>
+        <div className="py-2">
+            <Suspense fallback={<Skeleton />}>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Nombre de logiciel</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-zinc-950 text-2xl text-center"> {countSoftware}</p>
+                    </CardContent>
+                    <CardFooter>
+                        <Link href={`/client/${params.id}/software`}> <UserRound /> Voir la liste</Link>
                     </CardFooter>
                 </Card>
             </Suspense>
@@ -85,7 +100,7 @@ export default async function Client({ params }: { params: { id: string } }) {
             <Suspense fallback={<Skeleton />}>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Nombre d'invitaton en cours</CardTitle>
+                        <CardTitle>Nombre d&apos;invitaton en cours</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="text-zinc-950 text-2xl text-center"> {countInvitation}</p>

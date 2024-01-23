@@ -16,7 +16,7 @@ export default function Error({
 
     return (
         <div>
-            <h2>La société n'existe pas</h2>
+            <h2>La société n&apos;existe pas</h2>
             <button
                 onClick={
                     // Attempt to recover by trying to re-render the segment
