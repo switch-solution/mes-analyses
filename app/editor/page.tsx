@@ -47,7 +47,7 @@ export default async function Editor() {
                         <p className="text-zinc-950 text-2xl text-center"> {countComponents}</p>
                     </CardContent>
                     <CardFooter>
-                        <Link href={`/editor/composant`}> <UserRound /> Voir la liste</Link>
+                        <Link href={`/editor/component`}> <UserRound /> Voir la liste</Link>
                     </CardFooter>
                 </Card>
             </Suspense>

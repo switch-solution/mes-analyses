@@ -19,6 +19,31 @@ export const BookFormSchema = z.object({
     softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
 })
 
+export const StandardComposantSchema = z.object({
+    title: z.string().min(2, { message: "Le titre doit contenir au moins 2 caractères." }).max(50, { message: "Le titre doit contenir au moins 2 caractères." }),
+    description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }).max(255, { message: "La description doit contenir au moins 2 caractères." }),
+    clientId: z.string().min(1, { message: "Le client est obligatoire." }),
+    softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+    status: z.enum(['actif', 'archivé']),
+
+})
+
+export const StandardComposantInputSchema = z.object({
+    type: z.enum(['text', 'number', 'date', 'textarea', 'select', 'radio', 'checkbox', 'file']),
+    label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }).max(50, { message: "Le label doit contenir au moins 2 caractères." }),
+    required: z.boolean().optional(),
+    readonly: z.boolean().optional(),
+    maxLength: z.coerce.number().int().positive().optional(),
+    minLength: z.coerce.number().int().positive().optional(),
+    standard_ComposantId: z.string().min(1, { message: "Le composant est obligatoire." }),
+
+    /**
+    minValue: z.coerce.number().int().positive().optional(),
+    maxValue: z.coerce.number().int().positive().optional(),
+
+*/
+})
+
 export const ChapterFormSchema = z.object({
     bookId: z.string().min(1, { message: "Le livre est obligatoire." }),
     level: z.string().min(1, { message: "Le niveau doit contenir au moins 2 caractères." }),

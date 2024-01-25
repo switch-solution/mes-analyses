@@ -1,15 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { getAuthSession } from "@/lib/auth";
-import { userIsAdminClient } from "@/src/query/security.query";
+import { userIsAdminClient, userIsValid } from "@/src/query/security.query";
 export const getSoftwareByClientId = async (clientId: string) => {
-
-    const session = await getAuthSession()
-
-    if (!session) throw new Error("Vous devez être connecté pour effectuer cette action.")
-
-    const userId = session.user.id;
-
-    if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+    const userId = await userIsValid()
+    if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
 
     const clientExist = await prisma.client.findUnique({ where: { id: clientId } })
 
@@ -27,14 +20,28 @@ export const getSoftwareByClientId = async (clientId: string) => {
 
 }
 
+export const getSoftwareByClient = async (clientId: { id: string, socialReason: string, siret: string }[]) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+        const softwares = await prisma.software.findMany({
+            where: {
+                clientId: {
+                    in: clientId.map((client) => client.id)
+                }
+            },
+        })
+        return softwares
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des logiciels.")
+    }
+}
+
 export const getSoftwareClient = async (softwareId: string) => {
     try {
-        const session = await getAuthSession()
-        if (!session) throw new Error("Vous devez être connecté pour effectuer cette action.")
-
-        const userId = session.user.id;
-        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
-
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
         const software = await prisma.software.findUnique({
             where: {
                 id: softwareId
@@ -49,11 +56,8 @@ export const getSoftwareClient = async (softwareId: string) => {
 }
 
 export const getSoftwareById = async (softwareId: string) => {
-    const session = await getAuthSession()
-    if (!session) throw new Error("Vous devez être connecté pour effectuer cette action.")
-
-    const userId = session.user.id;
-    if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+    const userId = await userIsValid()
+    if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
 
     const software = await prisma.software.findUnique({
         where: {

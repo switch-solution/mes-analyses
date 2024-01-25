@@ -1,6 +1,6 @@
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
+import { getUser } from "./user.query";
 /**
  * Test if the user is an admin at least once
  * @param userId 
@@ -102,4 +102,18 @@ export const userIsEditor = async () => {
         console.error(err)
         throw new Error("Une erreur est survenue lors des données de la table UserClient")
     }
+}
+/**
+ * Validate if the user is connected and return the userId
+ * @returns  userId
+ */
+export const userIsValid = async () => {
+    const session = await getAuthSession()
+    if (!session?.user.email) {
+        throw new Error("Vous n'êtes pas connecté")
+    }
+    const user = await getUser()
+    if (!user) throw new Error("Errreur lors de la récupération de l'utilisateur")
+    return user.id
+
 }

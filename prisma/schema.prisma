@@ -143,15 +143,16 @@ model Invitation {
 }
 
 model Software {
-  id            String          @id @default(cuid())
-  provider      String
-  name          String          @unique
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  createdBy     String
-  clientId      String
-  client        Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  Standard_Book Standard_Book[]
+  id                 String               @id @default(cuid())
+  provider           String
+  name               String               @unique
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  createdBy          String
+  clientId           String
+  client             Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Standard_Book      Standard_Book[]
+  Standard_Composant Standard_Composant[]
 }
 
 model Standard_Book {
@@ -168,12 +169,15 @@ model Standard_Book {
 
 model Standard_Composant {
   id                       String                     @id @default(cuid())
-  name                     String
-  type                     String
+  title                    String
+  description              String
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
   createdBy                String
   clientId                 String
+  status                   String
+  softwareId               String
+  software                 Software                   @relation(fields: [softwareId], references: [id], onDelete: Cascade)
   client                   Client                     @relation(fields: [clientId], references: [id], onDelete: Cascade)
   Standard_Composant_Input Standard_Composant_Input[]
   ChapterStdComposant      ChapterStdComposant[]
@@ -181,7 +185,6 @@ model Standard_Composant {
 
 model Standard_Composant_Input {
   id                   String             @id @default(cuid())
-  name                 String
   type                 String
   label                String
   maxLength            Int?
@@ -195,18 +198,15 @@ model Standard_Composant_Input {
   createdBy            String
   Standard_Composant   Standard_Composant @relation(fields: [standard_ComposantId], references: [id])
   standard_ComposantId String
-  Standard_Input       Standard_Input     @relation(fields: [standard_InputName], references: [name])
-  standard_InputName   String
 }
 
 model Standard_Input {
-  name                     String                     @id
-  type                     String
-  label                    String
-  createdAt                DateTime                   @default(now())
-  updatedAt                DateTime                   @updatedAt
-  createdBy                String
-  Standard_Composant_Input Standard_Composant_Input[]
+  name      String   @id
+  type      String
+  label     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
 }
 
 model Chapter {

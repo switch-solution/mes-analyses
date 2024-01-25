@@ -1,14 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { getAuthSession } from "@/lib/auth";
-import { userIsEditorClient } from "./security.query";
+import { userIsEditorClient, userIsValid } from "./security.query";
 
 export const countChapter = async (bookId: string) => {
     try {
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const userId = session?.user?.id
+        const userId = await userIsValid()
         if (!userId) {
             throw new Error("L'utilisateur n'est pas connecté.")
         }
@@ -35,11 +30,7 @@ export const countChapter = async (bookId: string) => {
 
 export const getBookClient = async (bookId: string) => {
     try {
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const userId = session?.user?.id
+        const userId = await userIsValid()
         if (!userId) {
             throw new Error("L'utilisateur n'est pas connecté.")
         }
@@ -67,11 +58,7 @@ export const getBookClient = async (bookId: string) => {
 
 export const getChapterBook = async (bookId: string) => {
     try {
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const userId = session?.user?.id
+        const userId = await userIsValid()
         if (!userId) {
             throw new Error("L'utilisateur n'est pas connecté.")
         }
@@ -96,8 +83,10 @@ export const getChapterBook = async (bookId: string) => {
 
 export const getBookExist = async (bookId: string) => {
     try {
-        const session = await getAuthSession()
-        if (!session) { throw new Error("L'utilisateur n'est pas connecté.") }
+        const userId = await userIsValid()
+        if (!userId) {
+            throw new Error("L'utilisateur n'est pas connecté.")
+        }
         const book = await prisma.standard_Book.count({ where: { id: bookId } })
         return book
     } catch (err) {

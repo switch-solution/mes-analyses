@@ -45,7 +45,7 @@ export const createClient = async (formdata: FormData) => {
 
 
     try {
-        const data = await prisma.client.create({
+        await prisma.client.create({
             data: {
                 socialReason: socialReason,
                 siret: siret,
@@ -82,13 +82,13 @@ export const createClient = async (formdata: FormData) => {
 
             }
         })
-        revalidatePath('/client/');
-        redirect(`/client/${data.id}`);
+
     } catch (e) {
         console.error(e)
         throw new Error("Une erreur est survenue lors de la création du client.")
     }
 
-
+    revalidatePath('/client/');
+    redirect(`/client/`);
 
 }

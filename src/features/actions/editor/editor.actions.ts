@@ -2,15 +2,12 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { getAuthSession } from '@/lib/auth';
 import { ChapterFormSchema } from "@/src/helpers/definition";
-import { userIsEditorClient } from "@/src/query/security.query";
+import { userIsEditorClient, userIsValid } from "@/src/query/security.query";
 import { getBookClient, getBookExist } from "@/src/query/book.query";
 export const createChapter = async (formdata: FormData) => {
-    const session = await getAuthSession();
-    if (!session) throw new Error("Vous devez être connecté pour effectuer cette action.");
 
-    const userId = session.user.id;
+    const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
 
     const { level, label, bookId } = ChapterFormSchema.parse({

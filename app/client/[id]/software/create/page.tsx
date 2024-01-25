@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SoftwaresSchema } from '@/src/helpers/definition'
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { createSoftware } from '../../../../../src/features/actions/software/software.actions'
+import { createSoftware } from '@/src/features/actions/software/software.actions'
 import {
     Form,
     FormControl,
