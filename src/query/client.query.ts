@@ -3,8 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { userIsValid } from "./security.query";
 export const getCountUsersClient = async (clientId: string) => {
     try {
-        const user = await userIsValid()
-        const userId = user.id
+        const userId = await userIsValid()
         if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
         const idClient = await prisma.client.findUnique({
             where: {
@@ -31,8 +30,7 @@ export const getCountUsersClient = async (clientId: string) => {
 export const getCountSoftwareClient = async (clientId: string) => {
 
     try {
-        const user = await userIsValid()
-        const userId = user.id
+        const userId = await userIsValid()
         if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
         if (!clientId) {
             throw new Error("Le client id est obligatoire.")
@@ -62,8 +60,7 @@ export const getCountSoftwareClient = async (clientId: string) => {
 
 export const getCountInvitation = async (clientId: string) => {
     try {
-        const user = await userIsValid()
-        const userId = user.id
+        const userId = await userIsValid()
         if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
         if (!clientId) {
             throw new Error("Le client id est obligatoire.")
@@ -94,8 +91,7 @@ export const getCountInvitation = async (clientId: string) => {
 
 export const getUsersClientList = async (clientId: string) => {
     try {
-        const user = await userIsValid()
-        const userId = user.id
+        const userId = await userIsValid()
         if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
         if (!clientId) {
             throw new Error("Le client id est obligatoire.")

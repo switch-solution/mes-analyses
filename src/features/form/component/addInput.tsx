@@ -1,26 +1,19 @@
 "use client";
 import React from "react";
 import { Input } from "@/components/ui/input";
+import DisplayInput from "../../formBuilder/DisplayInput";
 import {
     Calculator,
-    Sigma,
     AlignJustify,
     Settings,
     CalendarDays,
     Text,
-    FormInput
+    FormInput,
+    FileImage,
+    Rows4
 } from "lucide-react"
 import CreateInput from "@/src/features/form/component/createInput"
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+
 import {
     Command,
     CommandEmpty,
@@ -31,8 +24,6 @@ import {
     CommandSeparator,
     CommandShortcut,
 } from "@/components/ui/command"
-import { Badge } from "@/components/ui/badge"
-
 export type Component = {
     id: string,
     title: string,
@@ -42,30 +33,46 @@ export type Component = {
     createdBy: string,
     status: string,
     softwareId: string,
-    Standard_Composant_Input: {
-        id: string,
-        type: string,
-        label: string,
-        maxLength?: number,
-        minLength?: number,
-        required: boolean,
-        readonly: boolean,
-        createdAt: Date,
-        updatedAt: Date,
-    }[]
+    Standard_Composant_Input: Standard_Composant_Input[]
 }
 
-export default function AddInputToComponent({ component }: { component: Component }) {
+export type Standard_Composant_Input = {
+    id: string,
+    type: string,
+    label: string,
+    maxLength?: number,
+    minLength?: number,
+    required: boolean,
+    readonly: boolean,
+    createdAt: Date,
+    updatedAt: Date,
+    order: number,
+}
+
+type StandardInput = {
+    name: string,
+    type: string,
+    label: string,
+    createdAt: Date,
+    updatedAt: Date,
+    createdBy: string,
+}
+
+export default function AddInputToComponent({ component, stdInput, nextOrder }: { component: Component, stdInput: StandardInput[], nextOrder: number }) {
     const [commandIsVisible, setCommandIsVisible] = React.useState(false)
     const [formIsActive, setFormIsActive] = React.useState(false)
+    const [typeInput, setTypeInput] = React.useState<'text' | 'number' | 'date' | 'file'>('text')
     const handleKeyDown = (event: React.KeyboardEvent<HTMLParagraphElement>) => {
         if (event.key === '/') {
             setCommandIsVisible(() => true)
         }
     }
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        console.log(event.target)
+    const handleClick = () => {
         setCommandIsVisible(() => false)
+    }
+    const handleClickCommand = (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+        setFormIsActive(true)
+        setTypeInput(event.currentTarget.getAttribute('datatype') ? event.currentTarget.getAttribute('datatype') : 'text')
     }
     return (
         <>
@@ -74,33 +81,11 @@ export default function AddInputToComponent({ component }: { component: Componen
                 <h2>{component.description}</h2>
             </div>
 
-            <div>
-                <Table>
-                    <TableCaption>Liste des champs</TableCaption>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[100px]">Type</TableHead>
-                            <TableHead>Label</TableHead>
-                            <TableHead>Requis</TableHead>
-                            <TableHead>Lecture seul</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {component.Standard_Composant_Input.map((input) => (
+            <div className="py-2">
+                {component.Standard_Composant_Input.map((input) => (
+                    <DisplayInput key={input.id} input={input} orderMax={nextOrder - 1} />
 
-
-                            <TableRow key={input.id}>
-                                <TableCell className="font-medium">{input.type}</TableCell>
-                                <TableCell>{input.label}</TableCell>
-                                <TableCell>{input.required ? <Badge variant="default">Oui</Badge> : <Badge variant="secondary">Non</Badge>}</TableCell>
-                                <TableCell>{input.readonly ? <Badge variant="default">Oui</Badge> : <Badge variant="secondary">Non</Badge>}</TableCell>
-                            </TableRow>
-                        ))}
-
-
-                    </TableBody>
-
-                </Table>
+                ))}
 
             </div>
 
@@ -112,28 +97,19 @@ export default function AddInputToComponent({ component }: { component: Componen
                                 <CommandInput placeholder="Ajouter un bloc formulaire" />
                                 <CommandList>
                                     <CommandEmpty>Pas de résultat.</CommandEmpty>
-                                    <CommandGroup heading="Champ texte et nombre">
-                                        <CommandItem>
-                                            <Text className="mr-2 h-4 w-4" />
-                                            <span onClick={() => setFormIsActive(true)}>Champ texte</span>
-                                        </CommandItem>
-                                        <CommandItem>
-                                            <Sigma className="mr-2 h-4 w-4" />
-                                            <span>Champ numérique</span>
-                                        </CommandItem>
-                                        <CommandItem>
-                                            <CalendarDays className="mr-2 h-4 w-4" />
-                                            <span>Champ date</span>
-                                        </CommandItem>
-                                        <CommandItem>
-                                            <Calculator className="mr-2 h-4 w-4" />
-                                            <span>Champ range</span>
-                                        </CommandItem>
-                                        <CommandItem>
-                                            <FormInput className="mr-2 h-4 w-4" />
-                                            <span>Fichier</span>
-                                            <CommandShortcut>⌘P</CommandShortcut>
-                                        </CommandItem>
+                                    <CommandGroup heading="Nature du champ">
+                                        {stdInput.map((input) => (
+                                            <CommandItem key={input.type}>
+                                                {input.type === 'text' ? <Text /> :
+                                                    input.type === "number" ? <Calculator /> :
+                                                        input.type === "date" ? <CalendarDays /> :
+                                                            input.type === "textarea" ? <FormInput /> :
+                                                                input.type === "Image" ? <FileImage /> :
+                                                                    input.type === "select" ? <Rows4 /> : null
+                                                }
+                                                <span onClick={handleClickCommand} datatype={input.type} >{input.label}</span>
+                                            </CommandItem>
+                                        ))}
                                     </CommandGroup>
                                     <CommandSeparator />
                                     <CommandGroup heading="Zone spécial">
@@ -152,7 +128,7 @@ export default function AddInputToComponent({ component }: { component: Componen
                             </Command>
                         </div>
 
-                    ) : formIsActive ? <CreateInput type="text" composantId={component.id} setFormIsActive={setFormIsActive} /> : <Input placeholder="Utiliser la touche / pour ajouter un bloc" type="text" onKeyDown={handleKeyDown} />
+                    ) : formIsActive ? <CreateInput type={typeInput} composantId={component.id} setFormIsActive={setFormIsActive} order={nextOrder} /> : <Input placeholder="Utiliser la touche / pour ajouter un bloc" type="text" onKeyDown={handleKeyDown} />
 
                 }
             </div>

@@ -26,7 +26,7 @@ async function main() {
     try {
         await prisma.standard_Input.upsert({
             where: {
-                name: "Input_text"
+                type: "text",
             },
             update: {},
             create: {
@@ -41,12 +41,12 @@ async function main() {
         console.log("Input_text created")
         await prisma.standard_Input.upsert({
             where: {
-                name: "Input_number"
+                type: "number",
             },
             update: {},
             create: {
                 name: "Input_number",
-                type: "text",
+                type: "number",
                 label: "Champ numérique",
                 createdBy: "admin"
             }
@@ -56,7 +56,22 @@ async function main() {
         console.log("Input_number created")
         await prisma.standard_Input.upsert({
             where: {
-                name: "Select"
+                type: "date",
+            },
+            update: {},
+            create: {
+                name: "Input_date",
+                type: "date",
+                label: "Champ numérique",
+                createdBy: "admin"
+            }
+
+
+        })
+        console.log("Input_date created")
+        await prisma.standard_Input.upsert({
+            where: {
+                type: "select",
             },
             update: {},
             create: {
@@ -71,7 +86,7 @@ async function main() {
         console.log("Select created")
         await prisma.standard_Input.upsert({
             where: {
-                name: "Checkbox"
+                type: "checkbox",
             },
             update: {},
             create: {
@@ -86,12 +101,12 @@ async function main() {
         console.log("Checbox created")
         await prisma.standard_Input.upsert({
             where: {
-                name: "Switch"
+                type: "switch",
             },
             update: {},
             create: {
                 name: "Switch",
-                type: "checkbox",
+                type: "switch",
                 label: "Bouton switch",
                 createdBy: "admin"
             }
@@ -101,7 +116,7 @@ async function main() {
         console.log("Switch created")
         await prisma.standard_Input.upsert({
             where: {
-                name: "Textarea"
+                type: "React_Quill",
             },
             update: {},
             create: {
@@ -116,7 +131,7 @@ async function main() {
         console.log("Textarea created")
         await prisma.standard_Input.upsert({
             where: {
-                name: "Image"
+                type: "Image",
             },
             update: {},
             create: {
@@ -126,7 +141,20 @@ async function main() {
                 createdBy: "admin"
             }
         })
-        console.log("Textarea created")
+        console.log("Image created")
+        await prisma.standard_Input.upsert({
+            where: {
+                type: "dsnSiren",
+            },
+            update: {},
+            create: {
+                name: "Siren DSN",
+                type: "dsnSiren",
+                label: "Siren DSN",
+                createdBy: "admin"
+            }
+        })
+        console.log("Siren dsn")
     } catch (err) {
         console.error(err)
     }

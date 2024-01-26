@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
 
-export default function CreateInput({ type, composantId, setFormIsActive }: {
-    type: 'text' | 'number', composantId: string, setFormIsActive: (name: boolean) => void;
+export default function CreateInput({ type, composantId, setFormIsActive, order }: {
+    type: 'text' | 'number' | 'date' | 'file' | 'switch', composantId: string, setFormIsActive: (name: boolean) => void, order: number
 }) {
     const form = useForm<z.infer<typeof StandardComposantInputSchema>>({
         resolver: zodResolver(StandardComposantInputSchema),
@@ -29,8 +29,8 @@ export default function CreateInput({ type, composantId, setFormIsActive }: {
             label: "",
             required: false,
             readonly: false,
-            minLength: type === 'text' ? 0 : undefined,
-            maxLength: type === 'text' ? 0 : undefined,
+            placejolder: "",
+            order: order,
             standard_ComposantId: composantId
 
         }
@@ -56,8 +56,9 @@ export default function CreateInput({ type, composantId, setFormIsActive }: {
                         name="type"
                         render={({ field }) => (
                             <FormItem>
+                                <FormLabel>Type de champ</FormLabel>
                                 <FormControl>
-                                    <Input type='hidden' {...field} readOnly required />
+                                    <Input type='text' {...field} readOnly required disabled />
                                 </FormControl>
                             </FormItem>
 
@@ -87,6 +88,34 @@ export default function CreateInput({ type, composantId, setFormIsActive }: {
                                 <FormDescription>
                                     Indiquer un nom clair et précis pour le champ
                                 </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="placeholder"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Placeholder</FormLabel>
+                                <FormControl>
+                                    <Input type="text" placeholder="" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                    Indiquer un exemple de valeur pour le champ
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="order"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <Input type="hidden" placeholder="" {...field} required />
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -145,7 +174,7 @@ export default function CreateInput({ type, composantId, setFormIsActive }: {
                                         <FormItem>
                                             <FormLabel>Nombre minimum de caractère</FormLabel>
                                             <FormControl>
-                                                <Input type="number" {...field} required />
+                                                <Input type="number" min={1} {...field} />
                                             </FormControl>
                                             <FormDescription>
                                                 Indiquer un nom clair et précis pour le champ
@@ -161,7 +190,7 @@ export default function CreateInput({ type, composantId, setFormIsActive }: {
                                         <FormItem>
                                             <FormLabel>Nombre maxiumum de caractère</FormLabel>
                                             <FormControl>
-                                                <Input type="number" {...field} required />
+                                                <Input type="number" min={1} {...field} />
                                             </FormControl>
                                             <FormDescription>
                                                 Indiquer un nom clair et précis pour le champ
@@ -175,10 +204,15 @@ export default function CreateInput({ type, composantId, setFormIsActive }: {
                         ) : undefined
 
                     }
-                    <Button type="submit">Sauvegarder</Button>
+                    <div className='flex w-full justify-between'>
+                        <Button type="submit">Sauvegarder</Button>
+                        <Button onClick={() => setFormIsActive(false)} variant="destructive" type="button">Annuler</Button>
+                    </div>
+
 
                 </form>
             </Form>
+
         </div>
     )
 }

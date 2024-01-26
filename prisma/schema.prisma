@@ -191,6 +191,8 @@ model Standard_Composant_Input {
   minLength            Int?
   minValue             Int?
   maxValue             Int?
+  placeholder          String?
+  order                Int
   required             Boolean
   readonly             Boolean
   createdAt            DateTime           @default(now())
@@ -201,8 +203,8 @@ model Standard_Composant_Input {
 }
 
 model Standard_Input {
-  name      String   @id
-  type      String
+  name      String
+  type      String   @id
   label     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -35,6 +35,8 @@ export const StandardComposantInputSchema = z.object({
     readonly: z.boolean().optional(),
     maxLength: z.coerce.number().int().positive().optional(),
     minLength: z.coerce.number().int().positive().optional(),
+    placeholder: z.string().optional(),
+    order: z.coerce.number().int().positive(),
     standard_ComposantId: z.string().min(1, { message: "Le composant est obligatoire." }),
 
     /**
