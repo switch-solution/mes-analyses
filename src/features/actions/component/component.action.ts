@@ -28,7 +28,7 @@ export const createStandardInput = async (values: z.infer<typeof StandardComposa
                 minValue: minValue,
                 order: order,
                 placeholder: placeholder,
-                textArea: textArea,
+                textArea: textArea ? textArea : '',
                 standard_ComposantId: standard_ComposantId,
                 createdBy: userId
             }
@@ -107,7 +107,7 @@ export const createComponent = async (values: z.infer<typeof StandardComposantSc
 
     const userClientsList = await getMyClient()
     if (!userClientsList) throw new Error("L'utilisateur n'a pas de client.")
-    const { title, clientId, description, status, softwareId } = StandardComposantSchema.parse(values)
+    const { title, clientId, description, status, softwareId, type } = StandardComposantSchema.parse(values)
 
     if (!userClientsList.find(client => client.id === clientId)) {
         throw new Error("Le client n'existe pas.")
@@ -121,7 +121,8 @@ export const createComponent = async (values: z.infer<typeof StandardComposantSc
                 clientId: clientId,
                 createdBy: userId,
                 status: status,
-                softwareId: softwareId
+                softwareId: softwareId,
+                type: type
 
             }
         })

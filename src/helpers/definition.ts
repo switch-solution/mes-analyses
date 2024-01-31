@@ -26,7 +26,7 @@ export const StandardComposantSchema = z.object({
     clientId: z.string().min(1, { message: "Le client est obligatoire." }),
     softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
     status: z.enum(['actif', 'archivé']),
-
+    type: z.enum(['form', 'textarea', 'image']),
 })
 
 export const StandardComposantInputSchema = z.object({
