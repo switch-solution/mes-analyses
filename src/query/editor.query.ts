@@ -1,16 +1,13 @@
 import { getAuthSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { userIsEditor, userIsEditorClient } from "@/src/query/security.query";
+import { userIsEditor, userIsValid } from "@/src/query/security.query";
 import { getMyClient } from "./user.query";
 
 export const getMyEditableSoftware = async () => {
     try {
 
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const userId = session?.user?.id
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
         if (!userId) {
             throw new Error("L'utilisateur n'est pas connecté.")
         }
@@ -61,11 +58,8 @@ export const getMyEditableSoftware = async () => {
 
 export const getMyBookEditable = async () => {
     try {
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const userId = session?.user?.id
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
         if (!userId) {
             throw new Error("L'utilisateur n'est pas connecté.")
         }
@@ -86,8 +80,10 @@ export const getMyBookEditable = async () => {
             },
             include: {
                 Standard_Book: true,
-
             },
+            orderBy: {
+                id: 'asc'
+            }
         })
 
         return bookEditableForUser
@@ -100,14 +96,9 @@ export const getMyBookEditable = async () => {
 export const countMyBookEditable = async () => {
 
     try {
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const userId = session?.user?.id
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+
         const userClient = await getMyClient()
         if (!userClient) {
             throw new Error("L'utilisateur n'est associé à aucun client.")
@@ -144,14 +135,8 @@ export const countMyBookEditable = async () => {
 
 export const getStandardInput = async () => {
     try {
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const userId = session?.user?.id
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
         const userClient = await getMyClient()
         if (!userClient) {
             throw new Error("L'utilisateur n'est associé à aucun client.")

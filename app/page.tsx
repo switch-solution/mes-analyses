@@ -13,8 +13,6 @@ type CardProps = {
   title: string
   description: string
   content: string
-  footer: string | React.JSX.Element
-
 }
 
 import { LogIn } from "lucide-react";
@@ -28,7 +26,7 @@ export default async function Home() {
   return (
     <main className="flex h-full w-full flex-col items-center justify-start p-12">
       <div className="flex flex-col">
-        <h1 className="text-3xl font-bold text-center p-6">La meilleur façon de gérer l'anlyse de votre SIRH</h1>
+        <h1 className="text-3xl font-bold text-center p-6">La meilleur façon de gérer l&apos;anlyse de votre SIRH</h1>
         <h2 className="text-left">Rédiger des cahiers des charges dans le cadre des changements de logiciel</h2>
       </div>
       <div className="flex justify-between flex-col md:flex-row p-12">
@@ -41,7 +39,7 @@ export default async function Home() {
             <p>3 projets gratuit</p>
           </CardContent>
           <CardFooter>
-            <Link href={`/register`}> <LogIn />Essayer</Link>
+            <Link href={`/auth/register`}> <LogIn />Essayer</Link>
           </CardFooter>
         </Card>
         <Card>
@@ -53,7 +51,7 @@ export default async function Home() {
             <p>Tout illimité</p>
           </CardContent>
           <CardFooter>
-            <Link href={`/register`}> <LogIn />Essayer</Link>
+            <Link href={`/auth/register`}> <LogIn />Essayer</Link>
           </CardFooter>
         </Card>
       </div>

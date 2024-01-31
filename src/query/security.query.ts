@@ -1,6 +1,7 @@
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
+import { getUser } from "./user.query";
+import { getProjectById } from "./project.query";
 /**
  * Test if the user is an admin at least once
  * @param userId 
@@ -10,19 +11,10 @@ import { prisma } from "@/lib/prisma";
 export const userIsAdminClient = async (userId: string, clientId: string) => {
 
     try {
-        if (!userId || !clientId) {
-            throw new Error("Le client id et l'utilisateur id sont obligatoires.")
-        }
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const idClient = await prisma.client.findUnique({
-            where: {
-                id: clientId
-            }
-        })
-        if (!idClient) {
+        const userId = await userIsValid()
+        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+        const userIsAuthorize = await userIsAuthorizeForClient(clientId)
+        if (!userIsAuthorize) {
             throw new Error("Le client n'existe pas.")
         }
         const isAdmin = await prisma.userClient.findFirst({
@@ -52,14 +44,8 @@ export const userIsAdminClient = async (userId: string, clientId: string) => {
 
 export const userIsEditorClient = async (userId: string, clientId: string) => {
     try {
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-
-        if (!userId) {
-            throw new Error("Le client id et l'utilisateur id sont obligatoires.")
-        }
+        const userId = await userIsValid()
+        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
 
         const isEditor = await prisma.userClient.count({
             where: {
@@ -84,11 +70,8 @@ export const userIsEditorClient = async (userId: string, clientId: string) => {
 
 export const userIsEditor = async () => {
     try {
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const userId = session.user.id
+        const userId = await userIsValid()
+        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
         const isEditor = await prisma.userClient.count({
             where: {
                 userId: userId,
@@ -102,4 +85,136 @@ export const userIsEditor = async () => {
         console.error(err)
         throw new Error("Une erreur est survenue lors des données de la table UserClient")
     }
+}
+
+export const userIsClientEditor = async (clientId: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+        const isEditor = await prisma.userClient.count({
+            where: {
+                userId: userId,
+                isEditor: true,
+                isBillable: true,
+                isBlocked: false,
+                clientId: clientId
+            }
+        })
+        return isEditor
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la vérification des droits.")
+    }
+}
+/**
+ * Validate if the user is connected and return the userId
+ * @returns  userId
+ */
+export const userIsValid = async () => {
+    const session = await getAuthSession()
+    if (!session?.user.email) {
+        throw new Error("Vous n'êtes pas connecté")
+    }
+    const user = await getUser()
+    if (!user) throw new Error("Errreur lors de la récupération de l'utilisateur")
+    return user.id
+
+}
+
+export const userIsAuthorizeForClient = async (clientId: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+        const userClientsList = await prisma.userClient.findFirstOrThrow({
+            where: {
+                userId: userId,
+                isBillable: true,
+                isBlocked: false,
+                clientId: clientId
+            }
+        })
+        if (!userClientsList) throw new Error("L'utilisateur n'a pas de client.")
+
+        return userClientsList
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la vérification des droits.")
+    }
+}
+
+export const userIsAuthorizeForProject = async (projectId: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+        const userIsAuthorizeInProject = await prisma.userProject.findFirstOrThrow({
+            where: {
+                userId: userId,
+                projectId: projectId
+            }
+        })
+
+        if (!userIsAuthorizeInProject) throw new Error("L'utilisateur n'est pas autorisé pour ce projet")
+
+        return userIsAuthorizeInProject
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la vérification des droits.")
+    }
+}
+
+export const userIsAuthorizeToTheProject = async (projectId: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+        const userIsAuthorizeToPoject = await prisma.userProject.findFirstOrThrow({
+            where: {
+                userId: userId,
+                projectId: projectId
+            }
+
+        })
+        if (!userIsAuthorizeToPoject) throw new Error("L'utilisateur n'est pas autorisé pour ce client")
+
+        return userIsAuthorizeToPoject
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la vérification des droits.")
+
+    }
+
+}
+
+export const userIsAuthorizeToAddBookInProject = async (projectId: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+        const projectExist = await getProjectById(projectId)
+        if (!projectExist) throw new Error("Le projet n'existe pas")
+        const userExistInProject = await userIsAuthorizeForProject(projectId)
+        if (!userExistInProject) throw new Error("L'utilisateur n'est pas autorisé pour ce projet")
+        const userIsAuthorizeInClient = await userIsAuthorizeForClient(projectExist.clientId)
+        if (!userIsAuthorizeInClient) throw new Error("L'utilisateur n'est pas autorisé pour ce client")
+
+        const userIsEditorInProject = await prisma.userProject.findFirstOrThrow({
+            where: {
+                userId: userId,
+                projectId: projectId,
+                isEditor: true
+
+            }
+        })
+
+        if (!userIsEditorInProject) throw new Error("L'utilisateur n'est pas éditeur dans ce projet")
+
+        return true
+
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la vérification des droits.")
+    }
+
 }
