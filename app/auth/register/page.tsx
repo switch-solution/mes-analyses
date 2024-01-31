@@ -30,7 +30,8 @@ export default function RegisterForm() {
             firstname: "",
             lastname: "",
             password: "",
-            confirmPassword: ""
+            confirmPassword: "",
+
         },
     })
     const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {

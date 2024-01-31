@@ -14,7 +14,7 @@ export const createStandardInput = async (values: z.infer<typeof StandardComposa
     const userClientsList = await getMyClient()
     if (!userClientsList) throw new Error("L'utilisateur n'a pas de client.")
 
-    const { type, label, required, readonly, maxLength, minLength, standard_ComposantId, placeholder, order } = StandardComposantInputSchema.parse(values)
+    const { type, label, required, readonly, maxLength, minLength, standard_ComposantId, placeholder, order, minValue, maxValue, textArea } = StandardComposantInputSchema.parse(values)
     try {
         await prisma.standard_Composant_Input.create({
             data: {
@@ -24,8 +24,11 @@ export const createStandardInput = async (values: z.infer<typeof StandardComposa
                 readonly: readonly ? readonly : false,
                 maxLength: maxLength,
                 minLength: minLength,
+                maxValue: maxValue,
+                minValue: minValue,
                 order: order,
                 placeholder: placeholder,
+                textArea: textArea,
                 standard_ComposantId: standard_ComposantId,
                 createdBy: userId
             }

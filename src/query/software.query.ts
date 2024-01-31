@@ -67,7 +67,6 @@ export const getSoftwareById = async (softwareId: string) => {
 
     if (!software) throw new Error("Le logiciel n'existe pas.")
 
-
     const clientExist = await prisma.client.findUnique({ where: { id: software.clientId } })
 
     if (!clientExist) throw new Error("Le client n'existe pas.")

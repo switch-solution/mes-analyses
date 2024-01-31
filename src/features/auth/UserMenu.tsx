@@ -13,6 +13,8 @@ import {
     User,
     UserPlus,
     Users,
+    Menu,
+    FolderKanban
 } from "lucide-react"
 import { LogoutButton } from "./LogoutButton";
 
@@ -40,10 +42,10 @@ export const UserMenu = async () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline">Menu</Button>
+                <Button variant="outline"><Menu /></Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
-                <DropdownMenuLabel>Mes options</DropdownMenuLabel>
+                <DropdownMenuLabel>Mon menu</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuItem>
@@ -53,6 +55,10 @@ export const UserMenu = async () => {
                     <DropdownMenuItem>
                         <User className="mr-2 h-4 w-4" />
                         <span><Link href={`/profile`}>Profil</Link></span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                        <FolderKanban className="mr-2 h-4 w-4" />
+                        <span><Link href={`/project`}>Projet</Link></span>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { Loader } from "@/components/ui/loader";
-import type { variantType } from "@/src/helpers/variantType";
+import type { variantType } from "@/src/helpers/type";
 
 export const LoginButton = ({ label, variantChoice = 'default' }: { label: string, variantChoice?: variantType }) => {
     const [isPending, startTransition] = useTransition()

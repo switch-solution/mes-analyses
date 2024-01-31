@@ -20,7 +20,7 @@ export const createUser = async (data: z.infer<typeof RegisterSchema>) => {
         data: {
             email: email, name: `${lastname} ${firstname}`,
             UserOtherData: {
-                create: { password: hashedPassword, civility: civility }
+                create: { password: hashedPassword, civility: civility, isBlocked: false }
             }
         }
     })

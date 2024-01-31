@@ -1,1 +1,0 @@
-export type variantType = '"link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined'

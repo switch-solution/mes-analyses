@@ -32,10 +32,10 @@ export default function CreateFormComponent({ clientId, softwares }: {
         resolver: zodResolver(StandardComposantSchema),
         defaultValues: {
             title: "",
-            clientId: clientId.length === 1 ? clientId.at(0)?.id : "",
+            clientId: clientId?.at(0)?.id,
             description: "",
             status: "actif",
-            softwareId: ""
+            softwareId: softwares?.at(0)?.id,
         },
     })
     const onSubmit = async (values: z.infer<typeof StandardComposantSchema>) => {

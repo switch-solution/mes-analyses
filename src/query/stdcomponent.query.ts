@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+
 import { userIsAuthorizeForClient, userIsEditor, userIsClientEditor, userIsValid } from "./security.query";
 import { getMyClient } from "./user.query";
 export const countStdComponent = async () => {
@@ -70,6 +71,9 @@ export const getMaxStdComponetWithInput = async (componentId: string) => {
         const max = await prisma.standard_Composant_Input.aggregate({
             _max: {
                 order: true
+            },
+            where: {
+                standard_ComposantId: componentId
             }
         })
 
@@ -138,3 +142,4 @@ export const getStandardInputById = async (id: string) => {
         throw new Error('Erreur lors de la récupération du composant standard')
     }
 }
+

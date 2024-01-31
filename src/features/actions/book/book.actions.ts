@@ -6,16 +6,13 @@ import { BookFormSchema } from "@/src/helpers/definition";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getSoftwareClient } from "@/src/query/software.query";
-export const createBook = async (formdata: FormData) => {
+import z from "zod"
+export const createBook = async (values: z.infer<typeof BookFormSchema>) => {
 
     const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
 
-    const { name, softwareId, status } = BookFormSchema.parse({
-        name: formdata.get('name'),
-        softwareId: formdata.get('softwareId'),
-        status: formdata.get('status')
-    })
+    const { name, softwareId, status, description } = BookFormSchema.parse(values)
     const clientId = await getSoftwareClient(softwareId)
     const isEditor = await userIsEditorClient(userId, clientId)
 
@@ -28,6 +25,7 @@ export const createBook = async (formdata: FormData) => {
                 softwareId: softwareId,
                 status: status,
                 createdBy: userId,
+                description: description
             }
         })
     } catch (err) {

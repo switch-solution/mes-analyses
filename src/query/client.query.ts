@@ -1,6 +1,5 @@
-import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { userIsValid } from "./security.query";
+import { userIsValid, userIsAuthorizeForClient, userIsClientEditor } from "./security.query";
 export const getCountUsersClient = async (clientId: string) => {
     try {
         const userId = await userIsValid()
@@ -25,6 +24,24 @@ export const getCountUsersClient = async (clientId: string) => {
 
     }
 
+}
+
+export const getSoftwaresClient = async (clientId: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+        await userIsAuthorizeForClient(clientId)
+        await userIsClientEditor(clientId)
+        const softwareClient = await prisma.software.findMany({
+            where: {
+                clientId: clientId
+            }
+        })
+        return softwareClient
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des logiciels du client.")
+    }
 }
 
 export const getCountSoftwareClient = async (clientId: string) => {

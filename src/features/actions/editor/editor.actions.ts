@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { ChapterFormSchema } from "@/src/helpers/definition";
 import { userIsEditorClient, userIsValid } from "@/src/query/security.query";
-import { getBookClient, getBookExist } from "@/src/query/book.query";
+import { getBookClient, getBookExist } from "@/src/query/standard_book.query";
 export const createChapter = async (formdata: FormData) => {
 
     const userId = await userIsValid()
@@ -26,7 +26,7 @@ export const createChapter = async (formdata: FormData) => {
 
     if (!isEditor) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
     try {
-        await prisma.chapter.create({
+        await prisma.standard_Chapter.create({
             data: {
                 level: level,
                 label: label,
