@@ -44,6 +44,25 @@ export const getSoftwaresClient = async (clientId: string) => {
     }
 }
 
+export const getCountProjectClient = async (clientId: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+        if (!clientId) {
+            throw new Error("Le client id est obligatoire.")
+        }
+        const projetsClient = await prisma.project.count({
+            where: {
+                clientId: clientId
+            }
+        })
+        return projetsClient
+    } catch (err) {
+        throw new Error("Une erreur est survenue lors de la récupération du nombre de projets du client.")
+    }
+
+}
+
 export const getCountSoftwareClient = async (clientId: string) => {
 
     try {
@@ -131,6 +150,7 @@ export const getUsersClientList = async (clientId: string) => {
                         name: true,
                         email: true,
                         image: true,
+                        id: true
                     }
                 }
             }

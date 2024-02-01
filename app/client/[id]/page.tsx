@@ -1,9 +1,10 @@
 import { getAuthSession } from "@/lib/auth"
-import { getCountUsersClient, getCountInvitation, getCountSoftwareClient } from "@/src/query/client.query"
+import { getCountUsersClient, getCountInvitation, getCountSoftwareClient, getCountProjectClient } from "@/src/query/client.query"
 import { redirect } from 'next/navigation';
 import { userIsAdminClient } from "@/src/query/security.query";
 import { Suspense } from 'react';
 import { UserRound } from "lucide-react";
+import CardWithOptions from "@/src/features/layout/CardWithOptions";
 import {
     Card,
     CardContent,
@@ -31,87 +32,16 @@ export default async function Client({ params }: { params: { id: string } }) {
     const countUser = await getCountUsersClient(params.id)
     const countInvitation = await getCountInvitation(params.id)
     const countSoftware = await getCountSoftwareClient(params.id)
-    return (<>
-        <div className="py-2">
-            <Suspense fallback={<Skeleton />}>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Nombre d&apos;utilisateurs</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-zinc-950 text-2xl text-center"> {countUser}</p>
-                    </CardContent>
-                    <CardFooter>
-                        <Link href={`/client/${params.id}/user`}> <UserRound /> Voir la liste</Link>
-                    </CardFooter>
-                </Card>
-            </Suspense>
-        </div>
-        <div className="py-2">
-            <Suspense fallback={<Skeleton />}>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Nombre de logiciel</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-zinc-950 text-2xl text-center"> {countSoftware}</p>
-                    </CardContent>
-                    <CardFooter>
-                        <Link href={`/client/${params.id}/software`}> <UserRound /> Voir la liste</Link>
-                    </CardFooter>
-                </Card>
-            </Suspense>
-        </div>
+    const countProject = await getCountProjectClient(params.id)
+    return (<div className="py-2 flex flex-col justify-around md:grid md:grid-rows-3 md:grid-flow-col md:gap-4 lg:grid-rows-2">
 
-        <div className="py-2">
-            <Suspense fallback={<Skeleton />}>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Nombre de projets</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-zinc-950 text-2xl text-center"> {countUser}</p>
-                    </CardContent>
-                    <CardFooter>
-                        <Link href={`/client/${params.id}/users`}> <UserRound /> Voir la liste</Link>
-                    </CardFooter>
-                </Card>
-            </Suspense>
-        </div>
+        <CardWithOptions titre="Nombre d&apos;utilisateurs" content={countUser} href={`/client/${params.id}/user`} />
+        <CardWithOptions titre="Nombre de logiciel" content={countSoftware} href={`/client/${params.id}/software`} />
+        <CardWithOptions titre="Nombre de projets" content={countProject} href={`/client/${params.id}/project`} />
+        <CardWithOptions titre="Nombre de contacts" content={countProject} href={`/client/${params.id}/contact`} />
+        <CardWithOptions titre="Nombre d&apos;invitation en cours" content={countInvitation} href={`/client/${params.id}/invitation`} />
 
-        <div className="py-2">
-            <Suspense fallback={<Skeleton />}>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Nombre de contacts</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-zinc-950 text-2xl text-center"> {countUser}</p>
-                    </CardContent>
-                    <CardFooter>
-                        <Link href={`/client/${params.id}/users`}> <UserRound /> Voir la liste</Link>
-                    </CardFooter>
-                </Card>
-            </Suspense>
-        </div>
-
-
-        <div className="py-2">
-            <Suspense fallback={<Skeleton />}>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Nombre d&apos;invitaton en cours</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-zinc-950 text-2xl text-center"> {countInvitation}</p>
-                    </CardContent>
-                    <CardFooter>
-                        <Link href={`/client/${params.id}/invitation`}> <UserRound /> Voir la liste</Link>
-                    </CardFooter>
-                </Card>
-            </Suspense>
-        </div>
-    </>
+    </div>
 
     )
 }

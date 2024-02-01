@@ -10,8 +10,9 @@ import { getBookByIdIncludeChapterIncludeComposant } from '@/src/query/standard_
 export const createProjet = async (values: z.infer<typeof ProjectSchema>) => {
     const { name, description, softwareId, clientId } = ProjectSchema.parse(values)
     const userId = await userIsValid()
+    let project = null
     try {
-        await prisma.project.create({
+        project = await prisma.project.create({
             data: {
                 name: name,
                 description: description,
@@ -34,7 +35,7 @@ export const createProjet = async (values: z.infer<typeof ProjectSchema>) => {
     }
     revalidatePath(`/project/`);
 
-    redirect(`/project/`);
+    redirect(`/project/${project?.id}`);
 
 }
 

@@ -58,8 +58,17 @@ export const StandardComposantSelectionOptionSchema = z.object({
 
 export const ChapterFormSchema = z.object({
     bookId: z.string().min(1, { message: "Le livre est obligatoire." }),
-    level: z.string().min(1, { message: "Le niveau doit contenir au moins 2 caractères." }),
+    level: z.string().refine((val) => !Number.isNaN(parseInt(val, 10)), {
+        message: "Expected number, received a string"
+    }),
+    rank: z.string().refine((val) => !Number.isNaN(parseInt(val, 10)), {
+        message: "Expected number, received a string"
+    }),
+    underRank: z.string().refine((val) => !Number.isNaN(parseInt(val, 10)), {
+        message: "Expected number, received a string"
+    }),
     label: z.string().min(1, { message: "Le label doit contenir au moins 2 caractères." }),
+    parentId: z.string().optional(),
 })
 
 export const RegisterSchema = z.object({

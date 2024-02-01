@@ -14,7 +14,10 @@ import {
     UserPlus,
     Users,
     Menu,
-    FolderKanban
+    FolderKanban,
+    FolderPlus,
+    Cog,
+    FormInput
 } from "lucide-react"
 import { LogoutButton } from "./LogoutButton";
 
@@ -36,10 +39,17 @@ import {
 import { getAuthSession } from "@/lib/auth";
 import Link from "next/link";
 import { getRoleUser } from '@/src/query/user.query';
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from "@/components/ui/avatar"
+
 export const UserMenu = async () => {
     const session = await getAuthSession()
     const role = await getRoleUser()
     return (
+
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline"><Menu /></Button>
@@ -56,10 +66,26 @@ export const UserMenu = async () => {
                         <User className="mr-2 h-4 w-4" />
                         <span><Link href={`/profile`}>Profil</Link></span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <FolderKanban className="mr-2 h-4 w-4" />
-                        <span><Link href={`/project`}>Projet</Link></span>
-                    </DropdownMenuItem>
+                    <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                            <FolderKanban className="mr-2 h-4 w-4" />
+                            <span>Mes projets</span>
+                            <DropdownMenuPortal>
+                                <DropdownMenuSubContent>
+                                    <DropdownMenuItem>
+                                        <FolderKanban className="mr-2 h-4 w-4" />
+                                        <span><Link href={`/project`}>Voir mes projets</Link></span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <FolderPlus className="mr-2 h-4 w-4" />
+                                        <span><Link href={`/project/create`}>Créer un nouveau projet</Link></span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                        </DropdownMenuSubTrigger>
+                    </DropdownMenuSub>
+
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
@@ -68,10 +94,29 @@ export const UserMenu = async () => {
                             <Users className="mr-2 h-4 w-4" />
                             <span><Link href={`/client`}>Client</Link></span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <Book className="mr-2 h-4 w-4" />
-                            <span><Link href={`/editor`}>Editeur</Link></span>
-                        </DropdownMenuItem>
+                        <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                                <FolderKanban className="mr-2 h-4 w-4" />
+                                <span>Editeur</span>
+                                <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                        <DropdownMenuItem>
+                                            <Cog className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/editor`}>Ouvrir l&apos;editeur</Link></span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <Book className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/editor/book/create`}>Créer un nouveau livre</Link></span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <FormInput className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/editor/component/create`}>Créer un nouveau composant</Link></span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                            </DropdownMenuSubTrigger>
+                        </DropdownMenuSub>
                         <DropdownMenuSubTrigger>
                             <UserPlus className="mr-2 h-4 w-4" />
                             <span>Invite users</span>

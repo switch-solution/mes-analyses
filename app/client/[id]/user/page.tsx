@@ -1,6 +1,6 @@
 import { getAuthSession } from "@/lib/auth";
-import { columns } from "./columns"
-import { DataTable } from "./data-table"
+import { columns } from "./dataTablecolumns"
+import { DataTable } from "@/src/features/layout/DataTable";
 import { getUsersClientList } from "@/src/query/client.query";
 import { userIsAdminClient } from "@/src/query/security.query";
 import { redirect } from 'next/navigation';
@@ -22,12 +22,21 @@ export default async function UserList({ params }: { params: { id: string } }) {
     }
 
     const userClient = await getUsersClientList(params.id)
-    const user = []
-    user.push(userClient[0].user)
+    const users = userClient.map((user) => {
+        return {
+            id: user.user.id,
+            name: user.user.name,
+            email: user.user.email,
+            image: user.user.image,
+            open: user.user.id,
+            edit: user.user.id,
+            delete: user.user.id,
+        }
+    })
 
     return (
         <div className="container mx-auto py-10">
-            <DataTable columns={columns} data={user} />
+            <DataTable columns={columns} data={users} href={`/client/${params.id}`} />
         </div>
     )
 }

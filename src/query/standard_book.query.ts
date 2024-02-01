@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { userIsEditorClient, userIsValid } from "./security.query";
-
+import { Prisma } from '@prisma/client'
 export const countChapter = async (bookId: string) => {
     try {
         const userId = await userIsValid()
@@ -60,38 +60,37 @@ export const getBookClient = async (bookId: string) => {
     }
 }
 
-export const
-    getBookByIdIncludeChapterIncludeComposant = async (bookId: string) => {
-        try {
-            const userId = await userIsValid()
-            if (!userId) {
-                throw new Error("L'utilisateur n'est pas connecté.")
-            }
-            const book = await prisma.standard_Book.findUniqueOrThrow({
-                where: { id: bookId },
-                include: {
-                    StandardChapter: {
-                        include: {
-                            ChapterStdComposant: {
-                                include: {
-                                    standardComposant: {
-                                        include: {
-                                            Standard_Composant_Input: true,
-                                        }
+export const getBookByIdIncludeChapterIncludeComposant = async (bookId: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) {
+            throw new Error("L'utilisateur n'est pas connecté.")
+        }
+        const book = await prisma.standard_Book.findUniqueOrThrow({
+            where: { id: bookId },
+            include: {
+                StandardChapter: {
+                    include: {
+                        ChapterStdComposant: {
+                            include: {
+                                standardComposant: {
+                                    include: {
+                                        Standard_Composant_Input: true,
                                     }
                                 }
                             }
                         }
                     }
-
                 }
-            })
-            return book
-        } catch (err) {
-            console.error(err)
-            throw new Error("Impossible de récupérer le livre.")
-        }
+
+            }
+        })
+        return book
+    } catch (err) {
+        console.error(err)
+        throw new Error("Impossible de récupérer le livre.")
     }
+}
 
 export const getBookBySoftware = async (softwareId: string) => {
     try {
@@ -128,6 +127,17 @@ export const getChapterBook = async (bookId: string) => {
             where: {
                 bookId: bookId
             },
+            orderBy: [{
+                level: 'asc'
+
+            },
+            {
+                rank: 'asc'
+            },
+            {
+                underRank: 'asc'
+            }
+            ]
         })
         return chapters
     } catch (err) {
@@ -136,6 +146,7 @@ export const getChapterBook = async (bookId: string) => {
     }
 }
 
+export type getChapterBook = Prisma.PromiseReturnType<typeof getChapterBook>[number];
 export const countChapterComposant = async (bookId: string) => {
 
     try {
