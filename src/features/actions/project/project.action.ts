@@ -19,6 +19,7 @@ export const createProjet = async (values: z.infer<typeof ProjectSchema>) => {
                 softwareId: softwareId,
                 clientId: clientId,
                 createdBy: userId,
+                status: 'actif',
                 UserProject: {
                     create: {
                         userId: userId,
@@ -93,6 +94,7 @@ export const copyBookToProject = async (values: z.infer<typeof BookToProjectSche
                         createdBy: userId,
                     })
                 }//Create inputs
+                /** 
                 await prisma.chapter.create({
                     data: {
                         label: std_chapter.label,
@@ -112,6 +114,7 @@ export const copyBookToProject = async (values: z.infer<typeof BookToProjectSche
 
                     }
                 })
+                */
 
             }//Create composant
 
@@ -132,5 +135,5 @@ export const copyBookToProject = async (values: z.infer<typeof BookToProjectSche
     }
     revalidatePath(`/project/${projectId}`);
 
-    redirect(`/project/${projectId}`);
+    //redirect(`/project/${projectId}`);
 }

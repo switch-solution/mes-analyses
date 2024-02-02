@@ -101,18 +101,19 @@ model Client {
   Software           Software[]
   Standard_Composant Standard_Composant[]
   Project            Project[]
+  Bill               Bill[]
 }
 
 model Contact {
   id        String   @id @default(cuid())
-  firstName String
-  lastName  String
+  firstname String
+  lastname  String
   email     String
-  phone     String
+  phone     String?
   civility  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  cretaedBy String
+  createdBy String
   clientId  String
   client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
@@ -302,6 +303,7 @@ model Project {
   software    Software      @relation(fields: [softwareId], references: [id], onDelete: Cascade)
   name        String
   description String
+  status      String        @default("actif")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   createdBy   String
@@ -425,4 +427,47 @@ model Dsn {
   projectId   String
 
   @@id([structureId, projectId])
+}
+
+model Setting {
+  code        String
+  label       String
+  description String?
+  value       String
+  dateStart   DateTime
+  dateEnd     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+
+  @@id([code, dateStart, dateEnd])
+}
+
+model Bill {
+  id        String     @id @default(cuid())
+  clientId  String
+  client    Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dateStart DateTime
+  dateEnd   DateTime
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  createdBy String
+  dateLimit DateTime
+  status    String
+  quantity  Int
+  amount    Float
+  BillLine  BillLine[]
+}
+
+model BillLine {
+  id            String   @id @default(cuid())
+  billId        String
+  bill          Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+  label         String
+  userFirstName String
+  userLastName  String
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String
 }

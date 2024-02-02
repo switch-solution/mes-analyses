@@ -90,10 +90,25 @@ export const UserMenu = async () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuSub>
-                        <DropdownMenuItem>
-                            <Users className="mr-2 h-4 w-4" />
-                            <span><Link href={`/client`}>Client</Link></span>
-                        </DropdownMenuItem>
+                        <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                                <FolderKanban className="mr-2 h-4 w-4" />
+                                <span>Client</span>
+                                <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                        <DropdownMenuItem>
+                                            <Cog className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/client`}>Voir ma fiche client</Link></span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <Book className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/client/`}>Editer</Link></span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                            </DropdownMenuSubTrigger>
+                        </DropdownMenuSub>
                         <DropdownMenuSub>
                             <DropdownMenuSubTrigger>
                                 <FolderKanban className="mr-2 h-4 w-4" />

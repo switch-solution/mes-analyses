@@ -14,7 +14,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-export default async function Editor() {
+export default async function Page() {
     const session = await getAuthSession()
     if (!session?.user?.id) return redirect('/home')
     const isEditor = await userIsEditor();

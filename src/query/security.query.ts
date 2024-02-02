@@ -2,13 +2,14 @@ import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUser } from "./user.query";
 import { getProjectById } from "./project.query";
+import { env } from "@/lib/env";
 /**
  * Test if the user is an admin at least once
  * @param userId 
  * @param clientId 
  * @returns 
  */
-export const userIsAdminClient = async (userId: string, clientId: string) => {
+export const userIsAdminClient = async (clientId: string) => {
 
     try {
         const userId = await userIsValid()
@@ -33,6 +34,30 @@ export const userIsAdminClient = async (userId: string, clientId: string) => {
     } catch (err) {
         console.error(err)
         throw new Error("Une erreur est survenue lors des données de la table UserClient")
+    }
+
+}
+
+export const userIsAdminSystem = async () => {
+
+    try {
+        const userId = await userIsValid()
+        if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+        const user = await prisma.user.findFirstOrThrow({
+            where: {
+                id: userId
+            }
+        })
+        if (!user) {
+            throw new Error("L'utilisateur n'existe pas")
+        }
+        if (user.email !== env.ADMIN_EMAIL) {
+            throw new Error("L'utilisateur n'est pas administrateur du système.")
+        }
+        return true
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des données de la table UserClient")
     }
 
 }

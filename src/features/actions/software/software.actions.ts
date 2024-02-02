@@ -1,17 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getAuthSession } from "@/lib/auth";
-import { userIsAdminClient } from "@/src/query/security.query";
+import { userIsAdminClient, userIsValid } from "@/src/query/security.query";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { SoftwaresSchema } from "@/src/helpers/definition";
 export const deleteSoftware = async (id: string) => {
-
-    const session = await getAuthSession();
-    if (!session) throw new Error("Vous devez être connecté pour effectuer cette action.");
-
-    const userId = session.user.id;
+    const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
     const software = await prisma.software.findUnique({
         where: {
@@ -19,8 +14,8 @@ export const deleteSoftware = async (id: string) => {
         }
     })
     if (!software) throw new Error("Ce logiciel n'existe pas.")
-
-    const isAdmin = await userIsAdminClient(userId, software?.clientId)
+    const clientId = software.clientId
+    const isAdmin = await userIsAdminClient(clientId)
 
     if (!isAdmin) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
 
@@ -31,24 +26,23 @@ export const deleteSoftware = async (id: string) => {
     })
 
     revalidatePath(`/client/${software.clientId}/software/`)
+    redirect(`/client/${clientId}/software/`)
 
 }
 
 export const editSoftware = async (id: string, formdata: FormData) => {
 
-    const session = await getAuthSession();
-    if (!session) throw new Error("Vous devez être connecté pour effectuer cette action.");
-
-    const userId = session.user.id;
+    const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
 
     const { name, provider, clientId } = SoftwaresSchema.parse({
+        id: formdata.get('id'),
         name: formdata.get('name'),
         provider: formdata.get('provider'),
         clientId: formdata.get('clientId')
     })
 
-    const isAdmin = await userIsAdminClient(userId, clientId)
+    const isAdmin = await userIsAdminClient(clientId)
 
     if (!isAdmin) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
 
@@ -80,19 +74,15 @@ export const editSoftware = async (id: string, formdata: FormData) => {
 }
 
 export const createSoftware = async (formdata: FormData) => {
-    const session = await getAuthSession();
-    if (!session) throw new Error("Vous devez être connecté pour effectuer cette action.");
-
-    const userId = session.user.id;
-    if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
 
     const { name, provider, clientId } = SoftwaresSchema.parse({
         name: formdata.get('name'),
         provider: formdata.get('provider'),
         clientId: formdata.get('clientId')
     })
-
-    const isAdmin = await userIsAdminClient(userId, clientId)
+    const userId = await userIsValid()
+    if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+    const isAdmin = await userIsAdminClient(clientId)
     if (!isAdmin) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
 
     try {

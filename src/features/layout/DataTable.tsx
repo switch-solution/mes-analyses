@@ -10,6 +10,7 @@ import {
     SortingState,
     VisibilityState
 } from "@tanstack/react-table"
+import { Badge } from "@/components/ui/badge"
 
 import {
     DropdownMenu,
@@ -32,21 +33,28 @@ import { Input } from "@/components/ui/input"
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[],
-    href: string | undefined
+    href: string | undefined,
+    hrefToCreate: string,
+    searchPlaceholder: string,
+    inputSearch: string
+    isEditable?: boolean
 }
 import { Pencil, Eye, Trash2Icon } from "lucide-react"
-
 export function DataTable<TData, TValue>({
     columns,
     data,
     href,
+    hrefToCreate,
+    searchPlaceholder,
+    inputSearch,
+    isEditable = true,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
     )
     const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
+        React.useState<VisibilityState>({ id: false })
     const table = useReactTable({
         data,
         columns,
@@ -66,10 +74,10 @@ export function DataTable<TData, TValue>({
     return (<div>
         <div className="flex items-center py-4">
             <Input
-                placeholder="Chercher par email"
-                value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+                placeholder={searchPlaceholder}
+                value={(table.getColumn(inputSearch)?.getFilterValue() as string) ?? ""}
                 onChange={(event) =>
-                    table.getColumn("email")?.setFilterValue(event.target.value)
+                    table.getColumn(inputSearch)?.setFilterValue(event.target.value)
                 }
                 className="max-w-sm"
             />
@@ -101,8 +109,13 @@ export function DataTable<TData, TValue>({
                         })}
                 </DropdownMenuContent>
             </DropdownMenu>
+            {isEditable ?
+                <div className="ml-4">
+                    <Button type="submit" variant="default"><Link href={hrefToCreate}>Ajouter une nouvelle valeur</Link> </Button>
 
+                </div> : null}
         </div>
+
         <div className="rounded-md border">
             <Table>
                 <TableHeader>
@@ -134,9 +147,9 @@ export function DataTable<TData, TValue>({
                                 {row.getVisibleCells().map((cell) => {
                                     let id = (cell.getContext().row.original as any).id;
                                     return (
-                                        cell.getContext().column.id === 'open' ? <TableCell key={cell.id} ><Link href={`${href}/user/${id}`}> <Eye /></Link></TableCell> :
-                                            cell.getContext().column.id === 'edit' ? <TableCell key={cell.id}><Link href={`${href}/user/${id}/edit`}> <Pencil /></Link></TableCell> :
-                                                cell.getContext().column.id === 'delete' ? <TableCell key={cell.id}><Link href={`${href}/user/${id}`}> <Trash2Icon /></Link></TableCell>
+                                        cell.getContext().column.id === 'open' && isEditable ? <TableCell key={cell.id} ><Link href={`${href}/${id}`}> <Eye /></Link></TableCell> :
+                                            cell.getContext().column.id === 'edit' && isEditable ? <TableCell key={cell.id}><Link href={`${href}/${id}/edit`}> <Pencil /></Link></TableCell> :
+                                                cell.getContext().column.id === 'delete' && isEditable ? <TableCell key={cell.id}><Link href={`${href}/${id}/delete`}> <Trash2Icon /></Link></TableCell>
                                                     : < TableCell key={cell.id} >
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </TableCell>

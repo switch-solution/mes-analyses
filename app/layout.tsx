@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
+export const dynamic = 'force-dynamic' // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+
 import { Inter } from 'next/font/google'
 import './globals.css'
 import clsx from 'clsx'
 import { ThemeProvider } from '@/src/theme/ThemeProvider'
-import { Header } from '@/src/features/layout/Header'
+import { Header } from '@/src/features/layout/header'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -26,10 +28,7 @@ export default function RootLayout({
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           <Header />
           <main className='flex flex-col w-full h-full items-center'>
-            <div className='flex flex-col justify-center w-3/4'>
-              {children}
-
-            </div>
+            {children}
           </main>
           {modal}
         </ThemeProvider>

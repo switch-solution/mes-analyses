@@ -18,7 +18,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-export default async function BookPage({ params }: { params: { bookId: string } }) {
+export default async function Page({ params }: { params: { bookId: string } }) {
     const session = await getAuthSession()
     if (!session?.user?.id) return redirect('/home')
     const userId = session?.user?.id

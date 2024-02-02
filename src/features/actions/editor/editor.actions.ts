@@ -21,8 +21,6 @@ export const createChapter = async (values: z.infer<typeof ChapterFormSchema>) =
 
     const isEditor = await userIsEditorClient(userId, clientId)
 
-
-
     if (!isEditor) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
     try {
         await prisma.standard_Chapter.create({

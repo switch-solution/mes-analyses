@@ -8,7 +8,7 @@ export const getSoftwareByClientId = async (clientId: string) => {
 
     if (!clientExist) throw new Error("Le client n'existe pas.")
 
-    const isAdmin = await userIsAdminClient(userId, clientId)
+    const isAdmin = await userIsAdminClient(clientId)
     if (!isAdmin) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
     const softwares = await prisma.software.findMany({
         where: {
@@ -71,7 +71,7 @@ export const getSoftwareById = async (softwareId: string) => {
 
     if (!clientExist) throw new Error("Le client n'existe pas.")
 
-    const isAdmin = await userIsAdminClient(userId, software.clientId)
+    const isAdmin = await userIsAdminClient(software.clientId)
     if (!isAdmin) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
 
     return software

@@ -1,6 +1,6 @@
 import React from "react";
 import { getAuthSession } from "@/lib/auth";
-import { NavBar } from "./NavBar";
+import { NavBar } from "./navBar";
 import Link from "next/link";
 
 export const Header = async () => {
