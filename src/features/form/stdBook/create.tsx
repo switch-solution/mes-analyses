@@ -36,6 +36,7 @@ export default function BookCreateForm({ softwares }: { softwares: Software[] })
 
     const onSubmit = async (data: z.infer<typeof BookFormSchema>) => {
         try {
+            BookFormSchema.parse(data)
             await createBook(data)
         } catch (err) {
             console.error(err)

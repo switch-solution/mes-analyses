@@ -26,7 +26,7 @@ export const StandardComposantSchema = z.object({
     clientId: z.string().min(1, { message: "Le client est obligatoire." }),
     softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
     status: z.enum(['actif', 'archivé']),
-
+    type: z.enum(['form', 'textarea', 'image']),
 })
 
 export const StandardComposantInputSchema = z.object({
@@ -58,8 +58,17 @@ export const StandardComposantSelectionOptionSchema = z.object({
 
 export const ChapterFormSchema = z.object({
     bookId: z.string().min(1, { message: "Le livre est obligatoire." }),
-    level: z.string().min(1, { message: "Le niveau doit contenir au moins 2 caractères." }),
+    level: z.string().refine((val) => !Number.isNaN(parseInt(val, 10)), {
+        message: "Expected number, received a string"
+    }),
+    rank: z.string().refine((val) => !Number.isNaN(parseInt(val, 10)), {
+        message: "Expected number, received a string"
+    }),
+    underRank: z.string().refine((val) => !Number.isNaN(parseInt(val, 10)), {
+        message: "Expected number, received a string"
+    }),
     label: z.string().min(1, { message: "Le label doit contenir au moins 2 caractères." }),
+    parentId: z.string().optional(),
 })
 
 export const RegisterSchema = z.object({
@@ -77,6 +86,7 @@ export const RegisterSchema = z.object({
 });
 
 export const SoftwaresSchema = z.object({
+    id: z.string().optional(),
     provider: z.string().min(2, { message: "Le nom du fournisseur doit contenir au moins 2 caractères." }),
     name: z.string().min(2, { message: "Le nom du logiciel doit contenir au moins 2 caractères." }),
     clientId: z.string().min(1, { message: "Le client id est obligatoire." })
@@ -86,6 +96,21 @@ export const InvitationSchema = z.object({
     clientId: z.string().uuid(),
     civility: z.string().min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
     email: z.string().email(),
+    firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
+
+})
+
+export const ButtonDangerDeleteSchema = z.object({
+    validation: z.string().regex(/oui/, { message: "La validation doit être 'oui'." }),
+})
+
+export const ContactSchema = z.object({
+    id: z.string().optional(),
+    clientId: z.string(),
+    civility: z.string().min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
+    email: z.string().email(),
+    phone: z.string().optional(),
     firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
     lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
 

@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { ClientFormSchema } from "@/src/helpers/definition";
 
-export default function CreateClient() {
+export default function Page() {
 
     const form = useForm<z.infer<typeof ClientFormSchema>>({
         resolver: zodResolver(ClientFormSchema),

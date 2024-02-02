@@ -43,8 +43,10 @@ export const createClient = async (formdata: FormData) => {
         }
     }
 
-
     try {
+        const currentDate = new Date();
+        const add90Days = new Date(currentDate.setDate(currentDate.getDate() + 90))
+
         await prisma.client.create({
             data: {
                 socialReason: socialReason,
@@ -66,7 +68,7 @@ export const createClient = async (formdata: FormData) => {
                 billingCodeZip: codeZip,
                 isBlocked: false,
                 dateStartTrial: new Date(),
-                dateEndTrial: new Date(),
+                dateEndTrial: add90Days,
                 createdBy: userId,
                 UserClient: {
                     create: {

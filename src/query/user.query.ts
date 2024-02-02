@@ -19,6 +19,31 @@ export const getUser = async () => {
     return user
 }
 
+export const getSoftwareUser = async () => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) {
+            throw new Error("L'utilisateur n'est pas connecté.")
+        }
+        const clients = await getMyClient()
+        if (!clients) {
+            throw new Error("Vous n'avez pas de client.")
+        }
+        const softwares = await prisma.software.findMany({
+            where: {
+                clientId: {
+                    in: clients.map((client) => client.id)
+                }
+            },
+
+        })
+        return softwares
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des logiciels de l'utilisateur.")
+    }
+}
+
 export const getUserByEmail = async (email: string) => {
     try {
         const user = await prisma.user.findUnique({

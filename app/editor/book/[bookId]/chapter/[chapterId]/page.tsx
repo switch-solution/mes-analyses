@@ -11,9 +11,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Pencil, Eye, Trash2Icon } from "lucide-react"
 import Link from "next/link";
-export default async function Chapter({ params }: { params: { chapterId: string, bookId: string } }) {
+export default async function Page({ params }: { params: { chapterId: string, bookId: string } }) {
     const chapterStdComponets = await getChapterStdComponents(params.chapterId)
-    console.log(chapterStdComponets)
     return (
 
         <Table>

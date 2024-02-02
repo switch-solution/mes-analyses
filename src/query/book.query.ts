@@ -6,7 +6,6 @@ export const getBookChapter = async (bookId: string) => {
         if (!userId) {
             throw new Error('Vous devez etre connecté')
         }
-
         const bookExist = await getBookById(bookId)
         if (!bookExist) {
             throw new Error('Le cahier n\'existe pas')

@@ -14,7 +14,11 @@ export const getMyProjects = async () => {
             },
             include: {
                 project: true
+            },
+            orderBy: {
+                createdAt: 'desc'
             }
+
 
         })
         return myProjects

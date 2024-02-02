@@ -18,7 +18,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-export default async function BookPage({ params }: { params: { bookId: string } }) {
+export default async function Page({ params }: { params: { bookId: string } }) {
     const session = await getAuthSession()
     if (!session?.user?.id) return redirect('/home')
     const userId = session?.user?.id
@@ -38,6 +38,8 @@ export default async function BookPage({ params }: { params: { bookId: string } 
                         <TableRow>
                             <TableHead className="w-[100px]">Titre</TableHead>
                             <TableHead>Niveau</TableHead>
+                            <TableHead>Rang</TableHead>
+                            <TableHead>Sous rang</TableHead>
                             <TableHead>Nombre de composant</TableHead>
                             <TableHead>Voir</TableHead>
                             <TableHead>Editer</TableHead>
@@ -50,6 +52,8 @@ export default async function BookPage({ params }: { params: { bookId: string } 
                             <TableRow key={chapter.id}>
                                 <TableCell className="font-medium">{chapter.label}</TableCell>
                                 <TableCell>{chapter.level}</TableCell>
+                                <TableCell>{chapter.rank}</TableCell>
+                                <TableCell>{chapter.underRank}</TableCell>
                                 <TableCell>{countChapterComponents.find((count) => count.chapterId === chapter.id)?.count}</TableCell>
                                 <TableCell><Link href={`/editor/book/${params.bookId}/chapter/${chapter.id}`}> <Eye /></Link></TableCell>
                                 <TableCell><Link href={`/editor/book/${params.bookId}/chapter/${chapter.id}edit`}> <Pencil /></Link></TableCell>

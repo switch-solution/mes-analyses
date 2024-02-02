@@ -14,7 +14,7 @@ import Link from "next/link"
 import { Pencil, Eye, Trash2Icon } from "lucide-react"
 
 
-export default async function Book() {
+export default async function Page() {
     const softwareBooks = await getMyBookEditable()
     return (
         <Table>

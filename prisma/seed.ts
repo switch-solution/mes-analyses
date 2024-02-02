@@ -24,6 +24,27 @@ const prisma = new PrismaClient(
 
 async function main() {
     try {
+        await prisma.setting.upsert({
+            where: {
+                code_dateStart_dateEnd: {
+                    code: "PRICING",
+                    dateStart: new Date("2024-01-01"),
+                    dateEnd: new Date("4000-01-01")
+                }
+            },
+            update: {},
+            create: {
+                code: "PRICING",
+                label: "Prix",
+                dateStart: new Date("2024-01-01"),
+                dateEnd: new Date("4000-01-01"),
+                description: "Prix par default pour un utilisateur par mois",
+                value: "10",
+                createdBy: "admin"
+            }
+
+
+        })
         await prisma.standard_Input.upsert({
             where: {
                 type: "text",

@@ -1,4 +1,3 @@
-import { getAuthSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { userIsEditor, userIsValid } from "@/src/query/security.query";
 import { getMyClient } from "./user.query";

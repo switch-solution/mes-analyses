@@ -36,6 +36,7 @@ export default function CreateFormComponent({ clientId, softwares }: {
             description: "",
             status: "actif",
             softwareId: softwares?.at(0)?.id,
+            type: 'form'
         },
     })
     const onSubmit = async (values: z.infer<typeof StandardComposantSchema>) => {
@@ -82,7 +83,7 @@ export default function CreateFormComponent({ clientId, softwares }: {
                         name="softwareId"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Email</FormLabel>
+                                <FormLabel>Logiciel</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
@@ -93,6 +94,30 @@ export default function CreateFormComponent({ clientId, softwares }: {
                                         {softwares.map((software) => (
                                             <SelectItem key={software.id} value={software.id}>{software.name}</SelectItem>
                                         ))}
+
+                                    </SelectContent>
+                                </Select>
+
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Type de composant</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Un type de composant" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value='form'>Formulaire</SelectItem>
+                                        <SelectItem value='textarea'>Zone de texte</SelectItem>
+                                        <SelectItem value='image'>Image</SelectItem>
 
                                     </SelectContent>
                                 </Select>
@@ -137,6 +162,6 @@ export default function CreateFormComponent({ clientId, softwares }: {
 
                 </form>
             </Form>
-        </div>
+        </div >
     )
 }

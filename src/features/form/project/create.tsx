@@ -42,6 +42,7 @@ export default function ProjectCreateForm({ clients, softwares }: { clients: Cli
 
     const onSubmit = async (data: z.infer<typeof ProjectSchema>) => {
         try {
+            ProjectSchema.parse(data)
             await createProjet(data)
         } catch (err) {
             console.error(err)
@@ -103,7 +104,7 @@ export default function ProjectCreateForm({ clients, softwares }: { clients: Cli
                         name="name"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Mon de votre projet</FormLabel>
+                                <FormLabel>Nom de votre projet</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Mon nouveau projet" required {...field} />
                                 </FormControl>

@@ -11,7 +11,7 @@ import {
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Pencil, Eye, Trash2Icon } from "lucide-react"
-export default async function Component() {
+export default async function Page() {
     const stdcomponents = await getStdComponent()
     return (
         <Table>
