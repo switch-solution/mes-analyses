@@ -1,0 +1,493 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  username      String?
+  accounts      Account[]
+  sessions      Session[]
+  UserOtherData UserOtherData[]
+  UserClient    UserClient[]
+  UserProject   UserProject[]
+}
+
+model UserOtherData {
+  id        String   @id @default(cuid())
+  userId    String
+  firstname String?
+  lastname  String?
+  password  String
+  civility  String
+  isBlocked Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Client {
+  id                 String               @id @default(cuid())
+  socialReason       String               @unique
+  dateStartTrial     DateTime
+  dateEndTrial       DateTime
+  siret              String               @unique
+  ape                String
+  address1           String
+  address2           String?
+  address3           String?
+  address4           String?
+  city               String
+  codeZip            String
+  country            String
+  billingAddress1    String
+  billingAddress2    String?
+  billingAddress3    String?
+  billingAddress4    String?
+  billingCity        String
+  billingCodeZip     String
+  billingCountry     String
+  isBlocked          Boolean
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  createdBy          String
+  UserClient         UserClient[]
+  Invitation         Invitation[]
+  Contact            Contact[]
+  Software           Software[]
+  Standard_Composant Standard_Composant[]
+  Project            Project[]
+  invoice            Invoice[]
+  Logger             Logger[]
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  firstname String
+  lastname  String
+  email     String
+  phone     String?
+  civility  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model UserClient {
+  id              String   @id @default(cuid())
+  userId          String
+  clientId        String
+  isBlocked       Boolean
+  isBillable      Boolean
+  isAdministrator Boolean  @default(false)
+  isEditor        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  sendEmail Boolean
+  civility  String
+  firstName String
+  lastname  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Software {
+  id                 String               @id @default(cuid())
+  provider           String
+  name               String               @unique
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  createdBy          String
+  clientId           String
+  client             Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Standard_Book      Standard_Book[]
+  Standard_Composant Standard_Composant[]
+  Project            Project[]
+}
+
+model Standard_Book {
+  id              String             @id @default(cuid())
+  name            String
+  description     String
+  status          String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  createdBy       String
+  softwareId      String
+  software        Software           @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  StandardChapter Standard_Chapter[]
+}
+
+model Standard_Composant {
+  id                          String                        @id @default(cuid())
+  title                       String
+  description                 String
+  type                        String
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+  createdBy                   String
+  clientId                    String
+  status                      String
+  softwareId                  String
+  software                    Software                      @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  client                      Client                        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Standard_Composant_Input    Standard_Composant_Input[]
+  ChapterStdComposant         ChapterStdComposant[]
+  Standard_Composant_TextArea Standard_Composant_TextArea[]
+  Standard_Composant_Image    Standard_Composant_Image[]
+}
+
+model Standard_Composant_Input {
+  id                               String                             @id @default(cuid())
+  type                             String
+  label                            String
+  maxLength                        Int?
+  minLength                        Int?
+  minValue                         Int?
+  maxValue                         Int?
+  placeholder                      String?
+  order                            Int
+  defaultValue                     String?
+  required                         Boolean
+  readonly                         Boolean
+  multiple                         Boolean?
+  textArea                         String?
+  createdAt                        DateTime                           @default(now())
+  updatedAt                        DateTime                           @updatedAt
+  createdBy                        String
+  Standard_Composant               Standard_Composant                 @relation(fields: [standard_ComposantId], references: [id])
+  standard_ComposantId             String
+  Standard_Composant_Select_Option Standard_Composant_Select_Option[]
+  Input                            Input[]
+}
+
+model Standard_Composant_TextArea {
+  id                   String             @id @default(cuid())
+  type                 String
+  label                String
+  description          String
+  placeholder          String?
+  defaultValue         String?
+  readonly             Boolean
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  createdBy            String
+  Standard_Composant   Standard_Composant @relation(fields: [standard_ComposantId], references: [id])
+  standard_ComposantId String
+}
+
+model Standard_Composant_Image {
+  id                   String             @id @default(cuid())
+  description          String
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  createdBy            String
+  Standard_Composant   Standard_Composant @relation(fields: [standard_ComposantId], references: [id])
+  standard_ComposantId String
+  url                  String
+  device               String
+}
+
+model Standard_Composant_Select_Option {
+  id                         String                    @id @default(cuid())
+  label                      String
+  selected                   Boolean?
+  value                      String
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
+  createdBy                  String
+  Standard_Composant_Input   Standard_Composant_Input? @relation(fields: [standard_Composant_InputId], references: [id])
+  standard_Composant_InputId String?
+}
+
+model Standard_Input {
+  name      String
+  type      String   @id
+  label     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+}
+
+model Standard_Chapter {
+  id                  String                @id @default(cuid())
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  createdBy           String
+  level               Int
+  rank                Int
+  underRank           Int
+  label               String
+  bookId              String
+  book                Standard_Book         @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  ChapterStdComposant ChapterStdComposant[]
+  parentId            String?
+  parent              Standard_Chapter?     @relation("levelUp", fields: [parentId], references: [id])
+  Standard_Chapter    Standard_Chapter[]    @relation("levelUp")
+
+  @@unique([bookId, level, rank, underRank])
+}
+
+model ChapterStdComposant {
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  createdBy           String
+  chapterId           String
+  StandardChapter     Standard_Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  standardComposantId String
+  standardComposant   Standard_Composant @relation(fields: [standardComposantId], references: [id], onDelete: Cascade)
+
+  @@id([chapterId, standardComposantId])
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  softwareId  String
+  software    Software      @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  status      String        @default("actif")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  createdBy   String
+  UserProject UserProject[]
+  Book        Book[]
+  Dsn         Dsn[]
+  Logger      Logger[]
+}
+
+model UserProject {
+  userId      String
+  projectId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+  isAdmin     Boolean  @default(false)
+  isEditor    Boolean  @default(false)
+  isValidator Boolean  @default(false)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
+}
+
+model Book {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  status      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   String
+  isArchived  Boolean   @default(false)
+  Chapter     Chapter[]
+}
+
+model Chapter {
+  id        String      @id @default(cuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  createdBy String
+  level     Int
+  rank      Int
+  underRank Int
+  label     String
+  parentId  String?
+  parent    Chapter?    @relation("levelUp", fields: [parentId], references: [id])
+  Chapter   Chapter[]   @relation("levelUp")
+  Composant Composant[]
+  Book      Book        @relation(fields: [bookId], references: [id])
+  bookId    String
+}
+
+model Composant {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+  Chapter     Chapter? @relation(fields: [chapterId], references: [id])
+  chapterId   String?
+  Input       Input[]
+}
+
+model Input {
+  id                         String                    @id @default(cuid())
+  type                       String
+  label                      String
+  maxLength                  Int?
+  minLength                  Int?
+  minValue                   Int?
+  maxValue                   Int?
+  placeholder                String?
+  order                      Int
+  defaultValue               String?
+  required                   Boolean
+  readonly                   Boolean
+  multiple                   Boolean?
+  textArea                   String
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
+  createdBy                  String
+  Composant                  Composant?                @relation(fields: [composantId], references: [id])
+  composantId                String?
+  Value                      Value[]
+  Option                     Option[]
+  Standard_Composant_Input   Standard_Composant_Input? @relation(fields: [standard_Composant_InputId], references: [id])
+  standard_Composant_InputId String?
+}
+
+model Value {
+  id           String   @id @default(cuid())
+  version      Int
+  textValue    String?
+  numberValue  Int?
+  booleanValue Boolean?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String
+  Input        Input    @relation(fields: [inputId], references: [id])
+  inputId      String
+
+  @@unique([version, inputId])
+}
+
+model Option {
+  id       String   @id @default(cuid())
+  label    String
+  selected Boolean?
+  Input    Input?   @relation(fields: [inputId], references: [id])
+  inputId  String?
+}
+
+model Dsn {
+  structureId String
+  value       String
+  Project     Project @relation(fields: [projectId], references: [id])
+  projectId   String
+
+  @@id([structureId, projectId])
+}
+
+model Setting {
+  code        String
+  label       String
+  description String?
+  value       String
+  dateStart   DateTime
+  dateEnd     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+
+  @@id([code, dateStart, dateEnd])
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dateStart   DateTime
+  dateEnd     DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  createdBy   String
+  dateLimit   DateTime
+  status      String
+  quantity    Int
+  amount      Float
+  InvoiceLine InvoiceLine[]
+}
+
+model InvoiceLine {
+  id        String   @id @default(cuid())
+  billId    String
+  invoice   Invoice  @relation(fields: [billId], references: [id], onDelete: Cascade)
+  label     String
+  email     String
+  firstname String?
+  lastname  String?
+  quantity  Int
+  amount    Float
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+}
+
+model Logger {
+  id        String   @id @default(cuid())
+  level     String
+  message   String
+  scope     String
+  timestamp DateTime @default(now())
+  createdBy String
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+}
