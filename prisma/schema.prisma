@@ -75,8 +75,8 @@ model UserOtherData {
 model Client {
   id                 String               @id @default(cuid())
   socialReason       String               @unique
-  dateStartTrial     DateTime
-  dateEndTrial       DateTime
+  dateStartTrial     DateTime?
+  dateEndTrial       DateTime?
   siret              String               @unique
   ape                String
   address1           String
@@ -86,14 +86,16 @@ model Client {
   city               String
   codeZip            String
   country            String
-  billingAddress1    String
-  billingAddress2    String?
-  billingAddress3    String?
-  billingAddress4    String?
-  billingCity        String
-  billingCodeZip     String
-  billingCountry     String
+  invoiceAddress1    String
+  invoiceAddress2    String?
+  invoiceAddress3    String?
+  invoiceAddress4    String?
+  invoiceCity        String
+  invoiceCodeZip     String
+  invoiceCountry     String
   isBlocked          Boolean
+  invoiceStart       DateTime?
+  invoiceEnd         DateTime?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   createdBy          String
@@ -448,25 +450,26 @@ model Setting {
 }
 
 model Invoice {
-  id          String        @id @default(cuid())
-  clientId    String
-  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  dateStart   DateTime
-  dateEnd     DateTime
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  createdBy   String
-  dateLimit   DateTime
-  status      String
-  quantity    Int
-  amount      Float
-  InvoiceLine InvoiceLine[]
+  id           String        @id @default(cuid())
+  socialReason String
+  clientId     String
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dateStart    DateTime
+  dateEnd      DateTime
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  createdBy    String
+  dateLimit    DateTime
+  status       String
+  quantity     Int
+  amount       Float
+  InvoiceLine  InvoiceLine[]
 }
 
 model InvoiceLine {
   id        String   @id @default(cuid())
-  billId    String
-  invoice   Invoice  @relation(fields: [billId], references: [id], onDelete: Cascade)
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   label     String
   email     String
   firstname String?

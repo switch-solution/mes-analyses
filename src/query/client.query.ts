@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { userIsValid, userIsAuthorizeForClient, userIsClientEditor, userIsAdminClient } from "./security.query";
 import { getLastPricing } from "./setting.query";
+import { userIsAdminSystem } from "./security.query";
 export const getCountUsersClient = async (clientId: string) => {
     try {
 
@@ -202,8 +203,11 @@ export const getNumberDaysBeforeEndTrial = async (clientId: string) => {
                 id: clientId
             }
         })
-        const startDate = new Date(client.dateStartTrial)
-        const endDate = new Date(client.dateEndTrial)
+        if (!client?.dateStartTrial || !client?.dateEndTrial) {
+            return 0
+        }
+        const startDate = new Date(client?.dateStartTrial)
+        const endDate = new Date(client?.dateEndTrial)
         const diffInMs = Math.abs(endDate.getTime() - startDate.getTime());
         const days = diffInMs / (1000 * 60 * 60 * 24);
         return days.toFixed(0)
@@ -411,4 +415,36 @@ export const getUsersClientList = async (clientId: string) => {
         console.error(err)
         throw new Error("Une erreur est survenue lors de la récupération des utilisateurs du client.")
     }
+}
+
+export const getClientsToInvoices = async (dateInvoice: Date) => {
+
+    try {
+        const userIsAdmin = await userIsAdminSystem()
+        if (!userIsAdmin) {
+            throw new Error("Vous n'êtes pas autorisé à effectuer cette action.")
+        }
+        const clients = await prisma.client.findMany({
+            where: {
+                isBlocked: false,
+                OR: [
+                    {
+                        dateEndTrial: {
+                            lt: dateInvoice
+                        }
+                    },
+                    {
+                        invoiceEnd: {
+                            lt: dateInvoice
+                        }
+                    }
+                ]
+            }
+        })
+        return clients
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des clients pour la facturation.")
+    }
+
 }

@@ -1,13 +1,10 @@
-import { getAuthSession } from "@/lib/auth";
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/src/features/layout/dataTable";
 import { getUsersClientList } from "@/src/query/client.query";
-import { userIsAdminClient } from "@/src/query/security.query";
-import { getUser } from "@/src/query/user.query";
-import { redirect } from 'next/navigation';
+import { userIsAdminClient, userIsValid } from "@/src/query/security.query";
 export default async function Page({ params }: { params: { clientId: string } }) {
 
-    await getUser()
+    const user = await userIsValid()
     await userIsAdminClient(params.clientId)
     const userClient = await getUsersClientList(params.clientId)
     const users = userClient.map((user) => {

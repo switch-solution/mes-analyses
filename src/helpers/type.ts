@@ -32,7 +32,7 @@ export type Software = {
 }
 
 type EventLevel = "info" | "warning" | "error"
-type Scope = 'client' | 'book' | 'standardComposant' | 'chapter' | 'project' | 'user' | 'software' | 'contact' | 'invitation' | 'bookToProject' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'chapterStandardComposant'
+type Scope = 'client' | 'book' | 'standardComposant' | 'chapter' | 'project' | 'user' | 'software' | 'contact' | 'invitation' | 'bookToProject' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'chapterStandardComposant' | 'invoice'
 export type Event = {
     level: EventLevel,
     message: string,

@@ -1,7 +1,8 @@
 import { getUser } from "@/src/query/user.query";
 import { getCountUsersClient, getCountInvitation, getCountSoftwareClient, getCountProjectClient, getCountContactClient, getNumberDaysBeforeEndTrial, getFutureBilling } from "@/src/query/client.query"
 import { userIsAdminClient } from "@/src/query/security.query";
-import CardWithOptions from "@/src/features/layout/cardWithOptions";
+import CardWithOptions from "@/src/features/layout/CardWithOptions";
+import Container from "@/src/features/layout/Container";
 export default async function Client({ params }: { params: { clientId: string } }) {
 
     await getUser()
@@ -14,7 +15,7 @@ export default async function Client({ params }: { params: { clientId: string } 
     const countContact = await getCountContactClient(params.clientId)
     const numberDaysBeforeEndTrial = await getNumberDaysBeforeEndTrial(params.clientId)
     const futureBilling = await getFutureBilling(params.clientId)
-    return (<div className="py-2 flex flex-col justify-center items-center md:grid md:grid-rows-3 md:grid-flow-col md:gap-4 lg:grid-rows-2">
+    return (<Container>
 
         <CardWithOptions titre="Nombre d&apos;utilisateurs" content={countUser} href={`/client/${params.clientId}/user`} />
         <CardWithOptions titre="Nombre de logiciel" content={countSoftware} href={`/client/${params.clientId}/software`} />
@@ -24,7 +25,7 @@ export default async function Client({ params }: { params: { clientId: string } 
         <CardWithOptions titre="Nombre de jours d'essai" content={numberDaysBeforeEndTrial} href={`/client/${params.clientId}/`} />
         <CardWithOptions titre="Prochaine facture" content={`${futureBilling}€`} href={`/client/${params.clientId}/bill`} />
 
-    </div>
+    </Container>
 
     )
 }

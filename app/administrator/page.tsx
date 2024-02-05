@@ -1,10 +1,17 @@
 import { userIsAdminSystem, userIsValid } from "@/src/query/security.query";
-
+import Container from "@/src/features/layout/Container";
+import { getCountAllInvoices } from "@/src/query/invoice.query";
+import CardWithOptions from "@/src/features/layout/CardWithOptions";
 export default async function Page() {
     const user = await userIsValid()
     if (!user) {
         throw new Error('Unauthorized')
     }
+    const countInvoices = await getCountAllInvoices()
     const userIsAdmin = await userIsAdminSystem()
-    return <div>Administrator Page</div>;
+    return (
+        <Container>
+            <CardWithOptions titre="Nombre de factures" content={countInvoices} href="/administrator/invoice" />
+        </Container>
+    );
 }

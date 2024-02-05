@@ -44,6 +44,26 @@ export const getSoftwareUser = async () => {
     }
 }
 
+export const getUserById = async (id: string) => {
+
+    try {
+        const userId = await userIsValid()
+        if (!userId) {
+            throw new Error("L'utilisateur n'est pas connecté.")
+        }
+        const user = await prisma.user.findUniqueOrThrow({
+            where: {
+                id
+            }
+        })
+        return user
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération de l'utilisateur.")
+    }
+
+}
+
 export const getUserByEmail = async (email: string) => {
     try {
         const user = await prisma.user.findUnique({

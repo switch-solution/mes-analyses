@@ -85,7 +85,6 @@ export const UserMenu = async () => {
                             </DropdownMenuPortal>
                         </DropdownMenuSubTrigger>
                     </DropdownMenuSub>
-
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
@@ -132,6 +131,10 @@ export const UserMenu = async () => {
                                 </DropdownMenuPortal>
                             </DropdownMenuSubTrigger>
                         </DropdownMenuSub>
+                        <DropdownMenuItem>
+                            <Cloud className="mr-2 h-4 w-4" />
+                            <span><Link href={`/administrator`}>Administrateur</Link></span>
+                        </DropdownMenuItem>
                         <DropdownMenuSubTrigger>
                             <UserPlus className="mr-2 h-4 w-4" />
                             <span>Invite users</span>

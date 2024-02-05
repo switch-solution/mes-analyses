@@ -6,7 +6,7 @@ import UserAVatar from "./UserAvatar";
 export const Header = async () => {
     const session = await getAuthSession()
     return (
-        <header className="border-bg py-2 border-b-accent flex flex-row items-center justify-end w-full border-b-2">
+        <header className="border-bg border-b-accent flex flex-row items-center justify-end w-full border-b-2">
             <NavBar />
             <UserAVatar />
             <ThemeToggle />

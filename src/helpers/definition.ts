@@ -32,7 +32,7 @@ export const StandardComposantSchema = z.object({
 export const EventSchema = z.object({
     level: z.enum(['info', 'warning', 'error']),
     message: z.string().min(2, { message: "Le message doit contenir au moins 2 caractères." }),
-    scope: z.enum(['client', 'book', 'standardComposant', 'chapter', 'project', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant']),
+    scope: z.enum(['client', 'book', 'standardComposant', 'chapter', 'project', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant', 'invoice']),
     clientId: z.string().optional(),
     projectId: z.string().optional(),
     createdBy: z.string().min(1, { message: "L'utilisateur est obligatoire." }),
@@ -141,5 +141,20 @@ export const ProjectSchema = z.object({
 export const BookToProjectSchema = z.object({
     projectId: z.string().min(1, { message: "Le projet est obligatoire." }),
     stdBookId: z.string().min(1, { message: "Le livre est obligatoire." }),
+})
+
+export const InvoiceShema = z.object({
+    id: z.string().min(1, { message: "L'id est obligatoire." }),
+    clientId: z.string().min(1, { message: "Le client est obligatoire." }),
+    status: z.enum(['payé', 'en attante,', 'annulé']),
+    dateStart: z.date(),
+    dateEnd: z.date(),
+    dateLimit: z.date(),
+    amount: z.number().positive(),
+    quantity: z.number().positive(),
+})
+
+export const CreateInvoiceSchema = z.object({
+    date: z.string().min(1, { message: "La date est obligatoire." }),
 })
 
