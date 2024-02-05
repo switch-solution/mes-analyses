@@ -49,6 +49,8 @@ CREATE TABLE "User" (
 CREATE TABLE "UserOtherData" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
+    "firstname" TEXT,
+    "lastname" TEXT,
     "password" TEXT NOT NULL,
     "civility" TEXT NOT NULL,
     "isBlocked" BOOLEAN NOT NULL,
@@ -91,14 +93,14 @@ CREATE TABLE "Client" (
 -- CreateTable
 CREATE TABLE "Contact" (
     "id" TEXT NOT NULL,
-    "firstName" TEXT NOT NULL,
-    "lastName" TEXT NOT NULL,
+    "firstname" TEXT NOT NULL,
+    "lastname" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
+    "phone" TEXT,
     "civility" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "cretaedBy" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
 
     CONSTRAINT "Contact_pkey" PRIMARY KEY ("id")
@@ -152,6 +154,7 @@ CREATE TABLE "Software" (
 CREATE TABLE "Standard_Book" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -166,6 +169,7 @@ CREATE TABLE "Standard_Composant" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
@@ -191,13 +195,44 @@ CREATE TABLE "Standard_Composant_Input" (
     "required" BOOLEAN NOT NULL,
     "readonly" BOOLEAN NOT NULL,
     "multiple" BOOLEAN,
-    "textArea" TEXT NOT NULL,
+    "textArea" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
     "standard_ComposantId" TEXT NOT NULL,
 
     CONSTRAINT "Standard_Composant_Input_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Standard_Composant_TextArea" (
+    "id" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "placeholder" TEXT,
+    "defaultValue" TEXT,
+    "readonly" BOOLEAN NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "standard_ComposantId" TEXT NOT NULL,
+
+    CONSTRAINT "Standard_Composant_TextArea_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Standard_Composant_Image" (
+    "id" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "standard_ComposantId" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "device" TEXT NOT NULL,
+
+    CONSTRAINT "Standard_Composant_Image_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -227,16 +262,19 @@ CREATE TABLE "Standard_Input" (
 );
 
 -- CreateTable
-CREATE TABLE "StandardChapter" (
+CREATE TABLE "Standard_Chapter" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
-    "level" TEXT NOT NULL,
+    "level" INTEGER NOT NULL,
+    "rank" INTEGER NOT NULL,
+    "underRank" INTEGER NOT NULL,
     "label" TEXT NOT NULL,
     "bookId" TEXT NOT NULL,
+    "parentId" TEXT,
 
-    CONSTRAINT "StandardChapter_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Standard_Chapter_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -257,6 +295,7 @@ CREATE TABLE "Project" (
     "softwareId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'actif',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
@@ -283,6 +322,8 @@ CREATE TABLE "Book" (
     "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
@@ -294,14 +335,15 @@ CREATE TABLE "Book" (
 -- CreateTable
 CREATE TABLE "Chapter" (
     "id" TEXT NOT NULL,
-    "projectBookId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
-    "level" TEXT NOT NULL,
+    "level" INTEGER NOT NULL,
+    "rank" INTEGER NOT NULL,
+    "underRank" INTEGER NOT NULL,
     "label" TEXT NOT NULL,
-    "standard_BookId" TEXT,
+    "parentId" TEXT,
+    "bookId" TEXT NOT NULL,
 
     CONSTRAINT "Chapter_pkey" PRIMARY KEY ("id")
 );
@@ -311,11 +353,11 @@ CREATE TABLE "Composant" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
-    "bookChapterId" TEXT,
-    "standard_Composant_InputId" TEXT,
+    "chapterId" TEXT,
 
     CONSTRAINT "Composant_pkey" PRIMARY KEY ("id")
 );
@@ -340,6 +382,7 @@ CREATE TABLE "Input" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
     "composantId" TEXT,
+    "standard_Composant_InputId" TEXT,
 
     CONSTRAINT "Input_pkey" PRIMARY KEY ("id")
 );
@@ -348,6 +391,9 @@ CREATE TABLE "Input" (
 CREATE TABLE "Value" (
     "id" TEXT NOT NULL,
     "version" INTEGER NOT NULL,
+    "textValue" TEXT,
+    "numberValue" INTEGER,
+    "booleanValue" BOOLEAN,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
@@ -373,6 +419,70 @@ CREATE TABLE "Dsn" (
     "projectId" TEXT NOT NULL,
 
     CONSTRAINT "Dsn_pkey" PRIMARY KEY ("structureId","projectId")
+);
+
+-- CreateTable
+CREATE TABLE "Setting" (
+    "code" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "description" TEXT,
+    "value" TEXT NOT NULL,
+    "dateStart" TIMESTAMP(3) NOT NULL,
+    "dateEnd" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+
+    CONSTRAINT "Setting_pkey" PRIMARY KEY ("code","dateStart","dateEnd")
+);
+
+-- CreateTable
+CREATE TABLE "Invoice" (
+    "id" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "dateStart" TIMESTAMP(3) NOT NULL,
+    "dateEnd" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "dateLimit" TIMESTAMP(3) NOT NULL,
+    "status" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "Invoice_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "InvoiceLine" (
+    "id" TEXT NOT NULL,
+    "billId" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "firstname" TEXT,
+    "lastname" TEXT,
+    "quantity" INTEGER NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "status" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+
+    CONSTRAINT "InvoiceLine_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Logger" (
+    "id" TEXT NOT NULL,
+    "level" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "metadata" TEXT NOT NULL,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "projetId" TEXT NOT NULL,
+
+    CONSTRAINT "Logger_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -401,6 +511,9 @@ CREATE UNIQUE INDEX "Invitation_email_key" ON "Invitation"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Software_name_key" ON "Software"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Standard_Chapter_bookId_level_rank_underRank_key" ON "Standard_Chapter"("bookId", "level", "rank", "underRank");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Value_version_inputId_key" ON "Value"("version", "inputId");
@@ -442,13 +555,22 @@ ALTER TABLE "Standard_Composant" ADD CONSTRAINT "Standard_Composant_clientId_fke
 ALTER TABLE "Standard_Composant_Input" ADD CONSTRAINT "Standard_Composant_Input_standard_ComposantId_fkey" FOREIGN KEY ("standard_ComposantId") REFERENCES "Standard_Composant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Standard_Composant_TextArea" ADD CONSTRAINT "Standard_Composant_TextArea_standard_ComposantId_fkey" FOREIGN KEY ("standard_ComposantId") REFERENCES "Standard_Composant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Standard_Composant_Image" ADD CONSTRAINT "Standard_Composant_Image_standard_ComposantId_fkey" FOREIGN KEY ("standard_ComposantId") REFERENCES "Standard_Composant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Standard_Composant_Select_Option" ADD CONSTRAINT "Standard_Composant_Select_Option_standard_Composant_InputI_fkey" FOREIGN KEY ("standard_Composant_InputId") REFERENCES "Standard_Composant_Input"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StandardChapter" ADD CONSTRAINT "StandardChapter_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Standard_Book"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Standard_Chapter" ADD CONSTRAINT "Standard_Chapter_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Standard_Book"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ChapterStdComposant" ADD CONSTRAINT "ChapterStdComposant_chapterId_fkey" FOREIGN KEY ("chapterId") REFERENCES "StandardChapter"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Standard_Chapter" ADD CONSTRAINT "Standard_Chapter_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Standard_Chapter"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ChapterStdComposant" ADD CONSTRAINT "ChapterStdComposant_chapterId_fkey" FOREIGN KEY ("chapterId") REFERENCES "Standard_Chapter"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ChapterStdComposant" ADD CONSTRAINT "ChapterStdComposant_standardComposantId_fkey" FOREIGN KEY ("standardComposantId") REFERENCES "Standard_Composant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -469,19 +591,19 @@ ALTER TABLE "UserProject" ADD CONSTRAINT "UserProject_projectId_fkey" FOREIGN KE
 ALTER TABLE "Book" ADD CONSTRAINT "Book_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_projectBookId_fkey" FOREIGN KEY ("projectBookId") REFERENCES "Book"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Chapter"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_standard_BookId_fkey" FOREIGN KEY ("standard_BookId") REFERENCES "Standard_Book"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Composant" ADD CONSTRAINT "Composant_bookChapterId_fkey" FOREIGN KEY ("bookChapterId") REFERENCES "Chapter"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Composant" ADD CONSTRAINT "Composant_standard_Composant_InputId_fkey" FOREIGN KEY ("standard_Composant_InputId") REFERENCES "Standard_Composant_Input"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Composant" ADD CONSTRAINT "Composant_chapterId_fkey" FOREIGN KEY ("chapterId") REFERENCES "Chapter"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Input" ADD CONSTRAINT "Input_composantId_fkey" FOREIGN KEY ("composantId") REFERENCES "Composant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Input" ADD CONSTRAINT "Input_standard_Composant_InputId_fkey" FOREIGN KEY ("standard_Composant_InputId") REFERENCES "Standard_Composant_Input"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Value" ADD CONSTRAINT "Value_inputId_fkey" FOREIGN KEY ("inputId") REFERENCES "Input"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -491,3 +613,15 @@ ALTER TABLE "Option" ADD CONSTRAINT "Option_inputId_fkey" FOREIGN KEY ("inputId"
 
 -- AddForeignKey
 ALTER TABLE "Dsn" ADD CONSTRAINT "Dsn_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InvoiceLine" ADD CONSTRAINT "InvoiceLine_billId_fkey" FOREIGN KEY ("billId") REFERENCES "Invoice"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Logger" ADD CONSTRAINT "Logger_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Logger" ADD CONSTRAINT "Logger_projetId_fkey" FOREIGN KEY ("projetId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;

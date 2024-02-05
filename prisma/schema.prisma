@@ -62,6 +62,8 @@ model User {
 model UserOtherData {
   id        String   @id @default(cuid())
   userId    String
+  firstname String?
+  lastname  String?
   password  String
   civility  String
   isBlocked Boolean
@@ -101,7 +103,8 @@ model Client {
   Software           Software[]
   Standard_Composant Standard_Composant[]
   Project            Project[]
-  Bill               Bill[]
+  invoice            Invoice[]
+  Logger             Logger[]
 }
 
 model Contact {
@@ -310,6 +313,7 @@ model Project {
   UserProject UserProject[]
   Book        Book[]
   Dsn         Dsn[]
+  Logger      Logger[]
 }
 
 model UserProject {
@@ -443,31 +447,47 @@ model Setting {
   @@id([code, dateStart, dateEnd])
 }
 
-model Bill {
-  id        String     @id @default(cuid())
-  clientId  String
-  client    Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  dateStart DateTime
-  dateEnd   DateTime
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  createdBy String
-  dateLimit DateTime
-  status    String
-  quantity  Int
-  amount    Float
-  BillLine  BillLine[]
+model Invoice {
+  id          String        @id @default(cuid())
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dateStart   DateTime
+  dateEnd     DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  createdBy   String
+  dateLimit   DateTime
+  status      String
+  quantity    Int
+  amount      Float
+  InvoiceLine InvoiceLine[]
 }
 
-model BillLine {
-  id            String   @id @default(cuid())
-  billId        String
-  bill          Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
-  label         String
-  userFirstName String
-  userLastName  String
-  status        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdBy     String
+model InvoiceLine {
+  id        String   @id @default(cuid())
+  billId    String
+  invoice   Invoice  @relation(fields: [billId], references: [id], onDelete: Cascade)
+  label     String
+  email     String
+  firstname String?
+  lastname  String?
+  quantity  Int
+  amount    Float
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+}
+
+model Logger {
+  id        String   @id @default(cuid())
+  level     String
+  message   String
+  metadata  String
+  timestamp DateTime @default(now())
+  createdBy String
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projetId  String
+  project   Project  @relation(fields: [projetId], references: [id], onDelete: Cascade)
 }
