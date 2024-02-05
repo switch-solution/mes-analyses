@@ -1,15 +1,15 @@
 import React from "react";
 import { getAuthSession } from "@/lib/auth";
-import { NavBar } from "./navBar";
-import Link from "next/link";
-
+import { NavBar } from "./NavBar";
+import { ThemeToggle } from "@/src/theme/ThemeToggle";
+import UserAVatar from "./UserAvatar";
 export const Header = async () => {
     const session = await getAuthSession()
     return (
-        <header className="border-bg border-b-accent flex flex-row items-center w-full border-b-2">
-            <h2 className="text-2xl font-bold mr-auto"><Link href={`/home`}>Mes analyses</Link></h2>
-
+        <header className="border-bg py-2 border-b-accent flex flex-row items-center justify-end w-full border-b-2">
             <NavBar />
+            <UserAVatar />
+            <ThemeToggle />
 
         </header >
     )

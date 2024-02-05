@@ -6,9 +6,8 @@ import { UserMenu } from "../auth/UserMenu";
 export const NavBar = async () => {
     const session = await getAuthSession()
 
-    return (<nav className="container flex items-center py-2 max-w-lg m-auto gap-1 justify-end">
+    return (<nav className="absolute top-0 left-0">
         {session?.user ? <UserMenu /> : <LoginButton label={'Se connecter'} />}
-        <ThemeToggle />
 
     </nav>)
 
