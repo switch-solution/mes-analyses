@@ -483,11 +483,11 @@ model Logger {
   id        String   @id @default(cuid())
   level     String
   message   String
-  metadata  String
+  scope     String
   timestamp DateTime @default(now())
   createdBy String
-  clientId  String
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  projetId  String
-  project   Project  @relation(fields: [projetId], references: [id], onDelete: Cascade)
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
 }

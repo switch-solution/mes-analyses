@@ -29,6 +29,15 @@ export const StandardComposantSchema = z.object({
     type: z.enum(['form', 'textarea', 'image']),
 })
 
+export const EventSchema = z.object({
+    level: z.enum(['info', 'warning', 'error']),
+    message: z.string().min(2, { message: "Le message doit contenir au moins 2 caractères." }),
+    scope: z.enum(['client', 'book', 'standardComposant', 'chapter', 'project', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant']),
+    clientId: z.string().optional(),
+    projectId: z.string().optional(),
+    createdBy: z.string().min(1, { message: "L'utilisateur est obligatoire." }),
+})
+
 export const StandardComposantInputSchema = z.object({
     type: z.enum(['text', 'number', 'date', 'textArea', 'select', 'file', 'switch', 'Image', 'dsnSocietySiren', 'dsnEstablishmentSiret', 'dsnEstablishmentApe', 'dsnSocietyAddress1', 'dsnSocietyAddress2', 'dsnSocietyAddress3', 'dsnSocietyZipCode', 'dsnSocietyCity', 'dsnEstablishmentAddress1', 'dsnEstablishmentAddress2', 'dsnEstablishmentAddress3', 'dsnEstablishmentZipCode', 'dsnEstablishmentCity', 'dsnJobLabel', 'dsnJobCode', 'dsnIdcc']),
     label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }).max(50, { message: "Le label doit contenir au moins 2 caractères." }),

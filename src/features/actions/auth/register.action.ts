@@ -5,8 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { RegisterSchema } from '@/src/helpers/definition';
 import * as z from "zod"
-
-
+import { createEvent } from "@/src/query/logger.query";
+import type { Event } from "@/src/helpers/type";
 export const createUser = async (data: z.infer<typeof RegisterSchema>) => {
     const { email, civility, firstname, lastname, password, confirmPassword } = data;
     const user = await getUserByEmail(email);
@@ -16,7 +16,7 @@ export const createUser = async (data: z.infer<typeof RegisterSchema>) => {
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    await prisma.user.create({
+    const newUser = await prisma.user.create({
         data: {
             email: email, name: `${lastname} ${firstname}`,
             UserOtherData: {
@@ -24,6 +24,16 @@ export const createUser = async (data: z.infer<typeof RegisterSchema>) => {
             }
         }
     })
+
+    const event: Event = {
+        level: "warning",
+        message: "Un nouvel utilisateur a été créé",
+        scope: "user",
+        createdBy: newUser.id
+    }
+    await createEvent(event);
+
+
 
     redirect('/api/auth/signin');
 

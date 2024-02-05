@@ -30,3 +30,14 @@ export type Software = {
     provider: string,
     name: string
 }
+
+type EventLevel = "info" | "warning" | "error"
+type Scope = 'client' | 'book' | 'standardComposant' | 'chapter' | 'project' | 'user' | 'software' | 'contact' | 'invitation' | 'bookToProject' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'chapterStandardComposant'
+export type Event = {
+    level: EventLevel,
+    message: string,
+    scope: Scope,
+    clientId?: string,
+    projectId?: string,
+    createdBy: string
+}

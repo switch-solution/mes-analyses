@@ -5,7 +5,8 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from "./prisma"
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcrypt'
-
+import { createEvent } from "@/src/query/logger.query"
+import type { Event } from "@/src/helpers/type"
 export const authOptions: AuthOptions = {
     adapter: PrismaAdapter(prisma),
     session: {
@@ -44,6 +45,14 @@ export const authOptions: AuthOptions = {
                 //Login page : http://localhost:3000/api/auth/signin
                 //Verifier si credentials est ok
                 if (!credentials?.email || !credentials?.password) {
+
+                    const event: Event = {
+                        level: "warning",
+                        message: "Echec de connexion, email ou mot de passe manquant",
+                        scope: "user",
+                        createdBy: ""
+                    }
+                    await createEvent(event);
                     return null
                 }
                 const user = await prisma.user.findUnique({
@@ -51,14 +60,35 @@ export const authOptions: AuthOptions = {
                     include: { UserOtherData: true }
                 })
                 if (!user) {
+                    const event: Event = {
+                        level: "warning",
+                        message: "Echec de connexion, utilisateur non trouvé",
+                        scope: "user",
+                        createdBy: ""
+                    }
+                    await createEvent(event);
                     return null
                 }
                 const userPassword = user.UserOtherData.at(0)?.password
                 if (!userPassword) {
+                    const event: Event = {
+                        level: "warning",
+                        message: "Echec de connexion, mot de passe erroné",
+                        scope: "user",
+                        createdBy: user.id
+                    }
+                    await createEvent(event);
                     return null
                 } else {
                     const isValidPassword = await bcrypt.compare(credentials.password, userPassword)
                     if (!isValidPassword) {
+                        const event: Event = {
+                            level: "info",
+                            message: "Connexion réussie",
+                            scope: "user",
+                            createdBy: user.id
+                        }
+                        await createEvent(event);
                         return null
                     }
                 }
