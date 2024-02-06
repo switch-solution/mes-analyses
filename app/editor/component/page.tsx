@@ -1,48 +1,35 @@
-import { getStdComponent } from "@/src/query/stdcomponent.query"
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
-import { Pencil, Eye, Trash2Icon } from "lucide-react"
+import { columns } from "./dataTablecolumns"
+import { DataTable } from "@/src/features/layout/DataTable";
+import { userIsValid } from "@/src/query/security.query";
+import { getSoftwareByClient } from "@/src/query/software.query";
+import { getStdComponent } from "@/src/query/stdcomponent.query";
+import { getMyClient } from "@/src/query/user.query";
+
 export default async function Page() {
-    const stdcomponents = await getStdComponent()
+
+    const user = await userIsValid()
+    const stdComponentList = await getStdComponent()
+    const clientId = await getMyClient()
+    if (!clientId) throw new Error('Vous devez avoir un client')
+    const softwares = await getSoftwareByClient(clientId)
+
+    const stdComponent = stdComponentList.map((std) => {
+        return {
+            id: std.id,
+            title: std.title,
+            description: std.description,
+            status: std.status,
+            software: softwares.find((s) => s.id === std.softwareId)?.name || "Inconnu",
+            open: std.id,
+            edit: std.id,
+            delete: std.id,
+
+        }
+    })
+
     return (
-        <Table>
-            <TableCaption>A list of your recent invoices.</TableCaption>
-            <TableHeader>
-                <TableRow>
-                    <TableHead className="w-[100px]">Titre du document</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Logiciel</TableHead>
-                    <TableHead>Ouvrir</TableHead>
-                    <TableHead>Editer</TableHead>
-                    <TableHead>Supprimer</TableHead>
-
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {stdcomponents.map((std) =>
-                    <TableRow key={std.id}>
-                        <TableCell className="font-medium"><Link href={`/editor/component/${std.id}`}>{std.title}</Link></TableCell>
-                        <TableCell >{std.description}</TableCell>
-                        <TableCell><Badge variant={std.status === "actif" ? "default" : "destructive"}>{std.status}</Badge></TableCell>
-                        <TableCell >{std.software.name}</TableCell>
-                        <TableCell><Link href={`/editor/component/${std.id}`}> <Eye /></Link></TableCell>
-                        <TableCell><Link href={`/editor/component/${std.id}/edit`}> <Pencil /></Link></TableCell>
-                        <TableCell><Link href={`/editor/component/${std.id}`}> <Trash2Icon /></Link></TableCell>
-
-                    </TableRow>
-                )}
-            </TableBody>
-        </Table>
-
+        <div className="container mx-auto py-10">
+            <DataTable columns={columns} data={stdComponent} href={`/editor/component/`} hrefToCreate={`/editor/component/create`} searchPlaceholder="Chercher titre" inputSearch="title" />
+        </div>
     )
 }

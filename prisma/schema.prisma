@@ -195,12 +195,16 @@ model Standard_Composant {
   ChapterStdComposant         ChapterStdComposant[]
   Standard_Composant_TextArea Standard_Composant_TextArea[]
   Standard_Composant_Image    Standard_Composant_Image[]
+  SandboxValues               SandboxValues[]
 }
 
 model Standard_Composant_Input {
   id                               String                             @id @default(cuid())
   type                             String
   label                            String
+  isCode                           Boolean                            @default(false)
+  isLabel                          Boolean                            @default(false)
+  isDescription                    Boolean                            @default(false)
   maxLength                        Int?
   minLength                        Int?
   minValue                         Int?
@@ -219,6 +223,7 @@ model Standard_Composant_Input {
   standard_ComposantId             String
   Standard_Composant_Select_Option Standard_Composant_Select_Option[]
   Input                            Input[]
+  SandboxValues                    SandboxValues[]
 }
 
 model Standard_Composant_TextArea {
@@ -493,4 +498,17 @@ model Logger {
   client    Client?  @relation(fields: [clientId], references: [id])
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id])
+}
+
+model SandboxValues {
+  id                         String                   @id @default(cuid())
+  Standard_Composant_InputId String
+  Standard_Composant_Input   Standard_Composant_Input @relation(fields: [Standard_Composant_InputId], references: [id])
+  value                      String
+  createdBy                  String
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+  composantId                String
+  composant                  Standard_Composant       @relation(fields: [composantId], references: [id])
+  version                    Int
 }

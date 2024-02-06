@@ -51,6 +51,9 @@ export const StandardComposantInputSchema = z.object({
     textArea: z.string().optional(),
     multiple: z.boolean().optional(),
     order: z.coerce.number().int().positive(),
+    isCode: z.boolean().optional(),
+    isDescription: z.boolean().optional(),
+    isLabel: z.boolean().optional(),
     standard_ComposantId: z.string().min(1, { message: "Le composant est obligatoire." }),
 
 })

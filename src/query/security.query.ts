@@ -67,7 +67,7 @@ export const userIsAdminSystem = async () => {
  * @returns 
  */
 
-export const userIsEditorClient = async (userId: string, clientId: string) => {
+export const userIsEditorClient = async (clientId: string) => {
     try {
         const userId = await userIsValid()
         if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")

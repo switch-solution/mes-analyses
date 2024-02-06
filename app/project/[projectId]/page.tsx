@@ -9,7 +9,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { LinkTableCell, LinkTableHead } from "@/src/features/layout/linkTableCell"
+import { LinkTableCell, LinkTableHead } from "@/src/features/layout/LinkTableCell"
 export default async function Project({ params }: { params: { projectId: string } }) {
     const projectBook = await getProjectBook(params.projectId)
     console.log(projectBook)

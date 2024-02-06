@@ -1,17 +1,35 @@
-import AddInputToComponent from "@/src/features/form/formBuilder/AddInput"
-import { getMaxStdComponetWithInput, getStdComponentWithInput } from "@/src/query/stdcomponent.query"
-import { getStandardInput } from "@/src/query/standardInput.query"
+import { columns } from "./dataTablecolumns"
+import { DataTable } from "@/src/features/layout/DataTable";
+import { userIsEditorClient, userIsValid } from "@/src/query/security.query";
+import { getStandardComponentClient } from "@/src/query/stdcomponent.query"
+import { getStandardInputByComponentId } from "@/src/query/stdComponentInput.query"
 export default async function Page({ params }: { params: { componentId: string } }) {
-    const component = await getStdComponentWithInput(params.componentId)
-    const maxOrder = await getMaxStdComponetWithInput(params.componentId)
-    const standardInput = await getStandardInput()
+
+    const user = await userIsValid()
+    if (!user) throw new Error('Vous devez être connecté')
+    const clientId = await getStandardComponentClient(params.componentId)
+    const userIsEditor = await userIsEditorClient(clientId)
+    if (!userIsEditor) throw new Error('Vous n\'avez pas les droits pour accéder à cette page')
+    const componentInputList = await getStandardInputByComponentId(params.componentId)
+    const invoices = componentInputList.map((component) => {
+        return {
+            id: component.id,
+            type: component.type,
+            label: component.label,
+            isCode: component.isCode ? 'Oui' : 'Non',
+            isLabel: component.isLabel ? 'Oui' : 'Non',
+            isDescription: component.isDescription ? 'Oui' : 'Non',
+            order: component.order,
+            open: component.id,
+            edit: component.id,
+            delete: component.id,
+
+        }
+    })
+
     return (
-
-        component ? <AddInputToComponent component={component} stdInput={standardInput} nextOrder={maxOrder._max.order ? maxOrder._max.order + 1 : 1} /> : undefined
-
+        <div className="container mx-auto py-10">
+            <DataTable columns={columns} data={invoices} href={`/editor/component/${params.componentId}/input/`} hrefToCreate={`/editor/component/${params.componentId}/create`} searchPlaceholder="Chercher par nom" inputSearch="label" />
+        </div>
     )
-
-
-
-
 }

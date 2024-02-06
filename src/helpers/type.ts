@@ -1,3 +1,7 @@
+import { Prisma } from '@prisma/client'
+import { getStdComponentWithInput } from '@/src/query/stdcomponent.query'
+import { getStandardInput } from "@/src/query/standardInput.query"
+import { getStandardInputByComponentId } from "@/src/query/stdComponentInput.query"
 export type variantType = '"link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined'
 
 export type InputStandardType = "text" |
@@ -40,4 +44,20 @@ export type Event = {
     clientId?: string,
     projectId?: string,
     createdBy: string
+}
+
+export type getStdComponentWithInputType = Prisma.PromiseReturnType<typeof getStdComponentWithInput>[number];
+export type getStandardInputType = Prisma.PromiseReturnType<typeof getStandardInput>[number];
+export type getStandardInputByComponentIdType = Prisma.PromiseReturnType<typeof getStandardInputByComponentId>[number];
+
+export type Value = {
+    value: string
+    Standard_Composant_InputId: string
+    createdBy: string
+}
+
+export type Row = {
+    id: string,
+    type: string
+    value: string | undefined,
 }

@@ -5,16 +5,22 @@ import { StandardComposantSchema, StandardComposantInputSchema } from '@/src/hel
 import { getMyClient } from '@/src/query/user.query';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { userIsAuthorizeForClient, userIsValid } from '@/src/query/security.query';
-import { getStandardInputById } from '@/src/query/stdcomponent.query'
+import { userIsEditorClient, userIsValid } from '@/src/query/security.query';
+import { getStandardComponentClient } from '@/src/query/stdcomponent.query'
+import { createEvent } from '@/src/query/logger.query';
+import type { Event } from '@/src/helpers/type';
+import { getStandardInputById, getLastOrderInput } from "@/src/query/stdComponentInput.query"
 export const createStandardInput = async (values: z.infer<typeof StandardComposantInputSchema>) => {
+    console.log('ici')
     const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
 
-    const userClientsList = await getMyClient()
-    if (!userClientsList) throw new Error("L'utilisateur n'a pas de client.")
-
-    const { type, label, required, readonly, maxLength, minLength, standard_ComposantId, placeholder, order, minValue, maxValue, textArea } = StandardComposantInputSchema.parse(values)
+    const { type, label, required, readonly, maxLength, minLength, standard_ComposantId, placeholder, order, minValue, maxValue, textArea, isCode, isDescription, isLabel } = StandardComposantInputSchema.parse(values)
+    const clientId = await getStandardComponentClient(values.standard_ComposantId)
+    const userIsEditor = await userIsEditorClient(clientId)
+    if (!userIsEditor) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
+    const getLastOrder = await getLastOrderInput(standard_ComposantId)
+    const newOrder = getLastOrder ? getLastOrder + 1 : 1
     try {
         await prisma.standard_Composant_Input.create({
             data: {
@@ -26,14 +32,24 @@ export const createStandardInput = async (values: z.infer<typeof StandardComposa
                 minLength: minLength,
                 maxValue: maxValue,
                 minValue: minValue,
-                order: order,
+                order: newOrder,
                 placeholder: placeholder,
                 textArea: textArea ? textArea : '',
                 standard_ComposantId: standard_ComposantId,
-                createdBy: userId
+                createdBy: userId,
+                isCode: isCode,
+                isDescription: isDescription,
+                isLabel: isLabel
             }
         })
-
+        const event: Event = {
+            level: "info",
+            createdBy: userId,
+            message: `Le composant ${standard_ComposantId} a été créé.`,
+            scope: "standardComposantInput",
+            clientId: clientId
+        }
+        await createEvent(event)
     } catch (err) {
         console.error(err)
         throw new Error("Une erreur est survenue lors de la création du composant.")
@@ -98,7 +114,7 @@ export const updateStandardInputOrder = async (id: string, newOrder: number, mov
         throw new Error("Une erreur est survenue lors de la mise à jour de l'ordre.")
     }
     revalidatePath('/editor/component');
-    redirect(`/editor/component/${stdComponentInput.Standard_Composant.id}`);
+    redirect(`/ editor / component / ${stdComponentInput.Standard_Composant.id}`);
 }
 
 export const createComponent = async (values: z.infer<typeof StandardComposantSchema>) => {
@@ -143,6 +159,6 @@ export const createComponent = async (values: z.infer<typeof StandardComposantSc
     if (!component) throw new Error("Le composant n'a pas été trouvé.")
 
     revalidatePath('/editor/component');
-    redirect(`/editor/component/${component.id}`);
+    redirect(`/ editor / component / ${component.id}`);
 
 }
