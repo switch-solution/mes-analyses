@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { userIsEditor, userIsValid } from "./security.query";
 import { getMyClient } from "./user.query";
+import { getSoftwareByUserIsEditor } from "./software.query";
 
 export const getStdComponentWithInput = async (componentId: string) => {
     try {
@@ -26,16 +27,12 @@ export const countStdComponent = async () => {
     try {
         const user = await userIsValid()
         if (!user) throw new Error('Vous devez être connecté pour effectuer cette action')
-        const isEditor = await userIsEditor()
-        if (!isEditor) throw new Error('Vous devez être éditeur pour effectuer cette action')
-        const userClient = await getMyClient()
-        if (!userClient) {
-            throw new Error("L'utilisateur n'est associé à aucun client.")
-        }
-        const count = await prisma.standard_Composant.count({
+
+        const softwares = await getSoftwareByUserIsEditor()
+        const count = await prisma.software.count({
             where: {
                 clientId: {
-                    in: userClient.map((client) => client.id)
+                    in: softwares.map((software) => software.id)
                 }
             }
         })
@@ -53,14 +50,12 @@ export const getStdComponent = async () => {
         if (!user) throw new Error('Vous devez être connecté pour effectuer cette action')
         const isEditor = await userIsEditor()
         if (!isEditor) throw new Error('Vous devez être éditeur pour effectuer cette action')
-        const userClient = await getMyClient()
-        if (!userClient) {
-            throw new Error("L'utilisateur n'est associé à aucun client.")
-        }
+        const sofwares = await getSoftwareByUserIsEditor()
+
         const stdComponent = await prisma.standard_Composant.findMany({
             where: {
                 clientId: {
-                    in: userClient.map((client) => client.id)
+                    in: sofwares.map((software) => software.id)
                 },
             },
             include: {

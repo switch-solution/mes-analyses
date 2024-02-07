@@ -57,6 +57,7 @@ model User {
   UserOtherData UserOtherData[]
   UserClient    UserClient[]
   UserProject   UserProject[]
+  UserSoftware  UserSoftware[]
 }
 
 model UserOtherData {
@@ -163,6 +164,22 @@ model Software {
   Standard_Book      Standard_Book[]
   Standard_Composant Standard_Composant[]
   Project            Project[]
+  SoftwareItems      SoftwareItems[]
+  ConstantLegal      ConstantLegal[]
+  UserSoftware       UserSoftware[]
+}
+
+model UserSoftware {
+  userId     String
+  softwareId String
+  createdAt  DateTime @default(now())
+  isEditor   Boolean  @default(false)
+  updatedAt  DateTime @updatedAt
+  createdBy  String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  software   Software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+
+  @@id([userId, softwareId])
 }
 
 model Standard_Book {
@@ -511,4 +528,55 @@ model SandboxValues {
   composantId                String
   composant                  Standard_Composant       @relation(fields: [composantId], references: [id])
   version                    Int
+}
+
+model SoftwareItems {
+  id          String
+  slug        String   @unique @default(cuid())
+  softwareId  String
+  software    Software @relation(fields: [softwareId], references: [id])
+  type        String
+  label       String
+  description String
+  idccCode    String
+  Idcc        Idcc?    @relation(fields: [idccCode], references: [code])
+  version     Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+  base        String
+  rate        String
+  amount      String
+  status      String
+
+  @@id([id, type, softwareId, version])
+}
+
+model ConstantLegal {
+  code        String
+  label       String
+  description String
+  level       String
+  idccCode    String
+  Idcc        Idcc?     @relation(fields: [idccCode], references: [code])
+  value       String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   String
+  dateStart   DateTime
+  dateEnd     DateTime
+  softwareId  String?
+  software    Software? @relation(fields: [softwareId], references: [id])
+
+  @@id([code, level, dateStart, dateEnd])
+}
+
+model Idcc {
+  code          String          @id
+  label         String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  createdBy     String          @default("System")
+  SoftwareItems SoftwareItems[]
+  ConstantLegal ConstantLegal[]
 }

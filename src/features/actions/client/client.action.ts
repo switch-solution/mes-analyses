@@ -3,18 +3,12 @@
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { getAuthSession } from '@/lib/auth';
 import { ClientFormSchema } from "@/src/helpers/definition";
-
+import { userIsValid } from '@/src/query/security.query';
 
 export const createClient = async (formdata: FormData) => {
-
-    const session = await getAuthSession();
-    if (!session) throw new Error("Vous devez être connecté pour effectuer cette action.");
-
-    const userId = session.user.id;
+    const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
-
 
     const { siret, ape, address1, address2, address3, address4, city, codeZip, country, socialReason } = ClientFormSchema.parse({
         siret: formdata.get('siret'),
@@ -29,25 +23,13 @@ export const createClient = async (formdata: FormData) => {
         socialReason: formdata.get('socialReason')
     })
 
-    if (siret && socialReason) {
-        const searchClient = await prisma.client.findFirst({
-            where: {
-                OR: [
-                    { siret: siret },
-                    { socialReason: socialReason }
-                ]
-            }
-        })
-        if (searchClient) {
-            redirect(`/client/${socialReason}`);
-        }
-    }
 
+    let clientId = undefined
     try {
         const currentDate = new Date();
         const add90Days = new Date(currentDate.setDate(currentDate.getDate() + 90))
 
-        await prisma.client.create({
+        clientId = await prisma.client.create({
             data: {
                 socialReason: socialReason,
                 siret: siret,
@@ -90,7 +72,7 @@ export const createClient = async (formdata: FormData) => {
         throw new Error("Une erreur est survenue lors de la création du client.")
     }
 
-    revalidatePath('/client/');
-    redirect(`/client/`);
+    revalidatePath(`/client/${clientId}`);
+    redirect(`/client/${clientId}`);
 
 }

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { userIsEditor, userIsValid } from "@/src/query/security.query";
 import { getMyClient } from "./user.query";
+import { getSoftwareByUserIsEditor } from "./software.query";
 
 export const getMyEditableSoftware = async () => {
     try {
@@ -10,38 +11,16 @@ export const getMyEditableSoftware = async () => {
         if (!userId) {
             throw new Error("L'utilisateur n'est pas connecté.")
         }
-        const isEditor = await userIsEditor()
-        if (!isEditor) {
-            throw new Error("L'utilisateur n'est pas éditeur d'un client.")
-        }
-        const clientEditableForUser = await prisma.userClient.findMany({
+        const softwareEditableForUser = await prisma.userSoftware.findMany({
             where: {
                 userId: userId,
-                isEditor: true,
-                isBillable: true,
-                isBlocked: false
+                isEditor: true
             },
-            select: {
-                clientId: true
-            }
-        })
-
-        if (!clientEditableForUser) {
-            throw new Error("L'utilisateur n'est pas éditeur d'un client.")
-        }
-
-        const softwareEditableForUser = await prisma.software.findMany({
-            where: {
-                clientId: {
-                    in: clientEditableForUser.map((client) => client.clientId)
-                }
+            include: {
+                software: true
             }
 
         })
-
-        if (!softwareEditableForUser) {
-            throw new Error("L'utilisateur n'est pas éditeur d'un logiciel.")
-        }
 
         return softwareEditableForUser
 
@@ -62,27 +41,20 @@ export const getMyBookEditable = async () => {
         if (!userId) {
             throw new Error("L'utilisateur n'est pas connecté.")
         }
-        const userClient = await getMyClient()
-        if (!userClient) {
-            throw new Error("L'utilisateur n'est associé à aucun client.")
-        }
-        const isEditor = await userIsEditor()
-        if (!isEditor) {
-            throw new Error("L'utilisateur n'est pas éditeur.")
-        }
-
-        const bookEditableForUser = await prisma.software.findMany({
+        const bookEditableForUser = await prisma.userSoftware.findMany({
             where: {
-                clientId: {
-                    in: userClient.map((client) => client.id)
-                }
+                userId: userId,
+                isEditor: true
             },
             include: {
-                Standard_Book: true,
-            },
-            orderBy: {
-                id: 'asc'
+                software: {
+                    include: {
+                        Standard_Book: true
+                    }
+
+                }
             }
+
         })
 
         return bookEditableForUser
@@ -90,6 +62,31 @@ export const getMyBookEditable = async () => {
         console.error(err)
         throw new Error("Une erreur est survenue lors de la récupération des données de la table Book")
     }
+}
+
+export const countMySoftwareItemsEditable = async () => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+        if (!userId) {
+            throw new Error("L'utilisateur n'est pas connecté.")
+        }
+        const softwares = await getSoftwareByUserIsEditor()
+        const countItems = await prisma.softwareItems.count({
+            where: {
+                softwareId: {
+                    in: softwares.map((software) => software.id)
+                }
+            }
+        })
+        return countItems
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des données de la table Software_Item")
+    }
+
+
 }
 
 export const countMyBookEditable = async () => {
@@ -103,23 +100,17 @@ export const countMyBookEditable = async () => {
             throw new Error("L'utilisateur n'est associé à aucun client.")
         }
 
-        const isEditor = await userIsEditor()
-        if (!isEditor) {
-            throw new Error("L'utilisateur n'est pas éditeur.")
-        }
-
-        const clientSoftware = await prisma.software.findMany({
+        const softwares = await prisma.userSoftware.findMany({
             where: {
-                clientId: {
-                    in: userClient.map((client) => client.id)
-                }
+                userId: userId,
+                isEditor: true
             },
         })
 
         const countBook = await prisma.standard_Book.count({
             where: {
                 softwareId: {
-                    in: clientSoftware.map((software) => software.id)
+                    in: softwares.map((software) => software.softwareId)
                 }
             }
         })
@@ -140,7 +131,6 @@ export const getStandardInput = async () => {
         if (!userClient) {
             throw new Error("L'utilisateur n'est associé à aucun client.")
         }
-
         const isEditor = await userIsEditor()
         if (!isEditor) {
             throw new Error("L'utilisateur n'est pas éditeur d'un client.")

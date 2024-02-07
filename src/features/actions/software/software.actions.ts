@@ -92,6 +92,14 @@ export const createSoftware = async (formdata: FormData) => {
                 provider,
                 clientId,
                 createdBy: userId,
+                UserSoftware: {
+                    create: {
+                        userId: userId,
+                        isEditor: true,
+                        createdBy: userId
+
+                    }
+                }
             }
         })
 

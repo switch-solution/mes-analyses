@@ -243,3 +243,22 @@ export const userIsAuthorizeToAddBookInProject = async (projectId: string) => {
     }
 
 }
+
+export const userIsAuthorizeToEditSoftware = async (softwareId: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+        const software = await prisma.userSoftware.findFirstOrThrow({
+            where: {
+                userId: userId,
+                softwareId: softwareId,
+                isEditor: true
+            },
+        })
+        return software
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des logiciels.")
+    }
+}
+

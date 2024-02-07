@@ -7,12 +7,8 @@ export const getCountUsersClient = async (clientId: string) => {
 
         const userId = await userIsValid()
         if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        const idClient = await prisma.client.findUnique({
-            where: {
-                id: clientId
-            }
-        })
-        if (!idClient) {
+        const clientExist = await getClientById(clientId)
+        if (!clientExist) {
             throw new Error("Le client n'existe pas.")
         }
         const countUser = await prisma.userClient.count({
@@ -34,7 +30,9 @@ export const getSoftwaresClient = async (clientId: string) => {
         const userId = await userIsValid()
         if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
         const clientExist = await getClientById(clientId)
-
+        if (!clientExist) {
+            throw new Error("Le client n'existe pas.")
+        }
         await userIsAuthorizeForClient(clientId)
         await userIsClientEditor(clientId)
         const softwareClient = await prisma.software.findMany({
@@ -97,6 +95,9 @@ export const getCountContactClient = async (clientId: string) => {
             throw new Error("Le client id est obligatoire.")
         }
         const clientExist = await getClientById(clientId)
+        if (!clientExist) {
+            throw new Error("Le client n'existe pas.")
+        }
         const userIsAuthorize = await userIsAuthorizeForClient(clientId)
         const countContact = await prisma.contact.count({
             where: {

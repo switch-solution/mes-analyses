@@ -1,17 +1,20 @@
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/src/features/layout/DataTable";
 import { userIsValid } from "@/src/query/security.query";
-import { getSoftwareByClient } from "@/src/query/software.query";
+import { getSoftwareByUserIsEditor } from "@/src/query/software.query";
 import { getStdComponent } from "@/src/query/stdcomponent.query";
 import { getMyClient } from "@/src/query/user.query";
 
 export default async function Page() {
 
-    const user = await userIsValid()
+    const userId = await userIsValid()
+    if (!userId) {
+        throw new Error('Vous devez etre connecté pour accéder à cette page.')
+    }
     const stdComponentList = await getStdComponent()
     const clientId = await getMyClient()
     if (!clientId) throw new Error('Vous devez avoir un client')
-    const softwares = await getSoftwareByClient(clientId)
+    const softwares = await getSoftwareByUserIsEditor()
 
     const stdComponent = stdComponentList.map((std) => {
         return {
@@ -19,7 +22,7 @@ export default async function Page() {
             title: std.title,
             description: std.description,
             status: std.status,
-            software: softwares.find((s) => s.id === std.softwareId)?.name || "Inconnu",
+            software: softwares.find((s) => s.softwareId === std.softwareId)?.software.name || "Inconnu",
             open: std.id,
             edit: std.id,
             delete: std.id,

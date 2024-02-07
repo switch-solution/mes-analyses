@@ -1,5 +1,4 @@
 import React from "react";
-import { ThemeToggle } from "../../theme/ThemeToggle";
 import { LoginButton } from "../auth/LoginButton";
 import { getAuthSession } from "@/lib/auth";
 import { UserMenu } from "../auth/UserMenu";

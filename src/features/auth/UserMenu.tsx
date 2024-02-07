@@ -39,11 +39,7 @@ import {
 import { getAuthSession } from "@/lib/auth";
 import Link from "next/link";
 import { getRoleUser } from '@/src/query/user.query';
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "@/components/ui/avatar"
+
 
 export const UserMenu = async () => {
     const session = await getAuthSession()
@@ -125,6 +121,10 @@ export const UserMenu = async () => {
                                         <DropdownMenuItem>
                                             <FormInput className="mr-2 h-4 w-4" />
                                             <span><Link href={`/editor/component/create`}>Créer un nouveau composant</Link></span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <FormInput className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/editor/item/create`}>Créer une nouvelle rubrique</Link></span>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                     </DropdownMenuSubContent>

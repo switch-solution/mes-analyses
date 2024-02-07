@@ -32,10 +32,26 @@ export const StandardComposantSchema = z.object({
 export const EventSchema = z.object({
     level: z.enum(['info', 'warning', 'error']),
     message: z.string().min(2, { message: "Le message doit contenir au moins 2 caractères." }),
-    scope: z.enum(['client', 'book', 'standardComposant', 'chapter', 'project', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant', 'invoice']),
+    scope: z.enum(['client', 'book', 'softwareItem', 'standardComposant', 'chapter', 'project', 'editor', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant', 'invoice']),
     clientId: z.string().optional(),
     projectId: z.string().optional(),
     createdBy: z.string().min(1, { message: "L'utilisateur est obligatoire." }),
+})
+
+export const SoftwareItemSchema = z.object({
+    id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
+    label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
+    type: z.enum(['Salaire de base', 'Prime', 'Cotisation', 'Rubrique de net']),
+    description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
+    idccCode: z.string().min(1, { message: "L'idcc est obligatoire." }),
+    version: z.number().positive().optional(),
+    base: z.string().optional(),
+    rate: z.string().optional(),
+    amount: z.string().optional(),
+    status: z.enum(['actif', 'archivé']).optional(),
+    softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+    slug: z.string().optional(),
+
 })
 
 export const StandardComposantInputSchema = z.object({

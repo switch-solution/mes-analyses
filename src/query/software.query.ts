@@ -20,16 +20,22 @@ export const getSoftwareByClientId = async (clientId: string) => {
 
 }
 
-export const getSoftwareByClient = async (clientId: { id: string, socialReason: string, siret: string }[]) => {
+export const getSoftwareByUserIsEditor = async () => {
     try {
         const userId = await userIsValid()
         if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+        const softwaresEdit = await prisma.userSoftware.findMany({
+            where: {
+                userId: userId,
+                isEditor: true
+            }
+        })
         const softwares = await prisma.software.findMany({
             where: {
-                clientId: {
-                    in: clientId.map((client) => client.id)
+                id: {
+                    in: softwaresEdit.map((software) => software.softwareId)
                 }
-            },
+            }
         })
         return softwares
     } catch (err) {
@@ -56,23 +62,12 @@ export const getSoftwareClient = async (softwareId: string) => {
 }
 
 export const getSoftwareById = async (softwareId: string) => {
-    const userId = await userIsValid()
-    if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
 
-    const software = await prisma.software.findUnique({
+    const software = await prisma.software.findUniqueOrThrow({
         where: {
             id: softwareId
         }
     })
-
-    if (!software) throw new Error("Le logiciel n'existe pas.")
-
-    const clientExist = await prisma.client.findUnique({ where: { id: software.clientId } })
-
-    if (!clientExist) throw new Error("Le client n'existe pas.")
-
-    const isAdmin = await userIsAdminClient(software.clientId)
-    if (!isAdmin) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
 
     return software
 }
