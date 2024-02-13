@@ -48,7 +48,6 @@ export const createValues = async (componentId: string, formData: FormData) => {
         level: "info",
         message: `Test du composant ${formData.get("standardComposantId")}`,
         scope: "standardComposantInput",
-        createdBy: userId
     }
     await createEvent(event)
 

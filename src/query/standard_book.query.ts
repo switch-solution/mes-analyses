@@ -9,7 +9,7 @@ export const countChapter = async (bookId: string) => {
         }
         const clientId = await getBookClient(bookId)
         if (!clientId) { throw new Error("Le client n'existe pas.") }
-        const isEditor = await userIsEditorClient(userId, clientId)
+        const isEditor = await userIsEditorClient(clientId)
         if (!isEditor) {
             throw new Error("L'utilisateur n'est pas éditeur d'un client.")
         }
@@ -39,11 +39,9 @@ export const getBookClient = async (bookId: string) => {
             throw new Error("L'utilisateur n'est pas connecté.")
         }
 
-        const book = await prisma.standard_Book.findUnique({ where: { id: bookId } })
-        if (!book) {
-            throw new Error("Le livre n'existe pas.")
-        }
-        const bookSoftware = book.softwareId
+        const bookExist = await getBookExist(bookId)
+        if (!bookExist) { throw new Error("Le livre n'existe pas.") }
+        const bookSoftware = bookExist.softwareId
 
         const softwareBookInfo = await prisma.software.findUnique({
             where: {
@@ -118,7 +116,7 @@ export const getChapterBook = async (bookId: string) => {
         }
         const clientId = await getBookClient(bookId)
 
-        const isEditor = await userIsEditorClient(userId, clientId)
+        const isEditor = await userIsEditorClient(clientId)
         if (!isEditor) {
             throw new Error("L'utilisateur n'est pas éditeur d'un client.")
         }
@@ -128,14 +126,13 @@ export const getChapterBook = async (bookId: string) => {
                 bookId: bookId
             },
             orderBy: [{
-                level: 'asc'
-
+                level_1: 'asc'
             },
             {
-                rank: 'asc'
+                level_2: 'asc'
             },
             {
-                underRank: 'asc'
+                level_3: 'asc'
             }
             ]
         })
@@ -156,7 +153,7 @@ export const countChapterComposant = async (bookId: string) => {
         }
         const clientId = await getBookClient(bookId)
 
-        const isEditor = await userIsEditorClient(userId, clientId)
+        const isEditor = await userIsEditorClient(clientId)
         if (!isEditor) {
             throw new Error("L'utilisateur n'est pas éditeur d'un client.")
         }
@@ -184,11 +181,8 @@ export const countChapterComposant = async (bookId: string) => {
 
 export const getBookExist = async (bookId: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const book = await prisma.standard_Book.count({ where: { id: bookId } })
+
+        const book = await prisma.standard_Book.findFirstOrThrow({ where: { id: bookId } })
         return book
     } catch (err) {
         console.error(err)
@@ -215,5 +209,43 @@ export const getBookWitchChapter = async (bookId: string) => {
         return getBookWitchChapter
     } catch (err) {
         throw new Error("Impossible de récupérer les chapitres du livre.")
+    }
+}
+
+export const getStdComponentByBookId = async (bookId: string) => {
+    try {
+        const bookExist = await getBookExist(bookId)
+        if (!bookExist) {
+            throw new Error("Le livre n'existe pas.")
+
+        }
+        const clientId = await getBookClient(bookExist.id)
+        if (!clientId) {
+            throw new Error("Le client n'existe pas.")
+        }
+        const userIsAuthorize = await userIsEditorClient(clientId)
+        if (!userIsAuthorize) {
+            throw new Error("L'utilisateur n'est pas éditeur du client.")
+        }
+        const chapters = await getChapterBook(bookId)
+        const chaptersComponents = await prisma.chapterStdComposant.findMany({
+            where: {
+                chapterId: {
+                    in: chapters.map(chapter => chapter.id)
+                }
+            },
+            include: {
+                standardComposant: true,
+                StandardChapter: true
+
+            }
+        })
+
+
+        return chaptersComponents
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Impossible de récupérer les composants du livre.")
     }
 }

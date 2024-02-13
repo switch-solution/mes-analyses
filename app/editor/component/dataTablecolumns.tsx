@@ -10,6 +10,7 @@ export type StdComponent = {
     description: string | null
     status: string | null
     software: string | null
+    type: string | null
     open: string | null
     edit: string | null
     delete: string | null
@@ -36,6 +37,10 @@ export const columns: ColumnDef<StdComponent>[] = [
     {
         accessorKey: "software",
         header: "Logiciel",
+    },
+    {
+        accessorKey: "type",
+        header: "Type",
     },
     {
         accessorKey: "open",

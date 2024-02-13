@@ -1,4 +1,3 @@
-import React from 'react'
 import {
     Cloud,
     Book,
@@ -20,7 +19,6 @@ import {
     FormInput
 } from "lucide-react"
 import { LogoutButton } from "./LogoutButton";
-
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -36,14 +34,13 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getAuthSession } from "@/lib/auth";
 import Link from "next/link";
-import { getRoleUser } from '@/src/query/user.query';
-
-
+import { getUser } from '@/src/query/user.query';
 export const UserMenu = async () => {
-    const session = await getAuthSession()
-    const role = await getRoleUser()
+    const session = await getUser()
+    if (!session) {
+        throw new Error("L'utilisateur n'est pas connecté.")
+    }
     return (
 
         <DropdownMenu>
@@ -126,6 +123,10 @@ export const UserMenu = async () => {
                                             <FormInput className="mr-2 h-4 w-4" />
                                             <span><Link href={`/editor/item/create`}>Créer une nouvelle rubrique</Link></span>
                                         </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <FormInput className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/editor/attachment/create`}>Créer une PJ à fournir</Link></span>
+                                        </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                     </DropdownMenuSubContent>
                                 </DropdownMenuPortal>
@@ -182,7 +183,9 @@ export const UserMenu = async () => {
                     <span><LogoutButton /></span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
-        </DropdownMenu>)
+        </DropdownMenu>
+
+    )
 }
 
 

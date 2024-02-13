@@ -1,35 +1,22 @@
-import { columns } from "./dataTablecolumns"
-import { DataTable } from "@/src/features/layout/DataTable";
-import { userIsEditorClient, userIsValid } from "@/src/query/security.query";
-import { getStandardComponentClient } from "@/src/query/stdcomponent.query"
-import { getStandardInputByComponentId } from "@/src/query/stdComponentInput.query"
+import { userIsValid } from "@/src/query/security.query"
+import { getStandardComponentById, getStandardComponentInput } from "@/src/query/stdcomponent.query"
+import DynamicForm from "@/src/features/form/dynamic/dynamicForm"
+import CreateInput from "@/src/features/form/stdComponentInput/create"
+import { getStandardInput } from "@/src/query/standardInput.query"
 export default async function Page({ params }: { params: { componentId: string } }) {
-
-    const user = await userIsValid()
-    if (!user) throw new Error('Vous devez être connecté')
-    const clientId = await getStandardComponentClient(params.componentId)
-    const userIsEditor = await userIsEditorClient(clientId)
-    if (!userIsEditor) throw new Error('Vous n\'avez pas les droits pour accéder à cette page')
-    const componentInputList = await getStandardInputByComponentId(params.componentId)
-    const invoices = componentInputList.map((component) => {
-        return {
-            id: component.id,
-            type: component.type,
-            label: component.label,
-            isCode: component.isCode ? 'Oui' : 'Non',
-            isLabel: component.isLabel ? 'Oui' : 'Non',
-            isDescription: component.isDescription ? 'Oui' : 'Non',
-            order: component.order,
-            open: component.id,
-            edit: component.id,
-            delete: component.id,
-
-        }
-    })
-
+    const userId = await userIsValid()
+    if (!userId) throw new Error('Vous devez etre conneté pour acceder à cette page.')
+    const componentExist = await getStandardComponentById(params.componentId)
+    if (!componentExist) {
+        throw new Error('Le composant n\'existe pas')
+    }
+    const inputs = await getStandardComponentInput(params.componentId)
+    const inputType = await getStandardInput()
     return (
         <div className="container mx-auto py-10">
-            <DataTable columns={columns} data={invoices} href={`/editor/component/${params.componentId}/input/`} hrefToCreate={`/editor/component/${params.componentId}/create`} searchPlaceholder="Chercher par nom" inputSearch="label" />
+            <DynamicForm componentId={params.componentId} inputs={inputs} />
+            <CreateInput componentId={params.componentId} inputType={inputType} />
         </div>
+
     )
 }

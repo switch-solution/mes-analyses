@@ -79,10 +79,29 @@ export const getStandardInputByComponentId = async (composantId: string) => {
         const componentInput = await prisma.standard_Composant_Input.findMany({
             where: {
                 standard_ComposantId: composantId
-
             }
         })
         return componentInput
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur lors de la récupération des composants standards')
+    }
+
+}
+
+export const getLastOrderInputByComponentId = async (composantId: string) => {
+    try {
+        const componentExist = await getStandardComponentById(composantId)
+        if (!componentExist) throw new Error('Le composant n\'existe pas')
+        const lastOrder = await prisma.standard_Composant_Input.findFirst({
+            where: {
+                standard_ComposantId: composantId
+            },
+            orderBy: {
+                order: 'desc'
+            }
+        })
+        return lastOrder?.order
     } catch (err) {
         console.error(err)
         throw new Error('Erreur lors de la récupération des composants standards')

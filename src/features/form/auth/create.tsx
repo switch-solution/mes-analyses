@@ -17,29 +17,18 @@ import {
 } from "@/components/ui/form"
 import { RegisterSchema } from "@/src/helpers/definition"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function RegisterForm() {
 
     const form = useForm<z.infer<typeof RegisterSchema>>({
         resolver: zodResolver(RegisterSchema),
         defaultValues: {
-            civility: "",
             email: "",
-            firstname: "",
-            lastname: "",
             password: "",
             confirmPassword: "",
-
         },
     })
     const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {
-        try {
-            await RegisterSchema.parseAsync(data)
-        } catch (e) {
-            console.error(e)
-            toast.error('Oups une erreur est survenue')
-        }
         try {
             await createUser(data)
         } catch (e) {
@@ -51,66 +40,6 @@ export default function RegisterForm() {
         <div className="flex flex-col w-full items-center">
             < Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <FormField
-                        control={form.control}
-                        name="civility"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Civilité</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Indiquer votre civilité" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="M">Monsieur</SelectItem>
-                                        <SelectItem value="Mme">Madame</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormDescription>
-                                    Selectionner votre civilité{" "}
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="lastname"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Nom</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Votre nom" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                    Votre nom
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-
-                        )}
-
-                    />
-                    <FormField
-                        control={form.control}
-                        name="firstname"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Prénom</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Henry" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                    Votre prénom
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-
-                        )}
-
-                    />
                     <FormField
                         control={form.control}
                         name="email"
@@ -127,7 +56,6 @@ export default function RegisterForm() {
                             </FormItem>
 
                         )}
-
                     />
                     <FormField
                         control={form.control}

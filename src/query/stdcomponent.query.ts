@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { userIsEditor, userIsValid } from "./security.query";
+import { userIsAuthorizeToEditSoftware, userIsEditor, userIsValid } from "./security.query";
 import { getMyClient } from "./user.query";
 import { getSoftwareByUserIsEditor } from "./software.query";
-
+import { Event } from "@/src/helpers/type";
+import { createEvent } from "./logger.query";
 export const getStdComponentWithInput = async (componentId: string) => {
     try {
         const componentExist = await getStandardComponentById(componentId)
@@ -29,9 +30,9 @@ export const countStdComponent = async () => {
         if (!user) throw new Error('Vous devez être connecté pour effectuer cette action')
 
         const softwares = await getSoftwareByUserIsEditor()
-        const count = await prisma.software.count({
+        const count = await prisma.standard_Composant.count({
             where: {
-                clientId: {
+                softwareId: {
                     in: softwares.map((software) => software.id)
                 }
             }
@@ -46,32 +47,24 @@ export const countStdComponent = async () => {
 
 export const getStdComponent = async () => {
     try {
-        const user = await userIsValid()
-        if (!user) throw new Error('Vous devez être connecté pour effectuer cette action')
-        const isEditor = await userIsEditor()
-        if (!isEditor) throw new Error('Vous devez être éditeur pour effectuer cette action')
         const sofwares = await getSoftwareByUserIsEditor()
-
         const stdComponent = await prisma.standard_Composant.findMany({
             where: {
-                clientId: {
+                softwareId: {
                     in: sofwares.map((software) => software.id)
                 },
-            },
-            include: {
-                software: true,
             },
             orderBy: {
                 softwareId: 'asc'
             }
         })
-        if (!stdComponent) throw new Error("Le composant n'existe pas.")
         return stdComponent
     } catch (err) {
         console.error(err)
         throw new Error('Erreur de récupération des composants')
     }
 }
+
 
 export const getMaxStdComponetWithInput = async (componentId: string) => {
     try {
@@ -100,6 +93,43 @@ export const getMaxStdComponetWithInput = async (componentId: string) => {
 
 }
 
+export const getStandardComponentInput = async (componentId: string) => {
+    try {
+        const componentExist = await getStandardComponentById(componentId)
+        if (!componentExist) throw new Error("Le composant n'existe pas.")
+        const userIsAuthorize = await userIsAuthorizeToEditSoftware(componentExist.softwareId)
+        if (!userIsAuthorize) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
+        const inputs = await prisma.standard_Composant_Input.findMany({
+            where: {
+                standard_ComposantId: componentId
+            }
+        })
+        return inputs
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur de récupération des composants')
+    }
+}
+
+export const getStandardComponentTeaxtArea = async (componentId: string) => {
+    try {
+        const componentExist = await getStandardComponentById(componentId)
+        if (!componentExist) throw new Error("Le composant n'existe pas.")
+        const userIsAuthorize = await userIsAuthorizeToEditSoftware(componentExist.softwareId)
+        if (!userIsAuthorize) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
+        const textarea = await prisma.standard_Composant_TextArea.findFirst({
+            where: {
+                standard_ComposantId: componentId
+            }
+        })
+        return textarea
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur de récupération des composants')
+    }
+
+}
+
 
 export const getStandardComponentById = async (id: string) => {
 
@@ -107,6 +137,11 @@ export const getStandardComponentById = async (id: string) => {
         const componentExist = await prisma.standard_Composant.findUniqueOrThrow({
             where: {
                 id: id
+            },
+            include: {
+                Standard_Composant_Image: true,
+                Standard_Composant_Input: true,
+                Standard_Composant_TextArea: true
             }
         })
         return componentExist

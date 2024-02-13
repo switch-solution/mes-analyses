@@ -19,6 +19,21 @@ export const getUser = async () => {
     return user
 }
 
+export const userIsFirstConnection = async (userId: string) => {
+    try {
+        const user = await prisma.userOtherData.findFirst({
+            where: {
+                userId: userId
+            }
+        })
+        return user
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération de l'utilisateur.")
+
+    }
+}
+
 export const getSoftwareUser = async () => {
     try {
         const userId = await userIsValid()
@@ -77,6 +92,36 @@ export const getUserByEmail = async (email: string) => {
     }
 
 }
+
+export const getMySoftware = async () => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) {
+            throw new Error("L'utilisateur n'est pas connecté.")
+        }
+        const mySoftwares = await prisma.userSoftware.findMany({
+            where: {
+                userId: userId
+            },
+            select: {
+                softwareId: true
+            }
+
+        })
+        const softwares = await prisma.software.findMany({
+            where: {
+                id: {
+                    in: mySoftwares.map(software => software.softwareId)
+                }
+            }
+        })
+        return softwares
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des logiciels de l'utilisateur.")
+    }
+
+}
 /**
  * Return the client of the user
  * @returns 
@@ -90,7 +135,7 @@ export const getMyClient = async () => {
     const client = await prisma.client.findMany({
         select: {
             socialReason: true,
-            siret: true,
+            siren: true,
             id: true,
 
         },

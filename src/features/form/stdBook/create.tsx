@@ -40,6 +40,7 @@ export default function BookCreateForm({ softwares }: { softwares: Software[] })
             await createBook(data)
         } catch (err) {
             console.error(err)
+            throw new Error('Une erreur est survenue lors de la création du cahier')
         }
 
     }
@@ -78,7 +79,7 @@ export default function BookCreateForm({ softwares }: { softwares: Software[] })
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <Input type='hidden' placeholder="Mon cahier" required {...field} />
+                                    <Input type='hidden' placeholder="Mon cahier" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -92,7 +93,7 @@ export default function BookCreateForm({ softwares }: { softwares: Software[] })
                             <FormItem>
                                 <FormLabel>Nom du cahier</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Mon cahier" required {...field} />
+                                    <Input placeholder="Mon cahier" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -106,7 +107,7 @@ export default function BookCreateForm({ softwares }: { softwares: Software[] })
                             <FormItem>
                                 <FormLabel>Description du cahier</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Mon cahier" required {...field} />
+                                    <Input placeholder="Mon cahier" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { userIsEditorClient, userIsValid } from "./security.query";
-import { getStdComponent } from "./stdcomponent.query";
+import { userIsValid } from "./security.query";
 export const getChapterStdComponents = async (chapterId: string) => {
 
     try {
@@ -22,6 +21,38 @@ export const getChapterStdComponents = async (chapterId: string) => {
         )
     }
 
+}
+
+export const getParent = async (bookId: string, level_1: number, level_2: number | undefined, level_3: number | undefined) => {
+    try {
+        if (level_1 && !level_2 && !level_3) {
+            return null
+        }
+        if (level_1 && level_2 && !level_3) {
+            return await prisma.standard_Chapter.findFirst({
+                where: {
+                    bookId: bookId,
+                    level_1: level_1,
+                    level_2: undefined,
+                    level_3: undefined
+                }
+            })
+        }
+        if (level_1 && level_2 && level_3) {
+            return await prisma.standard_Chapter.findFirst({
+                where: {
+                    bookId: bookId,
+                    level_1: level_1,
+                    level_2: level_2,
+                    level_3: undefined
+                }
+            })
+        }
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Impossible de récupèrer le chapitre")
+    }
 }
 
 export const getChapterComponentsValid = async (chapterId: string) => {

@@ -10,8 +10,8 @@ export const createClient = async (formdata: FormData) => {
     const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
 
-    const { siret, ape, address1, address2, address3, address4, city, codeZip, country, socialReason } = ClientFormSchema.parse({
-        siret: formdata.get('siret'),
+    const { siren, ape, address1, address2, address3, address4, city, codeZip, country, socialReason } = ClientFormSchema.parse({
+        siren: formdata.get('siren'),
         ape: formdata.get('ape'),
         address1: formdata.get('address1'),
         address2: formdata.get('address2'),
@@ -32,7 +32,7 @@ export const createClient = async (formdata: FormData) => {
         clientId = await prisma.client.create({
             data: {
                 socialReason: socialReason,
-                siret: siret,
+                siren: siren,
                 ape: ape,
                 address1: address1,
                 address2: address2,

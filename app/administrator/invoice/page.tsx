@@ -1,5 +1,5 @@
 import { columns } from "./dataTablecolumns"
-import { DataTable } from "@/src/features/layout/DataTable";
+import { DataTable } from "@/src/features/layout/dataTable";
 import { getAllInvoices } from "@/src/query/invoice.query";
 import { userIsAdminSystem, userIsValid } from "@/src/query/security.query";
 export default async function Page() {

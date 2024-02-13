@@ -30,7 +30,7 @@ export const createInvoices = async (formdata: FormData) => {
             const invoiceLines = []
             const getUserByClient = await getUsersClientList(client.id)
             for (let user of getUserByClient) {
-                console.log(user.id)
+
                 let userInfo = await getUserById(user.userId)
                 let invoiceLine = {
                     label: "Abonnement",
@@ -74,7 +74,6 @@ export const createInvoices = async (formdata: FormData) => {
                 level: "warning",
                 message: `Creation d'une facture pour le client ${clientInfo?.socialReason} pour un montant de ${amount}€ en date du ${convertDate.toLocaleDateString()}`,
                 scope: "invoice",
-                createdBy: userId
             }
             await createEvent(event);
 

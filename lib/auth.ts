@@ -1,12 +1,14 @@
 import GithubProvider from "next-auth/providers/github"
-import { env } from './env'
 import { AuthOptions, getServerSession } from "next-auth"
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from "./prisma"
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcrypt'
+import GoogleProvider from "next-auth/providers/google";
+import EmailProvider from 'next-auth/providers/email';
 import { createEvent } from "@/src/query/logger.query"
 import type { Event } from "@/src/helpers/type"
+import { env } from "./env"
 export const authOptions: AuthOptions = {
     adapter: PrismaAdapter(prisma),
     session: {
@@ -30,7 +32,23 @@ export const authOptions: AuthOptions = {
             }
 
         }),
+        GoogleProvider({
+            clientId: env.GOOGLE_ID,
+            clientSecret: env.GOOGLE_SECRET,
+        }),
+        EmailProvider({
+            from: env.EMAIL_FROM,
+            server: {
+                host: env.SMTP_HOST,
+                port: Number(env.SMTP_PORT),
+                auth: {
+                    user: env.SMTP_USER,
+                    pass: env.SMTP_PASSWORD,
+                },
+            },
+        }),
         // ...add more providers here
+        /**
         CredentialsProvider({
             name: "Sign in",
             credentials: {
@@ -45,12 +63,10 @@ export const authOptions: AuthOptions = {
                 //Login page : http://localhost:3000/api/auth/signin
                 //Verifier si credentials est ok
                 if (!credentials?.email || !credentials?.password) {
-
                     const event: Event = {
                         level: "warning",
                         message: "Echec de connexion, email ou mot de passe manquant",
                         scope: "user",
-                        createdBy: ""
                     }
                     await createEvent(event);
                     return null
@@ -64,7 +80,6 @@ export const authOptions: AuthOptions = {
                         level: "warning",
                         message: "Echec de connexion, utilisateur non trouvé",
                         scope: "user",
-                        createdBy: ""
                     }
                     await createEvent(event);
                     return null
@@ -75,7 +90,6 @@ export const authOptions: AuthOptions = {
                         level: "warning",
                         message: "Echec de connexion, mot de passe erroné",
                         scope: "user",
-                        createdBy: user.id
                     }
                     await createEvent(event);
                     return null
@@ -86,7 +100,6 @@ export const authOptions: AuthOptions = {
                             level: "info",
                             message: "Connexion réussie",
                             scope: "user",
-                            createdBy: user.id
                         }
                         await createEvent(event);
                         return null
@@ -95,6 +108,7 @@ export const authOptions: AuthOptions = {
                 return user
             },
         }),
+        */
     ],
     callbacks: {
         session({ session, token, user }) {
@@ -102,9 +116,7 @@ export const authOptions: AuthOptions = {
                 return session
             }
             session.user.id = token.sub
-
             return session
-
         }
 
     }

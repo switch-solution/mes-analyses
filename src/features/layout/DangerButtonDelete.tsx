@@ -17,7 +17,7 @@ import type { UseFormReturn } from "react-hook-form"
 export default function DangerButtonDelete({ form }: {
     form: UseFormReturn<{
         validation: string;
-    }, any, undefined>
+    }, any>
 }) {
 
     return (

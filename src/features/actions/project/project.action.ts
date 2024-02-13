@@ -6,9 +6,10 @@ import z from 'zod';
 import { ProjectSchema, BookToProjectSchema } from '@/src/helpers/definition';
 import { userIsValid, userIsAuthorizeToAddBookInProject } from '@/src/query/security.query';
 import { getBookByIdIncludeChapterIncludeComposant } from '@/src/query/standard_book.query';
-
+import { getStandardAttachmentBySoftwareId } from '@/src/query/standardAttachment.query';
 export const createProjet = async (values: z.infer<typeof ProjectSchema>) => {
     const { name, description, softwareId, clientId } = ProjectSchema.parse(values)
+    const attachmentsList = await getStandardAttachmentBySoftwareId(softwareId)
     const userId = await userIsValid()
     let project = null
     try {
@@ -28,13 +29,23 @@ export const createProjet = async (values: z.infer<typeof ProjectSchema>) => {
                         isValidator: true,
                         createdBy: userId,
                     }
-                }
+                },
             },
+        })
+        const projectId = project.id
+        const attachments = attachmentsList.map((attachment) => {
+            return {
+                projectId,
+                ...attachment
+            }
+        })
+        await prisma.attachment.createMany({
+            data: attachments
         })
     } catch (error) {
         console.log(error)
     }
-    revalidatePath(`/project/`);
+    revalidatePath(`/project/${project?.id}`);
 
     redirect(`/project/${project?.id}`);
 
@@ -54,7 +65,7 @@ export const copyBookToProject = async (values: z.infer<typeof BookToProjectSche
         }
         standardBook.StandardChapter.at(0)?.ChapterStdComposant.at(0)?.standardComposant.Standard_Composant_Input.at(0)?.id
         const book = {
-            name: standardBook.name,
+            name: standardBook.id,
             description: standardBook.description,
             createBy: userId,
             status: 'Actif',

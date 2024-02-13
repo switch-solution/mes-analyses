@@ -24,11 +24,11 @@ import {
 } from "@/components/ui/select"
 type Client = {
     socialReason: string,
-    siret: string,
+    siren: string,
     id: string,
 }
 
-export default function ProjectCreateForm({ clients, softwares }: { clients: Client[], softwares: Software[] }) {
+export default function CreateProject({ clients, softwares }: { clients: Client[], softwares: Software[] }) {
     const form = useForm<z.infer<typeof ProjectSchema>>({
 
         resolver: zodResolver(ProjectSchema),
@@ -36,13 +36,12 @@ export default function ProjectCreateForm({ clients, softwares }: { clients: Cli
             name: "",
             description: "",
             clientId: clients?.at(0)?.id,
-            softwareId: softwares?.at(0)?.id,
+            softwareId: softwares.at(0)?.id,
         },
     })
 
     const onSubmit = async (data: z.infer<typeof ProjectSchema>) => {
         try {
-            ProjectSchema.parse(data)
             await createProjet(data)
         } catch (err) {
             console.error(err)

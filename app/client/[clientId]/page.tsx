@@ -1,8 +1,8 @@
 import { getUser } from "@/src/query/user.query";
 import { getCountUsersClient, getCountInvitation, getCountSoftwareClient, getCountProjectClient, getCountContactClient, getNumberDaysBeforeEndTrial, getFutureBilling } from "@/src/query/client.query"
 import { userIsAdminClient } from "@/src/query/security.query";
-import CardWithOptions from "@/src/features/layout/CardWithOptions";
-import Container from "@/src/features/layout/Container";
+import CardWithOptions from "@/src/features/layout/cardWithOptions";
+import Container from "@/src/features/layout/container";
 export default async function Client({ params }: { params: { clientId: string } }) {
 
     await getUser()

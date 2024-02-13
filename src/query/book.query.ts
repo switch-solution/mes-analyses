@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { userIsAuthorizeForProject, userIsValid } from "@/src/query/security.query";
+import { getSoftwareByUserIsEditor } from "./software.query";
 export const getBookChapter = async (bookId: string) => {
     try {
         const userId = await userIsValid()
@@ -48,5 +49,23 @@ export const getBookById = async (bookId: string) => {
         console.log(err)
         throw new Error('Une erreur est survenue lors de la récupération du cahier')
     }
+}
+
+export const getBookBySoftwares = async () => {
+    try {
+        const softwares = await getSoftwareByUserIsEditor()
+        const books = await prisma.standard_Book.findMany({
+            where: {
+                softwareId: {
+                    in: softwares.map((software) => software.id)
+                }
+            }
+        })
+        return books
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la récupération des cahiers')
+    }
+
 }
 

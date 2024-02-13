@@ -1,17 +1,15 @@
-import { getAuthSession } from '@/lib/auth'
 import CreateFormComponent from '@/src/features/form/component/create'
-import { userIsEditor } from '@/src/query/security.query';
-import { getMyClient } from '@/src/query/user.query';
+import { userIsEditorClient, userIsValid } from '@/src/query/security.query';
 import { getSoftwareByUserIsEditor } from '@/src/query/software.query';
+import { getMyClientActive } from '@/src/query/client.query';
 export default async function CreateComponent() {
-    const session = await getAuthSession()
-    if (!session?.user?.id) throw new Error('Vous devez être connecté')
-    const isEditor = await userIsEditor();
-    if (!isEditor) throw new Error('Vous devez être éditeur')
-    const clientId = await getMyClient()
-    if (!clientId) throw new Error('Vous devez avoir un client')
+    const userId = await userIsValid()
+    if (!userId) throw new Error('Vous devez être connecté')
+    const clientId = await getMyClientActive()
+    if (!clientId) throw new Error('Vous devez avoir un client actif')
+    const isEditor = await userIsEditorClient(clientId)
+    if (!isEditor) throw new Error('Vous devez être éditeur pour accéder à cette page')
     const softwares = await getSoftwareByUserIsEditor()
-    console.log(softwares)
     return (
         <CreateFormComponent clientId={clientId} softwares={softwares} />
     )

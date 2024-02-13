@@ -1,42 +1,23 @@
-import { getProjectBook } from "@/src/query/project.query"
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { LinkTableCell, LinkTableHead } from "@/src/features/layout/LinkTableCell"
-export default async function Project({ params }: { params: { projectId: string } }) {
-    const projectBook = await getProjectBook(params.projectId)
-    console.log(projectBook)
-    console.log(projectBook)
+import { userIsValid } from "@/src/query/security.query"
+import Container from "@/src/features/layout/container"
+import CardWithOptions from "@/src/features/layout/cardWithOptions"
+import { getCountProjectUsers, getCountProjectBook, getCountProjectAttchment } from "@/src/query/project.query"
+export default async function Page({ params }: { params: { projectId: string } }) {
+    const userId = await userIsValid()
+    if (!userId) {
+        throw new Error('Vous devez etre connecté')
+    }
+    const countUser = await getCountProjectUsers(params.projectId)
+    const countBook = await getCountProjectBook(params.projectId)
+    const countAttachment = await getCountProjectAttchment(params.projectId)
     return (
-        <Table>
-            <TableCaption>Liste de vos cahiers d&apos;analyse</TableCaption>
-            <TableHeader>
-                <TableRow>
-                    <TableHead className="w-[100px]">Titre</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Status</TableHead>
-                    <LinkTableHead />
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {
-                    projectBook.map((book) => (
-                        <TableRow key={book.id}>
-                            <TableCell className="font-medium">{book.name}</TableCell>
-                            <TableCell>{book.name}</TableCell>
-                            <TableCell><Badge>En attente</Badge></TableCell>
-                            <LinkTableCell linkToView={`/project/${params.projectId}/book/${book.id}`} linkToEdit={`/project/${params.projectId}/book/${book.id}/edit`} linkToDelete={`/project/${params.projectId}/book`} />
-                        </TableRow>))
-                }
-            </TableBody>
-        </Table>
-    )
+        <Container>
+            <CardWithOptions titre="Utilisateurs" content={countUser ? countUser : 0} href={`/project/${params.projectId}/user`} />
+            <CardWithOptions titre="Cahiers" content={countBook ? countBook : 0} href={`/project/${params.projectId}/book`} />
+            <CardWithOptions titre="Element à fournir" content={countAttachment ? countAttachment : 0} href={`/project/${params.projectId}/attachment`} />
+            <CardWithOptions titre="Tableau de bord" content={countUser ? countUser : 0} href={`/project/${params.projectId}/dashboard`} />
 
+        </Container>
+
+    )
 }

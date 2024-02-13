@@ -1,7 +1,7 @@
 import { userIsAdminSystem, userIsValid } from "@/src/query/security.query";
-import Container from "@/src/features/layout/Container";
+import Container from "@/src/features/layout/container";
 import { getCountAllInvoices } from "@/src/query/invoice.query";
-import CardWithOptions from "@/src/features/layout/CardWithOptions";
+import CardWithOptions from "@/src/features/layout/cardWithOptions";
 export default async function Page() {
     const user = await userIsValid()
     if (!user) {

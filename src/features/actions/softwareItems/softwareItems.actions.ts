@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { SoftwareItemSchema } from "@/src/helpers/definition";
 import { userIsValid, userIsAuthorizeToEditSoftware } from "@/src/query/security.query";
-import { getSoftwareById, getSoftwareByUserIsEditor } from "@/src/query/software.query";
+import { getSoftwareById } from "@/src/query/software.query";
 import { createEvent } from "@/src/query/logger.query";
 import type { Event } from "@/src/helpers/type";
 import { getIdccByCode } from "@/src/query/idcc.query";
@@ -38,7 +38,6 @@ export const createSoftwareItem = async (values: z.infer<typeof SoftwareItemSche
             }
         })
         const event: Event = {
-            createdBy: userId,
             scope: 'softwareItem',
             message: `Création de la rubrique ${id} ${label} pour le logiciel ${softwareExist.name}`,
             level: 'info'

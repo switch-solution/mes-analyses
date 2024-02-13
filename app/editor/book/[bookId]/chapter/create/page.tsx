@@ -1,8 +1,13 @@
-import CreateChapterForm from "@/src/features/form/stdChapter/create";
-import { getChapterBook } from "@/src/query/standard_book.query";
-export default async function CreateChapter({ params }: { params: { bookId: string } }) {
-    const chapters = await getChapterBook(params.bookId)
-
-    return (<CreateChapterForm bookId={params.bookId} chapters={chapters} />)
+import { userIsValid } from "@/src/query/security.query"
+import CreateChapter from "@/src/features/form/stdChapter/create"
+export default async function Page({ params }: { params: { bookId: string } }) {
+    const userId = await userIsValid()
+    if (!userId) {
+        throw new Error('Vous devez etre connecté')
+    }
+    return (<div>
+        <CreateChapter bookId={params.bookId} />
+    </div>
+    )
 
 }

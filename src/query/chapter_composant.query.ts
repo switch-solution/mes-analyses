@@ -1,13 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { userIsEditorClient, userIsValid } from "./security.query";
-
+import { getStandardInputByComponentId } from "@/src/query/stdComponentInput.query"
 export const getChapterStdComponents = async (chapterId: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-
         const chapterComponents = await prisma.chapterStdComposant.findMany({
             where: {
                 chapterId: chapterId
@@ -25,6 +19,24 @@ export const getChapterStdComponents = async (chapterId: string) => {
         console.error(err)
         throw new Error("Impossible de récupérer les composants du chapitre.")
 
+    }
+
+}
+
+export const getStandardInputByChapter = async (chapterId: string) => {
+    try {
+        const chapters = await getChapterStdComponents(chapterId)
+
+        const componentsInput = []
+
+        for (let chapter of chapters) {
+            componentsInput.push(...await getStandardInputByComponentId(chapter.standardComposant.id))
+        }
+
+        return componentsInput
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur lors de la récupération des composants standards')
     }
 
 }

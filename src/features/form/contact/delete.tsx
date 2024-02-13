@@ -28,7 +28,6 @@ export default function ContactDelete({ contactId }: { contactId: string }) {
     return (
         <Form {...form}  >
             <form action={deleteContactWithId} onSubmit={form.handleSubmit(onSubmit)}>
-                <DangerButtonDelete form={form} />
             </form>
         </Form>
 

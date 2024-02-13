@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from '@/components/ui/input'
 import { createStandardInput } from "@/src/features/actions/component/component.action";
 import { StandardComposantInputSchema } from '@/src/helpers/definition';
-import { Textarea } from '@/components/ui/textarea';
 import type { InputStandardType } from "@/src/helpers/type"
+import type { getStandardInputType } from '@/src/helpers/type'
 import {
     Select,
     SelectContent,
@@ -18,6 +18,7 @@ import {
     SelectGroup,
     SelectLabel
 } from "@/components/ui/select"
+import { Plus } from 'lucide-react';
 import {
     Form,
     FormControl,
@@ -28,409 +29,325 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
+import { set } from 'date-fns';
 
-export default function CreateInput({ composantId }: { composantId: string }) {
-    const [type, setType] = useState<InputStandardType | undefined>()
+
+export default function CreateInput({ componentId, inputType }: {
+    componentId: string, inputType: getStandardInputType[]
+}) {
+    const [type, setType] = useState<InputStandardType>('text')
+    const [choiceIsVisible, setChoiceIsVisible] = useState(true)
+    const [addInput, setAddInput] = useState(false)
     const form = useForm<z.infer<typeof StandardComposantInputSchema>>({
         resolver: zodResolver(StandardComposantInputSchema),
         defaultValues: {
-            type: type,
-            label: "",
+            label: '',
             required: false,
             readonly: false,
-            placeholder: "",
-            order: 1,
+            maxLength: 1,
+            minLength: 1,
+            minValue: 1,
+            maxValue: 1,
+            placeholder: '',
             multiple: false,
-            textArea: "",
+            order: 1,
             isCode: false,
             isLabel: false,
             isDescription: false,
-            minLength: 1,
-            maxLength: 255,
-            standard_ComposantId: composantId
 
         }
     })
-    const formChoice = useForm({
-        defaultValues: {
-            type: type
-        }
-
-    })
+    const createStandardInputWithId = createStandardInput.bind(null, componentId).bind(null, type)
     const onSubmit = async (values: z.infer<typeof StandardComposantInputSchema>) => {
         try {
-            StandardComposantInputSchema.parse(values)
-            await createStandardInput(values)
+            await createStandardInputWithId(values)
+            setChoiceIsVisible(() => true)
+            setAddInput(() => false)
+            setType(() => 'text')
         } catch (err) {
+            setChoiceIsVisible(() => true)
+            setAddInput(() => false)
+            setType(() => 'text')
             console.error(err)
         }
 
     }
-    const onSubmitChoiceType = async (values: any) => {
-        setType(() => values.type)
-        console.log(type)
+
+    const onClick = () => {
+        setChoiceIsVisible(() => false)
+        setAddInput(() => true)
     }
-    return (<div className="flex flex-col w-full items-center">
-        {!type ?
-            <Form {...formChoice} >
-                <form onSubmit={formChoice.handleSubmit(onSubmitChoiceType)} className='space-y-8'>
-                    <FormField
-                        control={formChoice.control}
-                        name="type"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Selectionner un type de champ</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Texte" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="text">Texte</SelectItem>
-                                        <SelectItem value="number">Numérique</SelectItem>
-                                        <SelectItem value="date">Date</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <Button type="submit">Continuer</Button>
 
-                </form>
+    return (<div>
+        {choiceIsVisible ?
+            <>
+                <span className='flex flex-row' onClick={onClick}><Plus /> Ajouter un champ</span>
+            </> :
 
-            </Form>
-            :
-            <Form {...form} >
-                <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-                    <FormField
-                        control={form.control}
-                        name="type"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a verified email to display" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="text">Texte</SelectItem>
-                                        <SelectItem value="number">Numérique</SelectItem>
-                                        <SelectItem value="date">Date</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="type"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormControl>
-                                    <Input type='hidden' {...field} readOnly required />
-                                </FormControl>
-                            </FormItem>
+            addInput ?
+                <ChoiceTypeInput inputType={inputType} setType={setType} setAddInput={setAddInput} />
+                :
 
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="standard_ComposantId"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormControl>
-                                    <Input type='hidden' {...field} readOnly required />
-                                </FormControl>
-                            </FormItem>
-
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="label"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Libellé du champ</FormLabel>
-                                <FormControl>
-                                    <Input type="text" placeholder="" {...field} required />
-                                </FormControl>
-                                <FormDescription>
-                                    Indiquer un nom clair et précis pour le champ
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="order"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormControl>
-                                    <Input type="hidden" placeholder="" {...field} required />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="required"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                    <FormLabel className="text-base">
-                                        Champ obligatoire
-                                    </FormLabel>
-                                    <FormDescription>
-                                        Cette option rendra le champ obligatoire pour  l&apos;utilisateur.
-                                    </FormDescription>
-                                </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="readonly"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                    <FormLabel className="text-base">
-                                        Champ en lecture seule
-                                    </FormLabel>
-                                    <FormDescription>
-                                        Cette option non éditable
-                                    </FormDescription>
-                                </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="isCode"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                    <FormLabel className="text-base">
-                                        Champ code de la présentation
-                                    </FormLabel>
-                                    <FormDescription>
-                                        Ce champ sera le code dans la présentation
-                                    </FormDescription>
-                                </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="isDescription"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                    <FormLabel className="text-base">
-                                        Champ code description
-                                    </FormLabel>
-                                    <FormDescription>
-                                        Ce champ sera la description
-                                    </FormDescription>
-                                </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="isLabel"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                    <FormLabel className="text-base">
-                                        Champ intitulé
-                                    </FormLabel>
-                                    <FormDescription>
-                                        Sera le titre du champ
-                                    </FormDescription>
-                                </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    {type === 'text' ?
-                        (
-                            <>
-                                <FormField
-                                    control={form.control}
-                                    name="placeholder"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Placeholder</FormLabel>
-                                            <FormControl>
-                                                <Input type="text" placeholder="" {...field} />
-                                            </FormControl>
-                                            <FormDescription>
-                                                Indiquer un exemple de valeur pour le champ
-                                            </FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="minLength"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Nombre minimum de caractère</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" min={1} {...field} />
-                                            </FormControl>
-                                            <FormDescription>
-                                                Indiquer un nom clair et précis pour le champ
-                                            </FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="maxLength"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Nombre maximum de caractère</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" min={1} {...field} />
-                                            </FormControl>
-                                            <FormDescription>
-                                                Indiquer un nom clair et précis pour le champ
-                                            </FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </>
-
-                        ) :
-                        type === 'number' ?
-                            <>
-                                <FormField
-                                    control={form.control}
-                                    name="minValue"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Valeur minimum</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="maxValue"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Valeur maximum</FormLabel>
-                                            <FormControl>
-                                                <Input type="number"  {...field} />
-                                            </FormControl>
-
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </>
-                            :
-                            type === 'select' ?
-                                <>
-                                    <FormField
-                                        control={form.control}
-                                        name="multiple"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <div className="space-y-0.5">
-                                                    <FormLabel className="text-base">
-                                                        Possibilité de sélection multiple
-                                                    </FormLabel>
-                                                    <FormDescription>
-                                                        Permet à l&apos;utilisateur de sélectionner plusieurs valeurs
-                                                    </FormDescription>
-                                                </div>
-                                                <FormControl>
-                                                    <Switch
-                                                        checked={field.value}
-                                                        onCheckedChange={field.onChange}
-                                                    />
-                                                </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
-                                </>
-                                :
-                                type === 'textArea' ?
-                                    <FormField
-                                        control={form.control}
-                                        name="textArea"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Bio</FormLabel>
-                                                <FormControl>
-                                                    <Textarea
-                                                        placeholder="Tell us a little bit about yourself"
-                                                        className="resize-none"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormDescription>
-                                                    You can <span>@mention</span> other users and organizations.
-                                                </FormDescription>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    : undefined
-
-                    }
+                type ?
+                    <Form {...form} >
+                        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+                            <CommonInput form={form} type={type} />
+                            {type === 'text' ? <InputText form={form} /> :
+                                type === 'number' ? <InputNumber form={form} /> : null}
+                            <Button type="submit">Sauvegarder</Button>
+                        </form>
+                    </Form>
+                    : null
 
 
-                    <Button type="submit">Sauvegarder</Button>
-
-                </form>
-            </Form>
         }
     </div>
+    )
+}
+
+const ChoiceTypeInput = ({ inputType, setType, setAddInput }: {
+    inputType: getStandardInputType[],
+    setType: any
+    setAddInput: any
+}) => {
+    const onSubmit = async (values: any) => {
+        setType(() => values.type)
+        setAddInput(() => false)
+    }
+
+    const form = useForm({
+        defaultValues: {
+            type: 'text'
+        }
+
+    })
+
+    return (
+        <Form {...form} >
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+                <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Selectionner un type de champ</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Texte" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {inputType.map((input) => (
+                                        <SelectItem key={input.type} value={input.type}>{input.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <Button type="submit">Continuer</Button>
+
+            </form>
+
+        </Form>
+    )
+}
+
+const CommonInput = ({ form, type }: { form: any, type: string }) => {
+    console.log('type', type)
+    return (<>
+        <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+                <FormItem>
+                    <FormControl>
+                        <Input type="hidden" defaultValue={type} {...field} />
+                    </FormControl>
+
+                </FormItem>
+            )}
+        />
+        <FormField
+            control={form.control}
+            name="label"
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Libellé du champ</FormLabel>
+                    <FormControl>
+                        <Input type="text" placeholder="Libellé" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                        Indiquer un nom clair et précis pour le champ
+                    </FormDescription>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+
+        <FormField
+            control={form.control}
+            name="order"
+            render={({ field }) => (
+                <FormItem>
+                    <FormControl>
+                        <Input type="hidden" placeholder="" {...field} required />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+        <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+                <FormItem>
+                    <FormControl>
+                        <Input type='hidden' {...field} readOnly required />
+                    </FormControl>
+                </FormItem>
+
+            )}
+        />
+        <FormField
+            control={form.control}
+            name="required"
+            render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                            Champ obligatoire
+                        </FormLabel>
+                        <FormDescription>
+                            Cette option rendra le champ obligatoire pour  l&apos;utilisateur.
+                        </FormDescription>
+                    </div>
+                    <FormControl>
+                        <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                        />
+                    </FormControl>
+                </FormItem>
+            )}
+        />
+        <FormField
+            control={form.control}
+            name="readonly"
+            render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                            Champ en lecture seule
+                        </FormLabel>
+                        <FormDescription>
+                            Cette option non éditable
+                        </FormDescription>
+                    </div>
+                    <FormControl>
+                        <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                        />
+                    </FormControl>
+                </FormItem>
+            )}
+        />
+    </>
+
+    )
+}
+
+const InputText = ({ form }: { form: any }) => {
+    return (<>
+        <FormField
+            control={form.control}
+            name="minLength"
+            render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                            Nombre minimum de caractères
+                        </FormLabel>
+                        <FormDescription>
+                            Cette option non éditable
+                        </FormDescription>
+                    </div>
+                    <FormControl>
+                        <Input type="number" placeholder="1" {...field} />
+                    </FormControl>
+                    <FormMessage />
+
+                </FormItem>
+            )}
+        />
+        <FormField
+            control={form.control}
+            name="maxLength"
+            render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                            Nombre maximum de caractères
+                        </FormLabel>
+                        <FormDescription>
+                            Cette option non éditable
+                        </FormDescription>
+                    </div>
+                    <FormControl>
+                        <Input type="number" placeholder="1" {...field} />
+                    </FormControl>
+                    <FormMessage />
+
+                </FormItem>
+            )}
+        />
+    </>
+
+    )
+}
+
+const InputNumber = ({ form }: { form: any }) => {
+    return (<>
+        <FormField
+            control={form.control}
+            name="minValue"
+            render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                            Valeur minimale
+                        </FormLabel>
+
+                    </div>
+                    <FormControl>
+                        <Input type="number" placeholder="1" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+        <FormField
+            control={form.control}
+            name="maxValue"
+            render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                            Valeur maximale
+                        </FormLabel>
+                    </div>
+                    <FormControl>
+                        <Input type="number" placeholder="1" {...field} />
+                    </FormControl>
+                    <FormMessage />
+
+                </FormItem>
+            )}
+        />
+    </>
+
     )
 }

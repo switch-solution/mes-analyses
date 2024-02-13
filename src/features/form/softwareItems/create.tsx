@@ -49,14 +49,13 @@ export default function Create({ softwares, idccList }: { softwares: getSoftware
             type: "Salaire de base",
             description: "",
             idccCode: "9999",
-            softwareId: "",
+            softwareId: softwares?.at(0)?.id,
             status: "actif",
         },
     })
     const onSubmit = async (data: z.infer<typeof SoftwareItemSchema>) => {
         try {
             SoftwareItemSchema.parse(data)
-            console.log(data)
             await createSoftwareItem(data)
         } catch (err) {
             console.log(err)

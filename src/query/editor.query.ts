@@ -3,36 +3,6 @@ import { userIsEditor, userIsValid } from "@/src/query/security.query";
 import { getMyClient } from "./user.query";
 import { getSoftwareByUserIsEditor } from "./software.query";
 
-export const getMyEditableSoftware = async () => {
-    try {
-
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const softwareEditableForUser = await prisma.userSoftware.findMany({
-            where: {
-                userId: userId,
-                isEditor: true
-            },
-            include: {
-                software: true
-            }
-
-        })
-
-        return softwareEditableForUser
-
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors des données de la table Software")
-    }
-
-
-
-
-}
 
 export const getMyBookEditable = async () => {
     try {
@@ -64,13 +34,28 @@ export const getMyBookEditable = async () => {
     }
 }
 
-export const countMySoftwareItemsEditable = async () => {
+export const getCountAttachmentEditable = async () => {
     try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
+
+        const softwares = await getSoftwareByUserIsEditor()
+        const countAttachment = await prisma.standard_Attachment.count({
+            where: {
+                softwareId: {
+                    in: softwares.map((software) => software.id)
+                }
+            }
+        })
+        return countAttachment
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des données de la table Attachment")
+    }
+
+}
+
+export const getCountMySoftwareItemsEditable = async () => {
+    try {
+
         const softwares = await getSoftwareByUserIsEditor()
         const countItems = await prisma.softwareItems.count({
             where: {
@@ -89,7 +74,7 @@ export const countMySoftwareItemsEditable = async () => {
 
 }
 
-export const countMyBookEditable = async () => {
+export const getCountMyBookEditable = async () => {
 
     try {
         const userId = await userIsValid()

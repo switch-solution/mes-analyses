@@ -1,7 +1,7 @@
 import { z } from 'zod';
 export const ClientFormSchema = z.object({
     socialReason: z.string().max(50, { message: "La raison sociale doit contenir au moins 2 caractères." }),
-    siret: z.string().length(14),
+    siren: z.string().length(9),
     ape: z.string().length(5),
     address1: z.string().max(50, { message: "L'adresse doit contenir au moins 2 caractères." }),
     address2: z.string().max(50, { message: "L'adresse doit contenir au moins 2 caractères." }),
@@ -20,6 +20,15 @@ export const BookFormSchema = z.object({
     description: z.string().min(1, { message: "La description doit contenir au moins 2 caractères." }),
 })
 
+export const SetupSchema = z.object({
+    civility: z.string().min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
+    firstname: z.string().min(2, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    lastname: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
+    siren: z.string().length(9),
+    socialReason: z.string().max(50, { message: "La raison sociale doit contenir au moins 2 caractères." }),
+
+})
+
 export const StandardComposantSchema = z.object({
     title: z.string().min(2, { message: "Le titre doit contenir au moins 2 caractères." }).max(50, { message: "Le titre doit contenir au moins 2 caractères." }),
     description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }).max(255, { message: "La description doit contenir au moins 2 caractères." }),
@@ -32,10 +41,9 @@ export const StandardComposantSchema = z.object({
 export const EventSchema = z.object({
     level: z.enum(['info', 'warning', 'error']),
     message: z.string().min(2, { message: "Le message doit contenir au moins 2 caractères." }),
-    scope: z.enum(['client', 'book', 'softwareItem', 'standardComposant', 'chapter', 'project', 'editor', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant', 'invoice']),
+    scope: z.enum(['client', 'standardAttachment', 'book', 'softwareItem', 'standardComposant', 'chapter', 'project', 'editor', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant', 'invoice']),
     clientId: z.string().optional(),
     projectId: z.string().optional(),
-    createdBy: z.string().min(1, { message: "L'utilisateur est obligatoire." }),
 })
 
 export const SoftwareItemSchema = z.object({
@@ -54,9 +62,22 @@ export const SoftwareItemSchema = z.object({
 
 })
 
-export const StandardComposantInputSchema = z.object({
+export const StandardAttachmentSchema = z.object({
+    id: z.string().optional(),
+    label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
+    description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
+    isObligatory: z.boolean(),
+    softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+
+})
+
+export const EnumTypeComponentSchema = z.object({
     type: z.enum(['text', 'number', 'date', 'textArea', 'select', 'file', 'switch', 'Image', 'dsnSocietySiren', 'dsnEstablishmentSiret', 'dsnEstablishmentApe', 'dsnSocietyAddress1', 'dsnSocietyAddress2', 'dsnSocietyAddress3', 'dsnSocietyZipCode', 'dsnSocietyCity', 'dsnEstablishmentAddress1', 'dsnEstablishmentAddress2', 'dsnEstablishmentAddress3', 'dsnEstablishmentZipCode', 'dsnEstablishmentCity', 'dsnJobLabel', 'dsnJobCode', 'dsnIdcc']),
-    label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }).max(50, { message: "Le label doit contenir au moins 2 caractères." }),
+
+})
+
+export const StandardComposantInputSchema = z.object({
+    label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }).max(50, { message: "Le label doit contenir au maximum 50 caractères." }),
     required: z.boolean().optional(),
     readonly: z.boolean().optional(),
     maxLength: z.coerce.number().int().positive().optional(),
@@ -64,14 +85,19 @@ export const StandardComposantInputSchema = z.object({
     maxValue: z.coerce.number().int().positive().optional(),
     minValue: z.coerce.number().int().positive().optional(),
     placeholder: z.string().optional(),
-    textArea: z.string().optional(),
     multiple: z.boolean().optional(),
     order: z.coerce.number().int().positive(),
     isCode: z.boolean().optional(),
     isDescription: z.boolean().optional(),
     isLabel: z.boolean().optional(),
-    standard_ComposantId: z.string().min(1, { message: "Le composant est obligatoire." }),
 
+})
+
+export const AttachmentSchema = z.object({
+    label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
+    description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
+    projectId: z.string().min(1, { message: "Le projet est obligatoire." }),
+    file: z.instanceof(File)
 })
 
 export const StandardComposantSelectionOptionSchema = z.object({
@@ -85,34 +111,47 @@ export const StandardComposantSelectionOptionSchema = z.object({
 })
 
 export const ChapterFormSchema = z.object({
-    bookId: z.string().min(1, { message: "Le livre est obligatoire." }),
-    level: z.string().refine((val) => !Number.isNaN(parseInt(val, 10)), {
-        message: "Expected number, received a string"
-    }),
-    rank: z.string().refine((val) => !Number.isNaN(parseInt(val, 10)), {
-        message: "Expected number, received a string"
-    }),
-    underRank: z.string().refine((val) => !Number.isNaN(parseInt(val, 10)), {
-        message: "Expected number, received a string"
-    }),
-    label: z.string().min(1, { message: "Le label doit contenir au moins 2 caractères." }),
-    parentId: z.string().optional(),
-})
+    level_1: z.preprocess(
+        (args) => (args === '' ? undefined : args),
+        z.coerce
+            .number({ invalid_type_error: 'Le level doit etre un numerique' })
+            .min(1)
+            .max(99, { message: "Le level doit etre inferieur à 99." })
+    ),
+    level_2: z.preprocess(
+        (args) => (args === '' ? undefined : args),
+        z.coerce
+            .number({ invalid_type_error: 'Le level doit etre un numerique' })
+            .min(0)
+            .max(99, { message: "Le level doit etre inferieur à 99." })
+    ),
+    level_3: z.preprocess(
+        (args) => (args === '' ? undefined : args),
+        z.coerce
+            .number({ invalid_type_error: 'Le level doit etre un numerique' })
+            .min(0)
+            .max(99, { message: "Le level doit etre inferieur à 99." })
+    ),
 
+    label: z.string().min(1, { message: "Le label doit contenir au moins 2 caractères." }),
+})
 export const RegisterSchema = z.object({
     email: z.string().email(),
-    firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
-    lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
-    civility: z.string().min(1, {
-        message: "La civilité doit contenir au moins 2 caractères.",
-    }),
-    password: z.string().min(8, { message: "Le mot de passe doit contenir au moins 8 caractères." }),
+    password: z.string().regex(new RegExp('.*[A-Z].*'))
+        .regex(new RegExp('.*[a-z].*'))
+        .regex(new RegExp('.*[0-9].*'))
+        .regex(new RegExp('.*[`~<>?,./!@#$%^&*()\\-_+="\'|{}\\[\\];:\\\\].*'))
+        .min(8, { message: "Le mot de passe doit contenir au moins 8 caractères." }),
     confirmPassword: z.string().min(8, { message: "Le mot de passe doit contenir au moins 8 caractères." }),
 }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirm"], // path of error
+    message: "Les mots de passe ne correspondent pas.",
+    path: ["confirmPassword"],
 });
 
+export const ProfilSchema = z.object({
+    firstname: z.string().min(2, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    lastname: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
+})
 export const SoftwaresSchema = z.object({
     id: z.string().optional(),
     provider: z.string().min(2, { message: "Le nom du fournisseur doit contenir au moins 2 caractères." }),

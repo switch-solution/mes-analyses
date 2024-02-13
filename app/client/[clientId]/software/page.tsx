@@ -1,6 +1,6 @@
 import { getAuthSession } from "@/lib/auth";
 import { columns } from "./dataTablecolumns"
-import { DataTable } from "@/src/features/layout/DataTable";
+import { DataTable } from "@/src/features/layout/dataTable";
 import { getSoftwareClientList } from "@/src/query/client.query";
 import { userIsAdminClient } from "@/src/query/security.query";
 import { getUser } from "@/src/query/user.query";

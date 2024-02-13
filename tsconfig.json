@@ -7,6 +7,7 @@
       "esnext"
     ],
     "allowJs": true,
+    "baseUrl": "./",
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
@@ -35,7 +36,8 @@
     ".next/types/**/*.ts",
     "__tests__/page.test.jsx",
     "jest.setup.js",
-    "jest.config.js"
+    "jest.config.ts",
+    "__tests__/page.test.jsx"
   ],
   "exclude": [
     "node_modules"

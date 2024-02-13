@@ -1,51 +1,33 @@
-import { getMyBookEditable } from "@/src/query/editor.query"
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { Badge } from '@/components/ui/badge';
-
-import Link from "next/link"
-import { Pencil, Eye, Trash2Icon } from "lucide-react"
-
-
+import { userIsValid } from "@/src/query/security.query"
+import { columns } from "./dataTablecolumns"
+import { DataTable } from "@/src/features/layout/dataTable";
+import { getSoftwareByUserIsEditor } from "@/src/query/software.query";
+import { getBookBySoftwares } from "@/src/query/book.query";
 export default async function Page() {
-    const softwareBooks = await getMyBookEditable()
+    const userId = await userIsValid()
+    if (!userId) {
+        throw new Error('Vous devez etre connecté pour accéder à cette page.')
+    }
+    const booksList = await getBookBySoftwares()
+    if (!userId) {
+        throw new Error('Vous devez etre connecté pour accéder à cette page.')
+    }
+    const softwares = await getSoftwareByUserIsEditor()
+    const books = booksList.map((book) => {
+        return {
+            id: book.id,
+            software: softwares.find((software) => software.id === book.softwareId)?.name || 'Inconnu',
+            label: book.label,
+            description: book.description,
+            status: book.status,
+            open: book.id,
+            edit: book.id,
+            delete: book.id,
+        }
+    })
     return (
-        <Table>
-            <TableCaption>A list of your recent invoices.</TableCaption>
-            <TableHeader>
-                <TableRow>
-                    <TableHead className="w-[100px]">Titre du document</TableHead>
-                    <TableHead>Logiciel</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ouvrir</TableHead>
-                    <TableHead>Editer</TableHead>
-                    <TableHead>Supprimer</TableHead>
-
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {softwareBooks.map((software) => software.Standard_Book.map((book) =>
-                    <TableRow key={book.id}>
-                        <TableCell className="font-medium"><Link href={`/editor/book/${book.id}`}>{book.name}</Link></TableCell>
-                        <TableCell >{software.name}</TableCell>
-                        <TableCell><Badge variant={book.status === "actif" ? "default" : "destructive"}>{book.status}</Badge></TableCell>
-                        <TableCell><Link href={`/editor/book/${book.id}`}> <Eye /></Link></TableCell>
-                        <TableCell><Link href={`/editor/book/${book.id}/edit`}> <Pencil /></Link></TableCell>
-                        <TableCell><Link href={`/editor/book/${book.id}`}> <Trash2Icon /></Link></TableCell>
-
-                    </TableRow>))}
-            </TableBody>
-        </Table>
+        <div className="container mx-auto py-10">
+            <DataTable columns={columns} data={books} href={`/editor/book/`} hrefToCreate={`/editor/book/create`} searchPlaceholder="Chercher libellé" inputSearch="label" />
+        </div>
     )
-
-
-
-
 }

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { userIsValid, userIsAuthorizeForClient, userIsClientEditor, userIsAdminClient } from "./security.query";
 import { getLastPricing } from "./setting.query";
 import { userIsAdminSystem } from "./security.query";
+import { Candy } from "lucide-react";
 export const getCountUsersClient = async (clientId: string) => {
     try {
 
@@ -346,6 +347,24 @@ export const getFutureBilling = async (clientId: string) => {
         throw new Error("Une erreur est survenue lors de la récupération de la facturation future.")
     }
 
+}
+
+export const getMyClientActive = async () => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+        const clientId = await prisma.userClient.findFirstOrThrow({
+            where: {
+                userId: userId,
+                isActivated: true,
+            }
+        })
+        return clientId.clientId
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération du client actif.")
+
+    }
 }
 export const getSoftwareClientList = async (clientId: string) => {
     try {

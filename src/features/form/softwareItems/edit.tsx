@@ -51,11 +51,11 @@ export default function Edit({ item, softwares, idccList }: { item: getSoftwareI
             id: item.id,
             slug: item.slug,
             label: item.label,
-            type: item.type !== undefined ? item.type : "Salaire de base",
+            type: item.type ? item.type as 'Salaire de base' : "Salaire de base",
             description: item.description,
             idccCode: item.idccCode,
             softwareId: item.softwareId,
-            status: item.status ? item.status : "actif",
+            status: item.status ? item.status as 'actif' : "actif",
         },
     })
     const onSubmit = async (data: z.infer<typeof SoftwareItemSchema>) => {

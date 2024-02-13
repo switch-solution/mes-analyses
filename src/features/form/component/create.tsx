@@ -24,29 +24,26 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Input } from '@/components/ui/input'
+import type { getMyClientActiveType } from '@/src/helpers/type'
 export default function CreateFormComponent({ clientId, softwares }: {
-    clientId: { id: string, socialReason: string, siret: string }[],
+    clientId: getMyClientActiveType,
     softwares: { id: string, provider: string, name: string }[]
 }) {
     const form = useForm<z.infer<typeof StandardComposantSchema>>({
         resolver: zodResolver(StandardComposantSchema),
         defaultValues: {
             title: "",
-            clientId: clientId?.at(0)?.id,
+            clientId: clientId,
             description: "",
             status: "actif",
             softwareId: softwares?.at(0)?.id,
             type: 'form'
         },
     })
+    const createComponentWithClientId = createComponent.bind(null, clientId)
     const onSubmit = async (values: z.infer<typeof StandardComposantSchema>) => {
         try {
-            await StandardComposantSchema.parseAsync(values)
-        } catch (err) {
-            console.error(err)
-        }
-        try {
-            await createComponent(values)
+            await createComponentWithClientId(values)
         } catch (err) {
             console.error(err)
         }
@@ -62,18 +59,7 @@ export default function CreateFormComponent({ clientId, softwares }: {
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <Input type='hidden' {...field} readOnly required />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="clientId"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormControl>
-                                    <Input type='hidden' {...field} readOnly required />
+                                    <Input type='hidden' {...field} />
                                 </FormControl>
                             </FormItem>
                         )}
@@ -133,7 +119,7 @@ export default function CreateFormComponent({ clientId, softwares }: {
                             <FormItem>
                                 <FormLabel>Titre</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Editeur" {...field} required />
+                                    <Input placeholder="Editeur" {...field} />
                                 </FormControl>
                                 <FormDescription>
                                     Titre du composant
@@ -149,7 +135,7 @@ export default function CreateFormComponent({ clientId, softwares }: {
                             <FormItem>
                                 <FormLabel>Description</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Editeur" {...field} required />
+                                    <Input placeholder="Editeur" {...field} />
                                 </FormControl>
                                 <FormDescription>
                                     Titre du composant

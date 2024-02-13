@@ -28,7 +28,6 @@ export default function SoftwareDelete({ softwareId }: { softwareId: string }) {
     return (
         <Form {...form}  >
             <form action={deleteInvoiceWithId} onSubmit={form.handleSubmit(onSubmit)}>
-                <DangerButtonDelete form={form} />
             </form>
         </Form>
 

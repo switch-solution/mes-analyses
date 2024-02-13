@@ -58,15 +58,15 @@ model User {
   UserClient    UserClient[]
   UserProject   UserProject[]
   UserSoftware  UserSoftware[]
+  Validation    Validation[]
 }
 
 model UserOtherData {
-  id        String   @id @default(cuid())
-  userId    String
+  userId    String   @id
   firstname String?
   lastname  String?
-  password  String
-  civility  String
+  password  String?
+  civility  String?
   isBlocked Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -75,25 +75,25 @@ model UserOtherData {
 
 model Client {
   id                 String               @id @default(cuid())
-  socialReason       String               @unique
+  socialReason       String
   dateStartTrial     DateTime?
   dateEndTrial       DateTime?
-  siret              String               @unique
-  ape                String
-  address1           String
+  siren              String               @unique @default("999999999")
+  ape                String?
+  address1           String?
   address2           String?
   address3           String?
   address4           String?
-  city               String
-  codeZip            String
-  country            String
-  invoiceAddress1    String
+  city               String?
+  codeZip            String?
+  country            String?
+  invoiceAddress1    String?
   invoiceAddress2    String?
   invoiceAddress3    String?
   invoiceAddress4    String?
-  invoiceCity        String
-  invoiceCodeZip     String
-  invoiceCountry     String
+  invoiceCity        String?
+  invoiceCodeZip     String?
+  invoiceCountry     String?
   isBlocked          Boolean
   invoiceStart       DateTime?
   invoiceEnd         DateTime?
@@ -125,7 +125,6 @@ model Contact {
 }
 
 model UserClient {
-  id              String   @id @default(cuid())
   userId          String
   clientId        String
   isBlocked       Boolean
@@ -134,39 +133,45 @@ model UserClient {
   isEditor        Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  isActivated     Boolean  @default(false)
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@id([userId, clientId])
 }
 
 model Invitation {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  sendEmail Boolean
-  civility  String
-  firstName String
-  lastname  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy String
-  clientId  String
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  email      String   @unique
+  sendEmail  Boolean
+  civility   String
+  firstName  String
+  lastname   String
+  isBlocked  Boolean  @default(false)
+  isBillable Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  createdBy  String
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 model Software {
-  id                 String               @id @default(cuid())
-  provider           String
-  name               String               @unique
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  createdBy          String
-  clientId           String
-  client             Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  Standard_Book      Standard_Book[]
-  Standard_Composant Standard_Composant[]
-  Project            Project[]
-  SoftwareItems      SoftwareItems[]
-  ConstantLegal      ConstantLegal[]
-  UserSoftware       UserSoftware[]
+  id                  String                @id @default(cuid())
+  provider            String
+  name                String                @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  createdBy           String
+  clientId            String
+  client              Client                @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Standard_Book       Standard_Book[]
+  Standard_Composant  Standard_Composant[]
+  Project             Project[]
+  SoftwareItems       SoftwareItems[]
+  ConstantLegal       ConstantLegal[]
+  UserSoftware        UserSoftware[]
+  Standard_Attachment Standard_Attachment[]
 }
 
 model UserSoftware {
@@ -184,7 +189,7 @@ model UserSoftware {
 
 model Standard_Book {
   id              String             @id @default(cuid())
-  name            String
+  label           String
   description     String
   status          String
   createdAt       DateTime           @default(now())
@@ -245,17 +250,12 @@ model Standard_Composant_Input {
 
 model Standard_Composant_TextArea {
   id                   String             @id @default(cuid())
-  type                 String
-  label                String
-  description          String
-  placeholder          String?
-  defaultValue         String?
-  readonly             Boolean
+  value                String?
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   createdBy            String
   Standard_Composant   Standard_Composant @relation(fields: [standard_ComposantId], references: [id])
-  standard_ComposantId String
+  standard_ComposantId String             @unique
 }
 
 model Standard_Composant_Image {
@@ -296,9 +296,9 @@ model Standard_Chapter {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   createdBy           String
-  level               Int
-  rank                Int
-  underRank           Int
+  level_1             Int
+  level_2             Int
+  level_3             Int
   label               String
   bookId              String
   book                Standard_Book         @relation(fields: [bookId], references: [id], onDelete: Cascade)
@@ -307,7 +307,7 @@ model Standard_Chapter {
   parent              Standard_Chapter?     @relation("levelUp", fields: [parentId], references: [id])
   Standard_Chapter    Standard_Chapter[]    @relation("levelUp")
 
-  @@unique([bookId, level, rank, underRank])
+  @@unique([bookId, level_1, level_2, level_3])
 }
 
 model ChapterStdComposant {
@@ -338,6 +338,7 @@ model Project {
   Book        Book[]
   Dsn         Dsn[]
   Logger      Logger[]
+  Attachment  Attachment[]
 }
 
 model UserProject {
@@ -356,17 +357,18 @@ model UserProject {
 }
 
 model Book {
-  id          String    @id @default(cuid())
+  id          String       @id @default(cuid())
   projectId   String
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   name        String
   description String
   status      String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   createdBy   String
-  isArchived  Boolean   @default(false)
+  isArchived  Boolean      @default(false)
   Chapter     Chapter[]
+  Validation  Validation[]
 }
 
 model Chapter {
@@ -374,9 +376,9 @@ model Chapter {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   createdBy String
-  level     Int
-  rank      Int
-  underRank Int
+  level_1   Int
+  level_2   Int
+  level_3   Int
   label     String
   parentId  String?
   parent    Chapter?    @relation("levelUp", fields: [parentId], references: [id])
@@ -579,4 +581,41 @@ model Idcc {
   createdBy     String          @default("System")
   SoftwareItems SoftwareItems[]
   ConstantLegal ConstantLegal[]
+}
+
+model Standard_Attachment {
+  id           String   @id @default(cuid())
+  label        String
+  description  String
+  isObligatory Boolean
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String
+  softwareId   String
+  software     Software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+}
+
+model Validation {
+  bookId    String
+  Book      Book     @relation(fields: [bookId], references: [id])
+  response  String
+  userId    String
+  User      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+
+  @@id([bookId, userId])
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  label        String
+  description  String
+  isObligatory Boolean
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String
+  projectId    String
+  Project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

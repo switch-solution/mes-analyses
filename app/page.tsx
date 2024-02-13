@@ -13,8 +13,9 @@ type CardProps = {
   title: string
   description: string
   content: string
+  footer: string
 }
-
+import Container from "@/src/features/layout/container";
 import { LogIn } from "lucide-react";
 import Footer from "@/src/features/layout/footer";
 
@@ -28,37 +29,38 @@ export default async function Home() {
     <>
       <main className="flex h-full w-full flex-col items-center justify-start p-12">
         <div className="flex flex-col">
-          <h1 className="text-3xl font-bold text-center p-6">La meilleur façon de gérer l&apos;anlayse de votre SIRH</h1>
-          <h2 className="text-left">Rédiger des cahiers des charges dans le cadre des changements de logiciel</h2>
+          <h1 className="text-3xl font-bold text-center p-6">Gérer la rédaction de vos cahiers d&apos;analyses de paie avec une solution dédiée</h1>
+          <h2 className="text-left">Créer vos formulaires</h2>
+
         </div>
-        <div className="flex justify-between flex-col md:flex-row p-12 h:full md:w-1/2">
-          <Card className="'h-44 w-80'">
-            <CardHeader>
-              <CardTitle>Offre d&apos;essai</CardTitle>
-              <CardDescription>10€/mois par utilisateurs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>3 projets gratuit</p>
-            </CardContent>
-            <CardFooter>
-              <Link href={`/auth/register`}> <LogIn />Essayer</Link>
-            </CardFooter>
-          </Card>
-          <Card className="'h-44 w-80'">
-            <CardHeader>
-              <CardTitle>Offre d&apos;essai</CardTitle>
-              <CardDescription>10€/mois par utilisateurs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>Tout illimité</p>
-            </CardContent>
-            <CardFooter>
-              <Link href={`/auth/register`}> <LogIn />Essayer</Link>
-            </CardFooter>
-          </Card>
+        <div id='pricing' className="flex justify-between flex-col md:flex-row p-12 h:full md:w-1/2">
+          <Container>
+            <CardPricing title="Mode local" description="Installer la solution sur vos serveurs" content="Utilis" footer="/documentation" />
+          </Container>
+          <Container>
+            <CardPricing title="Mode hebergé " description="Période d'essaie gratuite de 3 mois" content="Créez vos formulaires et testez la solution" footer="/auth/register" />
+          </Container>
         </div>
       </main>
-      <Footer />
     </>
   )
+}
+
+const CardPricing = ({ title, description, content, footer }: CardProps) => {
+
+  return (
+    <Card className="'h-44 w-80'">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p>{content}</p>
+      </CardContent>
+      <CardFooter>
+        <Link href={footer}> <LogIn />Essayer</Link>
+      </CardFooter>
+    </Card>
+  )
+
 }

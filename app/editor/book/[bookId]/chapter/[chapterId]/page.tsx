@@ -1,45 +1,25 @@
-import { getChapterStdComponents } from "@/src/query/chapter_composant.query"
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { Badge } from '@/components/ui/badge';
-import { Pencil, Eye, Trash2Icon } from "lucide-react"
-import Link from "next/link";
-export default async function Page({ params }: { params: { chapterId: string, bookId: string } }) {
-    const chapterStdComponets = await getChapterStdComponents(params.chapterId)
-    return (
+import DynamicForm from "@/src/features/form/dynamic/dynamicForm";
+import Summary from "@/src/features/layout/summary";
+import { getChapterBook } from "@/src/query/standard_book.query";
+import { getChapterStdComponents, getStandardInputByChapter } from "@/src/query/chapter_composant.query"
+import { userIsValid } from "@/src/query/security.query"
+export default async function Chapter({ params }: { params: { bookId: string, chapterId: string } }) {
+    const userId = await userIsValid()
+    if (!userId) {
+        throw new Error("Vous devez etre connecté")
+    }
+    const chapters = await getChapterBook(params.bookId)
 
-        <Table>
-            <TableCaption>Liste des composants associés aux chapitres</TableCaption>
-            <TableHeader>
-                <TableRow>
-                    <TableHead className="w-[100px]">Titre</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Status</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {chapterStdComponets.map((chapterStdComponet) =>
-                    < TableRow key={`${chapterStdComponet.chapterId}_${chapterStdComponet.standardComposantId}`}>
-                        <TableCell className="font-medium">{chapterStdComponet.standardComposant.title}</TableCell>
-                        <TableCell>{chapterStdComponet.standardComposant.description}</TableCell>
-                        <TableCell><Badge variant={chapterStdComponet.standardComposant.status === "actif" ? "default" : "destructive"} >{chapterStdComponet.standardComposant.status}</Badge></TableCell>
-                        <TableCell><Link href={`/editor/book/${params.bookId}/chapter/${chapterStdComponet.chapterId}`}> <Eye /></Link></TableCell>
-                        <TableCell><Link href={`/editor/book/${params.bookId}/chapter/${chapterStdComponet.chapterId}/edit`}> <Pencil /></Link></TableCell>
-                        <TableCell><Link href={`/editor/book/${params.bookId}/chapter/${chapterStdComponet.chapterId}`}> <Trash2Icon /></Link></TableCell>
-                    </TableRow>
+    const components = await getChapterStdComponents(params.chapterId)
+    const inputs = await getStandardInputByChapter(params.chapterId)
+    return <div>
+        <Summary chapters={chapters} />
+        <div className="mt-4 ml-10">
+            {components.map(component =>
+                <DynamicForm key={component.standardComposant.id} componentId={component.standardComposant.id} inputs={inputs} />
 
-                )}
+            )}
+        </div>
 
-            </TableBody>
-        </Table>
-
-    )
-
+    </div>
 }

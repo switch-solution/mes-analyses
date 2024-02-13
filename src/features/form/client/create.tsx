@@ -22,7 +22,7 @@ export default function CreateClient() {
         resolver: zodResolver(ClientFormSchema),
         defaultValues: {
             socialReason: "",
-            siret: "",
+            siren: "",
             ape: "",
             address1: "",
             address2: "",
@@ -55,7 +55,7 @@ export default function CreateClient() {
                     />
                     <FormField
                         control={form.control}
-                        name="siret"
+                        name="siren"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>SIRET</FormLabel>
