@@ -2,64 +2,73 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { ChapterFormSchema } from "@/src/helpers/definition";
-import { userIsEditorClient, userIsValid } from "@/src/query/security.query";
-import { getBookClient, getBookExist } from "@/src/query/standard_book.query";
+import { ChapterFormCreateSchema } from "@/src/helpers/definition";
+import { getStdBookBySlug } from "@/src/query/standard_book.query";
 import z from "zod"
 import { getParent } from "@/src/query/standard_chapter.query";
-import { createEvent } from "@/src/query/logger.query";
-import type { Event } from "@/src/helpers/type";
-import { get } from "http";
-export const createChapter = async (bookId: string, values: z.infer<typeof ChapterFormSchema>) => {
+import { createLog } from "@/src/query/logger.query";
+import type { Logger } from "@/src/helpers/type";
+import { authentificationActionUserIsEditorClient } from "@/lib/safe-actions";
+import { generateSlug } from "@/src/helpers/generateSlug"
 
-    const userId = await userIsValid()
-    if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+export const createChapter = authentificationActionUserIsEditorClient(ChapterFormCreateSchema, async (values: z.infer<typeof ChapterFormCreateSchema>, { clientId, userId }) => {
 
-    const { level_1, level_2, level_3, label } = ChapterFormSchema.parse(values)
 
-    const book = await getBookExist(bookId)
+    const { level_1, level_2, level_3, label, bookSlug, clientSlug } = ChapterFormCreateSchema.parse(values)
+
+    const book = await getStdBookBySlug(bookSlug)
     if (!book) throw new Error("Le livre n'existe pas.")
 
-    const clientId = await getBookClient(bookId)
-    if (!clientId) throw new Error("Le client n'existe pas.")
 
-    const isEditor = await userIsEditorClient(clientId)
 
-    if (!isEditor) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
     try {
-        const parentId = await getParent(bookId, level_1, level_2, level_3)
+        const slug = await generateSlug(`${clientId}-${bookSlug}-${level_1}-${level_2}-${level_3}`)
+        const parentId = await getParent({
+            clientId,
+            bookLabel: book.label,
+            bookSoftwareLabel: book.softwareLabel,
+            level_1,
+            level_2,
+            level_3
+
+        })
         const chapter = await prisma.standard_Chapter.create({
             data: {
                 label,
-                bookId,
+                bookLabel: book.label,
+                clientId,
+                bookSoftwareLabel: book.softwareLabel,
                 level_1,
+                slug,
                 level_2,
                 level_3,
                 parentId: parentId?.id || null,
                 createdBy: userId
             }
         })
-        const clientId = await getBookClient(bookId)
-        const event: Event = {
+        const log: Logger = {
             level: 'info',
-            message: `Création chapitre ${chapter.id} pour le cahier ${bookId}`,
+            message: `Création chapitre ${chapter.id} pour le cahier ${book.label}`,
             scope: 'chapter',
             clientId: clientId,
         }
-        await createEvent(event)
+        await createLog(log)
     } catch (err) {
         console.error(err)
         throw new Error("Une erreur est survenue lors de la création du chapitre.")
     }
     const chapter = await prisma.standard_Chapter.findFirst({
         where: {
-            bookId: bookId,
+            label,
+            bookLabel: book.label,
+            clientId,
+            bookSoftwareLabel: book.softwareLabel,
             level_1: level_1,
             level_2: level_2,
             level_3: level_3
         }
     })
-    revalidatePath(`/editor/book/${bookId}/chapter/${chapter?.id}`);
-    redirect(`/editor/book/${bookId}/chapter/${chapter?.id}`);
+    revalidatePath(`/client/${clientSlug}/editor/book/${bookSlug}`);
+    redirect(`/client/${clientSlug}/editor/book/${bookSlug}`);
 
-}
+})

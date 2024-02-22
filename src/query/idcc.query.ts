@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from '@prisma/client'
 
 export const getIdccByCode = async (code: string) => {
     try {
@@ -24,3 +25,6 @@ export const getIdcc = async () => {
         throw new Error("Erreur lors de la récupération de l'IDCC")
     }
 }
+
+export type getIdcc = Prisma.PromiseReturnType<typeof getIdcc>;
+

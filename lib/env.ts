@@ -16,6 +16,8 @@ export const env = createEnv({
         SMTP_HOST: z.string().min(1),
         SMTP_PORT: z.string().min(1),
         EMAIL_FROM: z.string().min(1),
+        BEARER_TOKEN: z.string().min(1),
+        MODE: z.enum(["On_Premise", "SAAS"]),
     },
     client: {
     },
@@ -34,6 +36,8 @@ export const env = createEnv({
         SMTP_HOST: process.env.SMTP_HOST,
         SMTP_PORT: process.env.SMTP_PORT,
         EMAIL_FROM: process.env.EMAIL_FROM,
+        BEARER_TOKEN: process.env.BEARER_TOKEN,
+        MODE: process.env.MODE,
     },
     // For Next.js >= 13.4.4, you only need to destructure client variables:
     // experimental__runtimeEnv: {

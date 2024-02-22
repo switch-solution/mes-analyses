@@ -1,251 +1,65 @@
 import { prisma } from "@/lib/prisma";
-import { userIsEditorClient, userIsValid } from "./security.query";
+import { getMySoftware } from "./user.query";
+import { getClientBySlug } from "./client.query";
 import { Prisma } from '@prisma/client'
-export const countChapter = async (bookId: string) => {
+
+export const getStdBookByClientFilterByUserSoftware = async (clientSlug: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const clientId = await getBookClient(bookId)
-        if (!clientId) { throw new Error("Le client n'existe pas.") }
-        const isEditor = await userIsEditorClient(clientId)
-        if (!isEditor) {
-            throw new Error("L'utilisateur n'est pas éditeur d'un client.")
-        }
 
-        const countChapter = await prisma.standard_Chapter.count({
+        const softwaresUser = await getMySoftware()
+        const clientId = await getClientBySlug(clientSlug)
+        const stdBook = await prisma.standard_Book.findMany({
             where: {
-                bookId: bookId
+                softwareLabel: {
+                    in: softwaresUser.map(software => software.softwareLabel)
+                },
+                clientId: clientId.siren
             }
-        })
 
-        return countChapter
+        })
+        return stdBook
     } catch (err) {
         console.error(err)
-        throw new Error("Impossible de récupérer le nombre de chapitre.")
+        throw new Error("Une erreur est survenue lors de la récupération des livres.")
     }
 
 }
-/**
- * Test if the book exist and return the client id
- * @param bookId 
- * @returns 
- */
-export const getBookClient = async (bookId: string) => {
+
+export type getStdBookByClientFilterByUserSoftware = Prisma.PromiseReturnType<typeof getStdBookByClientFilterByUserSoftware>;
+
+export const getStdBookBySlug = async (bookSlug: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-
-        const bookExist = await getBookExist(bookId)
-        if (!bookExist) { throw new Error("Le livre n'existe pas.") }
-        const bookSoftware = bookExist.softwareId
-
-        const softwareBookInfo = await prisma.software.findUnique({
-            where: {
-                id: bookSoftware
-            }
-        })
-
-        if (!softwareBookInfo) { throw new Error("Le logiciel du livre n'existe pas.") }
-
-        return softwareBookInfo?.clientId
-    } catch (err) {
-        console.error(err)
-        throw new Error("Impossible de récupérer le client du livre.")
-    }
-}
-
-export const getBookByIdIncludeChapterIncludeComposant = async (bookId: string) => {
-    try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
         const book = await prisma.standard_Book.findUniqueOrThrow({
-            where: { id: bookId },
-            include: {
-                StandardChapter: {
-                    include: {
-                        ChapterStdComposant: {
-                            include: {
-                                standardComposant: {
-                                    include: {
-                                        Standard_Composant_Input: true,
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
+            where: {
+                slug: bookSlug
             }
+
         })
         return book
     } catch (err) {
         console.error(err)
-        throw new Error("Impossible de récupérer le livre.")
+        throw new Error("Une erreur est survenue lors de la récupération du livre.")
     }
+
 }
 
-export const getBookBySoftware = async (softwareId: string) => {
+export type getStdBookBySlug = Prisma.PromiseReturnType<typeof getStdBookBySlug>;
+
+export const getBookChapterByBookSlug = async (bookSlug: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const books = await prisma.standard_Book.findMany({
+        const bookExist = await getStdBookBySlug(bookSlug)
+        if (!bookExist) throw new Error("Le livre n'existe pas.")
+        const stdChapter = await prisma.standard_Chapter.findMany({
             where: {
-                softwareId: softwareId,
-            }
-        })
-        return books
-    } catch (err) {
-        console.error(err)
-        throw new Error("Impossible de récupérer les cahiers du logiciel.")
-    }
-}
-
-export const getChapterBook = async (bookId: string) => {
-    try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const clientId = await getBookClient(bookId)
-
-        const isEditor = await userIsEditorClient(clientId)
-        if (!isEditor) {
-            throw new Error("L'utilisateur n'est pas éditeur d'un client.")
-        }
-
-        const chapters = await prisma.standard_Chapter.findMany({
-            where: {
-                bookId: bookId
-            },
-            orderBy: [{
-                level_1: 'asc'
-            },
-            {
-                level_2: 'asc'
-            },
-            {
-                level_3: 'asc'
-            }
-            ]
-        })
-        return chapters
-    } catch (err) {
-        console.error(err)
-        throw new Error("Impossible de récupérer les chapitres du livre.")
-    }
-}
-
-export type getChapterBook = Prisma.PromiseReturnType<typeof getChapterBook>[number];
-export const countChapterComposant = async (bookId: string) => {
-
-    try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const clientId = await getBookClient(bookId)
-
-        const isEditor = await userIsEditorClient(clientId)
-        if (!isEditor) {
-            throw new Error("L'utilisateur n'est pas éditeur d'un client.")
-        }
-        const getChapters = await getChapterBook(bookId)
-        const countChapterComposant = []
-        for (let chapter of getChapters) {
-            const count = await prisma.chapterStdComposant.count({
-                where: {
-                    chapterId: chapter.id
-                }
-            })
-            countChapterComposant.push({
-                chapterId: chapter.id,
-                count: count
-            })
-
-        }
-        return countChapterComposant
-    } catch (err) {
-        console.error(err)
-        throw new Error("Impossible de récupérer le nombre de chapitre du livre.")
-    }
-
-}
-
-export const getBookExist = async (bookId: string) => {
-    try {
-
-        const book = await prisma.standard_Book.findFirstOrThrow({ where: { id: bookId } })
-        return book
-    } catch (err) {
-        console.error(err)
-        throw new Error("Impossible de récupérer les chapitres du livre.")
-    }
-}
-
-export const getBookWitchChapter = async (bookId: string) => {
-
-    try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const getBookWitchChapter = await prisma.standard_Book.findUniqueOrThrow({
-            where: {
-                id: bookId
-            },
-            include: {
-                StandardChapter: true
+                bookLabel: bookExist.label,
+                clientId: bookExist.clientId
             }
 
         })
-        return getBookWitchChapter
-    } catch (err) {
-        throw new Error("Impossible de récupérer les chapitres du livre.")
-    }
-}
-
-export const getStdComponentByBookId = async (bookId: string) => {
-    try {
-        const bookExist = await getBookExist(bookId)
-        if (!bookExist) {
-            throw new Error("Le livre n'existe pas.")
-
-        }
-        const clientId = await getBookClient(bookExist.id)
-        if (!clientId) {
-            throw new Error("Le client n'existe pas.")
-        }
-        const userIsAuthorize = await userIsEditorClient(clientId)
-        if (!userIsAuthorize) {
-            throw new Error("L'utilisateur n'est pas éditeur du client.")
-        }
-        const chapters = await getChapterBook(bookId)
-        const chaptersComponents = await prisma.chapterStdComposant.findMany({
-            where: {
-                chapterId: {
-                    in: chapters.map(chapter => chapter.id)
-                }
-            },
-            include: {
-                standardComposant: true,
-                StandardChapter: true
-
-            }
-        })
-
-
-        return chaptersComponents
-
+        return stdChapter
     } catch (err) {
         console.error(err)
-        throw new Error("Impossible de récupérer les composants du livre.")
+        throw new Error("Une erreur est survenue lors de la récupération des chapitres du livre.")
     }
+
 }

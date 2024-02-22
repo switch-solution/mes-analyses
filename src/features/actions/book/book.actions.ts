@@ -1,46 +1,90 @@
 "use server"
 
 import { prisma } from "@/lib/prisma";
-import { userIsAuthorizeToEditSoftware, userIsValid } from "@/src/query/security.query";
-import { BookFormSchema } from "@/src/helpers/definition";
+import { BookFormSchema, BookFormSchemaEdit } from "@/src/helpers/definition";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import z from "zod"
-import { Event } from "@/src/helpers/type";
-import { createEvent } from "@/src/query/logger.query";
-export const createBook = async (values: z.infer<typeof BookFormSchema>) => {
+import { Logger } from "@/src/helpers/type";
+import { createLog } from "@/src/query/logger.query";
+import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
+import { generateSlug } from "@/src/helpers/generateSlug";
+import { getStdBookBySlug } from "@/src/query/standard_book.query";
 
-    const userId = await userIsValid()
-    if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+export const editBook = authentificationActionUserIsEditorClient(BookFormSchemaEdit, async (values: z.infer<typeof BookFormSchemaEdit>, { clientId, userId }) => {
 
-    const { name, softwareId, status, description } = BookFormSchema.parse(values)
-    const isEditor = await userIsAuthorizeToEditSoftware(softwareId)
-    if (!isEditor) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
-
+    const { label, description, clientSlug, bookSlug, status } = BookFormSchemaEdit.parse(values)
     try {
-        await prisma.standard_Book.create({
+        const bookExist = await getStdBookBySlug(bookSlug)
+        if (!bookExist) {
+            const log: Logger = {
+                scope: "book",
+                message: `L'utilisateur essaye de modifier un livre qui n'existe pas ${bookSlug}.`,
+                level: "info"
+            }
+            await createLog(log)
+            throw new ActionError("Le livre n'existe pas.")
+
+        }
+        await prisma.standard_Book.update({
+            where: {
+                slug: bookSlug
+            },
             data: {
-                label: name,
-                softwareId: softwareId,
-                status: status,
-                createdBy: userId,
-                description: description
+                label: label,
+                description: description,
+                clientId: clientId,
+                status: status
             }
         })
-        const Event: Event = {
+        const log: Logger = {
             scope: "book",
-            message: `L'utilisateur a créé un livre avec le nom ${name} et le logiciel ${softwareId}`,
+            message: `L'utilisateur a modifié le livre avec le nom ${label} et le logiciel ${bookExist.softwareLabel}`,
             level: "info"
         }
-        await createEvent(Event)
+        await createLog(log)
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la modification du livre.")
+    }
+    revalidatePath(`/client/${clientSlug}/editor/book/`)
+    redirect(`/client/${clientSlug}/editor/book/`)
+
+})
+
+export const createBook = authentificationActionUserIsEditorClient(BookFormSchema, async (values: z.infer<typeof BookFormSchema>, { clientId, userId }) => {
+
+
+    const { label, description, softwareLabel, clientSlug } = BookFormSchema.parse(values)
+
+    try {
+        const slug = await generateSlug(`${clientSlug}-${softwareLabel}-${label}`)
+
+        await prisma.standard_Book.create({
+            data: {
+                label: label,
+                status: 'actif',
+                createdBy: userId,
+                description: description,
+                clientId: clientId,
+                softwareLabel: softwareLabel,
+                slug: slug
+            }
+        })
+        const log: Logger = {
+            scope: "book",
+            message: `L'utilisateur a créé un livre avec le nom ${label} et le logiciel ${softwareLabel}`,
+            level: "info"
+        }
+        await createLog(log)
     } catch (err) {
         console.error(err)
         throw new Error("Une erreur est survenue lors de la création du livre.")
     }
 
-    revalidatePath(`/editor/book/`)
-    redirect(`/editor/book/`)
+    revalidatePath(`/client/${clientSlug}/editor/book/`)
+    redirect(`/client/${clientSlug}/editor/book/`)
 
 
 
-}
+})

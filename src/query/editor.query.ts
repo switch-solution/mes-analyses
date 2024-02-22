@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma"
 import { userIsEditor, userIsValid } from "@/src/query/security.query";
-import { getMyClient } from "./user.query";
-import { getSoftwareByUserIsEditor } from "./software.query";
+import { getMyClient, getMySoftware } from "./user.query";
+import { getSoftwareByClientSlug } from "./software.query";
+import { getClientBySlug } from "./client.query";
 
 
 export const getMyBookEditable = async () => {
@@ -34,103 +35,77 @@ export const getMyBookEditable = async () => {
     }
 }
 
-export const getCountAttachmentEditable = async () => {
-    try {
 
-        const softwares = await getSoftwareByUserIsEditor()
+
+export const getEditorHome = async (clientSlug: string) => {
+    try {
+        const userSoftware = await getMySoftware()
+        const clientId = await getClientBySlug(clientSlug)
         const countAttachment = await prisma.standard_Attachment.count({
             where: {
-                softwareId: {
-                    in: softwares.map((software) => software.id)
-                }
+                softwareLabel: {
+                    in: userSoftware.map((software) => software.softwareLabel)
+                },
+                clientId: clientId.siren
             }
         })
-        return countAttachment
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des données de la table Attachment")
-    }
-
-}
-
-export const getCountMySoftwareItemsEditable = async () => {
-    try {
-
-        const softwares = await getSoftwareByUserIsEditor()
-        const countItems = await prisma.softwareItems.count({
+        const countItems = await prisma.software_Items.count({
             where: {
-                softwareId: {
-                    in: softwares.map((software) => software.id)
-                }
+                softwareLabel: {
+                    in: userSoftware.map((software) => software.softwareLabel)
+                },
+                clientId: clientId.siren
             }
         })
-        return countItems
 
+        const countBook = await prisma.standard_Book.count({
+            where: {
+                softwareLabel: {
+                    in: userSoftware.map((software) => software.softwareLabel)
+                },
+                clientId: clientId.siren
+            }
+        })
+        const countStdComponent = await prisma.standard_Component.count({
+            where: {
+                softwareLabel: {
+                    in: userSoftware.map((software) => software.softwareLabel)
+                },
+                clientId: clientId.siren
+            }
+        })
+        const countConstantSoftware = await prisma.software_Constant.count({
+            where: {
+                softwareLabel: {
+                    in: userSoftware.map((software) => software.softwareLabel)
+                },
+                clientId: clientId.siren
+            }
+        })
+
+        const countSetting = await prisma.software_Setting.count({
+            where: {
+                softwareLabel: {
+                    in: userSoftware.map((software) => software.softwareLabel)
+                },
+                clientId: clientId.siren
+            }
+        })
+
+        return {
+            countAttachment,
+            countItems,
+            countBook,
+            countStdComponent,
+            countConstantSoftware,
+            countSetting
+
+        }
     } catch (err) {
         console.error(err)
         throw new Error("Une erreur est survenue lors de la récupération des données de la table Software_Item")
     }
 
-
 }
 
-export const getCountMyBookEditable = async () => {
 
-    try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-
-        const userClient = await getMyClient()
-        if (!userClient) {
-            throw new Error("L'utilisateur n'est associé à aucun client.")
-        }
-
-        const softwares = await prisma.userSoftware.findMany({
-            where: {
-                userId: userId,
-                isEditor: true
-            },
-        })
-
-        const countBook = await prisma.standard_Book.count({
-            where: {
-                softwareId: {
-                    in: softwares.map((software) => software.softwareId)
-                }
-            }
-        })
-
-        return countBook
-
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des données de la table Book")
-    }
-}
-
-export const getStandardInput = async () => {
-    try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        const userClient = await getMyClient()
-        if (!userClient) {
-            throw new Error("L'utilisateur n'est associé à aucun client.")
-        }
-        const isEditor = await userIsEditor()
-        if (!isEditor) {
-            throw new Error("L'utilisateur n'est pas éditeur d'un client.")
-        }
-
-        const standardInput = await prisma.standard_Input.findMany()
-
-        if (!standardInput) {
-            throw new Error("Le fichier seed n'a pas été intégré lancer la commande prisma db seed")
-        }
-        return standardInput
-
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des données de la table Input")
-    }
-
-}

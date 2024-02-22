@@ -2,18 +2,19 @@ import { prisma } from "@/lib/prisma";
 import z from "zod";
 import { EventSchema } from "../helpers/definition";
 import { userIsValid } from "./security.query";
-export const createEvent = async (data: z.infer<typeof EventSchema>) => {
+export const createLog = async (data: z.infer<typeof EventSchema>) => {
     try {
         const userId = await userIsValid()
-        const { level, message, scope, clientId, projectId } = EventSchema.parse(data)
+        const { level, message, scope, clientId, projectLabel } = EventSchema.parse(data)
         await prisma.logger.create({
             data: {
                 level: level,
                 message: message,
                 scope: scope,
                 clientId: clientId,
-                projectId: projectId,
-                createdBy: userId
+                projectLabel: projectLabel,
+                createdBy: userId,
+                userId
             }
         })
     } catch (err) {

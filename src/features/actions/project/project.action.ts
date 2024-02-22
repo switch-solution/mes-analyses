@@ -2,149 +2,63 @@
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { ProjectCreateSchema } from '@/src/helpers/definition';
+import { generateSlug } from '@/src/helpers/generateSlug';
 import z from 'zod';
-import { ProjectSchema, BookToProjectSchema } from '@/src/helpers/definition';
-import { userIsValid, userIsAuthorizeToAddBookInProject } from '@/src/query/security.query';
-import { getBookByIdIncludeChapterIncludeComposant } from '@/src/query/standard_book.query';
-import { getStandardAttachmentBySoftwareId } from '@/src/query/standardAttachment.query';
-export const createProjet = async (values: z.infer<typeof ProjectSchema>) => {
-    const { name, description, softwareId, clientId } = ProjectSchema.parse(values)
-    const attachmentsList = await getStandardAttachmentBySoftwareId(softwareId)
-    const userId = await userIsValid()
-    let project = null
+import { createLog } from '@/src/query/logger.query';
+import type { Logger } from '@/src/helpers/type';
+import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
+
+export const createProjet = authentificationActionUserIsEditorClient(ProjectCreateSchema, async (values: z.infer<typeof ProjectCreateSchema>, { userId, clientId }) => {
+
+    const { label, description, softwareLabel, clientSlug } = ProjectCreateSchema.parse(values)
     try {
-        project = await prisma.project.create({
+        const slug = await generateSlug(`${softwareLabel}-${label}`)
+        const project = await prisma.project.create({
             data: {
-                name: name,
+                label: label,
                 description: description,
-                softwareId: softwareId,
+                softwareLabel: softwareLabel,
                 clientId: clientId,
                 createdBy: userId,
                 status: 'actif',
+                slug: slug,
                 UserProject: {
                     create: {
                         userId: userId,
                         isAdmin: true,
                         isEditor: true,
                         isValidator: true,
-                        createdBy: userId,
+                        createdBy: userId
                     }
                 },
             },
         })
-        const projectId = project.id
-        const attachments = attachmentsList.map((attachment) => {
-            return {
-                projectId,
-                ...attachment
-            }
-        })
-        await prisma.attachment.createMany({
-            data: attachments
-        })
+        const log: Logger = {
+            level: "info",
+            scope: "project",
+            message: `Le projet ${label} a été créé`,
+            clientId: clientId,
+            projectLabel: project.label,
+            projectSoftwareLabel: project.softwareLabel
+        }
+
+        await createLog(log)
+
     } catch (error) {
         console.log(error)
+        throw new ActionError("Une erreur est survenue lors de la création du projet.")
     }
-    revalidatePath(`/project/${project?.id}`);
-
-    redirect(`/project/${project?.id}`);
-
-}
-
-export const copyBookToProject = async (values: z.infer<typeof BookToProjectSchema>) => {
-    const { projectId, stdBookId } = BookToProjectSchema.parse(values)
-    const userId = await userIsValid()
-    const userIsAuthorize = await userIsAuthorizeToAddBookInProject(projectId)
-    if (!userIsAuthorize) {
-        throw new Error("Vous n'êtes pas autorisé à ajouter un livre dans ce projet.")
-    }
-    try {
-        const standardBook = await getBookByIdIncludeChapterIncludeComposant(stdBookId)
-        if (!standardBook) {
-            throw new Error("Le livre n'existe pas.")
+    const project = await prisma.project.findFirstOrThrow({
+        where: {
+            label: label,
+            softwareLabel: softwareLabel,
+            clientId: clientId
         }
-        standardBook.StandardChapter.at(0)?.ChapterStdComposant.at(0)?.standardComposant.Standard_Composant_Input.at(0)?.id
-        const book = {
-            name: standardBook.id,
-            description: standardBook.description,
-            createBy: userId,
-            status: 'Actif',
-            projectId: projectId,
-        }
-        const bookId = await prisma.book.create({
-            data: {
-                projectId: projectId,
-                name: book.name,
-                description: book.description,
-                status: book.status,
-                createdBy: book.createBy,
+    })
 
-            }
+    revalidatePath(`/client/${clientSlug}/project/${project.slug}/`);
 
-        })
+    redirect(`/client/${clientSlug}/project/${project.slug}/`);
 
-        const inputs = []
-        for (let std_chapter of standardBook.StandardChapter) {
-            for (let stdChapterComposant of std_chapter.ChapterStdComposant) {
-
-                for (let stdComposantInput of stdChapterComposant.standardComposant.Standard_Composant_Input) {
-                    inputs.push({
-                        type: stdComposantInput.type,
-                        label: stdComposantInput.label,
-                        maxLength: stdComposantInput.maxLength,
-                        minLength: stdComposantInput.minLength,
-                        minValue: stdComposantInput.minValue,
-                        maxValue: stdComposantInput.maxValue,
-                        placeholder: stdComposantInput.placeholder,
-                        order: stdComposantInput.order,
-                        defaultValue: stdComposantInput.defaultValue,
-                        required: stdComposantInput.required,
-                        readonly: stdComposantInput.readonly,
-                        multiple: stdComposantInput.multiple,
-                        textArea: stdComposantInput.textArea,
-                        createdBy: userId,
-                    })
-                }//Create inputs
-                /** 
-                await prisma.chapter.create({
-                    data: {
-                        label: std_chapter.label,
-                        level: std_chapter.level,
-                        createdBy: userId,
-                        bookId: bookId.id,
-                        Composant: {
-                            create: {
-                                title: stdChapterComposant.standardComposant.title,
-                                description: stdChapterComposant.standardComposant.description,
-                                createdBy: userId,
-                                Input: {
-                                    create: inputs
-                                }
-                            },
-                        },
-
-                    }
-                })
-                */
-
-            }//Create composant
-
-
-        }
-        try {
-
-        } catch (err) {
-            console.error(err)
-            throw new Error('Erreur lors de la recopie des chapitres.')
-        }
-
-
-
-    } catch (err) {
-        console.log(err)
-        throw new Error('Impossible de copier le livre dans le projet.')
-    }
-    revalidatePath(`/project/${projectId}`);
-
-    //redirect(`/project/${projectId}`);
-}
+})

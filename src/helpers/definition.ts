@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { string, z } from 'zod';
 export const ClientFormSchema = z.object({
     socialReason: z.string().max(50, { message: "La raison sociale doit contenir au moins 2 caractères." }),
     siren: z.string().length(9),
@@ -13,43 +13,82 @@ export const ClientFormSchema = z.object({
 
 })
 
-export const BookFormSchema = z.object({
-    name: z.string().max(50, { message: "Le nom du livre doit contenir au moins 2 caractères." }),
-    status: z.enum(['actif', 'archivé']),
-    softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
-    description: z.string().min(1, { message: "La description doit contenir au moins 2 caractères." }),
+export const ClientEditFormSchema = z.object({
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    socialReason: z.string().max(50, { message: "La raison sociale doit contenir au moins 2 caractères." }),
+    ape: z.string().length(5),
+    address1: z.string().max(50, { message: "L'adresse doit contenir au moins 2 caractères." }),
+    address2: z.string().max(50, { message: "L'adresse doit contenir au moins 2 caractères." }),
+    address3: z.string().max(50, { message: "L'adresse doit contenir au moins 2 caractères." }),
+    address4: z.string().max(50, { message: "L'adresse doit contenir au moins 2 caractères." }),
+    city: z.string().min(2, { message: "La ville doit contenir au moins 2 caractères." }),
+    codeZip: z.string().length(5, { message: "Le code postal doit contenir 5 caractères." }),
+    country: z.string().min(2, { message: "Le pays doit contenir au moins 2 caractères." }),
 })
 
-export const SetupSchema = z.object({
+export const BookFormSchema = z.object({
+    label: z.string().max(50, { message: "Le nom du livre doit contenir au moins 2 caractères." }),
+    description: z.string().min(1, { message: "La description doit contenir au moins 2 caractères." }),
+    status: z.enum(['actif', 'archivé']).optional(),
+    softwareLabel: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+})
+export const BookFormSchemaEdit = z.object({
+    label: z.string().max(50, { message: "Le nom du livre doit contenir au moins 2 caractères." }),
+    description: z.string().min(1, { message: "La description doit contenir au moins 2 caractères." }),
+    status: z.enum(['actif', 'archivé']).optional(),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    bookSlug: z.string().min(1, { message: "Le livre est obligatoire." }),
+
+})
+
+export const SetupProfilSchema = z.object({
     civility: z.string().min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
     firstname: z.string().min(2, { message: "Le prénom doit contenir au moins 2 caractères." }),
     lastname: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
-    siren: z.string().length(9),
-    socialReason: z.string().max(50, { message: "La raison sociale doit contenir au moins 2 caractères." }),
+})
 
+export const SetupClientSchema = z.object({
+    socialReason: z.string().min(1, { message: "La raison sociale doit contenir au moins 1 caractères." }),
+    siren: z.string().min(9, { message: "Le siren doit contenir au moins 9 caractères." }).max(9, { message: "Le prénom doit contenir au maximum 9 caractères." }),
+})
+
+export const SetupLegalSchema = z.object({
+    cgv: z.boolean(),
+    gdpr: z.boolean(),
 })
 
 export const StandardComposantSchema = z.object({
-    title: z.string().min(2, { message: "Le titre doit contenir au moins 2 caractères." }).max(50, { message: "Le titre doit contenir au moins 2 caractères." }),
+    label: z.string().min(2, { message: "Le titre doit contenir au moins 2 caractères." }).max(50, { message: "Le titre doit contenir au moins 2 caractères." }),
     description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }).max(255, { message: "La description doit contenir au moins 2 caractères." }),
-    clientId: z.string().min(1, { message: "Le client est obligatoire." }),
-    softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    softwareLabel: z.string().min(1, { message: "Le logiciel est obligatoire." }),
     status: z.enum(['actif', 'archivé']),
     type: z.enum(['form', 'textarea', 'image']),
 })
 
-export const EventSchema = z.object({
-    level: z.enum(['info', 'warning', 'error']),
-    message: z.string().min(2, { message: "Le message doit contenir au moins 2 caractères." }),
-    scope: z.enum(['client', 'standardAttachment', 'book', 'softwareItem', 'standardComposant', 'chapter', 'project', 'editor', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant', 'invoice']),
-    clientId: z.string().optional(),
-    projectId: z.string().optional(),
+export const StandardComposantEditSchema = z.object({
+    label: z.string().min(2, { message: "Le titre doit contenir au moins 2 caractères." }).max(50, { message: "Le titre doit contenir au moins 2 caractères." }),
+    description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }).max(255, { message: "La description doit contenir au moins 2 caractères." }),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    status: z.enum(['actif', 'archivé']),
+    componentSlug: z.string().min(1, { message: "Le composant est obligatoire." }),
 })
 
-export const SoftwareItemSchema = z.object({
+
+export const EventSchema = z.object({
+    level: z.enum(['info', 'warning', 'error', 'security']),
+    message: z.string().min(2, { message: "Le message doit contenir au moins 2 caractères." }),
+    scope: z.enum(['client', 'constant', 'dsn', 'standardAttachment', 'book', 'softwareItem', 'standardComponent', 'chapter', 'project', 'editor', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant', 'invoice']),
+    clientId: z.string().optional(),
+    projectLabel: z.string().optional(),
+})
+
+export const SoftwareItemCreateSchema = z.object({
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
     id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
     label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
-    type: z.enum(['Salaire de base', 'Prime', 'Cotisation', 'Rubrique de net']),
+    type: z.enum(['Salaire de base', 'Prime', 'URSSAF', 'Retraire', 'Prévoyance', 'Mutuelle', 'Rubrique de net']),
     description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
     idccCode: z.string().min(1, { message: "L'idcc est obligatoire." }),
     version: z.number().positive().optional(),
@@ -57,17 +96,24 @@ export const SoftwareItemSchema = z.object({
     rate: z.string().optional(),
     amount: z.string().optional(),
     status: z.enum(['actif', 'archivé']).optional(),
-    softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+    softwareLabel: z.string().min(1, { message: "Le logiciel est obligatoire." }),
     slug: z.string().optional(),
+    employeeContribution: z.string().optional(),
+    employerContribution: z.string().optional(),
+    dateStart: z.date(),
 
 })
 
-export const StandardAttachmentSchema = z.object({
+
+export const StandardAttachmentCreateSchema = z.object({
     id: z.string().optional(),
     label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
     description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
     isObligatory: z.boolean(),
-    softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+    softwareLabel: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    multiple: z.boolean().optional(),
+    accept: z.enum(['pdf', 'excel', 'word', 'img', 'csv', 'txt'])
 
 })
 
@@ -110,7 +156,7 @@ export const StandardComposantSelectionOptionSchema = z.object({
 
 })
 
-export const ChapterFormSchema = z.object({
+export const ChapterFormCreateSchema = z.object({
     level_1: z.preprocess(
         (args) => (args === '' ? undefined : args),
         z.coerce
@@ -132,8 +178,9 @@ export const ChapterFormSchema = z.object({
             .min(0)
             .max(99, { message: "Le level doit etre inferieur à 99." })
     ),
-
     label: z.string().min(1, { message: "Le label doit contenir au moins 2 caractères." }),
+    bookSlug: z.string().min(1, { message: "Le livre est obligatoire." }),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
 })
 export const RegisterSchema = z.object({
     email: z.string().email(),
@@ -153,10 +200,24 @@ export const ProfilSchema = z.object({
     lastname: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
 })
 export const SoftwaresSchema = z.object({
-    id: z.string().optional(),
-    provider: z.string().min(2, { message: "Le nom du fournisseur doit contenir au moins 2 caractères." }),
-    name: z.string().min(2, { message: "Le nom du logiciel doit contenir au moins 2 caractères." }),
-    clientId: z.string().min(1, { message: "Le client id est obligatoire." })
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    slug: z.string().min(1, { message: "Le slug est obligatoire." }).optional(),
+    label: z.string().min(2, { message: "Le nom du logiciel doit contenir au moins 2 caractères." }),
+})
+
+export const SoftwareConstantCreateSchema = z.object({
+    id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
+    label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
+    description: z.string().optional(),
+    value: z.string().min(1, { message: "La valeur doit contenir au moins 2 caractères." }),
+    dateStart: z.date(),
+    idccCode: z.string(),
+    softwareLabel: z.string(),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+})
+
+export const SetupSoftwareSchema = z.object({
+    label: z.string().min(2, { message: "Le nom du logiciel doit contenir au moins 2 caractères." }),
 })
 
 export const InvitationSchema = z.object({
@@ -189,11 +250,11 @@ export const ChapterStandardComposantSchema = z.object({
 
 })
 
-export const ProjectSchema = z.object({
-    clientId: z.string().min(1, { message: "Le client est obligatoire." }),
-    name: z.string().min(2, { message: "Le nom du projet doit contenir au moins 2 caractères." }),
-    softwareId: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+export const ProjectCreateSchema = z.object({
+    label: z.string().min(2, { message: "Le nom du projet doit contenir au moins 2 caractères." }),
+    softwareLabel: z.string().min(1, { message: "Le logiciel est obligatoire." }),
     description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
 })
 
 export const BookToProjectSchema = z.object({
@@ -216,3 +277,47 @@ export const CreateInvoiceSchema = z.object({
     date: z.string().min(1, { message: "La date est obligatoire." }),
 })
 
+export const AssociateSoftwareSchema = z.object({
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    email: z.string().min(1, { message: "L'utilisateur est obligatoire." }),
+    isEditor: z.boolean(),
+    softwareSlug: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+
+})
+
+export const CreateTextAreaSchema = z.object({
+    value: z.string().min(1, { message: "Le texte est obligatoire." }),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    componentSlug: z.string().min(1, { message: "Le composant est obligatoire." }),
+
+})
+
+export const CreateStdInputSchema = z.object({
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    type: string().min(1, { message: "Le type est obligatoire." }),
+    label: z.string().min(1, { message: "Le label est obligatoire." }),
+    componentSlug: z.string().min(1, { message: "Le composant est obligatoire." }),
+
+})
+
+export const DeleteStdInputSchema = z.object({
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    componentSlug: z.string().min(1, { message: "Le composant est obligatoire." }),
+    id: z.string().min(1, { message: "L'id est obligatoire." }),
+})
+
+export const EdidStdInputSchema = z.object({
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    componentSlug: z.string().min(1, { message: "Le composant est obligatoire." }),
+    id: z.string().min(1, { message: "L'id est obligatoire." }),
+    minLength: z.coerce.number().min(0).optional(),
+    maxLength: z.coerce.number().max(9999).optional(),
+    minValue: z.coerce.number().min(0).optional(),
+    maxValue: z.coerce.number().max(9999).optional(), // Zod will coerce age to a number.
+    placeholder: z.string().optional(),
+    defaultValue: z.string().optional(),
+    required: z.boolean().optional(),
+    readonly: z.boolean().optional(),
+    label: z.string().min(1, { message: "Le label est obligatoire." }),
+
+})

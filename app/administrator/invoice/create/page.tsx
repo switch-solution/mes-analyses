@@ -1,4 +1,4 @@
-import CreateInvoice from "@/src/features/form/invoice/create"
+import CreateInvoice from "@/components/form/invoice/create"
 export default async function Page() {
     return (
         <div>

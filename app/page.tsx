@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import Link from "next/link"
 type CardProps = {
   title: string
   description: string
@@ -16,9 +15,7 @@ type CardProps = {
   footer: string
 }
 import Container from "@/src/features/layout/container";
-import { LogIn } from "lucide-react";
-import Footer from "@/src/features/layout/footer";
-
+import { LoginButton } from "@/src/features/auth/LoginButton";
 export default async function Home() {
   const session = await getUser();
 
@@ -33,7 +30,7 @@ export default async function Home() {
           <h2 className="text-left">Créer vos formulaires</h2>
 
         </div>
-        <div id='pricing' className="flex justify-between flex-col md:flex-row p-12 h:full md:w-1/2">
+        <div id='pricing' className="flex justify-between flex-col md:flex-row h:full lg:w-1/2">
           <Container>
             <CardPricing title="Mode local" description="Installer la solution sur vos serveurs" content="Utilis" footer="/documentation" />
           </Container>
@@ -49,7 +46,7 @@ export default async function Home() {
 const CardPricing = ({ title, description, content, footer }: CardProps) => {
 
   return (
-    <Card className="'h-44 w-80'">
+    <Card className="h-80 w-80">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
@@ -58,7 +55,7 @@ const CardPricing = ({ title, description, content, footer }: CardProps) => {
         <p>{content}</p>
       </CardContent>
       <CardFooter>
-        <Link href={footer}> <LogIn />Essayer</Link>
+        <LoginButton label="Tester la solution" />
       </CardFooter>
     </Card>
   )

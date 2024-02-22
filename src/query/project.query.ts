@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { userIsAuthorizeForProject, userIsValid } from "./security.query";
+import { userIsValid } from "./security.query";
 
 export const getMyProjects = async () => {
     try {
@@ -7,7 +7,6 @@ export const getMyProjects = async () => {
         if (!userId) {
             throw new Error('Vous devez etre connecté')
         }
-
         const myProjects = await prisma.userProject.findMany({
             where: {
                 userId: userId
@@ -18,14 +17,34 @@ export const getMyProjects = async () => {
             orderBy: {
                 createdAt: 'desc'
             }
-
-
         })
         return myProjects
     } catch (err) {
         console.log(err)
     }
 
+}
+
+export const getProjectBySlug = async (projectSlug: string) => {
+    try {
+        const project = await prisma.project.findUniqueOrThrow({
+            where: {
+                slug: projectSlug
+            }
+        })
+        return project
+    } catch (err) {
+        console.error(err)
+        await prisma.logger.create({
+            data: {
+                level: "error",
+                message: `L'utilisateur essaye d'accéder à un projet qui n'existe pas ${projectSlug}`,
+                scope: "project",
+                createdBy: "system"
+            }
+        })
+        throw new Error('Une erreur est survenue lors de la récupération du projet')
+    }
 }
 
 export const getCountMyProjects = async () => {
@@ -46,166 +65,67 @@ export const getCountMyProjects = async () => {
     }
 
 }
-export const getProjectBook = async (projectId: string) => {
-    try {
-        const projetExist = await getProjectByIdAndTestAuthorize(projectId)
-        if (!projetExist) {
-            throw new Error('Le projet n\'existe pas')
-        }
-        const projectBook = await prisma.book.findMany({
-            where: {
-                projectId: projectId
-            }
-        })
-        return projectBook
-    } catch (err) {
-        console.log(err)
-        throw new Error('Une erreur est survenue lors de la récupération des cahiers du projet')
-    }
 
-}
-
-export const getCountProjectAttchment = async (projectId: string) => {
+export const getProjectsHome = async (projectSlug: string) => {
     try {
-        const projetExist = await getProjectByIdAndTestAuthorize(projectId)
-        if (!projetExist) {
-            throw new Error('Le projet n\'existe pas')
-        }
-        const countAttachment = await prisma.attachment.count({
-            where: {
-                projectId: projectId
-            }
-        })
-        return countAttachment
-    } catch (err) {
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de la récupération des cahiers du projet')
-    }
-}
-
-export const getProjectAttachment = async (projectId: string) => {
-    try {
-        const projectExist = await getProjectByIdAndTestAuthorize(projectId)
+        const projectExist = await getProjectBySlug(projectSlug)
         if (!projectExist) {
             throw new Error('Le projet n\'existe pas')
         }
-        const projectAttachment = await prisma.attachment.findMany({
+        const countBook = await prisma.project_Book.count({
             where: {
-                projectId: projectId
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                clientId: projectExist.clientId
             }
         })
-        return projectAttachment
+        const countUserProject = await prisma.userProject.count({
+            where: {
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                projectClientId: projectExist.clientId
+            }
+        })
+        const countAttachment = await prisma.project_Attachment.count({
+            where: {
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                clientId: projectExist.clientId
+            }
+        })
+        const countConstant = await prisma.project_Constant.count({
+            where: {
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                clientId: projectExist.clientId
+            }
+        })
+        const countItems = await prisma.project_Items.count({
+            where: {
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                clientId: projectExist.clientId
+            }
+        })
+        const countDsn = await prisma.dsn.count({
+            where: {
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                clientId: projectExist.clientId
+            }
+        })
+
+        return {
+            countBook,
+            countUserProject,
+            countAttachment,
+            countConstant,
+            countItems,
+            countDsn
+
+        }
     } catch (err) {
         console.error(err)
-        throw new Error('Une erreur est survenue lors de la récupération des cahiers du projet')
+        throw new Error('Une erreur est survenue lors de la récupération des projets')
     }
-}
-
-export const getCountProjectBook = async (projectId: string) => {
-    try {
-        const projetExist = await getProjectByIdAndTestAuthorize(projectId)
-        if (!projetExist) {
-            throw new Error('Le projet n\'existe pas')
-        }
-        const countBook = await prisma.book.count({
-            where: {
-                projectId: projectId
-            }
-        })
-        return countBook
-    } catch (err) {
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de la récupération des cahiers du projet')
-    }
-
-}
-
-export const getMyProjectSoftware = async () => {
-    try {
-        const myProjects = await getMyProjects()
-        if (!myProjects) {
-            throw new Error('Vous n\'avez pas de projet')
-        }
-        const projectSoftware = await prisma.software.findMany({
-            where: {
-                id: {
-                    in: myProjects.map(project => project.project.softwareId)
-                }
-            }
-        })
-
-
-        return projectSoftware
-    } catch (err) {
-        console.log(err)
-        throw new Error('Une erreur est survenue lors de la récupération des logiciels du projet')
-    }
-
-}
-/**
- * Test project exist and user is authorize
- * @param projectId 
- * @returns 
- */
-export const getProjectByIdAndTestAuthorize = async (projectId: string) => {
-
-    try {
-        const userId = await userIsValid()
-        if (!userId) {
-            throw new Error('Vous devez etre connecté')
-        }
-        const userIsAuthorize = await userIsAuthorizeForProject(projectId)
-        if (!userIsAuthorize) {
-            throw new Error('Vous n\'êtes pas autorisé à accéder à ce projet')
-        }
-        const project = await prisma.project.findUniqueOrThrow({
-            where: {
-                id: projectId
-            }
-        })
-
-        return project
-    } catch (err) {
-        console.log(err)
-        throw new Error('Une erreur est survenue lors de la récupération du projet')
-    }
-
-}
-
-export const getProjectUsers = async (projectId: string) => {
-    try {
-        const projetExist = await getProjectByIdAndTestAuthorize(projectId)
-        if (!projetExist) {
-            throw new Error('Le projet n\'existe pas')
-        }
-        const users = await prisma.userProject.findMany({
-            where: {
-                projectId: projectId
-
-            }
-        })
-        return users
-    } catch (err) {
-
-    }
-
-}
-
-export const getCountProjectUsers = async (projectId: string) => {
-    try {
-        const projetExist = await getProjectByIdAndTestAuthorize(projectId)
-        if (!projetExist) {
-            throw new Error('Le projet n\'existe pas')
-        }
-        const count = await prisma.userProject.count({
-            where: {
-                projectId: projectId
-
-            }
-        })
-        return count
-    } catch (err) {
-
-    }
-
 }

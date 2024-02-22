@@ -10,6 +10,7 @@ import {
     PlusCircle,
     Home,
     User,
+    Paperclip,
     UserPlus,
     Users,
     Menu,
@@ -35,15 +36,13 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { getUser } from '@/src/query/user.query';
+import { userRole } from '@/src/query/security.query';
+import { getMyClientActive } from "@/src/query/client.query";
 export const UserMenu = async () => {
-    const session = await getUser()
-    if (!session) {
-        throw new Error("L'utilisateur n'est pas connecté.")
-    }
+    const role = await userRole()
+    const slug = await getMyClientActive()
     return (
-
-        <DropdownMenu>
+        <DropdownMenu aria-label="menu">
             <DropdownMenuTrigger asChild>
                 <Button variant="outline"><Menu /></Button>
             </DropdownMenuTrigger>
@@ -67,12 +66,14 @@ export const UserMenu = async () => {
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem>
                                         <FolderKanban className="mr-2 h-4 w-4" />
-                                        <span><Link href={`/project`}>Voir mes projets</Link></span>
+                                        <span><Link href={`/client/${slug}/project`}>Voir mes projets</Link></span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <FolderPlus className="mr-2 h-4 w-4" />
-                                        <span><Link href={`/project/create`}>Créer un nouveau projet</Link></span>
-                                    </DropdownMenuItem>
+                                    {role?.isEditorClient &&
+                                        <DropdownMenuItem>
+                                            <FolderPlus className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/client/${slug}/project/create`}>Créer un nouveau projet</Link></span>
+                                        </DropdownMenuItem>
+                                    }
                                     <DropdownMenuSeparator />
                                 </DropdownMenuSubContent>
                             </DropdownMenuPortal>
@@ -90,11 +91,15 @@ export const UserMenu = async () => {
                                     <DropdownMenuSubContent>
                                         <DropdownMenuItem>
                                             <Cog className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/client`}>Voir ma fiche client</Link></span>
+                                            <span><Link href={`/client/${slug}`}>Voir ma fiche</Link></span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
-                                            <Book className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/client/`}>Editer</Link></span>
+                                            <Cog className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/client/${slug}/administrator/edit`}>Editer ma fiche</Link></span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <Cog className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/client/${slug}/administrator`}>Gérer mon compte</Link></span>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                     </DropdownMenuSubContent>
@@ -109,23 +114,27 @@ export const UserMenu = async () => {
                                     <DropdownMenuSubContent>
                                         <DropdownMenuItem>
                                             <Cog className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/editor`}>Ouvrir l&apos;editeur</Link></span>
+                                            <span><Link href={`/client/${slug}/editor`}>Ouvrir l&apos;editeur</Link></span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Book className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/editor/book/create`}>Créer un nouveau livre</Link></span>
+                                            <span><Link href={`/client/${slug}/editor/book/create`}>Créer un nouveau livre</Link></span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <FormInput className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/editor/component/create`}>Créer un nouveau composant</Link></span>
+                                            <span><Link href={`/client/${slug}/editor/component/create`}>Créer un nouveau composant</Link></span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <FormInput className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/editor/item/create`}>Créer une nouvelle rubrique</Link></span>
+                                            <span><Link href={`/client/${slug}/editor/item/create`}>Créer une nouvelle rubrique</Link></span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <FormInput className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/editor/attachment/create`}>Créer une PJ à fournir</Link></span>
+                                            <span><Link href={`/client/${slug}/editor/constant/create`}>Créer une nouvelle constante</Link></span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <Paperclip className="mr-2 h-4 w-4" />
+                                            <span><Link href={`/client/${slug}/editor/attachment/create`}>Créer une PJ à fournir</Link></span>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                     </DropdownMenuSubContent>

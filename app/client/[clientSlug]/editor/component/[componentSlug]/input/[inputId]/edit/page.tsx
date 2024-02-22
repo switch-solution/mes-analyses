@@ -1,0 +1,14 @@
+import { userIsEditor } from "@/src/query/security.query";
+import EditStdInput from "@/components/form/stdComponentInput/edit";
+import { getStandardInputById } from "@/src/query/standardInput.query";
+export default async function Page({ params }: { params: { clientSlug: string, componentSlug: string, inputId: string } }) {
+    const isEditor = await userIsEditor(params.clientSlug);
+    if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
+    const input = await getStandardInputById(params.inputId)
+    return (
+        <div>
+            <EditStdInput clientSlug={params.clientSlug} componentSlug={params.componentSlug} input={input} />
+        </div>
+    )
+
+}

@@ -23,7 +23,24 @@ export const getChapterStdComponents = async (chapterId: string) => {
 
 }
 
-export const getParent = async (bookId: string, level_1: number, level_2: number | undefined, level_3: number | undefined) => {
+export const getParent = async ({
+    clientId,
+    bookLabel,
+    bookSoftwareLabel,
+    level_1,
+    level_2,
+    level_3
+
+}: {
+    clientId: string,
+    bookLabel: string,
+    bookSoftwareLabel: string,
+    level_1: number | undefined,
+    level_2: number | undefined,
+    level_3: number | undefined
+
+
+}) => {
     try {
         if (level_1 && !level_2 && !level_3) {
             return null
@@ -31,7 +48,9 @@ export const getParent = async (bookId: string, level_1: number, level_2: number
         if (level_1 && level_2 && !level_3) {
             return await prisma.standard_Chapter.findFirst({
                 where: {
-                    bookId: bookId,
+                    bookLabel: bookLabel,
+                    clientId: clientId,
+                    bookSoftwareLabel: bookSoftwareLabel,
                     level_1: level_1,
                     level_2: undefined,
                     level_3: undefined
@@ -41,7 +60,9 @@ export const getParent = async (bookId: string, level_1: number, level_2: number
         if (level_1 && level_2 && level_3) {
             return await prisma.standard_Chapter.findFirst({
                 where: {
-                    bookId: bookId,
+                    bookLabel: bookLabel,
+                    clientId: clientId,
+                    bookSoftwareLabel: bookSoftwareLabel,
                     level_1: level_1,
                     level_2: level_2,
                     level_3: undefined
@@ -83,7 +104,7 @@ export const getChapterComponentsValid = async (chapterId: string) => {
         }
         const clientId = getChapterDetail.book.software.clientId
         const softwareId = getChapterDetail.book.softwareId
-        const getComponentsForTheClient = await prisma.standard_Composant.findMany({
+        const getComponentsForTheClient = await prisma.standard_Component.findMany({
             where: {
                 clientId: clientId,
                 softwareId: softwareId

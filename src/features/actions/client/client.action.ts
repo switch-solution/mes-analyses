@@ -3,36 +3,25 @@
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { ClientFormSchema } from "@/src/helpers/definition";
-import { userIsValid } from '@/src/query/security.query';
+import { ClientEditFormSchema } from "@/src/helpers/definition";
+import { getClientSirenBySlug } from '@/src/query/client.query';
+import z from 'zod';
+import { authentificationActionUserIsAdminClient } from "@/lib/safe-actions"
+import { Logger } from '@/src/helpers/type';
+import { createLog } from '@/src/query/logger.query';
 
-export const createClient = async (formdata: FormData) => {
-    const userId = await userIsValid()
-    if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
+export const editClient = authentificationActionUserIsAdminClient(ClientEditFormSchema, async (values: z.infer<typeof ClientEditFormSchema>) => {
+    const { clientSlug, ape, address1, address2, address3, address4, city, codeZip, country, socialReason } = ClientEditFormSchema.parse(values)
 
-    const { siren, ape, address1, address2, address3, address4, city, codeZip, country, socialReason } = ClientFormSchema.parse({
-        siren: formdata.get('siren'),
-        ape: formdata.get('ape'),
-        address1: formdata.get('address1'),
-        address2: formdata.get('address2'),
-        address3: formdata.get('address3'),
-        address4: formdata.get('address4'),
-        city: formdata.get('city'),
-        codeZip: formdata.get('codeZip'),
-        country: formdata.get('country'),
-        socialReason: formdata.get('socialReason')
-    })
-
-
-    let clientId = undefined
     try {
-        const currentDate = new Date();
-        const add90Days = new Date(currentDate.setDate(currentDate.getDate() + 90))
-
-        clientId = await prisma.client.create({
+        const siren = await getClientSirenBySlug(clientSlug)
+        if (!siren) throw new Error("Le client n'existe pas.")
+        await prisma.client.update({
+            where: {
+                siren
+            },
             data: {
                 socialReason: socialReason,
-                siren: siren,
                 ape: ape,
                 address1: address1,
                 address2: address2,
@@ -41,38 +30,22 @@ export const createClient = async (formdata: FormData) => {
                 city: city,
                 codeZip: codeZip,
                 country: country,
-                invoiceAddress1: address1,
-                invoiceAddress2: address2,
-                invoiceAddress3: address3,
-                invoiceAddress4: address4,
-                invoiceCountry: country,
-                invoiceCity: city,
-                invoiceCodeZip: codeZip,
-                isBlocked: false,
-                dateStartTrial: new Date(),
-                dateEndTrial: add90Days,
-                createdBy: userId,
-                UserClient: {
-                    create: {
-                        userId: userId,
-                        isBlocked: false,
-                        isBillable: true,
-                        isAdministrator: true,
-                        isEditor: true,
-
-                    }
-
-                }
-
             }
         })
-
-    } catch (e) {
-        console.error(e)
-        throw new Error("Une erreur est survenue lors de la création du client.")
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la modification du client.")
     }
 
-    revalidatePath(`/client/${clientId}`);
-    redirect(`/client/${clientId}`);
+    const log: Logger = {
+        level: "info",
+        message: `Le client ${clientSlug} a été modifié.`,
+        scope: "client",
+        clientId: clientSlug,
+    }
 
-}
+    await createLog(log)
+    revalidatePath(`/client/${clientSlug}/administrator/`);
+    redirect(`/client/${clientSlug}/administrator/`);
+
+})

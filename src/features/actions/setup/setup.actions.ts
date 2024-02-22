@@ -2,33 +2,51 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { SetupSchema } from "@/src/helpers/definition";
-import type { Event } from "@/src/helpers/type";
-import { createEvent } from "@/src/query/logger.query";
+import { SetupProfilSchema, SetupClientSchema, SetupLegalSchema, SetupSoftwareSchema } from "@/src/helpers/definition";
+import type { Logger } from "@/src/helpers/type";
+import { createLog } from "@/src/query/logger.query";
 import z from "zod";
-import { userIsValid } from "@/src/query/security.query";
 import { getMyClient } from "@/src/query/user.query";
-export const createSetup = async (values: z.infer<typeof SetupSchema>) => {
+import { generateSlug } from "@/src/helpers/generateSlug";
+import { getClientBySiren } from "@/src/query/client.query";
+import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
+
+export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) throw new Error("Vous n'êtes pas autorisé à effectuer cette action.")
+        if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
+        const { cgv, gdpr } = SetupLegalSchema.parse(values)
+        if (cgv === false) throw new ActionError("Vous devez accepter les CGV.")
+        if (gdpr === false) throw new ActionError("Vous devez accepter le RGPD.")
+        await prisma.userOtherData.create({
+            data: {
+                userId: userId,
+                isBlocked: false,
+                cgv: cgv,
+                gdpr: gdpr
+            }
+        })
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la création des CGV.")
+
+    }
+    revalidatePath(`/setup/profil/`)
+    redirect(`/setup/profil/`)
+
+})
+export const createSetupProfil = authentifcationAction(SetupProfilSchema, async (values: z.infer<typeof SetupProfilSchema>, userId) => {
+    try {
+
         const client = await getMyClient()
         if (client?.length !== 0) {
-            throw new Error("Vous avez déjà une configuration.")
+            throw new ActionError("Vous avez déjà une configuration.")
         }
-        const { firstname, lastname, siren, civility, socialReason } = SetupSchema.parse(values)
-        await prisma.userOtherData.upsert({
+        const { firstname, lastname, civility } = SetupProfilSchema.parse(values)
+        await prisma.userOtherData.update({
             where: {
                 userId: userId
             },
-            update: {
-                firstname: firstname,
-                lastname: lastname,
-                civility: civility,
-                isBlocked: false,
-                userId: userId,
-            },
-            create: {
+            data: {
                 firstname: firstname,
                 lastname: lastname,
                 civility: civility,
@@ -36,43 +54,116 @@ export const createSetup = async (values: z.infer<typeof SetupSchema>) => {
                 userId: userId,
             }
         })
-        const clientId = await prisma.client.create({
+        const Log: Logger = {
+            level: "warning",
+            message: `Création de l'utilisateur`,
+            scope: "client",
+        }
+        await createLog(Log)
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la création de la configuration du profil.")
+    }
+
+    const client = await getMyClient()
+
+    revalidatePath(`/setup/client/`)
+    redirect(`/setup/client/`)
+
+})
+
+export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, async (values: z.infer<typeof SetupSoftwareSchema>, userId) => {
+
+    const clientId = await prisma.userClient.findFirst({
+        where: {
+            userId: userId
+        },
+    })
+    if (!clientId) throw new ActionError("Vous n'avez pas de client.")
+    const { label } = SetupSoftwareSchema.parse(values)
+
+    try {
+        const slug = await generateSlug(label)
+        await prisma.software.create({
             data: {
-                siren: siren,
+                label,
+                createdBy: userId,
+                slug,
+                updatedAt: new Date(),
+                clientId: clientId.clientId,
+            }
+        })
+        await prisma.userSoftware.create({
+            data: {
+                userId: userId,
+                softwareLabel: label,
+                isEditor: true,
+                createdBy: userId,
+                softwareClientId: clientId.clientId
+            }
+        })
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la création de la configuration du logiciel.")
+    }
+    const clientSlug = await prisma.client.findFirstOrThrow({
+        where: {
+            siren: clientId.clientId
+        }
+    })
+    revalidatePath(`/client/${clientSlug.slug}`)
+    redirect(`/client/${clientSlug.slug}`)
+})
+
+export const createSetupClient = authentifcationAction(SetupClientSchema, async (values: z.infer<typeof SetupClientSchema>, userId) => {
+
+    const client = await getMyClient()
+    if (client?.length !== 0) {
+        throw new Error("Vous avez déjà une configuration.")
+    }
+    const { socialReason, siren } = SetupClientSchema.parse(values)
+    const slug = await generateSlug(socialReason)
+    const sirenExist = await getClientBySiren(siren)
+    if (sirenExist) throw new ActionError("Ce siren est déjà utilisé.")
+    try {
+        const currentDate = new Date();
+
+        const add90Days = new Date(currentDate.setDate(currentDate.getDate() + 90))
+
+        await prisma.client.create({
+            data: {
                 socialReason: socialReason,
+                siren: siren,
+                slug: slug,
                 createdBy: userId,
                 isBlocked: false,
                 dateStartTrial: new Date(),
-                dateEndTrial: new Date(new Date().setDate(new Date().getDate() + 90)),
-            }
+                dateEndTrial: add90Days,
+                UserClient: {
+                    create: {
+                        userId: userId,
+                        isBillable: true,
+                        isAdministrator: true,
+                        isActivated: true,
+                        isBlocked: false,
+                        isEditor: true,
 
-        })
-        await prisma.userClient.create({
-            data: {
-                userId: userId,
-                clientId: clientId.id,
-                isBillable: true,
-                isBlocked: false,
-                isAdministrator: true,
-                isEditor: true,
-                isActivated: true,
+                    }
+                }
             }
-
         })
-        const event: Event = {
+        const Log: Logger = {
             level: "warning",
-            message: `Création du client ${clientId.socialReason}`,
+            message: `Création de l'utilisateur`,
             scope: "client",
-            clientId: clientId.id,
         }
-        await createEvent(event)
+        await createLog(Log)
     } catch (err) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la création de la configuration.")
+        throw new Error("Une erreur est survenue lors de la création de la configuration du client.")
     }
+    revalidatePath(`/setup/software/`)
+    redirect(`/setup/software/`)
 
 
-    revalidatePath("/home/")
-    redirect("/home/")
-
-}
+})
