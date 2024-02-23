@@ -1,4 +1,4 @@
-import BookCreateForm from "@/components/form/stdBook/create"
+import BookCreateForm from "@/components/form/software_book/create"
 import { userIsEditor } from "@/src/query/security.query"
 import { getMySoftware } from "@/src/query/user.query";
 export default async function CreateBook({ params }: { params: { clientSlug: string } }) {

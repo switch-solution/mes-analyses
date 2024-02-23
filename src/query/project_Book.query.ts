@@ -1,7 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { userIsAuthorizeForProject, userIsValid } from "@/src/query/security.query";
-import { getSoftwareByUserIsEditor } from "./software.query";
-import { getProjectById } from "./project.query";
+import { userIsValid } from "@/src/query/security.query";
 export const getBookChapter = async ({
     label,
     softwareId,

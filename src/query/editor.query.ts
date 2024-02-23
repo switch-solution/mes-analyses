@@ -20,7 +20,7 @@ export const getMyBookEditable = async () => {
             include: {
                 software: {
                     include: {
-                        Standard_Book: true
+                        Software_Book: true
                     }
 
                 }
@@ -41,7 +41,7 @@ export const getEditorHome = async (clientSlug: string) => {
     try {
         const userSoftware = await getMySoftware()
         const clientId = await getClientBySlug(clientSlug)
-        const countAttachment = await prisma.standard_Attachment.count({
+        const countAttachment = await prisma.software_Attachment.count({
             where: {
                 softwareLabel: {
                     in: userSoftware.map((software) => software.softwareLabel)
@@ -58,7 +58,7 @@ export const getEditorHome = async (clientSlug: string) => {
             }
         })
 
-        const countBook = await prisma.standard_Book.count({
+        const countBook = await prisma.software_Book.count({
             where: {
                 softwareLabel: {
                     in: userSoftware.map((software) => software.softwareLabel)
@@ -66,7 +66,7 @@ export const getEditorHome = async (clientSlug: string) => {
                 clientId: clientId.siren
             }
         })
-        const countStdComponent = await prisma.standard_Component.count({
+        const countStdComponent = await prisma.software_Component.count({
             where: {
                 softwareLabel: {
                     in: userSoftware.map((software) => software.softwareLabel)

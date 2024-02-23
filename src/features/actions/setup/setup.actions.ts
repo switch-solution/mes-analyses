@@ -10,6 +10,10 @@ import { getMyClient } from "@/src/query/user.query";
 import { generateSlug } from "@/src/helpers/generateSlug";
 import { getClientBySiren } from "@/src/query/client.query";
 import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
+import { copyFormToSoftware } from "@/src/query/form.query";
+import { createTypeRubrique } from "@/src/query/software_setting.query";
+import { copyBook } from "@/src/query/book.query";
+
 
 export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
     try {
@@ -81,9 +85,13 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
     })
     if (!clientId) throw new ActionError("Vous n'avez pas de client.")
     const { label } = SetupSoftwareSchema.parse(values)
-
+    const clientSlug = await prisma.client.findFirstOrThrow({
+        where: {
+            siren: clientId.clientId
+        }
+    })
     try {
-        const slug = await generateSlug(label)
+        const slug = await generateSlug(`${clientSlug.slug}-${label}`)
         await prisma.software.create({
             data: {
                 label,
@@ -102,15 +110,51 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
                 softwareClientId: clientId.clientId
             }
         })
+        const software = await prisma.software.findFirst({
+            where: {
+                label: label,
+                clientId: clientId.clientId
+            }
+        })
+        if (!software) throw new ActionError("Le logiciel n'a pas été créé.")
+        await copyFormToSoftware(software.slug)
+        //Add DSN Attachment
+        await prisma.software_Attachment.create({
+            data: {
+                label: "DSN",
+                description: "Déclaration Sociale Nominative",
+                isObligatory: true,
+                softwareLabel: label,
+                clientId: software.clientId,
+                slug: await generateSlug(`${clientId}-${label}-DSN`),
+                multiple: true,
+                accept: "dsn",
+                createdBy: userId
+            }
+        })
+        //Add Settings
+        await createTypeRubrique(software.slug)
+        //Copy books and chapters
+        try {
+            await copyBook(software.slug)
+            const log: Logger = {
+                level: "info",
+                message: `Le logiciel ${label} a été ajouté`,
+                scope: "software",
+                clientId: clientId.clientId,
+            }
+        } catch (err) {
+            console.error(err)
+            throw new ActionError("Une erreur est survenue lors de la copie des livres.")
+        }
+
+
+
     } catch (err) {
         console.error(err)
         throw new Error("Une erreur est survenue lors de la création de la configuration du logiciel.")
     }
-    const clientSlug = await prisma.client.findFirstOrThrow({
-        where: {
-            siren: clientId.clientId
-        }
-    })
+
     revalidatePath(`/client/${clientSlug.slug}`)
     redirect(`/client/${clientSlug.slug}`)
 })
@@ -127,9 +171,7 @@ export const createSetupClient = authentifcationAction(SetupClientSchema, async 
     if (sirenExist) throw new ActionError("Ce siren est déjà utilisé.")
     try {
         const currentDate = new Date();
-
         const add90Days = new Date(currentDate.setDate(currentDate.getDate() + 90))
-
         await prisma.client.create({
             data: {
                 socialReason: socialReason,

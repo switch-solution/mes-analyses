@@ -1,5 +1,5 @@
 import { userIsEditor } from "@/src/query/security.query"
-import { getStdBookByClientFilterByUserSoftware } from "@/src/query/standard_book.query"
+import { getStdBookByClientFilterByUserSoftware } from "@/src/query/software_book.query"
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/src/features/layout/dataTable";
 export default async function Page({ params }: { params: { clientSlug: string } }) {

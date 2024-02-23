@@ -1,6 +1,6 @@
 import DynamicForm from "@/components/form/dynamic/dynamicForm";
 import Summary from "@/src/features/layout/summary";
-import { getChapterBook } from "@/src/query/standard_book.query";
+import { getChapterBook } from "@/src/query/software_book.query";
 import { getChapterStdComponents, getStandardInputByChapter } from "@/src/query/chapter_composant.query"
 import { userIsValid } from "@/src/query/security.query"
 export default async function Chapter({ params }: { params: { bookId: string, chapterId: string } }) {

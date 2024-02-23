@@ -196,6 +196,12 @@ export const userIsAdminProject = async (projectSlug: string) => {
     }
 }
 
+/**
+ * This function is used to check if the user is authorized to access the project
+ * @param projectSlug 
+ * @returns 
+ */
+
 export const userIsAuthorizeInThisProject = async (projectSlug: string) => {
     try {
         const userId = await userIsValid()

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { CreateStdInputSchema } from '@/src/helpers/definition'
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { createStdInput } from '@/src/features/actions/stdInput/stdInput.actions'
+import { createStdInput } from '@/src/features/actions/software_input/stdInput.actions'
 import {
     Form,
     FormControl,

@@ -1,4 +1,4 @@
-import { getChapterBook } from "@/src/query/standard_book.query";
+import { getChapterBook } from "@/src/query/software_book.query";
 import Link from "next/link";
 export default function Summary({ chapters }: { chapters: getChapterBook[] }) {
     const level_1 = chapters.filter(chapter =>

@@ -8,12 +8,12 @@ import z from 'zod';
 import { createLog } from '@/src/query/logger.query';
 import type { Logger } from '@/src/helpers/type';
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
-
+import { copyAttachment, copyBook } from '@/src/query/project.query';
 export const createProjet = authentificationActionUserIsEditorClient(ProjectCreateSchema, async (values: z.infer<typeof ProjectCreateSchema>, { userId, clientId }) => {
 
     const { label, description, softwareLabel, clientSlug } = ProjectCreateSchema.parse(values)
     try {
-        const slug = await generateSlug(`${softwareLabel}-${label}`)
+        const slug = await generateSlug(`${clientSlug}-${softwareLabel}-${label}`)
         const project = await prisma.project.create({
             data: {
                 label: label,
@@ -34,6 +34,8 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
                 },
             },
         })
+        await copyAttachment(project.slug)
+        await copyBook(project.slug)
         const log: Logger = {
             level: "info",
             scope: "project",
@@ -42,6 +44,7 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
             projectLabel: project.label,
             projectSoftwareLabel: project.softwareLabel
         }
+
 
         await createLog(log)
 

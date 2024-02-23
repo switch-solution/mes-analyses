@@ -8,8 +8,8 @@ import { Switch } from "@/components/ui/switch"
 import { Plus } from 'lucide-react';
 import CreateStdInput from "@/components/form/stdComponentInput/create";
 import DeleteStdInput from "@/components/form/stdComponentInput/delete";
-import type { getStdInputsByStdComponentSlug } from "@/src/query/stdComponentInput.query"
-import type { getStdComponentBySlug } from "@/src/query/stdcomponent.query"
+import type { getStdInputsByStdComponentSlug } from "@/src/query/sofwtare_component_input.query"
+import type { getStdComponentBySlug } from "@/src/query/software_component.query"
 import Link from "next/link";
 
 import {

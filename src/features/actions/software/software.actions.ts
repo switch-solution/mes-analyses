@@ -15,6 +15,7 @@ import z from "zod";
 import { getSoftwareBySlug } from "@/src/query/software.query";
 import { getUserByEmail } from "@/src/query/user.query";
 import { createTypeRubrique } from "@/src/query/software_setting.query";
+import { copyBook } from "@/src/query/book.query";
 export const deleteSoftware = async (softwareSlug: string, clientSlug: string) => {
     const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
@@ -108,6 +109,12 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
     const { label, clientSlug } = SoftwaresSchema.parse(values)
     const slug = await generateSlug(`${clientSlug}-${label}`)
     try {
+        const softwareExist = await prisma.software.findUnique({
+            where: {
+                slug
+            }
+        })
+        if (softwareExist) throw new ActionError("Ce logiciel existe déjà.")
         const software = await prisma.software.create({
             data: {
                 label,
@@ -127,7 +134,7 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
         })
         await copyFormToSoftware(software.slug)
         //Add DSN Attachment
-        await prisma.standard_Attachment.create({
+        await prisma.software_Attachment.create({
             data: {
                 label: "DSN",
                 description: "Déclaration Sociale Nominative",
@@ -142,14 +149,25 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
         })
         //Add Settings
         await createTypeRubrique(software.slug)
+        //Copy books and chapters
+        await copyBook(software.slug)
         const log: Logger = {
             level: "info",
             message: `Le logiciel ${label} a été ajouté`,
             scope: "software",
             clientId: clientId,
         }
+
         await createLog(log)
     } catch (err) {
+        const log: Logger = {
+            level: "error",
+            message: `Erreur lors de la création du logiciel ${label} `,
+            scope: "software",
+            clientId: clientId,
+        }
+
+        await createLog(log)
         console.error(err)
         throw new ActionError("Une erreur est survenue lors de la création du logiciel.")
     }

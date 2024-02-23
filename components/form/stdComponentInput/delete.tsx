@@ -12,7 +12,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { deleteStdInput } from "@/src/features/actions/stdInput/stdInput.actions";
+import { deleteStdInput } from "@/src/features/actions/software_input/stdInput.actions";
 import { Trash2 } from "lucide-react";
 
 export default function DeleteStdInput({ clientSlug, componentSlug, id }: { clientSlug: string, componentSlug: string, id: string }) {

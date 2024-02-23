@@ -7,9 +7,9 @@ export const getChapterStdComponents = async (chapterId: string) => {
         if (!userId) {
             throw new Error("L'utilisateur n'est pas connecté.")
         }
-        const components = await prisma.chapterStdComposant.findMany({
+        const components = await prisma.chapterStdComponent.findMany({
             where: {
-                chapterId: chapterId
+                clientId: chapterId
             },
         })
 

@@ -1,6 +1,6 @@
 import { userIsEditor } from "@/src/query/security.query"
-import { getStdBookBySlug } from "@/src/query/standard_book.query"
-import BookEditForm from "@/components/form/stdBook/edit"
+import { getStdBookBySlug } from "@/src/query/software_book.query"
+import BookEditForm from "@/components/form/software_book/edit"
 export default async function BookEdit({ params }: { params: { clientSlug: string, bookSlug: string } }) {
     const isEditor = await userIsEditor(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")

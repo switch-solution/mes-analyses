@@ -15,6 +15,7 @@ export type Attachment = {
     slug: string | null
     multiple: boolean | null
     accept: string | null
+    deadline: number | null
 }
 import {
     DropdownMenu,
@@ -41,6 +42,10 @@ export const columns: ColumnDef<Attachment>[] = [
         accessorKey: "multiple",
         header: "Multiple",
         cell: ({ row }) => <Badge>{row.getValue("multiple") ? "oui" : "non"}</Badge>,
+    },
+    {
+        accessorKey: "deadline",
+        header: "Nombre de jours pour déposer",
     },
     {
         accessorKey: "softwareLabel",

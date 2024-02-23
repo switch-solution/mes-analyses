@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getStandardInputByComponentId } from "@/src/query/stdComponentInput.query"
+import { getStandardInputByComponentId } from "@/src/query/sofwtare_component_input.query"
 export const getChapterStdComponents = async (chapterId: string) => {
     try {
         const chapterComponents = await prisma.chapterStdComposant.findMany({

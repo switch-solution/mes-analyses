@@ -1,4 +1,4 @@
-import CreateStandardAttachment from "@/components/form/standardAttachment/create"
+import CreateStandardAttachment from "@/components/form/sotware_attachment/create"
 import { userIsEditor } from "@/src/query/security.query"
 import { getMySoftware } from "@/src/query/user.query";
 export default async function Page({ params }: { params: { clientSlug: string } }) {

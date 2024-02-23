@@ -1,4 +1,6 @@
 import { string, z } from 'zod';
+import { zfd } from "zod-form-data";
+
 export const ClientFormSchema = z.object({
     socialReason: z.string().max(50, { message: "La raison sociale doit contenir au moins 2 caractères." }),
     siren: z.string().length(9),
@@ -88,7 +90,7 @@ export const SoftwareItemCreateSchema = z.object({
     clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
     id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
     label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
-    type: z.enum(['Salaire de base', 'Prime', 'URSSAF', 'Retraire', 'Prévoyance', 'Mutuelle', 'Rubrique de net']),
+    type: z.string().min(1, { message: "Le type doit contenir au moins 2 caractères." }),
     description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
     idccCode: z.string().min(1, { message: "L'idcc est obligatoire." }),
     version: z.number().positive().optional(),
@@ -113,7 +115,8 @@ export const StandardAttachmentCreateSchema = z.object({
     softwareLabel: z.string().min(1, { message: "Le logiciel est obligatoire." }),
     clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
     multiple: z.boolean().optional(),
-    accept: z.enum(['pdf', 'excel', 'word', 'img', 'csv', 'txt'])
+    accept: z.enum(['pdf', 'excel', 'word', 'img', 'csv', 'txt']),
+    deadline: z.coerce.number().positive()
 
 })
 
@@ -321,3 +324,9 @@ export const EdidStdInputSchema = z.object({
     label: z.string().min(1, { message: "Le label est obligatoire." }),
 
 })
+
+export const UploadFileSchema = zfd.formData({
+    projectSlug: zfd.text(z.string().min(1, { message: "Le projet est obligatoire." })),
+    clientSlug: zfd.text(z.string().min(1, { message: "Le client est obligatoire." })),
+    file: zfd.file()
+});

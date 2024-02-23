@@ -8,7 +8,7 @@ import { createLog } from '@/src/query/logger.query';
 import type { Logger } from '@/src/helpers/type';
 import { generateSlug } from "@/src/helpers/generateSlug";
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
-import { getStdComponentBySlug } from "@/src/query/stdcomponent.query";
+import { getStdComponentBySlug } from "@/src/query/software_component.query";
 import { getClientBySlug } from '@/src/query/client.query';
 
 export const editComponent = authentificationActionUserIsEditorClient(StandardComposantEditSchema, async (values: z.infer<typeof StandardComposantEditSchema>, { clientId, userId }) => {

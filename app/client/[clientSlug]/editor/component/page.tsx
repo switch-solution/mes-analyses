@@ -1,7 +1,7 @@
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/src/features/layout/dataTable";
 import { userIsEditor } from "@/src/query/security.query";
-import { getComponnentByClientFilterUserSoftware } from "@/src/query/stdcomponent.query";
+import { getComponnentByClientFilterUserSoftware } from "@/src/query/software_component.query";
 
 export default async function Page({ params }: { params: { clientSlug: string } }) {
     const isEditor = await userIsEditor(params.clientSlug);

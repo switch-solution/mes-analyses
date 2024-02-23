@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { editComponent } from '@/src/features/actions/component/component.action'
 import type { getMySoftware } from '@/src/query/user.query'
-import type { getStdComponentBySlug } from '@/src/query/stdcomponent.query'
+import type { getStdComponentBySlug } from '@/src/query/software_component.query'
 import {
     Form,
     FormControl,

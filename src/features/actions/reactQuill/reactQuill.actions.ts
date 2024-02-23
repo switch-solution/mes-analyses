@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { createLog } from "@/src/query/logger.query";
 import type { Logger } from "@/src/helpers/type";
 import z from "zod";
-import { getStdComponentBySlug } from "@/src/query/stdcomponent.query";
+import { getStdComponentBySlug } from "@/src/query/software_component.query";
 import { CreateTextAreaSchema } from "@/src/helpers/definition";
 export const createTextArea = authentificationActionUserIsEditorClient(CreateTextAreaSchema, async (data: z.infer<typeof CreateTextAreaSchema>, { clientId, userId }) => {
 

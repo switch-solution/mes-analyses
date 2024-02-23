@@ -1,9 +1,9 @@
 import DynamicForm from "@/components/form/dynamic/dynamicForm";
 import { userIsEditor } from "@/src/query/security.query";
-import { getStdInputsByStdComponentSlug } from "@/src/query/stdComponentInput.query";
+import { getStdInputsByStdComponentSlug } from "@/src/query/sofwtare_component_input.query";
 import { CreateReactQuill, EditTextArea } from "@/components/react-quill/reactQuil";
-import { getStdComponentBySlug } from "@/src/query/stdcomponent.query";
-import { getTextAreaByComponentSlug } from "@/src/query/standardTextArea";
+import { getStdComponentBySlug } from "@/src/query/software_component.query";
+import { getTextAreaByComponentSlug } from "@/src/query/sofwtare_textArea";
 export default async function Page({ params }: { params: { clientSlug: string, componentSlug: string } }) {
     const isEditor = await userIsEditor(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")

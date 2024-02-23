@@ -4,8 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { EdidStdInputSchema } from '@/src/helpers/definition'
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { editStdInput } from '@/src/features/actions/stdInput/stdInput.actions'
-import type { getStandardInputById } from '@/src/query/standardInput.query'
+import { editStdInput } from '@/src/features/actions/software_input/stdInput.actions'
+import type { getStandardInputById } from '@/src/query/sofwtare_input.query'
 import { Switch } from "@/components/ui/switch"
 
 import {

@@ -2,7 +2,8 @@ import { prisma } from '@/lib/prisma'
 import { generateSlug } from '@/src/helpers/generateSlug'
 import { getSoftwareBySlug } from './software.query'
 import { getMySoftware } from './user.query'
-import { getClientBySlug, getMyClientActive } from './client.query'
+import { getClientBySlug } from './client.query'
+import { Prisma } from '@prisma/client'
 
 export const createTypeRubrique = async (softwareSlug: string) => {
     try {
@@ -142,3 +143,22 @@ export const getSoftwareSettingFilterByUserSoftware = async (clientSlug: string)
     }
 
 }
+
+export const getTypeRubrique = async (clientSlug: string) => {
+    try {
+        const clientId = await getClientBySlug(clientSlug)
+        const type = await prisma.software_Setting.findMany({
+            where: {
+                clientId: clientId.siren,
+                id: "RUBRIQUE_TYPE"
+            }
+        })
+        return type
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des types de rubriques.")
+    }
+}
+
+export type getTypeRubrique = Prisma.PromiseReturnType<typeof getTypeRubrique>;
+

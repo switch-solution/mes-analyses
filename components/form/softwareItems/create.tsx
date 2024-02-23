@@ -40,7 +40,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-export default function CreateSoftwareItem({ softwares, idccList }: { softwares: getMySoftware, idccList: getIdcc }) {
+import type { getTypeRubrique } from "@/src/query/software_setting.query"
+export default function CreateSoftwareItem({ softwares, idccList, typeRubrique }: { softwares: getMySoftware, idccList: getIdcc, typeRubrique: getTypeRubrique }) {
 
     const form = useForm<z.infer<typeof SoftwareItemCreateSchema>>({
         resolver: zodResolver(SoftwareItemCreateSchema),
@@ -48,7 +49,7 @@ export default function CreateSoftwareItem({ softwares, idccList }: { softwares:
 
             id: "",
             label: "",
-            type: "URSSAF",
+            type: typeRubrique.at(0)?.value,
             description: "",
             idccCode: "9999",
             softwareLabel: softwares.at(0)?.softwareLabel,
@@ -167,10 +168,10 @@ export default function CreateSoftwareItem({ softwares, idccList }: { softwares:
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="Salaire de base">Salaire de base</SelectItem>
-                                        <SelectItem value="Prime">Prime</SelectItem>
-                                        <SelectItem value="Cotisation">Cotisation</SelectItem>
-                                        <SelectItem value="Rubrique de net">Rubrique de net</SelectItem>
+                                        {typeRubrique.map((type) => (
+                                            <SelectItem key={type.value} value={type.value}>{type.value}</SelectItem>
+                                        ))
+                                        }
                                     </SelectContent>
                                 </Select>
 

@@ -1,5 +1,5 @@
 import { userIsEditor } from "@/src/query/security.query";
-import { getStdComponentBySlug } from "@/src/query/stdcomponent.query";
+import { getStdComponentBySlug } from "@/src/query/software_component.query";
 import EditFormComponent from "@/components/form/component/edit";
 export default async function Page({ params }: { params: { clientSlug: string, componentSlug: string } }) {
     const isEditor = await userIsEditor(params.clientSlug);

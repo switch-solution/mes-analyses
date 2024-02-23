@@ -35,11 +35,11 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
 
         })
 
-        await prisma.standard_Component.createMany({
+        await prisma.software_Component.createMany({
             data: formsToCopy
 
         })
-        const dbStandardsComponent = await prisma.standard_Component.findMany({
+        const dbStandardsComponent = await prisma.software_Component.findMany({
             where: {
                 clientId: softwareExist.clientId,
                 softwareLabel: softwareExist.label,
@@ -61,6 +61,7 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
             inputSource: string | null,
             formTitle: string,
             formType: string,
+            dsnType: string | null,
 
 
         }[] = []
@@ -91,10 +92,11 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
                 clientId: softwareExist.clientId,
                 componentLabel: stdComponent?.label ? stdComponent?.label : '',
                 componentType: stdComponent?.type ? stdComponent?.type : '',
+                dsnType: input.dsnType ? input.dsnType : '',
             }
         })
 
-        await prisma.standard_Component_Input.createMany({
+        await prisma.software_Component_Input.createMany({
             data: inputsToCopy
         })
     } catch (err) {

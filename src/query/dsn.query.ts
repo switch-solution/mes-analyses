@@ -1,92 +1,137 @@
 import { prisma } from "@/lib/prisma";
-import { getProjectById } from "@/src/query/project.query"
-export const getDsnByProjectId = async (projectId: string) => {
+import { getProjectBySlug } from "./project.query";
+import { getClientBySlug } from "./client.query";
+
+export const importDataDsnInForm = async (projectSlug: string) => {
     try {
+
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) throw new Error("Le projet n'existe pas.")
         const dsn = await prisma.dsn.findMany({
             where: {
-                projectId: projectId
+                clientId: projectExist.clientId,
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel
             }
-
         })
-        return dsn
-    } catch (err) {
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de la récupération des DSN')
-    }
-
-}
-
-export const getDsnExist = async ({ projectId, siren, nic, month, fraction }: { projectId: string, siren: string, nic: string, month: string, fraction: string }) => {
-    try {
-        const dsn = await prisma.dsn.findFirst({
+        const establishments = await prisma.dsn_Establishment.findMany({
             where: {
-                projectId: projectId,
-                siren: siren,
-                nic: nic,
-                month: month,
-                fraction: fraction
+                dsnSiren: {
+                    in: dsn.map(d => d.siren)
+                },
             }
-
         })
-        return dsn
-    } catch (err) {
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de la récupération des DSN')
-    }
-}
-
-export const getDsnClientId = async ({ projectId, siren, nic, month, fraction }: { projectId: string, siren: string, nic: string, month: string, fraction: string }) => {
-    try {
-        const dsnExist = await getDsnExist({
-            projectId, siren, nic, month, fraction
-        })
-        if (!dsnExist) {
-            throw new Error('La DSN n\'existe pas')
-        }
-        const project = await getProjectById(projectId)
-        if (!project) {
-            throw new Error('Le projet n\'existe pas')
-        }
-
-        return project.clientId
-
-    } catch (err) {
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de la récupération des DSN')
-    }
-
-}
-
-export const getDsnDatas = async ({ projectId, siren, nic, month, fraction }: { projectId: string, siren: string, nic: string, month: string, fraction: string }) => {
-    try {
-        const dsnExist = await getDsnExist({ projectId, siren, nic, month, fraction })
-        if (!dsnExist) {
-            throw new Error('La DSN n\'existe pas')
-        }
-        const datas = await prisma.dsn.findFirst({
+        const formDsnSociety = await prisma.projet_Component.findFirst({
             where: {
-                projectId: projectId,
-                siren: siren,
-                nic: nic,
-                month: month,
-                fraction: fraction
+                type: "DSN_SOCIETE",
+                clientId: projectExist.clientId,
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel
             },
             include: {
-                DsnEstablishment: {
-                    include: {
-                        DsnRateAt: true,
-                        DsnContributionFund: true
-                    }
-                },
-                DsnJob: true,
-                DsnIdcc: true
+                Project_Input: true
             }
-
         })
-        return datas
-    } catch (err) {
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de la récupération des DSN')
+        if (!formDsnSociety) throw new Error("Le formulaire DSN n'existe pas.")
+        formDsnSociety.Project_Input.map(async (input) => {
+            switch (input.dsnType) {
+                case "dsnSocietySiren":
+                    await prisma.project_Value.create({
+                        data: {
+                            clientId: projectExist.clientId,
+                            projectLabel: projectExist.label,
+                            projectSoftwareLabel: projectExist.softwareLabel,
+                            textValue: establishments.at(0)?.dsnSiren,
+                            chapterLevel_1: input.chapterLevel_1,
+                            chapterLevel_2: input.chapterLevel_2,
+                            chapterLevel_3: input.chapterLevel_3,
+                            createdBy: "SYSTEM",
+                            inputLabel: input.label,
+                            version: 1,
+                            bookLabel: input.bookLabel,
+                        }
+
+                    })
+                    break
+                case "dsnSocietyAddress1":
+                    await prisma.project_Value.create({
+                        data: {
+                            clientId: projectExist.clientId,
+                            projectLabel: projectExist.label,
+                            projectSoftwareLabel: projectExist.softwareLabel,
+                            textValue: establishments.at(0)?.address1,
+                            chapterLevel_1: input.chapterLevel_1,
+                            chapterLevel_2: input.chapterLevel_2,
+                            chapterLevel_3: input.chapterLevel_3,
+                            createdBy: "SYSTEM",
+                            inputLabel: input.label,
+                            version: 1,
+                            bookLabel: input.bookLabel,
+                        }
+
+                    })
+                    break
+                case "dsnSocietyAddress2":
+                    await prisma.project_Value.create({
+                        data: {
+                            clientId: projectExist.clientId,
+                            projectLabel: projectExist.label,
+                            projectSoftwareLabel: projectExist.softwareLabel,
+                            textValue: establishments.at(0)?.address2,
+                            chapterLevel_1: input.chapterLevel_1,
+                            chapterLevel_2: input.chapterLevel_2,
+                            chapterLevel_3: input.chapterLevel_3,
+                            createdBy: "SYSTEM",
+                            inputLabel: input.label,
+                            version: 1,
+                            bookLabel: input.bookLabel,
+                        }
+
+                    })
+                    break
+                case "dsnSocietyZipCode":
+                    await prisma.project_Value.create({
+                        data: {
+                            clientId: projectExist.clientId,
+                            projectLabel: projectExist.label,
+                            projectSoftwareLabel: projectExist.softwareLabel,
+                            textValue: establishments.at(0)?.codeZip,
+                            chapterLevel_1: input.chapterLevel_1,
+                            chapterLevel_2: input.chapterLevel_2,
+                            chapterLevel_3: input.chapterLevel_3,
+                            createdBy: "SYSTEM",
+                            inputLabel: input.label,
+                            version: 1,
+                            bookLabel: input.bookLabel,
+                        }
+
+                    })
+                    break
+                case "dsnSocietyCity":
+                    await prisma.project_Value.create({
+                        data: {
+                            clientId: projectExist.clientId,
+                            projectLabel: projectExist.label,
+                            projectSoftwareLabel: projectExist.softwareLabel,
+                            textValue: establishments.at(0)?.city,
+                            chapterLevel_1: input.chapterLevel_1,
+                            chapterLevel_2: input.chapterLevel_2,
+                            chapterLevel_3: input.chapterLevel_3,
+                            createdBy: "SYSTEM",
+                            inputLabel: input.label,
+                            version: 1,
+                            bookLabel: input.bookLabel,
+                        }
+
+                    })
+                    break
+            }
+        })
+
+
+    } catch (error) {
+        console.error(error)
+        throw new Error("Une erreur est survenue lors de l'import des données DSN.")
     }
 
 }

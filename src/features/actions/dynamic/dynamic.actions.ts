@@ -6,7 +6,7 @@ import { createEvent } from "@/src/query/logger.query";
 import type { Event, Value } from "@/src/helpers/type";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { getStandardComponentById, getStdComponent } from "@/src/query/stdcomponent.query";
+import { getStandardComponentById, getStdComponent } from "@/src/query/software_component.query";
 import { getLastVersionValuesByComponentId } from "@/src/query/sandboxValues.query";
 export const createValues = async (componentId: string, formData: FormData) => {
 

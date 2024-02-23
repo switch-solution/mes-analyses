@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-
 import { Prisma } from '@prisma/client'
 import { getClientBySlug, getMyClientActive } from "./client.query";
 import { getMySoftware } from "./user.query";

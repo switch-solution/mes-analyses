@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getStandardComponentById } from "./stdcomponent.query";
+import { getStandardComponentById } from "./software_component.query";
 export const getValuesByComponentIdAndVersion = async (componentId: string, version: number) => {
     try {
         const componentExist = await getStandardComponentById(componentId)
