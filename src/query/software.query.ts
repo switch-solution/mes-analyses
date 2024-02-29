@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from '@prisma/client'
 import { getClientBySlug, getMyClientActive } from "./client.query";
 import { getMySoftware } from "./user.query";
-
 export const getSoftwareBySlug = async (slug: string) => {
     const software = await prisma.software.findUniqueOrThrow({
         where: {
@@ -16,7 +15,6 @@ export const getSoftwareBySlug = async (slug: string) => {
     return software
 }
 export type getSoftwareBySlug = Prisma.PromiseReturnType<typeof getSoftwareBySlug>;
-
 
 export const getSoftwareUsers = async (slug: string) => {
     try {
@@ -139,6 +137,28 @@ export const getSoftwaresItemsFilterByUserSoftware = async () => {
     }
 
 }
+
+export const getBookBySoftwareLabelAndClientSlug = async (softwareLabel: string, clientSlug: string) => {
+    try {
+        const clientExist = await getClientBySlug(clientSlug)
+        const books = await prisma.software_Book.findMany({
+            where: {
+                softwareLabel: softwareLabel,
+                clientId: clientExist.siren
+
+            }
+        })
+        return books
+    } catch (err) {
+        console.error(err)
+        throw new Error(`Une erreur est survenue lors de la récupération des cahiers du logiciel.`)
+    }
+
+}
+
+export type getBookBySoftwareLabelAndClientSlug = Prisma.PromiseReturnType<typeof getBookBySoftwareLabelAndClientSlug>;
+
+
 
 
 

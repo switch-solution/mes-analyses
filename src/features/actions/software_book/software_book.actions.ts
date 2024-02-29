@@ -9,13 +9,14 @@ import { Logger } from "@/src/helpers/type";
 import { createLog } from "@/src/query/logger.query";
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
 import { generateSlug } from "@/src/helpers/generateSlug";
-import { getStdBookBySlug } from "@/src/query/software_book.query";
+import { getSoftwareBookBySlug } from "@/src/query/software_book.query";
+import { getCountBook } from "@/src/query/client.query";
 
 export const editBook = authentificationActionUserIsEditorClient(BookFormSchemaEdit, async (values: z.infer<typeof BookFormSchemaEdit>, { clientId, userId }) => {
 
     const { label, description, clientSlug, bookSlug, status } = BookFormSchemaEdit.parse(values)
     try {
-        const bookExist = await getStdBookBySlug(bookSlug)
+        const bookExist = await getSoftwareBookBySlug(bookSlug)
         if (!bookExist) {
             const log: Logger = {
                 scope: "book",
@@ -58,8 +59,8 @@ export const createBook = authentificationActionUserIsEditorClient(BookFormSchem
     const { label, description, softwareLabel, clientSlug } = BookFormSchema.parse(values)
 
     try {
-        const slug = await generateSlug(`${clientSlug}-${softwareLabel}-${label}`)
-
+        const countBook = await getCountBook(clientSlug)
+        const slug = await generateSlug(`cahier-${countBook + 1}-${label}`)
         await prisma.software_Book.create({
             data: {
                 label: label,

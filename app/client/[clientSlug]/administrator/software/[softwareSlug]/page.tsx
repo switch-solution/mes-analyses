@@ -2,7 +2,7 @@ import { userIsAdminClient } from "@/src/query/security.query"
 import { getSoftwareUsers } from "@/src/query/software.query"
 import { columns } from "./dataTablecolumns"
 
-import { DataTable } from "@/src/features/layout/dataTable";
+import { DataTable } from "@/components/layout/dataTable";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
 
     const isAdmin = await userIsAdminClient(params.clientSlug)

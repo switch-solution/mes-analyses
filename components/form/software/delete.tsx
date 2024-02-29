@@ -1,7 +1,7 @@
 "use client";
 
 import { deleteSoftware } from "@/src/features/actions/software/software.actions";
-import DangerButtonDelete from "@/src/features/layout/dangerButtonDelete";
+import DangerButtonDelete from "@/components/layout/dangerButtonDelete";
 import { Form } from "@/components/ui/form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"

@@ -1,6 +1,6 @@
 import { userIsEditor } from "@/src/query/security.query"
 import { columns } from "./dataTablecolumns"
-import { DataTable } from "@/src/features/layout/dataTable";
+import { DataTable } from "@/components/layout/dataTable";
 import { getSoftwareConstantFilterByUserSoftware } from "@/src/query/software.query";
 import { getConstantLegal } from "@/src/query/constantLegal.query";
 export default async function Page({ params }: { params: { clientSlug: string } }) {

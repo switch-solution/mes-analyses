@@ -8,12 +8,14 @@ import z from 'zod';
 import { createLog } from '@/src/query/logger.query';
 import type { Logger } from '@/src/helpers/type';
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
-import { copyAttachment, copyBook } from '@/src/query/project.query';
+import { copyBook, copyTask } from '@/src/query/project.query';
+import { getCountClientProjects } from '@/src/query/client.query';
 export const createProjet = authentificationActionUserIsEditorClient(ProjectCreateSchema, async (values: z.infer<typeof ProjectCreateSchema>, { userId, clientId }) => {
 
     const { label, description, softwareLabel, clientSlug } = ProjectCreateSchema.parse(values)
     try {
-        const slug = await generateSlug(`${clientSlug}-${softwareLabel}-${label}`)
+        const countProjects = await getCountClientProjects(clientSlug)
+        const slug = await generateSlug(`${countProjects ? countProjects + 1 : 1}-${label}`)
         const project = await prisma.project.create({
             data: {
                 label: label,
@@ -34,8 +36,8 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
                 },
             },
         })
-        await copyAttachment(project.slug)
         await copyBook(project.slug)
+        await copyTask(project.slug)
         const log: Logger = {
             level: "info",
             scope: "project",
@@ -44,10 +46,7 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
             projectLabel: project.label,
             projectSoftwareLabel: project.softwareLabel
         }
-
-
         await createLog(log)
-
     } catch (error) {
         console.log(error)
         throw new ActionError("Une erreur est survenue lors de la création du projet.")

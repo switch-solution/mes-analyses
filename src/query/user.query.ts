@@ -151,4 +151,3 @@ export const getRoleUser = async () => {
     return role
 
 }
-

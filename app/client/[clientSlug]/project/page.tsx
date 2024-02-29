@@ -1,5 +1,5 @@
 import { columns } from "./dataTablecolumns"
-import { DataTable } from "@/src/features/layout/dataTable";
+import { DataTable } from "@/components/layout/dataTable";
 import { getMyProjects } from "@/src/query/project.query";
 import { userIsValid } from "@/src/query/security.query";
 export default async function Page({ params }: { params: { clientSlug: string } }) {

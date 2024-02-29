@@ -62,6 +62,9 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
             formTitle: string,
             formType: string,
             dsnType: string | null,
+            isCode: boolean | null,
+            isLabel: boolean | null,
+            isDescription: boolean | null,
 
 
         }[] = []
@@ -80,6 +83,9 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
                 minLength: input.minLength ? input.minLength : 0,
                 minValue: input.minValue ? input.minValue : 0,
                 maxValue: input.maxValue ? input.maxValue : 0,
+                isCode: input.isCode ? input.isCode : false,
+                isLabel: input.isLabel ? input.isLabel : false,
+                isDescription: input.isDescription ? input.isDescription : false,
                 placeholder: input.placeholder ? input.placeholder : '',
                 order: input.order ? input.order : 0,
                 inputSource: input.inputSource ? input.inputSource : '',

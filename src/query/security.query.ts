@@ -153,6 +153,54 @@ export const userIsValid = async () => {
 
 }
 
+
+
+export const userIsEditorProject = async (projectSlug: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) throw new ActionError("Vous devez être connecté pour effectuer cette action.")
+        const projectsExist = await getProjectBySlug(projectSlug)
+        if (!projectsExist) {
+            new ActionError("Le projet n'existe pas")
+        }
+        const userProjects = await getMyProjects()
+        if (!userProjects) throw new ActionError("Vous n'avez pas de projet")
+        const userExistInThisProject = userProjects.find((project) => project.project.slug === projectSlug)
+        if (!userExistInThisProject) {
+            await prisma.logger.create({
+                data: {
+                    level: "security",
+                    message: `L'utilisateur essaye d'accéder au projet ${projectSlug} sans les droits`,
+                    scope: "project",
+                    createdBy: "system"
+                }
+            })
+            await banUser(await userIsValid())
+            throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        }
+
+        const isEditor = await prisma.userProject.findFirst({
+            where: {
+                userId: userId,
+                projectLabel: projectsExist.label,
+                isEditor: true
+            }
+        })
+        if (!isEditor) throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        return {
+            userId,
+            clientId: projectsExist.clientId,
+            projectLabel: projectsExist.label,
+            softwareLabel: projectsExist.softwareLabel
+        }
+    } catch (err) {
+        console.error(err)
+        throw new ActionError("Une erreur est survenue lors de la vérification de l'utilisateur")
+    }
+}
+
+
+
 export const userIsAdminProject = async (projectSlug: string) => {
     try {
         const userId = await userIsValid()
@@ -210,27 +258,31 @@ export const userIsAuthorizeInThisProject = async (projectSlug: string) => {
         if (!projectsExist) {
             new ActionError("Le projet n'existe pas")
         }
-        const userProjects = await getMyProjects()
-        if (!userProjects) throw new ActionError("Vous n'avez pas de projet")
-        const userExistInThisProject = userProjects.find((project) => project.project.slug === projectSlug)
-        if (!userExistInThisProject) {
-            await prisma.logger.create({
-                data: {
-                    level: "security",
-                    message: `L'utilisateur essaye d'accéder au projet ${projectSlug} sans les droits`,
-                    scope: "project",
-                    createdBy: "system"
-                }
-            })
-            await banUser(await userIsValid())
-            throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
-        }
+        const userProject = await prisma.userProject.findFirstOrThrow({
+            where: {
+                userId: userId,
+                projectLabel: projectsExist.label
+            }
+        })
+
 
         return {
             userId,
+            clientId: projectsExist.clientId,
+            projectLabel: projectsExist.label,
+            softwareLabel: projectsExist.softwareLabel
         }
     } catch (err) {
         console.error(err)
+        await prisma.logger.create({
+            data: {
+                level: "security",
+                message: `L'utilisateur essaye d'accéder au projet ${projectSlug} sans les droits`,
+                scope: "project",
+                createdBy: "system"
+            }
+        })
+        await banUser(await userIsValid())
         throw new ActionError("Une erreur est survenue lors de la vérification de l'utilisateur")
     }
 

@@ -27,7 +27,7 @@ export const getStdBookByClientFilterByUserSoftware = async (clientSlug: string)
 
 export type getStdBookByClientFilterByUserSoftware = Prisma.PromiseReturnType<typeof getStdBookByClientFilterByUserSoftware>;
 
-export const getStdBookBySlug = async (bookSlug: string) => {
+export const getSoftwareBookBySlug = async (bookSlug: string) => {
     try {
         const book = await prisma.software_Book.findUniqueOrThrow({
             where: {
@@ -43,11 +43,11 @@ export const getStdBookBySlug = async (bookSlug: string) => {
 
 }
 
-export type getStdBookBySlug = Prisma.PromiseReturnType<typeof getStdBookBySlug>;
+export type getSoftwareBookBySlug = Prisma.PromiseReturnType<typeof getSoftwareBookBySlug>;
 
 export const getBookChapterByBookSlug = async (bookSlug: string) => {
     try {
-        const bookExist = await getStdBookBySlug(bookSlug)
+        const bookExist = await getSoftwareBookBySlug(bookSlug)
         if (!bookExist) throw new Error("Le livre n'existe pas.")
         const stdChapter = await prisma.software_Chapter.findMany({
             where: {

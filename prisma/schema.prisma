@@ -59,6 +59,8 @@ model User {
   UserProject   UserProject[]
   UserSoftware  UserSoftware[]
   Validation    Validation[]
+  Alert         Alert[]
+  Project_Task  Project_Task[]
 }
 
 model UserOtherData {
@@ -160,21 +162,21 @@ model Invitation {
 }
 
 model Software {
-  label               String
-  slug                String                @unique
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  createdBy           String
-  clientId            String
-  client              Client                @relation(fields: [clientId], references: [siren], onDelete: Cascade)
-  Software_Book       Software_Book[]
-  Software_Component  Software_Component[]
-  SoftwareItems       Software_Items[]
-  UserSoftware        UserSoftware[]
-  Standard_Attachment Software_Attachment[]
-  Software_Constant   Software_Constant[]
-  Software_Setting    Software_Setting[]
-  Project             Project[]
+  label              String
+  slug               String               @unique
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  createdBy          String
+  clientId           String
+  client             Client               @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  Software_Book      Software_Book[]
+  Software_Component Software_Component[]
+  SoftwareItems      Software_Items[]
+  UserSoftware       UserSoftware[]
+  Software_Constant  Software_Constant[]
+  Software_Setting   Software_Setting[]
+  Project            Project[]
+  Software_Task      Software_Task[]
 
   @@id([label, clientId])
 }
@@ -205,6 +207,7 @@ model Software_Book {
   clientId        String
   StandardChapter Software_Chapter[]
   slug            String             @unique
+  Software_Task   Software_Task[]
 
   @@id([label, softwareLabel, clientId])
 }
@@ -218,6 +221,7 @@ model Book {
   createdBy   String    @default("system")
   slug        String    @unique
   Chapter     Chapter[]
+  Task        Task[]
 
   @@id([label])
 }
@@ -268,6 +272,7 @@ model Software_Component {
   createdBy                        String
   clientId                         String
   version                          Int
+  buttonLabel                      String                             @default("Ajouter")
   slug                             String                             @unique
   status                           String
   software                         Software                           @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
@@ -285,6 +290,7 @@ model Software_Component {
 model Software_Component_Input {
   type                             String
   dsnType                          String?
+  otherData                        String?
   label                            String
   maxLength                        Int?                               @default(255)
   minLength                        Int?                               @default(0)
@@ -292,6 +298,7 @@ model Software_Component_Input {
   maxValue                         Int?                               @default(9999)
   placeholder                      String?                            @default("Saisir une valeur")
   order                            Int
+  formSource                       String?
   inputSource                      String?
   defaultValue                     String?                            @default("")
   required                         Boolean?                           @default(false)
@@ -304,6 +311,9 @@ model Software_Component_Input {
   componentLabel                   String
   softwareLabel                    String
   clientId                         String
+  isCode                           Boolean?                           @default(false)
+  isDescription                    Boolean?                           @default(false)
+  isLabel                          Boolean?                           @default(false)
   componentType                    String
   id                               String                             @unique @default(cuid())
   Software_Component_Select_Option Software_Component_Select_Option[]
@@ -404,6 +414,7 @@ model SoftwareChapterSoftwareComponent {
 model Project {
   clientId           String
   client             Client               @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  logo               String?
   label              String
   description        String
   status             String               @default("actif")
@@ -420,6 +431,7 @@ model Project {
   slug               String               @unique
   Project_Constant   Project_Constant[]
   Project_Items      Project_Items[]
+  Project_Task       Project_Task[]
 
   @@id([clientId, softwareLabel, label])
 }
@@ -469,27 +481,28 @@ model Project_Chapter {
   level_3              Int
   label                String
   parentId             String?
-  parent               Project_Chapter?   @relation("levelUp", fields: [bookLabel, clientId, projectLabel, level_1, level_2, level_3, projectSoftwareLabel], references: [bookLabel, clientId, projectLabel, level_1, level_2, level_3, projectSoftwareLabel])
-  Project_Chapter      Project_Chapter[]  @relation("levelUp")
-  Project_Component    Projet_Component[]
-  Project_Book         Project_Book       @relation(fields: [clientId, bookLabel, projectLabel, projectSoftwareLabel], references: [clientId, label, projectLabel, projectSoftwareLabel])
+  parent               Project_Chapter?    @relation("levelUp", fields: [bookLabel, clientId, projectLabel, level_1, level_2, level_3, projectSoftwareLabel], references: [bookLabel, clientId, projectLabel, level_1, level_2, level_3, projectSoftwareLabel])
+  Project_Chapter      Project_Chapter[]   @relation("levelUp")
+  Project_Component    Project_Component[]
+  Project_Book         Project_Book        @relation(fields: [clientId, bookLabel, projectLabel, projectSoftwareLabel], references: [clientId, label, projectLabel, projectSoftwareLabel])
   clientId             String
   bookLabel            String
   projectLabel         String
   projectSoftwareLabel String
-  slug                 String             @unique
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
+  slug                 String              @unique
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
   createdBy            String
 
   @@id([bookLabel, clientId, projectLabel, projectSoftwareLabel, level_1, level_2, level_3])
 }
 
-model Projet_Component {
+model Project_Component {
   slug                 String           @unique
   label                String
   description          String
   type                 String
+  buttonLabel          String           @default("Ajouter")
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
   createdBy            String
@@ -508,7 +521,7 @@ model Projet_Component {
 }
 
 model Project_Input {
-  slug                 String            @unique @default(cuid())
+  slug                 String             @unique @default(cuid())
   type                 String
   dsnType              String?
   label                String
@@ -519,18 +532,21 @@ model Project_Input {
   placeholder          String?
   order                Int
   defaultValue         String?
-  required             Boolean           @default(false)
-  readonly             Boolean           @default(false)
+  required             Boolean            @default(false)
+  readonly             Boolean            @default(false)
   inputSource          String?
   multiple             Boolean?
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
   createdBy            String
-  Projet_Composant     Projet_Component? @relation(fields: [bookLabel, projectLabel, clientId, chapterLevel_1, chapterLevel_2, chapterLevel_3, projectSoftwareLabel], references: [bookLabel, projectLabel, clientId, chapterLevel_1, chapterLevel_2, chapterLevel_3, projectSoftwareLabel], onDelete: Cascade)
+  Projet_Composant     Project_Component? @relation(fields: [bookLabel, projectLabel, clientId, chapterLevel_1, chapterLevel_2, chapterLevel_3, projectSoftwareLabel], references: [bookLabel, projectLabel, clientId, chapterLevel_1, chapterLevel_2, chapterLevel_3, projectSoftwareLabel], onDelete: Cascade)
   clientId             String
   bookLabel            String
   projectLabel         String
   projectSoftwareLabel String
+  isCode               Boolean?           @default(false)
+  isDescription        Boolean?           @default(false)
+  isLabel              Boolean?           @default(false)
   chapterLevel_1       Int
   chapterLevel_2       Int
   chapterLevel_3       Int
@@ -542,6 +558,8 @@ model Project_Input {
 
 model Project_Value {
   version              Int
+  recordId             String
+  label                String
   textValue            String?
   numberValue          Int?
   booleanValue         Boolean?
@@ -557,8 +575,11 @@ model Project_Value {
   chapterLevel_1       Int
   chapterLevel_2       Int
   chapterLevel_3       Int
+  isCode               Boolean?      @default(false)
+  isDescription        Boolean?      @default(false)
+  isLabel              Boolean?      @default(false)
 
-  @@id([clientId, bookLabel, inputLabel, projectLabel, chapterLevel_1, chapterLevel_2, chapterLevel_3, version, projectSoftwareLabel])
+  @@id([clientId, bookLabel, inputLabel, projectLabel, chapterLevel_1, chapterLevel_2, chapterLevel_3, version, projectSoftwareLabel, recordId])
 }
 
 model Project_Option {
@@ -918,25 +939,6 @@ model Idcc {
   Software_Constant Software_Constant[]
 }
 
-model Software_Attachment {
-  slug          String   @unique
-  label         String
-  description   String
-  isObligatory  Boolean
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdBy     String
-  software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
-  softwareLabel String
-  clientId      String
-  deadline      Int      @default(1)
-  isDsn         Boolean  @default(false)
-  multiple      Boolean  @default(false)
-  accept        String   @default("pdf")
-
-  @@id([label, softwareLabel, clientId])
-}
-
 model Validation {
   Project_Book         Project_Book @relation(fields: [bookLabel, clientId, projectLabel, projectSoftwareLabel], references: [label, clientId, projectLabel, projectSoftwareLabel])
   bookLabel            String
@@ -979,6 +981,7 @@ model Form {
   type        String
   description String
   status      String
+  buttonLabel String        @default("Ajouter")
   version     Int
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -990,27 +993,32 @@ model Form {
 }
 
 model Form_Input {
-  type         String
-  label        String
-  dsnType      String?
-  maxLength    Int?
-  minLength    Int?
-  minValue     Int?
-  maxValue     Int?
-  placeholder  String?
-  order        Int
-  defaultValue String?
-  required     Boolean
-  readonly     Boolean
-  multiple     Boolean?
-  inputSource  String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdBy    String
-  Form         Form     @relation(fields: [formTitle, formType, formVersion], references: [title, type, version])
-  formTitle    String
-  formType     String
-  formVersion  Int
+  type          String
+  label         String
+  dsnType       String?
+  otherData     String?
+  maxLength     Int?
+  minLength     Int?
+  minValue      Int?
+  maxValue      Int?
+  placeholder   String?
+  order         Int
+  isCode        Boolean? @default(false)
+  isDescription Boolean? @default(false)
+  isLabel       Boolean? @default(false)
+  defaultValue  String?
+  required      Boolean
+  readonly      Boolean
+  multiple      Boolean?
+  formSource    String?
+  inputSource   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String
+  Form          Form     @relation(fields: [formTitle, formType, formVersion], references: [title, type, version])
+  formTitle     String
+  formType      String
+  formVersion   Int
 
   @@id([formTitle, formType, formVersion, type, label])
 }
@@ -1025,9 +1033,87 @@ model Input {
 }
 
 model Prisma_Seed {
-  name      String   @id
-  status    String
+  name          String   @id
+  description   String
+  order         Int
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String
+  previousLabel String
+  error         String?
+}
+
+model Alert {
+  label     String
+  message   String
+  isViewed  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   createdBy String
+  dateStart DateTime
+  dateEnd   DateTime
+  userId    String
+  User      User     @relation(fields: [userId], references: [id])
+
+  @@id([label, userId])
+}
+
+model Task {
+  label       String   @id()
+  isSwitch    Boolean  @default(false)
+  isUpload    Boolean  @default(false)
+  accept      String?
+  description String
+  level       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String   @default("System")
+  bookLabel   String?
+  Book        Book?    @relation(fields: [bookLabel], references: [label])
+}
+
+model Software_Task {
+  label         String
+  level         String
+  isSwitch      Boolean        @default(false)
+  isUpload      Boolean        @default(false)
+  accept        String?
+  softwareLabel String
+  description   String
+  clientId      String
+  Software      Software       @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  createdBy     String         @default("System")
+  bookLabel     String?
+  Software_Book Software_Book? @relation(fields: [bookLabel, softwareLabel, clientId], references: [label, softwareLabel, clientId])
+
+  @@id([label, clientId, softwareLabel])
+}
+
+model Project_Task {
+  label         String
+  slug          String   @unique
+  level         String
+  isSwitch      Boolean  @default(false)
+  isUpload      Boolean  @default(false)
+  accept        String?
+  description   String
+  softwareLabel String
+  clientId      String
+  status        String   @default("actif")
+  projectLabel  String
+  bookLabel     String?
+  Project       Project  @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String   @default("System")
+  owner         String
+  message       String?
+  dateStart     DateTime @default(now())
+  deadline      DateTime
+  User          User     @relation(fields: [owner], references: [id])
+
+  @@id([label, clientId, projectLabel, softwareLabel, owner])
 }

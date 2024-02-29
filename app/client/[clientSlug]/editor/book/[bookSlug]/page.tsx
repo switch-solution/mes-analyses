@@ -1,6 +1,6 @@
 import { userIsEditor } from "@/src/query/security.query"
 import { columns } from "./dataTablecolumns"
-import { DataTable } from "@/src/features/layout/dataTable";
+import { DataTable } from "@/components/layout/dataTable";
 import { getBookChapterByBookSlug } from "@/src/query/software_book.query";
 export default async function Page({ params }: { params: { clientSlug: string, bookSlug: string } }) {
 

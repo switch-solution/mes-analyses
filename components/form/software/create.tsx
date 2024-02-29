@@ -35,42 +35,40 @@ export default function SoftwareForm({ clientSlug }: { clientSlug: string }) {
     }
     return (
         <div className="flex flex-col w-full items-center">
-            <Suspense fallback={<Skeleton />}>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-                        <FormField
-                            control={form.control}
-                            name="clientSlug"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Input type="hidden" {...field} required />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="label"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Logiciel</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Nom du logiciel" {...field} required />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Nom de éditeur du logiciel
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit">Enregistrer</Button>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+                    <FormField
+                        control={form.control}
+                        name="clientSlug"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <Input type="hidden" {...field} required />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="label"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Logiciel</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Nom du logiciel" {...field} required />
+                                </FormControl>
+                                <FormDescription>
+                                    Nom de éditeur du logiciel
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <Button type="submit">Enregistrer</Button>
 
-                    </form>
+                </form>
 
-                </Form>
-            </Suspense>
+            </Form>
 
         </div>
     )

@@ -1,5 +1,5 @@
 import CreateClient from "@/components/form/setup/createClient";
-import SetupSteep from "@/src/features/layout/setupSteep";
+import SetupSteep from "@/components/layout/setupSteep";
 export default async function Page() {
 
     return (<div>

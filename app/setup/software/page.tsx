@@ -1,5 +1,5 @@
 import CreateSoftware from "@/components/form/setup/createSoftware"
-import SetupSteep from "@/src/features/layout/setupSteep"
+import SetupSteep from "@/components/layout/setupSteep"
 import { getMyClient } from "@/src/query/user.query"
 export default async function Page() {
     const client = await getMyClient()

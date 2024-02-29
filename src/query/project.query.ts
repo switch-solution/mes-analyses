@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { userIsValid } from "./security.query";
-
+import { getClientBySiren } from "./client.query";
+import { syncGenerateSlug } from "@/src/helpers/generateSlug";
 export const getMyProjects = async () => {
     try {
         const userId = await userIsValid()
@@ -25,8 +26,30 @@ export const getMyProjects = async () => {
 
 }
 
+export const getProjectTasks = async (projectSlug: string) => {
+    try {
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) {
+            throw new Error('Le projet n\'existe pas')
+        }
+        const tasks = await prisma.project_Task.findMany({
+            where: {
+                projectLabel: projectExist.label,
+                softwareLabel: projectExist.softwareLabel,
+                clientId: projectExist.clientId
+            }
+        })
+        return tasks
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la récupération des tâches')
+    }
+}
+
+
 export const copyBook = async (projectSlug: string) => {
     try {
+        let incrementSlugBook = 0
         const project = await getProjectBySlug(projectSlug)
         if (!project) {
             throw new Error('Le projet n\'existe pas')
@@ -39,6 +62,7 @@ export const copyBook = async (projectSlug: string) => {
         })
         await prisma.project_Book.createMany({
             data: softwareBooks.map(book => {
+                let slug = `${project.slug}-cahier-${incrementSlugBook + 1}-${book.slug}`
                 return {
                     label: book.label,
                     description: book.description,
@@ -46,7 +70,7 @@ export const copyBook = async (projectSlug: string) => {
                     createdBy: project.createdBy,
                     projectLabel: project.label,
                     projectSoftwareLabel: project.softwareLabel,
-                    slug: `${project.slug}-${book.slug}`,
+                    slug,
                     isHold: true,
                     isStarted: false,
                     isValidate: false,
@@ -121,13 +145,15 @@ export const copyBook = async (projectSlug: string) => {
                 }
             }
         })
-
-        await prisma.projet_Component.createMany({
+        let incrementInputSlug = 0
+        await prisma.project_Component.createMany({
             data: softwaresComponent.map(component => {
+                let slug = `${project.slug}-champ-${incrementInputSlug + 1}-${component.slug}`
                 return {
                     label: component.label,
                     description: component.description,
                     type: component.type,
+                    buttonLabel: component.buttonLabel,
                     clientId: component.clientId,
                     bookLabel: component.SoftwareChapterSoftwareComponent[0].bookLabel,
                     chapterLevel_1: component.SoftwareChapterSoftwareComponent[0].level_1,
@@ -135,7 +161,7 @@ export const copyBook = async (projectSlug: string) => {
                     chapterLevel_3: component.SoftwareChapterSoftwareComponent[0].level_3,
                     createdBy: project.createdBy,
                     projectSoftwareLabel: project.softwareLabel,
-                    slug: `${project.slug}-${component.SoftwareChapterSoftwareComponent[0].bookLabel}-${component.SoftwareChapterSoftwareComponent[0].level_1}-${component.SoftwareChapterSoftwareComponent[0].level_2}-${component.SoftwareChapterSoftwareComponent[0].level_3}-${component.slug}`,
+                    slug,
                     projectLabel: project.label
                 }
             })
@@ -153,6 +179,9 @@ export const copyBook = async (projectSlug: string) => {
                     maxValue: input.maxValue,
                     placeholder: input.placeholder,
                     order: input.order,
+                    isCode: input.isCode,
+                    isLabel: input.isLabel,
+                    isDescription: input.isDescription,
                     defaultValue: input.defaultValue,
                     required: input.required ? true : false,
                     readonly: input.readonly ? true : false,
@@ -169,6 +198,7 @@ export const copyBook = async (projectSlug: string) => {
                 }
             })
         })
+
     } catch (err) {
         console.error(err)
         throw new Error('Une erreur est survenue lors de la récupération des projets')
@@ -176,42 +206,69 @@ export const copyBook = async (projectSlug: string) => {
 
 }
 
-
-export const copyAttachment = async (projectSlug: string) => {
+export const copyTask = async (projectSlug: string) => {
     try {
+        //add task
         const project = await getProjectBySlug(projectSlug)
         if (!project) {
             throw new Error('Le projet n\'existe pas')
         }
-        const softwareAttachments = await prisma.software_Attachment.findMany({
+        const softwareTasks = await prisma.software_Task.findMany({
             where: {
                 softwareLabel: project.softwareLabel,
                 clientId: project.clientId
             }
         })
-        await prisma.project_Attachment.createMany({
-            data: softwareAttachments.map(attachment => {
-                return {
-                    label: attachment.label,
-                    description: attachment.description,
-                    clientId: attachment.clientId,
-                    createdBy: project.createdBy,
-                    projectLabel: project.label,
-                    projectSoftwareLabel: project.softwareLabel,
-                    slug: `${project.slug}-${attachment.slug}`,
-                    isObligatory: attachment.isObligatory,
-                    isDelivered: false,
-                    accept: attachment.accept,
-                    multiple: attachment.multiple
-
-                }
-            })
+        let countTasks = await getCountTaskByClientSlug(project.clientId)
+        const projectsTask = softwareTasks.map(task => {
+            const slug = syncGenerateSlug(`${countTasks ? countTasks + 1 : 1}-${task.label}`)
+            return {
+                label: task.label,
+                description: task.description,
+                softwareLabel: task.softwareLabel,
+                message: "",
+                status: 'actif',
+                createdBy: project.createdBy,
+                dateStart: new Date(),
+                deadline: new Date(),
+                level: task.level,
+                owner: project.createdBy,
+                clientId: project.clientId,
+                projectLabel: project.label,
+                isUpload: task.isUpload,
+                isSwitch: task.isSwitch,
+                slug,
+                accept: task.accept,
+            }
         })
-
+        await prisma.project_Task.createMany({
+            data: projectsTask
+        }
+        )
     } catch (err) {
         console.error(err)
         throw new Error('Une erreur est survenue lors de la récupération des projets')
     }
+
+}
+
+const getCountTaskByClientSlug = async (clientId: string) => {
+    try {
+        const clientExist = await getClientBySiren(clientId)
+        if (!clientExist) {
+            throw new Error('Le client n\'existe pas')
+        }
+        const count = await prisma.project_Task.count({
+            where: {
+                clientId: clientExist.siren
+            }
+        })
+        return count
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la récupération des projets')
+    }
+
 }
 
 export const getProjectBySlug = async (projectSlug: string) => {
@@ -253,71 +310,6 @@ export const getCountMyProjects = async () => {
         throw new Error('Une erreur est survenue lors de la récupération des projets')
     }
 
-}
-
-export const getProjectsHome = async (projectSlug: string) => {
-    try {
-        const projectExist = await getProjectBySlug(projectSlug)
-        if (!projectExist) {
-            throw new Error('Le projet n\'existe pas')
-        }
-        const countBook = await prisma.project_Book.count({
-            where: {
-                projectLabel: projectExist.label,
-                projectSoftwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId
-            }
-        })
-        const countUserProject = await prisma.userProject.count({
-            where: {
-                projectLabel: projectExist.label,
-                projectSoftwareLabel: projectExist.softwareLabel,
-                projectClientId: projectExist.clientId
-            }
-        })
-        const countAttachment = await prisma.project_Attachment.count({
-            where: {
-                projectLabel: projectExist.label,
-                projectSoftwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId,
-                isDelivered: false
-            }
-        })
-        const countConstant = await prisma.project_Constant.count({
-            where: {
-                projectLabel: projectExist.label,
-                projectSoftwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId
-            }
-        })
-        const countItems = await prisma.project_Items.count({
-            where: {
-                projectLabel: projectExist.label,
-                projectSoftwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId
-            }
-        })
-        const countDsn = await prisma.dsn.count({
-            where: {
-                projectLabel: projectExist.label,
-                projectSoftwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId
-            }
-        })
-
-        return {
-            countBook,
-            countUserProject,
-            countAttachment,
-            countConstant,
-            countItems,
-            countDsn
-
-        }
-    } catch (err) {
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de la récupération des projets')
-    }
 }
 
 export const getProjectBook = async (projectSlug: string) => {

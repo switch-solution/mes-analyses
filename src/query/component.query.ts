@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { userIsAuthorizeForProject, userIsValid } from "./security.query";
-import { getBookById } from "./project_Book.query";
+import { getBookById } from "./project_book.query";
 import { Prisma } from '@prisma/client'
 
 export const getComposantsAndInputAndValueByChapterId = async (chapterId: string) => {

@@ -14,7 +14,7 @@ type CardProps = {
   content: string
   footer: string
 }
-import Container from "@/src/features/layout/container";
+import Container from "@/components/layout/container";
 import { LoginButton } from "@/src/features/auth/LoginButton";
 export default async function Home() {
   const session = await getUser();

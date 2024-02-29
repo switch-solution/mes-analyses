@@ -53,3 +53,12 @@ export type Row = {
     type: string
     value: string | undefined,
 }
+
+export type TypeInput = {
+    clientSlug: string,
+    projectSlug: string,
+    bookSlug: string,
+    componentSlug: string,
+    value: string,
+    label: string
+}

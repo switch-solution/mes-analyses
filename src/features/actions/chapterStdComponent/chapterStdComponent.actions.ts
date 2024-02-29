@@ -12,7 +12,7 @@ export const createAssociationChapterStandardComposant = async (data: z.infer<ty
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
     const { chapterId, standardComposantId } = ChapterStandardComposantSchema.parse(data)
     try {
-        await prisma.chapterStdComposant.create({
+        await prisma.softwareChapterSoftwareComponent.create({
             data: {
                 chapterId: chapterId,
                 standardComposantId: standardComposantId,

@@ -3,75 +3,65 @@ import { userIsValid, userIsAdminClient } from "./security.query";
 import { userIsAdminSystem } from "./security.query";
 import { getAuthSession } from "@/lib/auth";
 import { Prisma } from '@prisma/client'
+import { th } from "@faker-js/faker";
 
-export const getClientHome = async (slug: string) => {
+export const getCountClientProjects = async (clientSlug: string) => {
     try {
-        const clientExist = await getClientBySlug(slug)
+        const clientExist = await getClientBySlug(clientSlug)
         if (!clientExist) {
             throw new Error("Le client n'existe pas.")
         }
-        const clientId = clientExist.siren
-        const countUser = await prisma.userClient.count({
+        const countProjects = await prisma.project.count({
             where: {
-                clientId
+                clientId: clientExist.siren
             }
         })
+        return countProjects
 
-        const countProject = await prisma.project.count({
-            where: {
-                clientId
-            }
-        })
-        const countContact = await prisma.contact.count({
-            where: {
-                clientId
-            }
-        })
-        const countUserIsBillable = await prisma.userClient.count({
-            where: {
-                clientId,
-                isBillable: true,
-                isBlocked: false
-            }
-        })
-        const countLogger = await prisma.logger.count({
-            where: {
-                clientId: clientId
-            }
-        })
-        const countSoftware = await prisma.software.count({
-            where: {
-                clientId: clientId
-            }
-        })
-
-        const countInvitation = await prisma.invitation.count({
-            where: {
-                clientId: clientId
-            }
-        })
-
-        const startDate = new Date(clientExist?.dateStartTrial ? clientExist?.dateStartTrial : new Date())
-        const endDate = new Date(clientExist?.dateEndTrial ? clientExist?.dateEndTrial : new Date())
-        const diffInMs = Math.abs(endDate.getTime() - startDate.getTime());
-        const days = diffInMs / (1000 * 60 * 60 * 24);
-        const numberDaysBeforeEndTrial = days.toFixed(0)
-        return {
-            countUser,
-            countProject,
-            countContact,
-            countUserIsBillable,
-            countLogger,
-            countSoftware,
-            countInvitation,
-            numberDaysBeforeEndTrial
-        }
     } catch (err) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération du nombre de clients.")
-
     }
+
 }
+
+export const getCountBook = async (clientSlug: string) => {
+    try {
+        const clientExist = await getClientBySlug(clientSlug)
+        if (!clientExist) {
+            throw new Error("Le client n'existe pas.")
+        }
+        const countBooks = await prisma.software_Book.count({
+            where: {
+                clientId: clientExist.siren
+            }
+        })
+        return countBooks
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des livres.")
+    }
+
+}
+
+export const getCountMySoftware = async (clientSlug: string) => {
+    try {
+        const clientExist = await getClientBySlug(clientSlug)
+        if (!clientExist) {
+            throw new Error("Le client n'existe pas.")
+        }
+        const countSoftwares = await prisma.software.count({
+            where: {
+                clientId: clientExist.siren
+            }
+        })
+        return countSoftwares
+    } catch (err) {
+        console.error(err)
+    }
+
+
+}
+
 
 export const getClientBySlug = async (clientSlug: string) => {
     try {
@@ -94,6 +84,24 @@ export const getClientBySlug = async (clientSlug: string) => {
         throw new Error("Une erreur est survenue lors de la récupération du client par le slug.")
     }
 
+}
+
+export const getEndTrialClient = async (clientSlug: string) => {
+    try {
+        const clientExist = await getClientBySlug(clientSlug)
+
+        const startDate = new Date(clientExist?.dateStartTrial ? clientExist?.dateStartTrial : new Date())
+        const endDate = new Date(clientExist?.dateEndTrial ? clientExist?.dateEndTrial : new Date())
+        const diffInMs = Math.abs(endDate.getTime() - startDate.getTime());
+        const days = diffInMs / (1000 * 60 * 60 * 24);
+        const numberDaysBeforeEndTrial = days.toFixed(0)
+        return numberDaysBeforeEndTrial
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération de la date de fin d'essai.")
+
+
+    }
 }
 
 
@@ -221,6 +229,8 @@ export const getMyClientActive = async () => {
 
     }
 }
+
+
 export const getSoftwareClientList = async (clientSlug: string) => {
     try {
         const idClient = await getClientBySlug(clientSlug)

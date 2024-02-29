@@ -47,7 +47,7 @@ const data = [
     },
 ];
 
-export default class Example extends PureComponent {
+export default class TinyLineChart extends PureComponent {
     static demoUrl = 'https://codesandbox.io/s/tiny-line-chart-r5z0f';
 
     render() {

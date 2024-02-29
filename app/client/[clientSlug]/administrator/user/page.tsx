@@ -1,9 +1,8 @@
 import { columns } from "./dataTablecolumns"
-import { DataTable } from "@/src/features/layout/dataTable";
+import { DataTable } from "@/components/layout/dataTable";
 import { getUsersClientList } from "@/src/query/client.query";
 import { userIsAdminClient } from "@/src/query/security.query";
 export default async function Page({ params }: { params: { clientSlug: string } }) {
-
 
     const isAdmin = await userIsAdminClient(params.clientSlug)
     if (!isAdmin) {

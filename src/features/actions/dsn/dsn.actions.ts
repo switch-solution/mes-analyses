@@ -3,8 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { extractDsn } from "@/lib/dsnParser";
 import { put } from '@vercel/blob';
 import { del } from '@vercel/blob';
-import { redirect } from "next/navigation";
-import { revalidatePath } from 'next/cache';
 import https from 'https';
 import fs from 'node:fs';
 import path from "path";
@@ -25,20 +23,7 @@ export async function uploadDsn(projectSlug: string, formData: FormData) {
     const clientSlug = await getClientBySiren(project.clientId)
     if (!clientSlug) throw new Error("Le client n'existe pas")
 
-    const dsnFile = formData.get('dsn') as File;
-
-    //Test attachment exist
-
-    const attachmentExist = await prisma.project_Attachment.findFirst({
-        where: {
-            projectLabel: project.label,
-            clientId: project.clientId,
-            label: 'DSN'
-        }
-    })
-
-    if (!attachmentExist) throw new Error("La pièce jointe DSN n'existe pas")
-
+    const dsnFile = formData.get('DSN') as File;
 
     //Upload file to blob storage
     const blob = await put(dsnFile.name, dsnFile, {
@@ -232,20 +217,6 @@ export async function uploadDsn(projectSlug: string, formData: FormData) {
             }
         }
 
-        await prisma.project_Attachment.update({
-            where: {
-                label_projectLabel_clientId: {
-
-                    clientId: project.clientId,
-                    label: 'DSN',
-                    projectLabel: project.label
-                }
-            },
-            data: {
-                isDelivered: true,
-            }
-        })
-
         await importDataDsnInForm(projectSlug)
 
         const log: Logger = {
@@ -262,9 +233,7 @@ export async function uploadDsn(projectSlug: string, formData: FormData) {
 
     //delete file from blob storage
     await del(blob.url);
-
-    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/attachment/`);
-    redirect(`/client/${clientSlug}/project/${projectSlug}/attachment`);
+    return
 }
 
 

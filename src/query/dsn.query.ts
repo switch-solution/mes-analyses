@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getProjectBySlug } from "./project.query";
-import { getClientBySlug } from "./client.query";
+import crypto from 'crypto'
 
 export const importDataDsnInForm = async (projectSlug: string) => {
     try {
@@ -21,7 +21,7 @@ export const importDataDsnInForm = async (projectSlug: string) => {
                 },
             }
         })
-        const formDsnSociety = await prisma.projet_Component.findFirst({
+        const formDsnSociety = await prisma.project_Component.findFirst({
             where: {
                 type: "DSN_SOCIETE",
                 clientId: projectExist.clientId,
@@ -32,6 +32,8 @@ export const importDataDsnInForm = async (projectSlug: string) => {
                 Project_Input: true
             }
         })
+        const recordId = crypto.randomUUID()
+
         if (!formDsnSociety) throw new Error("Le formulaire DSN n'existe pas.")
         formDsnSociety.Project_Input.map(async (input) => {
             switch (input.dsnType) {
@@ -45,10 +47,15 @@ export const importDataDsnInForm = async (projectSlug: string) => {
                             chapterLevel_1: input.chapterLevel_1,
                             chapterLevel_2: input.chapterLevel_2,
                             chapterLevel_3: input.chapterLevel_3,
-                            createdBy: "SYSTEM",
+                            createdBy: "system",
                             inputLabel: input.label,
                             version: 1,
                             bookLabel: input.bookLabel,
+                            recordId,
+                            isCode: input.isCode,
+                            isDescription: input.isDescription,
+                            isLabel: input.isLabel,
+                            label: input.label
                         }
 
                     })
@@ -63,10 +70,16 @@ export const importDataDsnInForm = async (projectSlug: string) => {
                             chapterLevel_1: input.chapterLevel_1,
                             chapterLevel_2: input.chapterLevel_2,
                             chapterLevel_3: input.chapterLevel_3,
-                            createdBy: "SYSTEM",
+                            createdBy: "system",
                             inputLabel: input.label,
                             version: 1,
                             bookLabel: input.bookLabel,
+                            recordId,
+                            isCode: input.isCode,
+                            isDescription: input.isDescription,
+                            isLabel: input.isLabel,
+                            label: input.label,
+
                         }
 
                     })
@@ -81,10 +94,16 @@ export const importDataDsnInForm = async (projectSlug: string) => {
                             chapterLevel_1: input.chapterLevel_1,
                             chapterLevel_2: input.chapterLevel_2,
                             chapterLevel_3: input.chapterLevel_3,
-                            createdBy: "SYSTEM",
+                            createdBy: "system",
                             inputLabel: input.label,
                             version: 1,
                             bookLabel: input.bookLabel,
+                            recordId,
+                            isCode: input.isCode,
+                            isDescription: input.isDescription,
+                            isLabel: input.isLabel,
+                            label: input.label
+
                         }
 
                     })
@@ -99,10 +118,16 @@ export const importDataDsnInForm = async (projectSlug: string) => {
                             chapterLevel_1: input.chapterLevel_1,
                             chapterLevel_2: input.chapterLevel_2,
                             chapterLevel_3: input.chapterLevel_3,
-                            createdBy: "SYSTEM",
+                            createdBy: "system",
                             inputLabel: input.label,
                             version: 1,
                             bookLabel: input.bookLabel,
+                            recordId,
+                            isCode: input.isCode,
+                            isDescription: input.isDescription,
+                            isLabel: input.isLabel,
+                            label: input.label
+
                         }
 
                     })
@@ -117,10 +142,16 @@ export const importDataDsnInForm = async (projectSlug: string) => {
                             chapterLevel_1: input.chapterLevel_1,
                             chapterLevel_2: input.chapterLevel_2,
                             chapterLevel_3: input.chapterLevel_3,
-                            createdBy: "SYSTEM",
+                            createdBy: "system",
                             inputLabel: input.label,
                             version: 1,
                             bookLabel: input.bookLabel,
+                            recordId,
+                            isCode: input.isCode,
+                            isDescription: input.isDescription,
+                            isLabel: input.isLabel,
+                            label: input.label
+
                         }
 
                     })

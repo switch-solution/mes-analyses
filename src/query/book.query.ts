@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { getSoftwareBySlug } from './software.query'
-
+import { getProjectBySlug } from './project.query'
 export const copyBook = async (softwareSlug: string) => {
     try {
         const softwareExist = await getSoftwareBySlug(softwareSlug)
@@ -82,6 +82,25 @@ export const copyBook = async (softwareSlug: string) => {
             })
         })
         return
+    } catch (err) {
+        console.error(err)
+        throw new Error(`Une erreur est survenue lors de la récupération des logiciels du client.`)
+    }
+
+}
+
+export const getBookByProjectSlug = async (projectSlug: string) => {
+    try {
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) throw new Error("Ce projet n'existe pas")
+        const books = await prisma.project_Book.findMany({
+            where: {
+                clientId: projectExist.clientId,
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+            }
+        })
+        return books
     } catch (err) {
         console.error(err)
         throw new Error(`Une erreur est survenue lors de la récupération des logiciels du client.`)

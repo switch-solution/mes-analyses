@@ -1,5 +1,5 @@
 import { userIsAuthorizeInThisProject } from "@/src/query/security.query"
-import UploadFile from "@/components/form/projectAttachment/create"
+import UploadFile from "@/components/form/project_attachment/create"
 import { getProjectAttachment } from "@/src/query/project_attachment.query"
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)

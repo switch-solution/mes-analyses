@@ -1,5 +1,5 @@
 import { userIsEditor } from "@/src/query/security.query";
-import EditStdInput from "@/components/form/stdComponentInput/edit";
+import EditStdInput from "@/components/form/software_ComponentInput/edit";
 import { getStandardInputById } from "@/src/query/sofwtare_input.query";
 export default async function Page({ params }: { params: { clientSlug: string, componentSlug: string, inputId: string } }) {
     const isEditor = await userIsEditor(params.clientSlug);

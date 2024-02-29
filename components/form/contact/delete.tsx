@@ -1,7 +1,7 @@
 "use client";
 
 import { deleteContact } from "@/src/features/actions/contact/contact.actions";
-import DangerButtonDelete from "../../../src/features/layout/dangerButtonDelete";
+import DangerButtonDelete from "../../layout/dangerButtonDelete";
 import { Form } from "@/components/ui/form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"

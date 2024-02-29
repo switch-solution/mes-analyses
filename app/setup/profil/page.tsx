@@ -1,5 +1,5 @@
 import CreateProfil from "@/components/form/setup/createProfil";
-import SetupSteep from "@/src/features/layout/setupSteep";
+import SetupSteep from "@/components/layout/setupSteep";
 export default async function Page() {
 
     return (<div>

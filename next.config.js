@@ -9,6 +9,11 @@ const nextConfig = {
                 hostname: 'my-blob-store.public.blob.vercel-storage.com',
                 port: '',
             },
+            {
+                protocol: 'https',
+                hostname: 'github.com',
+                port: '',
+            },
         ],
     },
 };

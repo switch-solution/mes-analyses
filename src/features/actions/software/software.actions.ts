@@ -16,6 +16,7 @@ import { getSoftwareBySlug } from "@/src/query/software.query";
 import { getUserByEmail } from "@/src/query/user.query";
 import { createTypeRubrique } from "@/src/query/software_setting.query";
 import { copyBook } from "@/src/query/book.query";
+import { copyTask } from "@/src/query/task.query";
 export const deleteSoftware = async (softwareSlug: string, clientSlug: string) => {
     const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
@@ -134,23 +135,12 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
         })
         await copyFormToSoftware(software.slug)
         //Add DSN Attachment
-        await prisma.software_Attachment.create({
-            data: {
-                label: "DSN",
-                description: "Déclaration Sociale Nominative",
-                isObligatory: true,
-                softwareLabel: label,
-                clientId: clientId,
-                slug: await generateSlug(`${clientId}-${label}-DSN`),
-                multiple: true,
-                accept: "dsn",
-                createdBy: userId
-            }
-        })
         //Add Settings
         await createTypeRubrique(software.slug)
         //Copy books and chapters
         await copyBook(software.slug)
+        //Copy tasks
+        await copyTask(software.slug)
         const log: Logger = {
             level: "info",
             message: `Le logiciel ${label} a été ajouté`,

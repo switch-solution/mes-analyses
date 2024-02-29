@@ -1,5 +1,5 @@
 import { columns } from "./dataTablecolumns"
-import { DataTable } from "@/src/features/layout/dataTable";
+import { DataTable } from "@/components/layout/dataTable";
 import { userIsEditor } from "@/src/query/security.query";
 import { getComponnentByClientFilterUserSoftware } from "@/src/query/software_component.query";
 

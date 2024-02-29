@@ -1,3 +1,4 @@
+import { s } from 'vitest/dist/reporters-MmQN-57K.js';
 import { string, z } from 'zod';
 import { zfd } from "zod-form-data";
 
@@ -13,6 +14,13 @@ export const ClientFormSchema = z.object({
     codeZip: z.string().length(5, { message: "Le code postal doit contenir 5 caractères." }),
     country: z.string().min(2, { message: "Le pays doit contenir au moins 2 caractères." }),
 
+})
+
+export const ImportBookProjectSchema = z.object({
+    projectSlug: z.string().min(1, { message: "Le projet est obligatoire." }),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    bookSlug: z.string().min(1, { message: "Le livre est obligatoire." }),
+    label: z.string().min(1, { message: "Le nom du projet est obligatoire." }),
 })
 
 export const ClientEditFormSchema = z.object({
@@ -322,6 +330,7 @@ export const EdidStdInputSchema = z.object({
     required: z.boolean().optional(),
     readonly: z.boolean().optional(),
     label: z.string().min(1, { message: "Le label est obligatoire." }),
+    dsnType: z.string().optional(),
 
 })
 
@@ -330,3 +339,12 @@ export const UploadFileSchema = zfd.formData({
     clientSlug: zfd.text(z.string().min(1, { message: "Le client est obligatoire." })),
     file: zfd.file()
 });
+
+export const DynamicFormSchema = z.object({
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    projectSlug: z.string().min(1, { message: "Le projet est obligatoire." }),
+    bookSlug: z.string().min(1, { message: "Le livre est obligatoire." }),
+    componentSlug: z.string().min(1, { message: "Le composant est obligatoire." }),
+    value: z.string().optional(),
+    label: z.string().min(1, { message: "Le label est obligatoire." }),
+})
