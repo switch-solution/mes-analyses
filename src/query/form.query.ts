@@ -77,6 +77,7 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
             })
 
         })
+        //
         const inputsToCopy = inputs.map(input => {
             const stdComponent = dbStandardsComponent.find(component => component.label === input.formTitle && component.type === input.formType)
             return {
@@ -92,7 +93,7 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
                 isDescription: input.isDescription ? input.isDescription : false,
                 placeholder: input.placeholder ? input.placeholder : '',
                 order: input.order ? input.order : 0,
-                formsSource: input.formSource ? input.formSource : '',
+                formSource: input.formSource ? input.formSource : '',
                 inputSource: input.inputSource ? input.inputSource : '',
                 defaultValue: input.defaultValue ? input.defaultValue : '',
                 required: input.required ? input.required : false,

@@ -944,7 +944,7 @@ CREATE TABLE "Form_Input" (
     "formType" TEXT NOT NULL,
     "formVersion" INTEGER NOT NULL,
 
-    CONSTRAINT "Form_Input_pkey" PRIMARY KEY ("formTitle","formType","formVersion","type","label")
+    CONSTRAINT "Form_Input_pkey" PRIMARY KEY ("formTitle","formType","formVersion","label")
 );
 
 -- CreateTable

@@ -119,19 +119,6 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
         if (!software) throw new ActionError("Le logiciel n'a pas été créé.")
         await copyFormToSoftware(software.slug)
         //Add DSN Attachment
-        await prisma.software_Attachment.create({
-            data: {
-                label: "DSN",
-                description: "Déclaration Sociale Nominative",
-                isObligatory: true,
-                softwareLabel: label,
-                clientId: software.clientId,
-                slug: await generateSlug(`${clientId}-${label}-DSN`),
-                multiple: true,
-                accept: "dsn",
-                createdBy: userId
-            }
-        })
         //Add Settings
         await createTypeRubrique(software.slug)
         //Copy books and chapters

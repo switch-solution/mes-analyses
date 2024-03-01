@@ -1024,7 +1024,7 @@ model Form_Input {
   formType      String
   formVersion   Int
 
-  @@id([formTitle, formType, formVersion, type, label])
+  @@id([formTitle, formType, formVersion, label])
 }
 
 model Input {
