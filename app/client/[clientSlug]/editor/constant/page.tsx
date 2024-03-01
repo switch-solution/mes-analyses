@@ -1,29 +1,12 @@
 import { userIsEditor } from "@/src/query/security.query"
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import { getSoftwareConstantFilterByUserSoftware } from "@/src/query/software.query";
 import { getConstantLegal } from "@/src/query/constantLegal.query";
 export default async function Page({ params }: { params: { clientSlug: string } }) {
     const isEditor = await userIsEditor(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
 
-    const constantList = await getSoftwareConstantFilterByUserSoftware()
-    const constants = constantList.map((constant) => {
-        return {
-            clientSlug: params.clientSlug,
-            code: constant.id,
-            value: constant.value,
-            dateStart: constant.dateStart.toLocaleDateString(),
-            label: constant.label,
-            softwareLabel: constant.softwareLabel,
-            slug: constant.slug,
-            description: constant.description,
-            idccCode: constant.idccCode,
-            level: 'Logiciel'
-
-        }
-    })
-    const constantLegal = await getConstantLegal()
+    const constantLegal = await getConstantLegal(params.clientSlug)
     const constansLegal = constantLegal.map((constant) => {
         return {
             code: constant.id,
@@ -32,16 +15,16 @@ export default async function Page({ params }: { params: { clientSlug: string } 
             description: constant.description,
             idccCode: constant.idccCode,
             value: constant.value,
-            level: 'Standard',
+            level: constant.level,
             dateStart: constant.dateStart.toLocaleDateString(),
-            softwareLabel: '',
+            dateEnd: constant.dateEnd.toLocaleDateString(),
+            softwareLabel: constant.level === 'Standard' ? 'Tous' : constant.softwareLabel,
             slug: constant.slug
         }
     })
-    const allConstants = [...constansLegal, ...constants]
     return (
         <div className="container mx-auto py-10">
-            <DataTable columns={columns} data={allConstants} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/editor/constant/create`} buttonLabel="Ajouter une constante" />
+            <DataTable columns={columns} data={constansLegal} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/editor/constant/create`} buttonLabel="Ajouter une constante" />
         </div>
     )
 }

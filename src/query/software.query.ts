@@ -73,49 +73,8 @@ export const getSoftwareByClientSlug = async (clientSlug: string) => {
 
 }
 
-export const getSoftwareConstantFilterByUserSoftware = async () => {
-    try {
-        const softwares = await getMySoftware()
-        const clientId = await getMyClientActive()
-        const constats = await prisma.software_Constant.findMany({
-            where: {
-                softwareLabel: {
-                    in: softwares.map((software) => software.softwareLabel)
-                },
-                clientId: clientId
 
-            },
-            orderBy: [
-                {
-                    id: 'asc'
-                },
-                {
-                    dateStart: 'asc'
-                }
-            ]
-        })
-        return constats
-    } catch (err) {
-        console.error(err)
-        throw new Error(`Une erreur est survenue lors de la récupération des logiciels du client.`)
-    }
 
-}
-
-export const getSoftwareConstantBySlug = async (slug: string) => {
-    try {
-        const constant = await prisma.software_Constant.findFirst({
-            where: {
-                slug
-            }
-        })
-        return constant
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des données de la table Constant")
-    }
-
-}
 
 export const getSoftwaresItemsFilterByUserSoftware = async () => {
     try {

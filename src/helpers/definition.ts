@@ -89,7 +89,7 @@ export const StandardComposantEditSchema = z.object({
 export const EventSchema = z.object({
     level: z.enum(['info', 'warning', 'error', 'security']),
     message: z.string().min(2, { message: "Le message doit contenir au moins 2 caractères." }),
-    scope: z.enum(['client', 'constant', 'dsn', 'standardAttachment', 'book', 'softwareItem', 'standardComponent', 'chapter', 'project', 'editor', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant', 'invoice']),
+    scope: z.enum(['client', 'constant', 'dsn', 'administrator', 'standardAttachment', 'book', 'softwareItem', 'standardComponent', 'chapter', 'project', 'editor', 'user', 'software', 'contact', 'invitation', 'bookToProject', 'standardComposantSelectionOption', 'standardComposantInput', 'standardComposantSelectionOption', 'standardComposantInput', 'chapterStandardComposant', 'invoice']),
     clientId: z.string().optional(),
     projectLabel: z.string().optional(),
 })
@@ -218,10 +218,12 @@ export const SoftwaresSchema = z.object({
 
 export const SoftwareConstantCreateSchema = z.object({
     id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
+    level: z.enum(['Logiciel', 'Idcc', 'Project']),
     label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
     description: z.string().optional(),
     value: z.string().min(1, { message: "La valeur doit contenir au moins 2 caractères." }),
     dateStart: z.date(),
+    dateEnd: z.date(),
     idccCode: z.string(),
     softwareLabel: z.string(),
     clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),

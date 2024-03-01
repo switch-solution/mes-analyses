@@ -25,6 +25,7 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
                 clientId: softwareExist.clientId,
                 softwareLabel: softwareExist.label,
                 version: 1,
+                isForm: true,
                 slug: slug.toLowerCase() // Convertit la chaîne en minuscules
                     .replace(/[àáâãäå]/g, 'a') // Remplace les caractères accentués par leur équivalent sans accent
                     .replace(/[^a-z0-9]+/g, '-') // Remplace tous les caractères non alphanumériques par des tirets
@@ -65,6 +66,8 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
             isCode: boolean | null,
             isLabel: boolean | null,
             isDescription: boolean | null,
+            formSource: string | null,
+            otherData: string | null,
 
 
         }[] = []
@@ -84,10 +87,12 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
                 minValue: input.minValue ? input.minValue : 0,
                 maxValue: input.maxValue ? input.maxValue : 0,
                 isCode: input.isCode ? input.isCode : false,
+                otherData: input.otherData ? input.otherData : '',
                 isLabel: input.isLabel ? input.isLabel : false,
                 isDescription: input.isDescription ? input.isDescription : false,
                 placeholder: input.placeholder ? input.placeholder : '',
                 order: input.order ? input.order : 0,
+                formsSource: input.formSource ? input.formSource : '',
                 inputSource: input.inputSource ? input.inputSource : '',
                 defaultValue: input.defaultValue ? input.defaultValue : '',
                 required: input.required ? input.required : false,

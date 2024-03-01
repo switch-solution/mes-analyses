@@ -42,6 +42,10 @@ export const columns: ColumnDef<Constant>[] = [
         header: "Libellé",
     },
     {
+        accessorKey: "softwareLabel",
+        header: "Logiciel",
+    },
+    {
         accessorKey: "idccCode",
         header: "Code IDCC",
     },
@@ -54,8 +58,8 @@ export const columns: ColumnDef<Constant>[] = [
         header: "Date de début",
     },
     {
-        accessorKey: "softwareLabel",
-        header: "Logiciel",
+        accessorKey: "dateEnd",
+        header: "Date de fin",
     },
     {
         id: "actions",

@@ -22,7 +22,6 @@ export const copyBook = async (softwareSlug: string) => {
                     status: "actif",
                     slug: `${softwareExist.slug}-${book.slug}`,
                 }
-
             })
 
         })

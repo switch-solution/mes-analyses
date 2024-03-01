@@ -237,6 +237,9 @@ CREATE TABLE "Software_Component" (
     "createdBy" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
     "version" INTEGER NOT NULL,
+    "isForm" BOOLEAN DEFAULT false,
+    "isTextArea" BOOLEAN DEFAULT false,
+    "isImage" BOOLEAN DEFAULT false,
     "buttonLabel" TEXT NOT NULL DEFAULT 'Ajouter',
     "slug" TEXT NOT NULL,
     "status" TEXT NOT NULL,
@@ -249,6 +252,7 @@ CREATE TABLE "Software_Component" (
 CREATE TABLE "Software_Component_Input" (
     "type" TEXT NOT NULL,
     "dsnType" TEXT,
+    "otherData" TEXT,
     "label" TEXT NOT NULL,
     "maxLength" INTEGER DEFAULT 255,
     "minLength" INTEGER DEFAULT 0,
@@ -256,6 +260,7 @@ CREATE TABLE "Software_Component_Input" (
     "maxValue" INTEGER DEFAULT 9999,
     "placeholder" TEXT DEFAULT 'Saisir une valeur',
     "order" INTEGER NOT NULL,
+    "formSource" TEXT,
     "inputSource" TEXT,
     "defaultValue" TEXT DEFAULT '',
     "required" BOOLEAN DEFAULT false,
@@ -450,6 +455,9 @@ CREATE TABLE "Project_Component" (
     "chapterLevel_1" INTEGER NOT NULL,
     "chapterLevel_2" INTEGER NOT NULL,
     "chapterLevel_3" INTEGER NOT NULL,
+    "isForm" BOOLEAN DEFAULT false,
+    "isTextArea" BOOLEAN DEFAULT false,
+    "isImage" BOOLEAN DEFAULT false,
 
     CONSTRAINT "Project_Component_pkey" PRIMARY KEY ("bookLabel","projectLabel","clientId","chapterLevel_1","chapterLevel_2","chapterLevel_3","projectSoftwareLabel")
 );
@@ -569,8 +577,10 @@ CREATE TABLE "Dsn_Establishment" (
     "dsnMonth" TEXT NOT NULL,
     "dsnVersion" TEXT NOT NULL,
     "dsnFraction" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "siret" TEXT NOT NULL,
 
-    CONSTRAINT "Dsn_Establishment_pkey" PRIMARY KEY ("nic","dsnSiren","dsnNic","dsnMonth","dsnVersion","dsnFraction")
+    CONSTRAINT "Dsn_Establishment_pkey" PRIMARY KEY ("clientId","siret")
 );
 
 -- CreateTable
@@ -580,14 +590,10 @@ CREATE TABLE "Dsn_RateAt" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
-    "dsnEstablishmentNic" TEXT NOT NULL,
-    "dsnEstablishmentDsnSiren" TEXT NOT NULL,
-    "dsnEstablishmentDsnNic" TEXT NOT NULL,
-    "dsnEstablishmentDsnMonth" TEXT NOT NULL,
-    "dsnEstablishmentDsnVersion" TEXT NOT NULL,
-    "dsnEstablishmentDsnFraction" TEXT NOT NULL,
+    "siret" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
 
-    CONSTRAINT "Dsn_RateAt_pkey" PRIMARY KEY ("code","dsnEstablishmentNic","dsnEstablishmentDsnSiren","dsnEstablishmentDsnNic","dsnEstablishmentDsnMonth","dsnEstablishmentDsnVersion","dsnEstablishmentDsnFraction")
+    CONSTRAINT "Dsn_RateAt_pkey" PRIMARY KEY ("code","siret","clientId")
 );
 
 -- CreateTable
@@ -603,14 +609,23 @@ CREATE TABLE "Dsn_ContributionFund" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
-    "dsnEstablishmentNic" TEXT NOT NULL,
-    "dsnEstablishmentDsnSiren" TEXT NOT NULL,
-    "dsnEstablishmentDsnNic" TEXT NOT NULL,
-    "dsnEstablishmentDsnMonth" TEXT NOT NULL,
-    "dsnEstablishmentDsnVersion" TEXT NOT NULL,
-    "dsnEstablishmentDsnFraction" TEXT NOT NULL,
+    "siret" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
 
-    CONSTRAINT "Dsn_ContributionFund_pkey" PRIMARY KEY ("code","dsnEstablishmentNic","dsnEstablishmentDsnSiren","dsnEstablishmentDsnNic","dsnEstablishmentDsnMonth","dsnEstablishmentDsnVersion","dsnEstablishmentDsnFraction")
+    CONSTRAINT "Dsn_ContributionFund_pkey" PRIMARY KEY ("code","siret","clientId")
+);
+
+-- CreateTable
+CREATE TABLE "Dsn_Mutual" (
+    "contractId" TEXT NOT NULL,
+    "organisme" TEXT,
+    "delegate" TEXT,
+    "covererd" TEXT,
+    "techId" TEXT,
+    "clientId" TEXT NOT NULL,
+    "siren" TEXT NOT NULL,
+
+    CONSTRAINT "Dsn_Mutual_pkey" PRIMARY KEY ("contractId","clientId","siren")
 );
 
 -- CreateTable
@@ -625,8 +640,9 @@ CREATE TABLE "Dsn_Idcc" (
     "dsnMonth" TEXT NOT NULL,
     "dsnVersion" TEXT NOT NULL,
     "dsnFraction" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
 
-    CONSTRAINT "Dsn_Idcc_pkey" PRIMARY KEY ("code","dsnSiren","dsnNic","dsnMonth","dsnVersion","dsnFraction")
+    CONSTRAINT "Dsn_Idcc_pkey" PRIMARY KEY ("code","dsnSiren","dsnNic","dsnMonth","dsnVersion","dsnFraction","clientId")
 );
 
 -- CreateTable
@@ -640,8 +656,9 @@ CREATE TABLE "Dsn_Job" (
     "dsnMonth" TEXT NOT NULL,
     "dsnVersion" TEXT NOT NULL,
     "dsnFraction" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
 
-    CONSTRAINT "Dsn_Job_pkey" PRIMARY KEY ("label","dsnSiren","dsnNic","dsnMonth","dsnVersion","dsnFraction")
+    CONSTRAINT "Dsn_Job_pkey" PRIMARY KEY ("label","dsnSiren","dsnNic","dsnMonth","dsnVersion","dsnFraction","clientId")
 );
 
 -- CreateTable
@@ -702,8 +719,9 @@ CREATE TABLE "Logger" (
     "level" TEXT NOT NULL,
     "message" TEXT NOT NULL,
     "scope" TEXT NOT NULL,
-    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdBy" TEXT NOT NULL,
+    "isArchived" BOOLEAN NOT NULL DEFAULT false,
     "clientId" TEXT,
     "userId" TEXT,
     "projectSoftwareLabel" TEXT,
@@ -799,35 +817,22 @@ CREATE TABLE "Project_Items" (
 -- CreateTable
 CREATE TABLE "Constant_Legal" (
     "id" TEXT NOT NULL,
+    "level" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "description" TEXT,
     "idccCode" TEXT NOT NULL DEFAULT '9999',
     "value" TEXT NOT NULL,
     "dateStart" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dateEnd" TIMESTAMP(3) NOT NULL,
+    "softwareLabel" TEXT,
+    "clientId" TEXT,
+    "projectLabel" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
 
-    CONSTRAINT "Constant_Legal_pkey" PRIMARY KEY ("id","dateStart")
-);
-
--- CreateTable
-CREATE TABLE "Software_Constant" (
-    "id" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "description" TEXT,
-    "idccCode" TEXT NOT NULL DEFAULT '9999',
-    "value" TEXT NOT NULL,
-    "dateStart" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-
-    CONSTRAINT "Software_Constant_pkey" PRIMARY KEY ("id","dateStart","softwareLabel","clientId")
+    CONSTRAINT "Constant_Legal_pkey" PRIMARY KEY ("id","level","dateStart","dateEnd")
 );
 
 -- CreateTable
@@ -858,25 +863,6 @@ CREATE TABLE "Idcc" (
     "createdBy" TEXT NOT NULL DEFAULT 'System',
 
     CONSTRAINT "Idcc_pkey" PRIMARY KEY ("code")
-);
-
--- CreateTable
-CREATE TABLE "Software_Attachment" (
-    "slug" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "isObligatory" BOOLEAN NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "deadline" INTEGER NOT NULL DEFAULT 1,
-    "isDsn" BOOLEAN NOT NULL DEFAULT false,
-    "multiple" BOOLEAN NOT NULL DEFAULT false,
-    "accept" TEXT NOT NULL DEFAULT 'pdf',
-
-    CONSTRAINT "Software_Attachment_pkey" PRIMARY KEY ("label","softwareLabel","clientId")
 );
 
 -- CreateTable
@@ -921,6 +907,7 @@ CREATE TABLE "Form" (
     "type" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "status" TEXT NOT NULL,
+    "buttonLabel" TEXT NOT NULL DEFAULT 'Ajouter',
     "version" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -934,6 +921,7 @@ CREATE TABLE "Form_Input" (
     "type" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "dsnType" TEXT,
+    "otherData" TEXT,
     "maxLength" INTEGER,
     "minLength" INTEGER,
     "minValue" INTEGER,
@@ -947,6 +935,7 @@ CREATE TABLE "Form_Input" (
     "required" BOOLEAN NOT NULL,
     "readonly" BOOLEAN NOT NULL,
     "multiple" BOOLEAN,
+    "formSource" TEXT,
     "inputSource" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -973,10 +962,14 @@ CREATE TABLE "Input" (
 -- CreateTable
 CREATE TABLE "Prisma_Seed" (
     "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "order" INTEGER NOT NULL,
     "status" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
+    "previousLabel" TEXT NOT NULL,
+    "error" TEXT,
 
     CONSTRAINT "Prisma_Seed_pkey" PRIMARY KEY ("name")
 );
@@ -997,21 +990,91 @@ CREATE TABLE "Alert" (
 );
 
 -- CreateTable
-CREATE TABLE "Project_Task" (
+CREATE TABLE "Task" (
     "label" TEXT NOT NULL,
-    "message" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
+    "isSwitch" BOOLEAN NOT NULL DEFAULT false,
+    "isUpload" BOOLEAN NOT NULL DEFAULT false,
+    "accept" TEXT,
+    "description" TEXT NOT NULL,
+    "level" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "dateStart" TIMESTAMP(3) NOT NULL,
-    "deadline" TIMESTAMP(3) NOT NULL,
-    "userId" TEXT NOT NULL,
-    "projectLabel" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "projectSoftwareLabel" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'System',
+    "bookLabel" TEXT,
 
-    CONSTRAINT "Project_Task_pkey" PRIMARY KEY ("label","userId","clientId","projectLabel","projectSoftwareLabel")
+    CONSTRAINT "Task_pkey" PRIMARY KEY ("label")
+);
+
+-- CreateTable
+CREATE TABLE "Software_Task" (
+    "label" TEXT NOT NULL,
+    "level" TEXT NOT NULL,
+    "isSwitch" BOOLEAN NOT NULL DEFAULT false,
+    "isUpload" BOOLEAN NOT NULL DEFAULT false,
+    "accept" TEXT,
+    "softwareLabel" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'System',
+    "bookLabel" TEXT,
+
+    CONSTRAINT "Software_Task_pkey" PRIMARY KEY ("label","clientId","softwareLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Task" (
+    "label" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "level" TEXT NOT NULL,
+    "isSwitch" BOOLEAN NOT NULL DEFAULT false,
+    "isUpload" BOOLEAN NOT NULL DEFAULT false,
+    "accept" TEXT,
+    "description" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'actif',
+    "projectLabel" TEXT NOT NULL,
+    "bookLabel" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'System',
+    "owner" TEXT NOT NULL,
+    "message" TEXT,
+    "dateStart" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deadline" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Project_Task_pkey" PRIMARY KEY ("label","clientId","projectLabel","softwareLabel","owner")
+);
+
+-- CreateTable
+CREATE TABLE "Absence" (
+    "label" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "isSocialSecurity" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'System',
+
+    CONSTRAINT "Absence_pkey" PRIMARY KEY ("label")
+);
+
+-- CreateTable
+CREATE TABLE "Software_Absence" (
+    "label" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "isSocialSecurity" BOOLEAN NOT NULL DEFAULT false,
+    "softwareLabel" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'System',
+
+    CONSTRAINT "Software_Absence_pkey" PRIMARY KEY ("label","code","clientId","softwareLabel")
 );
 
 -- CreateIndex
@@ -1093,13 +1156,16 @@ CREATE UNIQUE INDEX "Software_Setting_slug_key" ON "Software_Setting"("slug");
 CREATE UNIQUE INDEX "Constant_Legal_slug_key" ON "Constant_Legal"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Software_Constant_slug_key" ON "Software_Constant"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Software_Attachment_slug_key" ON "Software_Attachment"("slug");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Project_Attachment_slug_key" ON "Project_Attachment"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Task_slug_key" ON "Project_Task"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Absence_code_key" ON "Absence"("code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Software_Absence_slug_key" ON "Software_Absence"("slug");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -1216,10 +1282,10 @@ ALTER TABLE "Dsn" ADD CONSTRAINT "Dsn_clientId_projectLabel_projectSoftwareLabel
 ALTER TABLE "Dsn_Establishment" ADD CONSTRAINT "Dsn_Establishment_dsnSiren_dsnNic_dsnMonth_dsnVersion_dsnF_fkey" FOREIGN KEY ("dsnSiren", "dsnNic", "dsnMonth", "dsnVersion", "dsnFraction") REFERENCES "Dsn"("siren", "nic", "month", "version", "fraction") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Dsn_RateAt" ADD CONSTRAINT "Dsn_RateAt_dsnEstablishmentNic_dsnEstablishmentDsnSiren_ds_fkey" FOREIGN KEY ("dsnEstablishmentNic", "dsnEstablishmentDsnSiren", "dsnEstablishmentDsnNic", "dsnEstablishmentDsnMonth", "dsnEstablishmentDsnVersion", "dsnEstablishmentDsnFraction") REFERENCES "Dsn_Establishment"("nic", "dsnSiren", "dsnNic", "dsnMonth", "dsnVersion", "dsnFraction") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Dsn_RateAt" ADD CONSTRAINT "Dsn_RateAt_clientId_siret_fkey" FOREIGN KEY ("clientId", "siret") REFERENCES "Dsn_Establishment"("clientId", "siret") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Dsn_ContributionFund" ADD CONSTRAINT "Dsn_ContributionFund_dsnEstablishmentNic_dsnEstablishmentD_fkey" FOREIGN KEY ("dsnEstablishmentNic", "dsnEstablishmentDsnSiren", "dsnEstablishmentDsnNic", "dsnEstablishmentDsnMonth", "dsnEstablishmentDsnVersion", "dsnEstablishmentDsnFraction") REFERENCES "Dsn_Establishment"("nic", "dsnSiren", "dsnNic", "dsnMonth", "dsnVersion", "dsnFraction") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Dsn_ContributionFund" ADD CONSTRAINT "Dsn_ContributionFund_clientId_siret_fkey" FOREIGN KEY ("clientId", "siret") REFERENCES "Dsn_Establishment"("clientId", "siret") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Dsn_Idcc" ADD CONSTRAINT "Dsn_Idcc_dsnSiren_dsnNic_dsnMonth_dsnVersion_dsnFraction_fkey" FOREIGN KEY ("dsnSiren", "dsnNic", "dsnMonth", "dsnVersion", "dsnFraction") REFERENCES "Dsn"("siren", "nic", "month", "version", "fraction") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -1264,19 +1330,16 @@ ALTER TABLE "Project_Items" ADD CONSTRAINT "Project_Items_idccCode_fkey" FOREIGN
 ALTER TABLE "Constant_Legal" ADD CONSTRAINT "Constant_Legal_idccCode_fkey" FOREIGN KEY ("idccCode") REFERENCES "Idcc"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Software_Constant" ADD CONSTRAINT "Software_Constant_idccCode_fkey" FOREIGN KEY ("idccCode") REFERENCES "Idcc"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Constant_Legal" ADD CONSTRAINT "Constant_Legal_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Software_Constant" ADD CONSTRAINT "Software_Constant_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Constant_Legal" ADD CONSTRAINT "Constant_Legal_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Constant" ADD CONSTRAINT "Project_Constant_idccCode_fkey" FOREIGN KEY ("idccCode") REFERENCES "Idcc"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Constant" ADD CONSTRAINT "Project_Constant_clientId_projectLabel_projectSoftwareLabe_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Software_Attachment" ADD CONSTRAINT "Software_Attachment_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Validation" ADD CONSTRAINT "Validation_bookLabel_clientId_projectLabel_projectSoftware_fkey" FOREIGN KEY ("bookLabel", "clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project_Book"("label", "clientId", "projectLabel", "projectSoftwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -1294,7 +1357,19 @@ ALTER TABLE "Form_Input" ADD CONSTRAINT "Form_Input_formTitle_formType_formVersi
 ALTER TABLE "Alert" ADD CONSTRAINT "Alert_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Task" ADD CONSTRAINT "Project_Task_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Task" ADD CONSTRAINT "Task_bookLabel_fkey" FOREIGN KEY ("bookLabel") REFERENCES "Book"("label") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Task" ADD CONSTRAINT "Project_Task_clientId_projectLabel_projectSoftwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Software_Task" ADD CONSTRAINT "Software_Task_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Software_Task" ADD CONSTRAINT "Software_Task_bookLabel_softwareLabel_clientId_fkey" FOREIGN KEY ("bookLabel", "softwareLabel", "clientId") REFERENCES "Software_Book"("label", "softwareLabel", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Task" ADD CONSTRAINT "Project_Task_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Task" ADD CONSTRAINT "Project_Task_owner_fkey" FOREIGN KEY ("owner") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Software_Absence" ADD CONSTRAINT "Software_Absence_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;

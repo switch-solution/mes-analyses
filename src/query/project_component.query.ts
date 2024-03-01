@@ -42,3 +42,15 @@ export const getComponentAndInputAndValuesBySlug = async (componentSlug: string)
 
 }
 export type getComponentAndInputAndValuesBySlug = Prisma.PromiseReturnType<typeof getComponentAndInputAndValuesBySlug>;
+
+export const getCountComponent = async () => {
+    try {
+        const count = await prisma.project_Component.count()
+
+        return count
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des données")
+    }
+
+}

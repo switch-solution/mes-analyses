@@ -3,11 +3,8 @@
 import React from 'react'
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { SoftwareItemSchema } from '@/src/helpers/definition';
 import { useForm } from "react-hook-form"
-import type { getIdccByCodeType, getSoftwareByUserIsEditorType } from '@/src/helpers/type';
 import { Button } from "@/components/ui/button"
-import type { getSoftwareItemsBySlugType } from "@/src/helpers/type"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"

@@ -14,16 +14,16 @@ export const uploadFile = async (name: string, projectSlug: string, clientSlug: 
     }
     if (name === "DSN") {
         await uploadDsn(projectSlug, formData);
+    } else {
+        const file = formData.get(name) as File;
+        const blob = await put(file.name, file, {
+            access: 'public',
+        });
+        await updateTaskStatusIsCompleted(name, projectSlug);
     }
 
-    const file = formData.get(name) as File;
-    const blob = await put(file.name, file, {
-        access: 'public',
-    });
-    await updateTaskStatusIsCompleted(name, projectSlug);
 
     revalidatePath(`/client/${clientSlug}/project/${projectSlug}/task/`);
     redirect(`/client/${clientSlug}/project/${projectSlug}/task/`);
 
-    return blob;
 }

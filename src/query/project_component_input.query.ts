@@ -33,7 +33,18 @@ export const getComponentWitchInputByBookSlug = async (bookSlug: string) => {
                         Project_Value: true
                     }
                 }
-            }
+            },
+            orderBy: [
+                {
+                    chapterLevel_1: 'asc'
+                },
+                {
+                    chapterLevel_2: 'asc'
+                },
+                {
+                    chapterLevel_3: 'asc'
+                }
+            ]
 
         })
 
@@ -46,3 +57,4 @@ export const getComponentWitchInputByBookSlug = async (bookSlug: string) => {
     }
 
 }
+

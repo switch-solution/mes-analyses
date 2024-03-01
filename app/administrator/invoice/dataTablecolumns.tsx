@@ -1,33 +1,34 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+import { Button } from "@/components/ui/button"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import Link from "next/link"
 export type Invoice = {
-    id: string | null
     socialReason: string | null
-    dateSart: string | null
+    dateStart: string | null
     dateEnd: string | null
     status: string | null
     amount: string | null
-    open: string | null
-    edit: string | null
-    delete: string | null
+    slug: string | null
 
 }
 
 export const columns: ColumnDef<Invoice>[] = [
     {
-        accessorKey: "id",
-        header: "id",
-    },
-    {
         accessorKey: "socialReason",
-        header: "Raison sociale",
+        header: "Raison sociale"
     },
     {
-        accessorKey: "dateSart",
+        accessorKey: "dateStart",
         header: "Date de début",
     },
     {
@@ -36,23 +37,37 @@ export const columns: ColumnDef<Invoice>[] = [
     },
     {
         accessorKey: "status",
-        header: "status",
+        header: "Statut",
     },
     {
         accessorKey: "amount",
         header: "Montant",
     },
     {
-        accessorKey: "open",
-        header: "Ouvrir",
+        id: "actions",
+        cell: ({ row }) => {
+            const invoice = row.original
+
+            return (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Mes options</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem><Link href={`/administratir/invoice/${invoice.slug}}`}>Ouvrir</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/administratir/invoice/${invoice.slug}/edit}`}>Editer</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/administratir/invoice/${invoice.slug}}`}>Archiver</Link></DropdownMenuItem>
+
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )
+        },
     },
-    {
-        accessorKey: "edit",
-        header: "Editer",
-    },
-    {
-        accessorKey: "delete",
-        header: "Supprimer",
-    },
+
 ]
 

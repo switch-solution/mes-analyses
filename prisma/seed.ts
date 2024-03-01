@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client'
-import { formV0001Seed } from './seed/4_form.v0001.seed'
+import { formV0001Seed } from './seed/3_form.v0001.seed'
 import { idccV0001Seed } from './seed/2_idcc.v0001.seed'
 import { settingV0001 } from './seed/1_setting.v0001.seed'
-import { bookV0001Seed } from './seed/3_book.v0001.seed'
+import { bookV0001Seed } from './seed/4_book.v0001.seed'
 import { formV0002Seed } from './seed/9_form.v0002.seed'
 import { bookV0002Seed } from './seed/8_book.v0002.seed'
 import { legalV0001Seed } from './seed/5_legal.v0001.seed'
@@ -11,6 +11,19 @@ import { taskV0001Seed } from './seed/7_task.v0001.seed'
 import { bookV0003Seed } from './seed/10_book.v0003.seed'
 import { bookV0004Seed } from './seed/11_book.v0004.seed'
 import { bookV0005Seed } from './seed/12_book.v0005.seed'
+import { formV0003Seed } from './seed/13_form.v0003.seed'
+import { bookV0006Seed } from './seed/14_book.v0006.seed'
+import { formV0004Seed } from './seed/15_form.v0004.seed'
+import { bookV0007Seed } from './seed/16_book.v0007.seed'
+import { bookV0008Seed } from './seed/17_book.v0008.seed'
+import { absenceV0001 } from './seed/18_absence.v0001.seed'
+import { formV0005Seed } from './seed/19_form.v0005.seed'
+import { bookV0009Seed } from './seed/20_book.v0009.seed'
+import { bookV0010Seed } from './seed/21_book.v0010.seed'
+import { formV0006Seed } from './seed/22_form.v0006.seed'
+import { bookV0011Seed } from './seed/23_book.v0011.seed'
+import { bookV0012Seed } from './seed/24_book.v0012.seed'
+import { bookV0013Seed } from './seed/25_book.v0013.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -35,7 +48,6 @@ const prisma = new PrismaClient(
 )
 
 const main = async () => {
-    console.log('Intégration settingV0001')
     await settingV0001.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -45,7 +57,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration idccV0001Seed')
     await idccV0001Seed.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -55,17 +66,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration bookV0001Seed')
-    await bookV0001Seed.run()
-        .then(async () => {
-            await prisma.$disconnect()
-        })
-        .catch(async (e) => {
-            console.error(e)
-            await prisma.$disconnect()
-            process.exit(1)
-        })
-    console.log('Intégration formV0001Seed')
     await formV0001Seed.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -75,7 +75,16 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration legalV0001Seed')
+    await bookV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+
     await legalV0001Seed.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -85,7 +94,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration chapterFormV0001Seed')
     await chapterFormV0001Seed.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -95,7 +103,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration taskV0001Seed')
     await taskV0001Seed.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -105,7 +112,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration bookV0002Seed')
     await bookV0002Seed.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -115,7 +121,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration formV0002Seed')
     await formV0002Seed.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -125,7 +130,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration bookV0003Seed')
     await bookV0003Seed.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -135,7 +139,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration bookV0004Seed')
     await bookV0004Seed.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -145,8 +148,124 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    console.log('Intégration bookV0005Seed')
     await bookV0005Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0003Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0006Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0004Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0007Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0008Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await absenceV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0005Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0009Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0010Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0006Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0011Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0012Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0013Seed.run()
         .then(async () => {
             await prisma.$disconnect()
         })

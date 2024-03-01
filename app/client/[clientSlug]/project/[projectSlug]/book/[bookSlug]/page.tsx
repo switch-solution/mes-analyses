@@ -16,7 +16,8 @@ export default async function Page({ params }: { params: { clientSlug: string, p
             <div className="lg:h-full lg:w-3/4">
                 {components.map(component =>
                     <div key={`${component.chapterLevel_1}.${component.chapterLevel_2}.${component.chapterLevel_3}`} id={`${component.chapterLevel_1}.${component.chapterLevel_2}.${component.chapterLevel_3}`}>
-                        <DataTable columns={columns} data={values.filter(value => value.componentSlug === component.slug)} inputSearch="isCode" inputSearchPlaceholder="Chercher par code" href={`/client/${params.clientSlug}/project/${params.projectSlug}/book/${params.bookSlug}/component/${component.slug}/create`} buttonLabel={component.bookLabel} />
+                        <h2 className="ml-2 font-bold">{`${component.chapterLevel_1}.${component.chapterLevel_2}.${component.chapterLevel_3}.${component.label}`}</h2>
+                        <DataTable columns={columns} data={values.filter(value => value.componentSlug === component.slug)} inputSearch="isCode" inputSearchPlaceholder="Chercher par code" href={`/client/${params.clientSlug}/project/${params.projectSlug}/book/${params.bookSlug}/component/${component.slug}/create`} buttonLabel={`Ajouter ${component.label}`} />
                     </div>
 
                 )}

@@ -41,7 +41,7 @@ export class Seed {
         const seedExist = await prisma.prisma_Seed.findFirst({
             where: {
                 name: this.name,
-                status: "completed"
+                status: "completed",
             }
         })
         if (!seedExist) return false
@@ -66,12 +66,12 @@ export class Seed {
         const previous = await prisma.prisma_Seed.findFirst({
             where: {
                 order: this.order - 1,
-                name: this.previousLabel,
-                status: "completed"
+                status: "completed",
+                name: this.previousLabel
             }
         })
         if (!previous) {
-            throw new Error(`Seed ${this.previousLabel} is not completed`)
+            throw new Error(`Seed ${this.name} order ${this.order} error because : ${this.previousLabel} is not completed seed order ${this.order - 1}`)
             return false
         }
         return true

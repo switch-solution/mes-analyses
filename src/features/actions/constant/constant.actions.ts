@@ -9,9 +9,9 @@ import { generateSlug } from "@/src/helpers/generateSlug"
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
 import z, { date } from "zod";
 import { getClientBySlug } from "@/src/query/client.query";
-import { getSoftwareConstantBySlug } from "@/src/query/software.query";
+
 export const createConstant = authentificationActionUserIsEditorClient(SoftwareConstantCreateSchema, async (values: z.infer<typeof SoftwareConstantCreateSchema>, { clientId, userId }) => {
-    const { label, description, dateStart, value, idccCode, softwareLabel, clientSlug, id } = SoftwareConstantCreateSchema.parse(values)
+    const { label, description, level, dateEnd, dateStart, value, idccCode, softwareLabel, clientSlug, id } = SoftwareConstantCreateSchema.parse(values)
     const clientExist = await getClientBySlug(clientSlug)
     if (!clientExist) {
 
@@ -25,21 +25,17 @@ export const createConstant = authentificationActionUserIsEditorClient(SoftwareC
     }
 
     try {
-        const slug = await generateSlug(`${clientSlug}-${softwareLabel}-${idccCode}-${id}-${dateStart.toLocaleDateString()}`)
-
-        const constantExist = await getSoftwareConstantBySlug(slug)
-        if (constantExist) {
-            throw new ActionError("Cette constante existe déjà.")
-        }
-        await prisma.software_Constant.create({
+        await prisma.constant_Legal.create({
             data: {
                 label,
+                level,
+                dateEnd,
                 description,
                 dateStart,
                 idccCode,
                 softwareLabel,
-                id,
-                slug,
+                id: `LOG_${id}`,
+                slug: `${softwareLabel}-LOG_${id}`,
                 value,
                 createdBy: userId,
                 clientId

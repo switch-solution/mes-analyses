@@ -11,22 +11,18 @@ export default async function Page() {
     const invoicesList = await getAllInvoices()
     const invoices = invoicesList.map((invoice) => {
         return {
-            id: invoice.id,
             socialReason: invoice.socialReason,
             status: invoice.status,
-            dateSart: invoice.dateStart.toLocaleDateString(),
+            dateStart: invoice.dateStart.toLocaleDateString(),
             dateEnd: invoice.dateEnd.toLocaleDateString(),
+            slug: invoice.slug,
             amount: `${invoice.amount.toFixed(2)} €`,
-            open: invoice.id,
-            edit: invoice.id,
-            delete: invoice.id,
-
         }
     })
 
     return (
         <div className="container mx-auto py-10">
-            <DataTable columns={columns} data={invoices} href={`/`} hrefToCreate={`/administrator/invoice/create`} searchPlaceholder="Chercher par client" inputSearch="socialReason" />
+            <DataTable columns={columns} data={invoices} inputSearch="status" inputSearchPlaceholder="Chercher par status" href={`/administrator/invoice/create`} buttonLabel="Créer une nouvelle facture" />
         </div>
     )
 }

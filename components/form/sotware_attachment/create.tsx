@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { StandardAttachmentCreateSchema } from '@/src/helpers/definition';
-import { createStandardAttachment } from '@/src/features/actions/software_Attachment/software_attachment.actions'
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import type { getMySoftware } from "@/src/query/user.query"
@@ -43,7 +42,6 @@ export default function CreateStandardAttchment({ clientSlug, softwares }: { cli
     })
     const onSubmit = async (data: z.infer<typeof StandardAttachmentCreateSchema>) => {
         try {
-            await createStandardAttachment(data)
         } catch (err) {
             console.log(err)
             throw new Error("Erreur lors de la création de la rubrique.")

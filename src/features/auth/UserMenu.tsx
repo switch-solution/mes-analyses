@@ -79,6 +79,14 @@ export const UserMenu = async () => {
                 </MenubarContent>
             </MenubarMenu>
             <MenubarMenu>
+                <MenubarTrigger>Administration</MenubarTrigger>
+                <MenubarContent>
+                    <MenubarItem>
+                        <Link href={`/administrator/`}>Ouvrir</Link>
+                    </MenubarItem>
+                </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
                 <MenubarTrigger>Profil</MenubarTrigger>
                 <MenubarContent>
                     <MenubarItem>

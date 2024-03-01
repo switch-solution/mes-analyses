@@ -32,7 +32,7 @@ export type Software = {
     name: string
 }
 
-type Scope = 'client' | 'dsn' | 'standardAttachment' | 'constant' | 'book' | 'standardComponent' | 'softwareItem' | 'chapter' | 'project' | 'user' | 'software' | 'contact' | 'invitation' | 'bookToProject' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'chapterStandardComposant' | 'invoice' | 'editor'
+type Scope = 'client' | 'dsn' | 'administrator' | 'standardAttachment' | 'constant' | 'book' | 'standardComponent' | 'softwareItem' | 'chapter' | 'project' | 'user' | 'software' | 'contact' | 'invitation' | 'bookToProject' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'standardComposantSelectionOption' | 'standardComposantInput' | 'chapterStandardComposant' | 'invoice' | 'editor'
 export type Logger = {
     level: "info" | "warning" | "error" | "security"
     message: string,

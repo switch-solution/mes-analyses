@@ -1026,5 +1026,5 @@ class FormV0001Seed extends Seed {
     }
 }
 
-export const formV0001Seed = new FormV0001Seed("FORM_V0001", "Création des formulaires", 4, "BOOK_V0001")
+export const formV0001Seed = new FormV0001Seed("FORM_V0001", "Création des formulaires", 3, "IDCC_V0001")
 

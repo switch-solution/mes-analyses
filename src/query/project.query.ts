@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { userIsValid } from "./security.query";
 import { getClientBySiren } from "./client.query";
 import { syncGenerateSlug } from "@/src/helpers/generateSlug";
+import { getCountComponent } from "@/src/query/project_component.query";
 export const getMyProjects = async () => {
     try {
         const userId = await userIsValid()
@@ -145,27 +146,34 @@ export const copyBook = async (projectSlug: string) => {
                 }
             }
         })
-        let incrementInputSlug = 0
-        await prisma.project_Component.createMany({
-            data: softwaresComponent.map(component => {
-                let slug = `${project.slug}-champ-${incrementInputSlug + 1}-${component.slug}`
-                return {
-                    label: component.label,
-                    description: component.description,
-                    type: component.type,
-                    buttonLabel: component.buttonLabel,
-                    clientId: component.clientId,
-                    bookLabel: component.SoftwareChapterSoftwareComponent[0].bookLabel,
-                    chapterLevel_1: component.SoftwareChapterSoftwareComponent[0].level_1,
-                    chapterLevel_2: component.SoftwareChapterSoftwareComponent[0].level_2,
-                    chapterLevel_3: component.SoftwareChapterSoftwareComponent[0].level_3,
-                    createdBy: project.createdBy,
-                    projectSoftwareLabel: project.softwareLabel,
-                    slug,
-                    projectLabel: project.label
-                }
-            })
+        let incrementInputSlug = await getCountComponent()
+        const datas = softwaresComponent.map(component => {
+            let slug = `champ-${incrementInputSlug += 1}-${component.slug}`
+            return {
+                label: component.label,
+                description: component.description,
+                type: component.type,
+                buttonLabel: component.buttonLabel,
+                clientId: component.clientId,
+                bookLabel: component.SoftwareChapterSoftwareComponent[0].bookLabel,
+                chapterLevel_1: component.SoftwareChapterSoftwareComponent[0].level_1,
+                chapterLevel_2: component.SoftwareChapterSoftwareComponent[0].level_2,
+                chapterLevel_3: component.SoftwareChapterSoftwareComponent[0].level_3,
+                createdBy: project.createdBy,
+                isForm: component.isForm,
+                isImage: component.isImage,
+                isTextArea: component.isTextArea,
+                projectSoftwareLabel: project.softwareLabel,
+                slug,
+                projectLabel: project.label
+            }
         })
+
+        await prisma.project_Component.createMany({
+            data: datas
+        })
+
+
 
         await prisma.project_Input.createMany({
             data: softwaresInput.map(input => {

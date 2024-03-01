@@ -16,6 +16,7 @@ export const extractDsn = async (path: string) => {
         const idcc = dsnParser.workContract.map((contract) => contract.idcc).flat(1)
         const job = dsnParser.smartExtraction.employees.map((employee) => employee.workContracts.map((contract) => contract.employmentLabel)).flat(3)
         const sender = dsnParser.sender
+        const mutual = dsnParser.mutual
         const datas = {
             dsn,
             society,
@@ -24,7 +25,8 @@ export const extractDsn = async (path: string) => {
             contributionFund,
             idcc,
             job,
-            sender
+            sender,
+            mutual
         }
         return datas
     } catch (err) {

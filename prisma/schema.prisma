@@ -173,10 +173,11 @@ model Software {
   Software_Component Software_Component[]
   SoftwareItems      Software_Items[]
   UserSoftware       UserSoftware[]
-  Software_Constant  Software_Constant[]
   Software_Setting   Software_Setting[]
   Project            Project[]
   Software_Task      Software_Task[]
+  Constant_Legal     Constant_Legal[]
+  Software_Absence   Software_Absence[]
 
   @@id([label, clientId])
 }
@@ -272,6 +273,9 @@ model Software_Component {
   createdBy                        String
   clientId                         String
   version                          Int
+  isForm                           Boolean?                           @default(false)
+  isTextArea                       Boolean?                           @default(false)
+  isImage                          Boolean?                           @default(false)
   buttonLabel                      String                             @default("Ajouter")
   slug                             String                             @unique
   status                           String
@@ -432,6 +436,7 @@ model Project {
   Project_Constant   Project_Constant[]
   Project_Items      Project_Items[]
   Project_Task       Project_Task[]
+  Constant_Legal     Constant_Legal[]
 
   @@id([clientId, softwareLabel, label])
 }
@@ -515,6 +520,9 @@ model Project_Component {
   chapterLevel_1       Int
   chapterLevel_2       Int
   chapterLevel_3       Int
+  isForm               Boolean?         @default(false)
+  isTextArea           Boolean?         @default(false)
+  isImage              Boolean?         @default(false)
   Project_Input        Project_Input[]
 
   @@id([bookLabel, projectLabel, clientId, chapterLevel_1, chapterLevel_2, chapterLevel_3, projectSoftwareLabel])
@@ -623,67 +631,73 @@ model Dsn {
 }
 
 model Dsn_Establishment {
-  nic                 String
-  apet                String
-  address1            String
-  address2            String?
-  address3            String?
-  codeZip             String
-  city                String
-  country             String                 @default("FR")
-  createdAt           DateTime               @default(now())
-  updatedAt           DateTime               @updatedAt
-  createdBy           String
-  Dsn                 Dsn                    @relation(fields: [dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction], references: [siren, nic, month, version, fraction])
-  dsnSiren            String
-  dsnNic              String
-  dsnMonth            String
-  dsnVersion          String
-  dsnFraction         String
-  DsnContributionFund Dsn_ContributionFund[]
-  Dsn_RateAt          Dsn_RateAt[]
+  nic                  String
+  apet                 String
+  address1             String
+  address2             String?
+  address3             String?
+  codeZip              String
+  city                 String
+  country              String                 @default("FR")
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  createdBy            String
+  Dsn                  Dsn                    @relation(fields: [dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction], references: [siren, nic, month, version, fraction])
+  dsnSiren             String
+  dsnNic               String
+  dsnMonth             String
+  dsnVersion           String
+  dsnFraction          String
+  clientId             String
+  siret                String
+  Dsn_RateAt           Dsn_RateAt[]
+  Dsn_ContributionFund Dsn_ContributionFund[]
 
-  @@id([nic, dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction])
+  @@id([clientId, siret])
 }
 
 model Dsn_RateAt {
-  code                        String
-  rate                        String
-  createdAt                   DateTime          @default(now())
-  updatedAt                   DateTime          @updatedAt
-  createdBy                   String
-  Dsn_Establishment           Dsn_Establishment @relation(fields: [dsnEstablishmentNic, dsnEstablishmentDsnSiren, dsnEstablishmentDsnNic, dsnEstablishmentDsnMonth, dsnEstablishmentDsnVersion, dsnEstablishmentDsnFraction], references: [nic, dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction])
-  dsnEstablishmentNic         String
-  dsnEstablishmentDsnSiren    String
-  dsnEstablishmentDsnNic      String
-  dsnEstablishmentDsnMonth    String
-  dsnEstablishmentDsnVersion  String
-  dsnEstablishmentDsnFraction String
+  code              String
+  rate              String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  createdBy         String
+  siret             String
+  clientId          String
+  Dsn_Etablissement Dsn_Establishment @relation(fields: [clientId, siret], references: [clientId, siret])
 
-  @@id([code, dsnEstablishmentNic, dsnEstablishmentDsnSiren, dsnEstablishmentDsnNic, dsnEstablishmentDsnMonth, dsnEstablishmentDsnVersion, dsnEstablishmentDsnFraction])
+  @@id([code, siret, clientId])
 }
 
 model Dsn_ContributionFund {
-  code                        String
-  name                        String
-  address1                    String
-  address2                    String?
-  address3                    String?
-  city                        String
-  codeZip                     String
-  country                     String            @default("FR")
-  createdAt                   DateTime          @default(now())
-  updatedAt                   DateTime          @updatedAt
-  createdBy                   String
-  Dsn_Establishment           Dsn_Establishment @relation(fields: [dsnEstablishmentNic, dsnEstablishmentDsnSiren, dsnEstablishmentDsnNic, dsnEstablishmentDsnMonth, dsnEstablishmentDsnVersion, dsnEstablishmentDsnFraction], references: [nic, dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction])
-  dsnEstablishmentNic         String
-  dsnEstablishmentDsnSiren    String
-  dsnEstablishmentDsnNic      String
-  dsnEstablishmentDsnMonth    String
-  dsnEstablishmentDsnVersion  String
-  dsnEstablishmentDsnFraction String
+  code              String
+  name              String
+  address1          String
+  address2          String?
+  address3          String?
+  city              String
+  codeZip           String
+  country           String            @default("FR")
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  createdBy         String
+  siret             String
+  clientId          String
+  Dsn_Etablissement Dsn_Establishment @relation(fields: [clientId, siret], references: [clientId, siret])
 
-  @@id([code, dsnEstablishmentNic, dsnEstablishmentDsnSiren, dsnEstablishmentDsnNic, dsnEstablishmentDsnMonth, dsnEstablishmentDsnVersion, dsnEstablishmentDsnFraction])
+  @@id([code, siret, clientId])
+}
+
+model Dsn_Mutual {
+  contractId String
+  organisme  String?
+  delegate   String?
+  covererd   String?
+  techId     String?
+  clientId   String
+  siren      String
+
+  @@id([contractId, clientId, siren])
 }
 
 model Dsn_Idcc {
@@ -698,8 +712,9 @@ model Dsn_Idcc {
   dsnMonth    String
   dsnVersion  String
   dsnFraction String
+  clientId    String
 
-  @@id([code, dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction])
+  @@id([code, dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction, clientId])
 }
 
 model Dsn_Job {
@@ -713,8 +728,9 @@ model Dsn_Job {
   dsnMonth    String
   dsnVersion  String
   dsnFraction String
+  clientId    String
 
-  @@id([label, dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction])
+  @@id([label, dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction, clientId])
 }
 
 model Setting {
@@ -774,8 +790,9 @@ model Logger {
   level                String
   message              String
   scope                String
-  timestamp            DateTime @default(now())
+  createdAt            DateTime @default(now())
   createdBy            String
+  isArchived           Boolean  @default(false)
   clientId             String?
   userId               String?
   client               Client?  @relation(fields: [clientId], references: [siren])
@@ -872,38 +889,26 @@ model Project_Items {
 }
 
 model Constant_Legal {
-  id          String
-  label       String
-  description String?
-  idccCode    String   @default("9999")
-  Idcc        Idcc?    @relation(fields: [idccCode], references: [code])
-  value       String
-  dateStart   DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String
-  slug        String   @unique
-
-  @@id([id, dateStart])
-}
-
-model Software_Constant {
   id            String
+  level         String
   label         String
   description   String?
-  idccCode      String   @default("9999")
-  Idcc          Idcc?    @relation(fields: [idccCode], references: [code])
+  idccCode      String    @default("9999")
+  Idcc          Idcc?     @relation(fields: [idccCode], references: [code])
   value         String
-  dateStart     DateTime @default(now())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  dateStart     DateTime  @default(now())
+  dateEnd       DateTime
+  softwareLabel String?
+  clientId      String?
+  software      Software? @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+  projectLabel  String?
+  project       Project?  @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   createdBy     String
-  slug          String   @unique
-  softwareLabel String
-  clientId      String
-  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+  slug          String    @unique
 
-  @@id([id, dateStart, softwareLabel, clientId])
+  @@id([id, level, dateStart, dateEnd])
 }
 
 model Project_Constant {
@@ -927,16 +932,15 @@ model Project_Constant {
 }
 
 model Idcc {
-  code              String              @id
-  label             String
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  createdBy         String              @default("System")
-  SoftwareItems     Software_Items[]
-  ConstantLegal     Constant_Legal[]
-  ProjectConstant   Project_Constant[]
-  Project_Items     Project_Items[]
-  Software_Constant Software_Constant[]
+  code            String             @id
+  label           String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  createdBy       String             @default("System")
+  SoftwareItems   Software_Items[]
+  ConstantLegal   Constant_Legal[]
+  ProjectConstant Project_Constant[]
+  Project_Items   Project_Items[]
 }
 
 model Validation {
@@ -1116,4 +1120,30 @@ model Project_Task {
   User          User     @relation(fields: [owner], references: [id])
 
   @@id([label, clientId, projectLabel, softwareLabel, owner])
+}
+
+model Absence {
+  label            String   @id
+  code             String   @unique
+  description      String
+  isSocialSecurity Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  createdBy        String   @default("System")
+}
+
+model Software_Absence {
+  label            String
+  code             String
+  description      String
+  isSocialSecurity Boolean  @default(false)
+  softwareLabel    String
+  slug             String   @unique
+  clientId         String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  createdBy        String   @default("System")
+  Software         Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+
+  @@id([label, code, clientId, softwareLabel])
 }

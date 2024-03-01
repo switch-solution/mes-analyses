@@ -45,19 +45,10 @@ class LegalV0001Seed extends Seed {
                         label: 'Plafond de la sécurité sociale',
                         description: 'Plafond de la sécurité sociale',
                         idccCode: '9999',
-                        dateStart: new Date('2024-01-01'),
+                        dateStart: new Date('2024-01-01 00:00:00.000'),
                         slug: 'PLSS_2024_01'
                     },
-                    update: {
-                        id: 'STD_0001',
-                        label: 'Plafond de la sécurité sociale',
-                        description: 'Plafond de la sécurité sociale',
-                        idccCode: '9999',
-                        value: '3864',
-                        dateStart: new Date('2024-01-01'),
-                        slug: 'PLSS_2024_01'
-
-                    },
+                    update: {},
                     create: {
                         id: 'STD_0001',
                         label: 'Plafond de la sécurité sociale',
@@ -65,9 +56,10 @@ class LegalV0001Seed extends Seed {
                         idccCode: '9999',
                         value: '3864',
                         createdBy: 'system',
-                        dateStart: new Date('2024-01-01'),
-                        slug: 'PLSS_2024_01'
-
+                        dateStart: new Date('2024-01-01 00:00:00.000'),
+                        dateEnd: new Date('2024-12-31'),
+                        level: 'Standard',
+                        slug: 'STD_001_PLSS'
                     }
 
                 })
@@ -81,25 +73,18 @@ class LegalV0001Seed extends Seed {
                         dateStart: new Date('2024-01-01'),
                         slug: 'SMIC_2024_01'
                     },
-                    update: {
-                        id: 'STD_0002',
-                        label: 'SMIC horaire brut',
-                        description: 'SMIC horaire brut',
-                        idccCode: '9999',
-                        value: '11.65',
-                        dateStart: new Date('2024-01-01'),
-                        slug: 'SMIC_2024_01'
-
-                    },
+                    update: {},
                     create: {
                         id: 'STD_0002',
+                        level: 'Standard',
                         label: 'SMIC horaire brut',
                         description: 'SMIC horaire brut',
                         idccCode: '9999',
                         value: '11.65',
                         createdBy: 'system',
                         dateStart: new Date('2024-01-01'),
-                        slug: 'SMIC_2024_01'
+                        dateEnd: new Date('2024-12-31'),
+                        slug: 'STD_002_SMIC'
                     }
 
                 })
@@ -113,4 +98,4 @@ class LegalV0001Seed extends Seed {
         }
     }
 }
-export const legalV0001Seed = new LegalV0001Seed("LEGAL_V0001", "SMIC et plafond SS 2024", 5, "FORM_V0001")
+export const legalV0001Seed = new LegalV0001Seed("LEGAL_V0001", "SMIC et plafond SS 2024", 5, "BOOK_V0001")

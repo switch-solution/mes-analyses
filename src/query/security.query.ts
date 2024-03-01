@@ -28,7 +28,16 @@ export const userIsAdminClient = async (clientSlug: string) => {
                 isAdministrator: true
             }
         })
-        if (!isAdmin) throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        if (!isAdmin) {
+            const log: Logger = {
+                level: "security",
+                message: `L'utilisateur essaye d'accéder à la page admin client sans les droits`,
+                scope: "client",
+            }
+            await createLog(log)
+            await banUser(await userIsValid())
+            throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        }
         return {
             userId,
             clientId: client.siren
@@ -55,7 +64,16 @@ export const userIsEditorClient = async (clientSlug: string) => {
                 isEditor: true
             }
         })
-        if (!isAdmin) throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        if (!isAdmin) {
+            const log: Logger = {
+                level: "security",
+                message: `L'utilisateur essaye d'accéder de réaliser une opération d'édition sur le client sans les droits`,
+                scope: "client",
+            }
+            await createLog(log)
+            await banUser(await userIsValid())
+            throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        }
         return {
             userId,
             clientId: client.siren
@@ -79,14 +97,22 @@ export const userIsAdminSystem = async () => {
         })
         if (!user) {
             throw new Error("L'utilisateur n'existe pas")
+
         }
         if (user.email !== env.ADMIN_EMAIL) {
+            const log: Logger = {
+                level: "security",
+                message: `L'utilisateur essaye d'accéder à la page admin sans les droits`,
+                scope: "administrator",
+            }
+            await createLog(log)
+            await banUser(await userIsValid())
             throw new Error("L'utilisateur n'est pas administrateur du système.")
         }
         return true
     } catch (err) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des données de la table UserClient")
+        throw new Error("L'utilisateur n'est pas administrateur du système.")
     }
 
 }
@@ -106,17 +132,14 @@ export const userIsValid = async () => {
             where: {
                 email: session.user.email
             }
-
         })
         if (!user) {
-            await prisma.logger.create({
-                data: {
-                    level: "error",
-                    message: `Tentative de connexion avec un email ${session.user.email} qui n'existe pas`,
-                    scope: "user",
-                    createdBy: "system"
-                }
-            })
+            const log: Logger = {
+                level: "error",
+                message: `Erreur de connexion de l'utilisateur`,
+                scope: "client",
+            }
+            await createLog(log)
             throw new ActionError("L'utilisateur n'existe pas")
         }
         const userIsBlocked = await prisma.userOtherData.findFirst({
@@ -167,14 +190,12 @@ export const userIsEditorProject = async (projectSlug: string) => {
         if (!userProjects) throw new ActionError("Vous n'avez pas de projet")
         const userExistInThisProject = userProjects.find((project) => project.project.slug === projectSlug)
         if (!userExistInThisProject) {
-            await prisma.logger.create({
-                data: {
-                    level: "security",
-                    message: `L'utilisateur essaye d'accéder au projet ${projectSlug} sans les droits`,
-                    scope: "project",
-                    createdBy: "system"
-                }
-            })
+            const log: Logger = {
+                level: "security",
+                message: `Tentative d'accès au projet ${projectSlug} sans les droits`,
+                scope: "project",
+            }
+            await createLog(log)
             await banUser(await userIsValid())
             throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
         }
@@ -213,14 +234,12 @@ export const userIsAdminProject = async (projectSlug: string) => {
         if (!userProjects) throw new ActionError("Vous n'avez pas de projet")
         const userExistInThisProject = userProjects.find((project) => project.project.slug === projectSlug)
         if (!userExistInThisProject) {
-            await prisma.logger.create({
-                data: {
-                    level: "security",
-                    message: `L'utilisateur essaye d'accéder au projet ${projectSlug} sans les droits`,
-                    scope: "project",
-                    createdBy: "system"
-                }
-            })
+            const log: Logger = {
+                level: "security",
+                message: `Tentative d'accès au projet ${projectSlug} sans les droits`,
+                scope: "project",
+            }
+            await createLog(log)
             await banUser(await userIsValid())
             throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
         }
@@ -264,8 +283,16 @@ export const userIsAuthorizeInThisProject = async (projectSlug: string) => {
                 projectLabel: projectsExist.label
             }
         })
-
-
+        if (!userProject) {
+            const log: Logger = {
+                level: "security",
+                message: `Tentative d'accès au projet ${projectSlug} sans les droits`,
+                scope: "project",
+            }
+            await createLog(log)
+            await banUser(await userIsValid())
+            throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        }
         return {
             userId,
             clientId: projectsExist.clientId,

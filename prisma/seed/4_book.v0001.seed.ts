@@ -222,4 +222,4 @@ class BookV0001Seed extends Seed {
         }
     }
 }
-export const bookV0001Seed = new BookV0001Seed("BOOK_V0001", "Cahier entreprise et établissement", 3, "IDCC_V0001")
+export const bookV0001Seed = new BookV0001Seed("BOOK_V0001", "Cahier entreprise et établissement", 4, "FORM_V0001")
