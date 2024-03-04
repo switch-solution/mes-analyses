@@ -11,7 +11,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     return (
         <div className="flex flex-col flex-wrap	 w-full h-full">
             <div className="lg:h-full lg:w-1/4">
-                <Summary chapters={chapters} />
+                <Summary chapters={chapters} clientSlug={params.clientSlug} projectSlug={params.projectSlug} />
             </div>
             <div className="lg:h-full lg:w-3/4">
                 {components.map(component =>

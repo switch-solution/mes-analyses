@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { getChapterByBookSlug } from "@/src/query/project_book.query"
 import { Button } from "@/components/ui/button";
-export default function Summary({ chapters }: { chapters: getChapterByBookSlug }) {
+export default function Summary({ chapters, clientSlug, projectSlug }: { chapters: getChapterByBookSlug, clientSlug: string, projectSlug: string }) {
 
     const level_1 = chapters.filter(chapter =>
         chapter.level_1 >= 1 && chapter.level_2 === 0 && chapter.level_3 === 0
@@ -48,8 +48,12 @@ export default function Summary({ chapters }: { chapters: getChapterByBookSlug }
 
                 })}
                 <li>
+                    <Link href={`/client/${clientSlug}/project/${projectSlug}/book`}>Retour à la liste des cahiers</Link>
+                </li>
+                <li>
                     <Button>Valider le cahier</Button>
                 </li>
+
             </ul >
         </div>
 

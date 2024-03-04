@@ -257,9 +257,10 @@ export const ContactSchema = z.object({
 
 })
 
-export const ChapterStandardComposantSchema = z.object({
-    chapterId: z.string(),
-    standardComposantId: z.string(),
+export const ChapterStandardComponenttSchema = z.object({
+    chapterSlug: z.string(),
+    standardComposantLabel: z.string(),
+    clientSlug: z.string(),
 
 })
 
@@ -333,6 +334,12 @@ export const EdidStdInputSchema = z.object({
     readonly: z.boolean().optional(),
     label: z.string().min(1, { message: "Le label est obligatoire." }),
     dsnType: z.string().optional(),
+    otherData: z.string().optional(),
+    formSource: z.string().optional(),
+    inputSource: z.string().optional(),
+    isCode: z.boolean().optional(),
+    isDescription: z.boolean().optional(),
+    isLabel: z.boolean().optional(),
 
 })
 

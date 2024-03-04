@@ -216,6 +216,7 @@ CREATE TABLE "ChapterForm" (
     "level_1" INTEGER NOT NULL,
     "level_2" INTEGER NOT NULL,
     "level_3" INTEGER NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 1,
     "bookLabel" TEXT NOT NULL,
     "formTitle" TEXT NOT NULL,
     "formType" TEXT NOT NULL,
@@ -353,6 +354,7 @@ CREATE TABLE "SoftwareChapterSoftwareComponent" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 1,
     "componentLabel" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
@@ -750,6 +752,7 @@ CREATE TABLE "SandboxValues" (
 -- CreateTable
 CREATE TABLE "Software_Items" (
     "id" TEXT NOT NULL,
+    "idSoftware" TEXT,
     "slug" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
@@ -949,14 +952,16 @@ CREATE TABLE "Form_Input" (
 
 -- CreateTable
 CREATE TABLE "Input" (
-    "name" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "typeHtml" TEXT NOT NULL,
+    "isDsn" BOOLEAN NOT NULL DEFAULT false,
+    "isOtherData" BOOLEAN NOT NULL DEFAULT false,
     "label" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
 
-    CONSTRAINT "Input_pkey" PRIMARY KEY ("type")
+    CONSTRAINT "Input_pkey" PRIMARY KEY ("code")
 );
 
 -- CreateTable
@@ -1062,6 +1067,32 @@ CREATE TABLE "Absence" (
 );
 
 -- CreateTable
+CREATE TABLE "Item" (
+    "id" TEXT NOT NULL,
+    "nature" TEXT NOT NULL,
+    "label" TEXT,
+    "type" TEXT NOT NULL,
+    "baseType" TEXT,
+    "base" TEXT,
+    "rateType" TEXT,
+    "rate" TEXT,
+    "coeffType" TEXT,
+    "coeff" TEXT,
+    "amountType" TEXT,
+    "amount" TEXT,
+    "employeeContributionType" TEXT,
+    "employerContributionType" TEXT,
+    "employerContribution" TEXT,
+    "employeeContribution" TEXT,
+    "comment" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+
+    CONSTRAINT "Item_pkey" PRIMARY KEY ("id","type")
+);
+
+-- CreateTable
 CREATE TABLE "Software_Absence" (
     "label" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -1075,6 +1106,19 @@ CREATE TABLE "Software_Absence" (
     "createdBy" TEXT NOT NULL DEFAULT 'System',
 
     CONSTRAINT "Software_Absence_pkey" PRIMARY KEY ("label","code","clientId","softwareLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Default_Setting" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+
+    CONSTRAINT "Default_Setting_pkey" PRIMARY KEY ("id","label")
 );
 
 -- CreateIndex

@@ -251,6 +251,7 @@ model ChapterForm {
   level_1     Int
   level_2     Int
   level_3     Int
+  order       Int      @default(1)
   bookLabel   String
   Chapter     Chapter  @relation(fields: [bookLabel, level_1, level_2, level_3], references: [bookLabel, level_1, level_2, level_3])
   Form        Form     @relation(fields: [formTitle, formType, formVersion], references: [title, type, version])
@@ -400,6 +401,7 @@ model SoftwareChapterSoftwareComponent {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   createdBy          String
+  order              Int                @default(1)
   Software_Chapter   Software_Chapter   @relation(fields: [clientId, bookLabel, softwareLabel, level_1, level_2, level_3], references: [clientId, bookLabel, bookSoftwareLabel, level_1, level_2, level_3], onDelete: Cascade)
   Software_Component Software_Component @relation(fields: [componentLabel, softwareLabel, clientId, componentType], references: [label, softwareLabel, clientId, type], onDelete: Cascade)
   componentLabel     String
@@ -820,7 +822,8 @@ model SandboxValues {
 }
 
 model Software_Items {
-  id                   String
+  id                   String // id de l'item standard ou id du logiciel si création par l'utilisateur
+  idSoftware           String? // id du logiciel
   slug                 String   @unique
   software             Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
   softwareLabel        String
@@ -1028,12 +1031,14 @@ model Form_Input {
 }
 
 model Input {
-  name      String
-  type      String   @id
-  label     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy String
+  code        String   @id
+  typeHtml    String
+  isDsn       Boolean  @default(false)
+  isOtherData Boolean  @default(false)
+  label       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
 }
 
 model Prisma_Seed {
@@ -1132,6 +1137,31 @@ model Absence {
   createdBy        String   @default("System")
 }
 
+model Item {
+  id                       String
+  nature                   String
+  label                    String?
+  type                     String
+  baseType                 String?
+  base                     String?
+  rateType                 String?
+  rate                     String?
+  coeffType                String?
+  coeff                    String?
+  amountType               String?
+  amount                   String?
+  employeeContributionType String?
+  employerContributionType String?
+  employerContribution     String?
+  employeeContribution     String?
+  comment                  String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  createdBy                String
+
+  @@id([id, type])
+}
+
 model Software_Absence {
   label            String
   code             String
@@ -1146,4 +1176,16 @@ model Software_Absence {
   Software         Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
 
   @@id([label, code, clientId, softwareLabel])
+}
+
+model Default_Setting {
+  id          String
+  label       String
+  description String
+  value       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+
+  @@id([id, label])
 }

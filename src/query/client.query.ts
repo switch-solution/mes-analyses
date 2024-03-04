@@ -4,6 +4,7 @@ import { userIsAdminSystem } from "./security.query";
 import { getAuthSession } from "@/lib/auth";
 import { Prisma } from '@prisma/client'
 import { th } from "@faker-js/faker";
+import { getMySoftware } from "./user.query";
 
 export const getCountClientProjects = async (clientSlug: string) => {
     try {
@@ -59,6 +60,26 @@ export const getCountMySoftware = async (clientSlug: string) => {
         console.error(err)
     }
 
+
+}
+
+export const getComponentFilterByUser = async (clientSlug: string) => {
+    try {
+        const mySoftware = await getMySoftware()
+        const clientExist = await getClientBySlug(clientSlug)
+        const countComponents = await prisma.software_Component.count({
+            where: {
+                softwareLabel: {
+                    in: mySoftware.map(software => software.softwareLabel)
+                },
+                clientId: clientExist.siren
+            }
+        })
+        return countComponents
+    } catch (err) {
+        console.error(err)
+
+    }
 
 }
 

@@ -25,13 +25,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export const columns: ColumnDef<StdBook>[] = [
-    {
-        accessorKey: "slug",
-        header: "id",
-    },
+
     {
         accessorKey: "label",
-        header: "Libellé",
+        cell: ({ row }) => {
+            const book = row.original
+            return <Link href={`/client/${book.clientSlug}/editor/book/${book.slug}`}>{book.label}</Link>
+
+        }
     },
     {
         accessorKey: "description",

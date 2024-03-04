@@ -31,7 +31,14 @@ import {
 export const columns: ColumnDef<StdBook>[] = [
     {
         accessorKey: "label",
-        header: "Libellé",
+        cell: ({ row }) => {
+            const book = row.original
+            return (
+                <Link href={`/client/${book.clientSlug}/project/${book.projectSlug}/book/${book.slug}/`}>
+                    {book.label}
+                </Link>
+            )
+        }
     },
     {
         accessorKey: "description",

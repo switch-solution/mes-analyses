@@ -41,7 +41,6 @@ export const columns: ColumnDef<StdChapter>[] = [
         id: "actions",
         cell: ({ row }) => {
             const chapter = row.original
-
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -55,6 +54,7 @@ export const columns: ColumnDef<StdChapter>[] = [
                         <DropdownMenuSeparator />
                         <DropdownMenuItem><Link href={`/client/${chapter.clientSlug}/editor/book/${chapter.bookSlug}/`}>Ouvrir</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={`/client/${chapter.clientSlug}/editor/book/${chapter.bookSlug}/chapter/${chapter.slug}/edit`}>Editer</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${chapter.clientSlug}/editor/book/${chapter.bookSlug}/chapter/${chapter.slug}/associate`}>Associer des chapitres</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={`/client/${chapter.clientSlug}/editot/book/${chapter.bookSlug}/${chapter.slug}/delete`}>Supprimer</Link></DropdownMenuItem>
 
                     </DropdownMenuContent>

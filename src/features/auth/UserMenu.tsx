@@ -14,11 +14,12 @@ import {
     MenubarTrigger,
 } from "@/components/ui/menubar"
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/src/theme/ThemeToggle";
+import UserAvatar from "@/components/layout/userAvatar";
 import Link from "next/link";
 import { userRole } from '@/src/query/security.query';
 import { getMyClientActive } from "@/src/query/client.query";
 export const UserMenu = async () => {
-    const role = await userRole()
     const clientSlug = await getMyClientActive()
     return (
         <Menubar>
@@ -36,7 +37,7 @@ export const UserMenu = async () => {
                     </MenubarItem>
                     <MenubarSeparator />
                     <MenubarSub>
-                        <MenubarSubTrigger>Actions</MenubarSubTrigger>
+                        <MenubarSubTrigger>Créer</MenubarSubTrigger>
                         <MenubarSubContent>
                             <MenubarItem><Link href={`/client/${clientSlug}/administrator/software`}>Logiciels</Link></MenubarItem>
                             <MenubarItem><Link href={`/client/${clientSlug}/administrator/user`}>Utilisateur</Link></MenubarItem>
@@ -44,24 +45,16 @@ export const UserMenu = async () => {
                         </MenubarSubContent>
                     </MenubarSub>
                     <MenubarSeparator />
-                </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-                <MenubarTrigger>Editeur</MenubarTrigger>
-                <MenubarContent>
-                    <MenubarItem>
-                        <Link href={`/client/${clientSlug}/editor`}>Ouvrir</Link>
-                    </MenubarItem>
                     <MenubarSeparator />
                     <MenubarSub>
-                        <MenubarSubTrigger>Actions</MenubarSubTrigger>
+                        <MenubarSubTrigger>Editeur</MenubarSubTrigger>
                         <MenubarSubContent>
+                            <MenubarItem><Link href={`/client/${clientSlug}/editor/`}>Consulter</Link></MenubarItem>
                             <MenubarItem><Link href={`/client/${clientSlug}/editor/book`}>Livres</Link></MenubarItem>
                             <MenubarItem><Link href={`/client/${clientSlug}/editor/attachment`}>PJ</Link></MenubarItem>
                             <MenubarItem><Link href={`/client/${clientSlug}/editor/constant`}>Constante</Link></MenubarItem>
                             <MenubarItem><Link href={`/client/${clientSlug}/editor/item`}>Rubriques</Link></MenubarItem>
                             <MenubarItem><Link href={`/client/${clientSlug}/editor/component`}>Composant</Link></MenubarItem>
-
                         </MenubarSubContent>
                     </MenubarSub>
                     <MenubarSeparator />
@@ -79,14 +72,6 @@ export const UserMenu = async () => {
                 </MenubarContent>
             </MenubarMenu>
             <MenubarMenu>
-                <MenubarTrigger>Administration</MenubarTrigger>
-                <MenubarContent>
-                    <MenubarItem>
-                        <Link href={`/administrator/`}>Ouvrir</Link>
-                    </MenubarItem>
-                </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
                 <MenubarTrigger>Profil</MenubarTrigger>
                 <MenubarContent>
                     <MenubarItem>
@@ -94,6 +79,9 @@ export const UserMenu = async () => {
                     </MenubarItem>
                     <MenubarItem>
                         <MenubarItem><Link href={`/profil/edit`}>Editer</Link></MenubarItem>
+                    </MenubarItem>
+                    <MenubarItem>
+                        <MenubarItem><ThemeToggle /></MenubarItem>
                     </MenubarItem>
                 </MenubarContent>
             </MenubarMenu>

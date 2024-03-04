@@ -29,6 +29,7 @@ export const columns: ColumnDef<StdComponent>[] = [
     {
         accessorKey: "label",
         header: "Libellé",
+        cell: ({ row }) => <Link href={`/client/${row.original.clientSlug}/editor/component/${row.original.slug}`}>{row.getValue("label")}</Link>,
     },
     {
         accessorKey: "description",

@@ -26,15 +26,16 @@ import Link from "next/link"
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import TinyLineChart from "@/components/chart/tinyLineChart"
 import { getStdBookByClientFilterByUserSoftware } from "@/src/query/software_book.query";
+import { getComponentFilterByUser } from "@/src/query/client.query";
 export default async function Page({ params }: { params: { clientSlug: string } }) {
     const isEditor = await userIsEditor(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
-    const countSoftwares = await getCountMySoftware(params.clientSlug)
+    const countSoftwares = await getComponentFilterByUser(params.clientSlug)
     const books = await getStdBookByClientFilterByUserSoftware(params.clientSlug)
     const items = [
         {
             title: "Cahiers",
-            description: "Gérez vos cahiers.",
+            description: (<Link href={`/client/${params.clientSlug}/editor/book`}>Voir vos cahiers</Link>),
             header: (<Table>
                 <TableHeader>
                     <TableRow>
@@ -61,8 +62,8 @@ export default async function Page({ params }: { params: { clientSlug: string } 
             icon: <IconClipboardCopy className="h-4 w-4 text-neutral-500" />,
         },
         {
-            title: "Nombre de logciels",
-            description: "Nombre de logiciels créés pour ce client.",
+            title: "Nombre de composants",
+            description: (<Link href={`/client/${params.clientSlug}/editor/component`}>Voir les composants</Link>),
             header: <span className="flex flex-col justify-center items-center h-full text-6xl">{countSoftwares}</span>,
             className: "md:col-span-1",
             icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,

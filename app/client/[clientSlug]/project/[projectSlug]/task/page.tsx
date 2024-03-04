@@ -1,6 +1,7 @@
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import { getMyProjects } from "@/src/query/project.query";
+import Breadcrumb from "@/components/ui/breadcrumb";
+
 import { userIsAuthorizeInThisProject } from "@/src/query/security.query";
 import { getProjectTask } from "@/src/query/project_task.query";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
@@ -26,6 +27,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     })
     return (
         <div className="container mx-auto py-10">
+            <Breadcrumb />
             <DataTable columns={columns} data={tasks} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/project/create`} buttonLabel="Créer un nouveau projet" />
         </div>
     )

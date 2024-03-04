@@ -30,7 +30,9 @@ export default function CreateStdInput({ clientSlug, componentSlug, type, setInp
             setInputType(undefined)
             setCommand(false)
             const action = await createStdInput(data)
-            console.log(action?.serverError)
+            if (action?.serverError) {
+                console.log(action?.serverError)
+            }
         } catch (err) {
             console.error(err)
         }

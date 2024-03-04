@@ -59,7 +59,7 @@ class FormV0005Seed extends Seed {
                         Form_Input: {
                             create: [{
                                 type: 'text',
-                                otherData: 'ABS_SECURITE_SOCIALE_CODE',
+                                otherData: 'STD_Absence_Sécurité_Sociale_Code',
                                 label: 'Code absence sécurité sociale',
                                 isCode: true,
                                 maxLength: 50,
@@ -72,7 +72,7 @@ class FormV0005Seed extends Seed {
                             },
                             {
                                 type: 'text',
-                                otherData: 'ABS_SECURITE_SOCIALE_LIBELLE',
+                                otherData: 'STD_Absence_Sécurité_Sociale_Libelle',
                                 label: 'Libellé absence sécurité sociale',
                                 isLabel: true,
                                 maxLength: 50,
@@ -140,15 +140,15 @@ class FormV0005Seed extends Seed {
                 await prisma.form.upsert({
                     where: {
                         title_type_version: {
-                            title: "Absence sécurité sociale",
-                            type: "STD_ABSENCE_SECURITE_SOCIALE",
+                            title: "Absence hors sécurité sociale",
+                            type: "STD_ABSENCE_HORS_SECURITE_SOCIALE",
                             version: 1
                         }
                     },
                     update: {},
                     create: {
-                        title: "Absence",
-                        type: "STD_ABSENCE",
+                        title: "Absence hors sécurité sociale",
+                        type: "STD_ABSENCE_HORS_SECURITE_SOCIALE",
                         buttonLabel: "Créer une nouvelle absence",
                         description: 'Formulaire de création des absences',
                         createdBy: "system",
@@ -157,7 +157,7 @@ class FormV0005Seed extends Seed {
                         Form_Input: {
                             create: [{
                                 type: 'text',
-                                otherData: 'ABS_CODE',
+                                otherData: 'STD_Absence_Hors_Sécurité_Sociale_Code',
                                 label: 'Code absence sécurité sociale',
                                 isCode: true,
                                 maxLength: 50,
@@ -170,7 +170,7 @@ class FormV0005Seed extends Seed {
                             },
                             {
                                 type: 'text',
-                                otherData: 'ABS_LIBELLE',
+                                otherData: 'STD_Absence_Hors_Sécurité_Sociale_Libelle',
                                 label: 'Libellé absence',
                                 isLabel: true,
                                 maxLength: 50,
@@ -207,7 +207,7 @@ class FormV0005Seed extends Seed {
                         Form_Input: {
                             create: [{
                                 type: 'text',
-                                dsnType: 'DSN_CONTRAT_ID',
+                                dsnType: 'DSN_Contrat_ID',
                                 label: 'Code contrat DSN',
                                 isCode: true,
                                 maxLength: 50,
@@ -220,7 +220,7 @@ class FormV0005Seed extends Seed {
                             },
                             {
                                 type: 'text',
-                                dsnType: 'DSN_CONTRAT_ORGANISME',
+                                dsnType: 'DSN_Contrat_Organime',
                                 label: 'Libellé de organisme',
                                 isLabel: true,
                                 maxLength: 50,
@@ -233,7 +233,7 @@ class FormV0005Seed extends Seed {
                             },
                             {
                                 type: 'text',
-                                dsnType: 'DSN_CONTRAT_DELEGATAIRE',
+                                dsnType: 'DSN_Contrat_Deleguataire',
                                 label: 'Libellé du délégataire',
                                 isLabel: true,
                                 maxLength: 50,
@@ -246,7 +246,7 @@ class FormV0005Seed extends Seed {
                             },
                             {
                                 type: 'text',
-                                dsnType: 'DSN_CONTRAT_POPULATION',
+                                dsnType: 'DSN_Population_Contrat',
                                 label: 'Libellé population',
                                 isLabel: true,
                                 maxLength: 50,
@@ -259,7 +259,7 @@ class FormV0005Seed extends Seed {
                             },
                             {
                                 type: 'text',
-                                dsnType: 'DSN_CONTRAT_ORDRE',
+                                dsnType: 'DSN_Contrat_ID',
                                 label: 'Numéro ordre dans la DSN',
                                 isLabel: true,
                                 maxLength: 50,

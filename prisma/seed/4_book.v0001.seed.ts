@@ -151,37 +151,7 @@ class BookV0001Seed extends Seed {
                     }
                 })
                 //Associate with Form
-                await prisma.chapterForm.upsert({
-                    where: {
-                        bookLabel_level_1_level_2_level_3_formTitle_formType_formVersion: {
-                            bookLabel: "Structure juridique",
-                            level_1: 1,
-                            level_2: 0,
-                            level_3: 0,
-                            formTitle: "Société",
-                            formType: "DSN_SOCIETE",
-                            formVersion: 1
-                        }
-                    },
-                    update: {
-                        formTitle: 'Société',
-                        formType: 'DSN_SOCIETE',
-                        formVersion: 1,
-                        level_1: 1,
-                        level_2: 0,
-                        level_3: 0,
-                        bookLabel: "Structure juridique",
-                    },
-                    create: {
-                        formTitle: 'Société',
-                        formType: 'DSN_SOCIETE',
-                        formVersion: 1,
-                        level_1: 1,
-                        level_2: 0,
-                        level_3: 0,
-                        bookLabel: "Structure juridique",
-                    }
-                })
+
                 await prisma.chapterForm.upsert({
                     where: {
                         bookLabel_level_1_level_2_level_3_formTitle_formType_formVersion: {

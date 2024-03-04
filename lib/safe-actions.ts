@@ -117,12 +117,12 @@ export const authentificationActionUserIsEditorClient = createSafeActionClient({
         return "Oups! Une erreur est survenue. Veuillez réessayer plus tard.";
     },
     async middleware(values) {
-
+        console.log(values)
         if (typeof values === 'object' && values !== null && 'clientSlug' in values && typeof (values as any).clientSlug === 'string') {
             const user = await userIsEditorClient((values as { clientSlug: string; }).clientSlug);
             return { clientId: user.clientId, userId: user.userId }
         }
-        throw new ActionError("Une erreur est survenue.")
+        throw new ActionError("Une erreur est survenue lors de la vérification de vos droits.")
     }
 })
 

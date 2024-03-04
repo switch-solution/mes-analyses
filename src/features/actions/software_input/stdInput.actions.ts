@@ -48,7 +48,6 @@ export const createStdInput = authentificationActionUserIsEditorClient(CreateStd
         console.error(err)
         throw new ActionError('Une erreur est survenue lors de la création du texte')
     }
-
     revalidatePath(`/client/${clientSlug}/editor/component/${componentSlug}`);
     redirect(`/client/${clientSlug}/editor/component/${componentSlug}`);
 })
@@ -106,10 +105,13 @@ export const deleteStdInput = authentificationActionUserIsEditorClient(DeleteStd
 
 export const editStdInput = authentificationActionUserIsEditorClient(EdidStdInputSchema, async (data: z.infer<typeof EdidStdInputSchema>, { clientId, userId }) => {
 
-    const { componentSlug, clientSlug, id, label, maxLength, minLength, minValue, maxValue, required, readonly, placeholder, defaultValue } = EdidStdInputSchema.parse(data)
+    const { componentSlug, clientSlug, id, label, maxLength, minLength, isCode, isLabel, isDescription, otherData, dsnType, formSource, inputSource, minValue, maxValue, required, readonly, placeholder, defaultValue } = EdidStdInputSchema.parse(data)
     const componentExist = await getStdComponentBySlug(componentSlug)
     if (!componentExist) {
-        throw new Error('Le composant n\'existe pas')
+        throw new ActionError('Le composant n\'existe pas')
+    }
+    if (otherData && dsnType) {
+        throw new ActionError('Vous ne pouvez pas avoir un champ avec un type de champ et un autre type de champ')
     }
     try {
         const stdInput = await prisma.software_Component_Input.findUnique({
@@ -139,6 +141,13 @@ export const editStdInput = authentificationActionUserIsEditorClient(EdidStdInpu
             data: {
                 createdBy: userId,
                 clientId: clientId,
+                isCode,
+                isDescription,
+                isLabel,
+                otherData,
+                dsnType,
+                formSource,
+                inputSource,
                 componentType: componentExist.type,
                 softwareLabel: componentExist.softwareLabel,
                 componentLabel: componentExist.label,

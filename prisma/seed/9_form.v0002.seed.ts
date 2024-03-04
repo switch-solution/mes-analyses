@@ -48,9 +48,7 @@ class FormV0002Seed extends Seed {
                             version: 1
                         }
                     },
-                    update: {
-                        buttonLabel: "Créer une convention collective",
-                    },
+                    update: {},
                     create: {
                         title: "Convention collective",
                         type: "DSN_CONVENTION_COLLECTIVE",
@@ -62,7 +60,7 @@ class FormV0002Seed extends Seed {
                         Form_Input: {
                             create: [{
                                 type: 'text',
-                                dsnType: 'dsnCodeIdcc',
+                                dsnType: 'DSN_Convention_Collective_IDCC',
                                 label: 'Code IDCC',
                                 isCode: true,
                                 maxLength: 9,
@@ -76,7 +74,7 @@ class FormV0002Seed extends Seed {
                             {
 
                                 type: 'text',
-                                otherData: 'ccnLabel',
+                                otherData: 'Libelle_Convention_Collective',
                                 label: 'Libellé convention collective',
                                 maxLength: 50,
                                 isLabel: true,

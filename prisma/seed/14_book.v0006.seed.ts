@@ -45,12 +45,7 @@ class BookV0006Seed extends Seed {
                     where: {
                         slug: "caisse-de-cotisation",
                     },
-                    update: {
-                        label: "Caisses de cotisation",
-                        status: "actif",
-                        slug: "caisse-de-cotisation",
-                        description: "Cahier des caisses de cotisation de votre organisation",
-                    },
+                    update: {},
                     create: {
                         label: "Caisses de cotisation",
                         status: "actif",
@@ -69,15 +64,59 @@ class BookV0006Seed extends Seed {
                         }
                     },
                     update: {
+                        label: "Sécurité sociale",
+                    },
+                    create: {
+                        label: "Sécurité sociale",
+                        bookLabel: "Caisses de cotisation",
+                        level_1: 1,
+                        level_2: 0,
+                        level_3: 0,
+                        slug: "1-0-0-securite-sociale",
+                        createdBy: "system"
+                    }
+                })
+                await prisma.chapter.upsert({
+                    where: {
+                        bookLabel_level_1_level_2_level_3: {
+                            bookLabel: "Caisses de cotisation",
+                            level_1: 1,
+                            level_2: 1,
+                            level_3: 0
+                        }
+                    },
+                    update: {
                         label: "URSSAF",
                     },
                     create: {
                         label: "URSSAF",
                         bookLabel: "Caisses de cotisation",
                         level_1: 1,
-                        level_2: 0,
+                        level_2: 1,
                         level_3: 0,
-                        slug: "1-0-0-urssaf",
+                        slug: "1-1-0-urssaf",
+                        createdBy: "system"
+                    }
+                })
+                await prisma.chapter.upsert({
+                    where: {
+                        bookLabel_level_1_level_2_level_3: {
+                            bookLabel: "Caisses de cotisation",
+                            level_1: 1,
+                            level_2: 2,
+                            level_3: 0
+                        }
+                    },
+                    update: {
+                        label: "URSSAF",
+                    },
+                    create: {
+                        label: "MSA",
+                        bookLabel: "Caisses de cotisation",
+                        level_1: 1,
+                        level_2: 2,
+                        level_3: 0,
+                        slug: "1-2-0-msa",
                         createdBy: "system"
                     }
                 })
@@ -90,9 +129,7 @@ class BookV0006Seed extends Seed {
                             level_3: 0
                         }
                     },
-                    update: {
-                        label: "Retraite",
-                    },
+                    update: {},
                     create: {
                         label: "Retraite",
                         bookLabel: "Caisses de cotisation",
@@ -169,6 +206,26 @@ class BookV0006Seed extends Seed {
                         createdBy: "system"
                     }
                 })
+                await prisma.chapter.upsert({
+                    where: {
+                        bookLabel_level_1_level_2_level_3: {
+                            bookLabel: "Caisses de cotisation",
+                            level_1: 6,
+                            level_2: 0,
+                            level_3: 0
+                        }
+                    },
+                    update: {},
+                    create: {
+                        label: "Caisse de congé payé",
+                        bookLabel: "Caisses de cotisation",
+                        level_1: 6,
+                        level_2: 0,
+                        level_3: 0,
+                        slug: "6-0-0-caisse-cp",
+                        createdBy: "system"
+                    }
+                })
 
                 //Associate with Form
                 await prisma.chapterForm.upsert({
@@ -176,28 +233,43 @@ class BookV0006Seed extends Seed {
                         bookLabel_level_1_level_2_level_3_formTitle_formType_formVersion: {
                             bookLabel: "Caisses de cotisation",
                             level_1: 1,
-                            level_2: 0,
+                            level_2: 1,
                             level_3: 0,
-                            formTitle: "Caisse de cotisation",
-                            formType: "DSN_ORGANISME_SOCIAUX",
+                            formTitle: "Caisse de cotisation URSSAF",
+                            formType: "DSN_ORGANISME_SOCIAUX_URSSAF",
                             formVersion: 1
                         }
                     },
-                    update: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
+                    update: {},
+                    create: {
+                        formTitle: "Caisse de cotisation URSSAF",
+                        formType: "DSN_ORGANISME_SOCIAUX_URSSAF",
                         formVersion: 1,
                         level_1: 1,
-                        level_2: 0,
+                        level_2: 1,
                         level_3: 0,
                         bookLabel: "Caisses de cotisation",
+                    }
+                })
+                await prisma.chapterForm.upsert({
+                    where: {
+                        bookLabel_level_1_level_2_level_3_formTitle_formType_formVersion: {
+                            bookLabel: "Caisses de cotisation",
+                            level_1: 1,
+                            level_2: 2,
+                            level_3: 0,
+                            formTitle: "Caisse de cotisation MSA",
+                            formType: "DSN_ORGANISME_SOCIAUX_MSA",
+                            formVersion: 1
+                        }
                     },
+                    update: {},
                     create: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
+                        formTitle: "Caisse de cotisation MSA",
+                        formType: "DSN_ORGANISME_SOCIAUX_MSA",
                         formVersion: 1,
                         level_1: 1,
-                        level_2: 0,
+                        level_2: 2,
                         level_3: 0,
                         bookLabel: "Caisses de cotisation",
                     }
@@ -209,23 +281,15 @@ class BookV0006Seed extends Seed {
                             level_1: 2,
                             level_2: 0,
                             level_3: 0,
-                            formTitle: "Caisse de cotisation",
-                            formType: "DSN_ORGANISME_SOCIAUX",
+                            formTitle: "Caisse de cotisation retraite",
+                            formType: "DSN_ORGANISME_SOCIAUX_RETRAITE",
                             formVersion: 1
                         }
                     },
-                    update: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
-                        formVersion: 1,
-                        level_1: 2,
-                        level_2: 0,
-                        level_3: 0,
-                        bookLabel: "Caisses de cotisation",
-                    },
+                    update: {},
                     create: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
+                        formTitle: "Caisse de cotisation retraite",
+                        formType: "DSN_ORGANISME_SOCIAUX_RETRAITE",
                         formVersion: 1,
                         level_1: 2,
                         level_2: 0,
@@ -240,23 +304,15 @@ class BookV0006Seed extends Seed {
                             level_1: 3,
                             level_2: 0,
                             level_3: 0,
-                            formTitle: "Caisse de cotisation",
-                            formType: "DSN_ORGANISME_SOCIAUX",
+                            formTitle: "Caisse de cotisation prévoyance",
+                            formType: "DSN_ORGANISME_SOCIAUX_PREVOYANCE",
                             formVersion: 1
                         }
                     },
-                    update: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
-                        formVersion: 1,
-                        level_1: 3,
-                        level_2: 0,
-                        level_3: 0,
-                        bookLabel: "Caisses de cotisation",
-                    },
+                    update: {},
                     create: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
+                        formTitle: "Caisse de cotisation prévoyance",
+                        formType: "DSN_ORGANISME_SOCIAUX_PREVOYANCE",
                         formVersion: 1,
                         level_1: 3,
                         level_2: 0,
@@ -271,23 +327,16 @@ class BookV0006Seed extends Seed {
                             level_1: 4,
                             level_2: 0,
                             level_3: 0,
-                            formTitle: "Caisse de cotisation",
-                            formType: "DSN_ORGANISME_SOCIAUX",
+                            formTitle: "Caisse de cotisation mutuelle",
+                            formType: "DSN_ORGANISME_SOCIAUX_MUTUELLE",
                             formVersion: 1
                         }
                     },
                     update: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
-                        formVersion: 1,
-                        level_1: 4,
-                        level_2: 0,
-                        level_3: 0,
-                        bookLabel: "Caisses de cotisation",
                     },
                     create: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
+                        formTitle: "Caisse de cotisation mutuelle",
+                        formType: "DSN_ORGANISME_SOCIAUX_MUTUELLE",
                         formVersion: 1,
                         level_1: 4,
                         level_2: 0,
@@ -302,25 +351,97 @@ class BookV0006Seed extends Seed {
                             level_1: 5,
                             level_2: 0,
                             level_3: 0,
-                            formTitle: "Caisse de cotisation",
-                            formType: "DSN_ORGANISME_SOCIAUX",
+                            formTitle: "Caisse de cotisation retraite supplémentaire",
+                            formType: "DSN_ORGANISME_SOCIAUX_RETRAITE_SUPPLEMENTAIRE",
                             formVersion: 1
                         }
                     },
                     update: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
+                    },
+                    create: {
+                        formTitle: "Caisse de cotisation retraite supplémentaire",
+                        formType: "DSN_ORGANISME_SOCIAUX_RETRAITE_SUPPLEMENTAIRE",
                         formVersion: 1,
                         level_1: 5,
                         level_2: 0,
                         level_3: 0,
                         bookLabel: "Caisses de cotisation",
+                    }
+                })
+                await prisma.chapterForm.upsert({
+                    where: {
+                        bookLabel_level_1_level_2_level_3_formTitle_formType_formVersion: {
+                            bookLabel: "Caisses de cotisation",
+                            level_1: 6,
+                            level_2: 0,
+                            level_3: 0,
+                            formTitle: "Caisse de congé payé",
+                            formType: "DSN_ORGANISME_SOCIAUX_CAISSE_CP",
+                            formVersion: 1
+                        }
+                    },
+                    update: {
+                        formTitle: "Caisse de congé payé",
+                        formType: "DSN_ORGANISME_SOCIAUX_CAISSE_CP",
+                        formVersion: 1,
+                        level_1: 6,
+                        level_2: 0,
+                        level_3: 0,
+                        bookLabel: "Caisses de cotisation",
                     },
                     create: {
-                        formTitle: "Caisse de cotisation",
-                        formType: "DSN_ORGANISME_SOCIAUX",
+                        formTitle: "Caisse de congé payé",
+                        formType: "DSN_ORGANISME_SOCIAUX_CAISSE_CP",
+                        formVersion: 1,
+                        level_1: 6,
+                        level_2: 0,
+                        level_3: 0,
+                        bookLabel: "Caisses de cotisation",
+                    }
+                })
+                await prisma.chapterForm.upsert({
+                    where: {
+                        bookLabel_level_1_level_2_level_3_formTitle_formType_formVersion: {
+                            bookLabel: "Caisses de cotisation",
+                            level_1: 5,
+                            level_2: 0,
+                            level_3: 0,
+                            formTitle: "Caisse de cotisation retraite supplémentaire",
+                            formType: "DSN_ORGANISME_SOCIAUX_RETRAITE_SUPPLEMENTAIRE",
+                            formVersion: 1
+                        }
+                    },
+                    update: {
+                    },
+                    create: {
+                        formTitle: "Caisse de cotisation retraite supplémentaire",
+                        formType: "DSN_ORGANISME_SOCIAUX_RETRAITE_SUPPLEMENTAIRE",
                         formVersion: 1,
                         level_1: 5,
+                        level_2: 0,
+                        level_3: 0,
+                        bookLabel: "Caisses de cotisation",
+                    }
+                })
+                await prisma.chapterForm.upsert({
+                    where: {
+                        bookLabel_level_1_level_2_level_3_formTitle_formType_formVersion: {
+                            bookLabel: "Caisses de cotisation",
+                            level_1: 6,
+                            level_2: 0,
+                            level_3: 0,
+                            formTitle: "Caisse de congé payé",
+                            formType: "DSN_ORGANISME_SOCIAUX_CAISSE_CP",
+                            formVersion: 1
+                        }
+                    },
+                    update: {
+                    },
+                    create: {
+                        formTitle: "Caisse de congé payé",
+                        formType: "DSN_ORGANISME_SOCIAUX_CAISSE_CP",
+                        formVersion: 1,
+                        level_1: 6,
                         level_2: 0,
                         level_3: 0,
                         bookLabel: "Caisses de cotisation",
