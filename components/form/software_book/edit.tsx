@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { editBook } from "@/src/features/actions/software_book/software_book.actions";
 import { BookFormSchemaEdit } from '@/src/helpers/definition';
-import type { getStdBookBySlug } from "@/src/query/software_book.query"
 import {
     Select,
     SelectContent,
@@ -23,7 +22,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-export default function BookEditForm({ stdBook, clientSlug }: { stdBook: getStdBookBySlug, clientSlug: string }) {
+export default function BookEditForm({ stdBook, clientSlug }: { stdBook: any, clientSlug: string }) {
     const form = useForm<z.infer<typeof BookFormSchemaEdit>>({
         resolver: zodResolver(BookFormSchemaEdit),
         defaultValues: {

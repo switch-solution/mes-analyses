@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { editClient } from "@/src/features/actions/client/client.action";
-import type { getClientBySirenType } from "@/src/helpers/type"
 
 import {
     Form,
@@ -17,7 +16,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { ClientEditFormSchema } from "@/src/helpers/definition";
-export default function EditClient({ slug, client }: { slug: string, client: getClientBySirenType }) {
+export default function EditClient({ slug, client }: { slug: string, client: any }) {
     const form = useForm<z.infer<typeof ClientEditFormSchema>>({
         resolver: zodResolver(ClientEditFormSchema),
         defaultValues: {

@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 
 export default function Breadcrumb() {
     const pathname = usePathname()
-    const splitPathname = pathname.split("/")
+    const splitPathname = pathname ? pathname.split("/") : []
     const clientSlug = splitPathname[2]
     const projectSlug = splitPathname[4]
     console.log(splitPathname)

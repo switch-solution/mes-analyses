@@ -42,7 +42,8 @@ export const createInvitationProject = authentifcationActionUserIsAuthorizeToAdm
                 isAdmin: isAdministratorProject,
                 isEditor: isEditorProject,
                 isValidator: isValidatorProject,
-                createdBy: userId
+                createdBy: userId,
+                team: ''
             }
 
         })

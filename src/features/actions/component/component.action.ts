@@ -27,7 +27,7 @@ export const editComponent = authentificationActionUserIsEditorClient(StandardCo
             await createLog(log)
             throw new ActionError("Vous n'êtes pas autorisé à modifier ce composant.")
         }
-        const component = await prisma.standard_Component.update({
+        const component = await prisma.software_Component.update({
             where: {
                 label_softwareLabel_clientId_type: {
                     label: stdComponent.label,
@@ -68,7 +68,7 @@ export const createComponent = authentificationActionUserIsEditorClient(Standard
     const { label, description, status, softwareLabel, type, clientSlug } = StandardComposantSchema.parse(values)
     try {
         const slug = await generateSlug(`${clientId}-${softwareLabel}-${label}`)
-        const component = await prisma.standard_Component.create({
+        const component = await prisma.software_Component.create({
             data: {
                 label,
                 description,
@@ -94,7 +94,7 @@ export const createComponent = authentificationActionUserIsEditorClient(Standard
         console.error(err)
         throw new ActionError("Une erreur est survenue lors de la création du composant.")
     }
-    const stdComponent = await prisma.standard_Component.findFirstOrThrow({
+    const stdComponent = await prisma.software_Component.findFirstOrThrow({
         where: {
             label: label,
             softwareLabel: softwareLabel,

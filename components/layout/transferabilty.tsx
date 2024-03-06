@@ -26,7 +26,7 @@ export function Transferabilty({ availableValues, useValues, chapterSlug, client
         const save = async () => {
             const action = await createAssociationChapterStandardComposant({
                 chapterSlug: chapterSlug,
-                standardComposantLabel: difference.at(0) ? difference.at(0) : "",
+                standardComposantLabel: difference[0] ?? "",
                 clientSlug: clientSlug
             })
             if (action.serverError) {
@@ -36,7 +36,7 @@ export function Transferabilty({ availableValues, useValues, chapterSlug, client
         save()
         setDonesList(dones)
 
-    }, [dones])
+    }, [dones, donesList, chapterSlug, clientSlug])
     return (
         <div className="flex flex-col h-full justify-between lg:flex-row" >
             <div className="h-1/2">

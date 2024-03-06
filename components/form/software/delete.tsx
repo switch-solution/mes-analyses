@@ -20,16 +20,12 @@ export default function SoftwareDelete({ softwareId }: { softwareId: string }) {
     const onSubmit = async (values: z.infer<typeof ButtonDangerDeleteSchema>) => {
         try {
             await ButtonDangerDeleteSchema.parseAsync(values)
-            await deleteInvoiceWithId()
         } catch (err) {
             console.error(err)
         }
     }
     return (
-        <Form {...form}  >
-            <form action={deleteInvoiceWithId} onSubmit={form.handleSubmit(onSubmit)}>
-            </form>
-        </Form>
+        <p>delete</p>
 
     )
 }

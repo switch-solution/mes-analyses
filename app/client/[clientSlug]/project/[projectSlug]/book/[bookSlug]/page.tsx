@@ -11,6 +11,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const chapters = await getChapterByBookSlug(params.bookSlug)
     const components = await getComponentWitchInputByBookSlug(params.bookSlug)
     const values = await getValueForDataTable(params.bookSlug, params.projectSlug, params.clientSlug)
+    console.log(values)
     return (
         <div className="flex flex-col flex-wrap	 w-full h-full">
             <div className="lg:h-full lg:w-1/4">

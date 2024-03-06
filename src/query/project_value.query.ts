@@ -18,8 +18,8 @@ export const getValueForDataTable = async (bookSlug: string, projectSlug: string
         const values = []
 
         for (const component of components) {
-            const componentRecordSlugList = await prisma.project_Value.groupBy({
-                by: ['slug'],
+            const componentRecordIdList = await prisma.project_Value.groupBy({
+                by: ['recordId'],
                 where: {
                     clientId: bookExist.clientId,
                     projectLabel: bookExist.projectLabel,
@@ -30,10 +30,10 @@ export const getValueForDataTable = async (bookSlug: string, projectSlug: string
                     chapterLevel_3: component.chapterLevel_3,
                 }
             })
-            for (const recordId of componentRecordSlugList) {
+            for (const recordId of componentRecordIdList) {
                 const recordIdValues = await prisma.project_Value.findMany({
                     where: {
-                        slug: recordId.slug,
+                        recordId: recordId.recordId,
                         OR: [
                             {
                                 isCode: true
@@ -51,7 +51,7 @@ export const getValueForDataTable = async (bookSlug: string, projectSlug: string
                     isCode: recordIdValues.find(value => value.isCode)?.textValue,
                     isLabel: recordIdValues.find(value => value.isLabel)?.textValue,
                     isDescription: recordIdValues.find(value => value.isDescription)?.textValue,
-                    recordId: recordId.slug,
+                    recordId: recordId.recordId,
                     projectSlug: projectSlug,
                     bookSlug: bookSlug,
                     clientSlug: clientSlug,

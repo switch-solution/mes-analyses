@@ -16,14 +16,13 @@ export const createTextArea = authentificationActionUserIsEditorClient(CreateTex
         throw new Error('Le composant n\'existe pas')
     }
     try {
-        await prisma.standard_Component_TextArea.create({
+        await prisma.software_Component_TextArea.create({
             data: {
                 value: value,
                 createdBy: userId,
                 clientId: clientId,
                 componentType: componentExist.type,
                 softwareLabel: componentExist.softwareLabel,
-                version: 1,
                 componentLabel: componentExist.label,
 
             }
@@ -52,13 +51,12 @@ export const editTextArea = authentificationActionUserIsEditorClient(CreateTextA
         throw new Error('Le composant n\'existe pas')
     }
     try {
-        await prisma.standard_Component_TextArea.update({
+        await prisma.software_Component_TextArea.update({
             where: {
-                componentLabel_softwareLabel_clientId_version_componentType: {
+                componentLabel_softwareLabel_clientId_componentType: {
                     clientId: clientId,
                     componentType: componentExist.type,
                     softwareLabel: componentExist.softwareLabel,
-                    version: 1,
                     componentLabel: componentExist.label,
                 }
             },

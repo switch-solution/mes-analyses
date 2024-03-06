@@ -30,7 +30,9 @@ type Value = {
     recordId: string
     label: string
     formSource?: string
-    inputSource?: string
+    inputSource?: string,
+    componentLabel: string,
+    slug: string
 
 }
 export const createComponentValue = async (inputs: TypeInput[]) => {
@@ -44,7 +46,6 @@ export const createComponentValue = async (inputs: TypeInput[]) => {
     const bookSlug = inputs[0].bookSlug
 
     const inputsParam = await getInputByComponentSlug(inputs[0].componentSlug)
-
     const version = await prisma.project_Value.findFirst({
         where: {
             inputLabel: inputs[0].label,
@@ -84,7 +85,9 @@ export const createComponentValue = async (inputs: TypeInput[]) => {
             inputLabel: input.label,
             recordId: uuid,
             formSource: input.formSource,
-            inputSource: input.inputSource
+            inputSource: input.inputSource,
+            componentLabel: inputParam?.componentLabel ? inputParam.componentLabel : '',
+            slug: uuid
         }
         switch (inputParam?.type) {
             case 'number':

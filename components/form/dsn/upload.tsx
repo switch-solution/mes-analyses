@@ -8,8 +8,8 @@ export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { cli
     const dsnDataWithOption = dsnData.bind(null, projectSlug, clientSlug)
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const dsn = e.target.elements[0]
-        const file = dsn.files[0]
+        const dsn = (e.target as HTMLFormElement).elements[0] as HTMLInputElement
+        const file = dsn.files ? dsn.files[0] : null
         const dsnRows: any = []
         const dsnRowsObject: { code: string, value: string, dsnType: string, componentLabel: string }[] = []
 
@@ -17,10 +17,13 @@ export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { cli
             const reader = new FileReader()
 
             reader.onload = async function (e) {
-                const text = e.target.result as string; //Une structure DSN ressemble à ca S10.G00.00.003,'11.0.9.0.2'
-                const lines = text.split('\n'); //On split le texte en lignes
-                dsnRows.push(...lines);
-                const setRow = new Set()
+                if (e.target && e.target.result) {
+                    const text = e.target.result as string; //Une structure DSN ressemble à ca S10.G00.00.003,'11.0.9.0.2'
+                    const lines = text.split('\n'); //On split le texte en lignes
+                    dsnRows.push(...lines);
+                }
+                const setRow = new Set();
+
                 for (let row of dsnRows) {
                     //On split la structure et la donnée
                     let lineSplit = row.split(`,'`);

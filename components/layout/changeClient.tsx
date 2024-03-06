@@ -1,6 +1,5 @@
 "use client";
-import type { getMyClientType } from "@/src/helpers/type";
-export default function ChangeClient({ client }: { client: getMyClientType }) {
+export default function ChangeClient({ client }: { client: any }) {
     console.log(client)
     return (
         <div>

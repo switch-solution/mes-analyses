@@ -83,9 +83,7 @@ export default function AssociateSoftwareForm({ clientSlug, softwareSlug, users 
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent >
-                                        {users.map((user) => (
-                                            <SelectItem key={user.id} value={user.email}>{`${user.UserOtherData.at(0)?.lastname} ${user.UserOtherData.at(0)?.firstname}`} </SelectItem>
-                                        ))}
+
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />

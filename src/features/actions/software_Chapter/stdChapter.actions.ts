@@ -3,9 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { ChapterFormCreateSchema } from "@/src/helpers/definition";
-import { getStdBookBySlug } from "@/src/query/software_book.query";
 import z from "zod"
-import { getParent } from "@/src/query/standard_chapter.query";
 import { createLog } from "@/src/query/logger.query";
 import type { Logger } from "@/src/helpers/type";
 import { authentificationActionUserIsEditorClient } from "@/lib/safe-actions";
@@ -13,7 +11,7 @@ import { generateSlug } from "@/src/helpers/generateSlug"
 
 export const createChapter = authentificationActionUserIsEditorClient(ChapterFormCreateSchema, async (values: z.infer<typeof ChapterFormCreateSchema>, { clientId, userId }) => {
 
-
+    /** 
     const { level_1, level_2, level_3, label, bookSlug, clientSlug } = ChapterFormCreateSchema.parse(values)
 
     const book = await getStdBookBySlug(bookSlug)
@@ -70,5 +68,5 @@ export const createChapter = authentificationActionUserIsEditorClient(ChapterFor
     })
     revalidatePath(`/client/${clientSlug}/editor/book/${bookSlug}`);
     redirect(`/client/${clientSlug}/editor/book/${bookSlug}`);
-
+*/
 })

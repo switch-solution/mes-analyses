@@ -4,7 +4,6 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { copyBookToProject } from "@/src/features/actions/project/project.action"
 
 import {
     Form,
@@ -40,7 +39,7 @@ export default function AssociateBookToProjectForm({ projectId, books }: { proje
     })
     const onSubmit = async (data: z.infer<typeof BookToProjectSchema>) => {
         try {
-            await copyBookToProject(data)
+            console.log(data)
         } catch (err) {
             console.error(err)
         }
