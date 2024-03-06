@@ -30,7 +30,8 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
             clientSlug: clientSlug,
             label: "",
             description: "",
-            softwareLabel: softwares.at(0)?.softwareLabel
+            softwareLabel: softwares.at(0)?.softwareLabel,
+            role: "Consultant déploiement"
         },
     })
 
@@ -111,6 +112,29 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
 
                         )}
 
+                    />
+                    <FormField
+                        control={form.control}
+                        name="role"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Votre role</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Votre role" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="Consultant déploiement">Consultant déploiement</SelectItem>
+                                        <SelectItem value="Consultant fonctionnel">Consultant fonctionnel</SelectItem>
+                                        <SelectItem value="Directeur de projet">Directeur de projet</SelectItem>
+                                        <SelectItem value="Chef de projet">Chef de projet</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
                     <Button type="submit">Envoyer</Button>
 

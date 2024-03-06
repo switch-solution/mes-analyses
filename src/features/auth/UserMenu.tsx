@@ -64,10 +64,10 @@ export const UserMenu = async () => {
                 <MenubarTrigger>Projets</MenubarTrigger>
                 <MenubarContent>
                     <MenubarItem>
-                        <Link href={`/client/${clientSlug}/project`}>Ouvrir</Link>
+                        <Link href={`/client/${clientSlug}/project`}>Voir mes projets</Link>
                     </MenubarItem>
                     <MenubarItem>
-                        <Link href={`/client/${clientSlug}/project/create`}>Ajouter</Link>
+                        <Link href={`/client/${clientSlug}/project/create`}>Créer un nouveau projet</Link>
                     </MenubarItem>
                 </MenubarContent>
             </MenubarMenu>

@@ -207,8 +207,8 @@ class FormV0005Seed extends Seed {
                         Form_Input: {
                             create: [{
                                 type: 'text',
-                                dsnType: 'DSN_Contrat_ID',
-                                label: 'Code contrat DSN',
+                                dsnType: 'DSN_Contrat_Organisme_ID',
+                                label: 'Code organisme DSN',
                                 isCode: true,
                                 maxLength: 50,
                                 minLength: 1,

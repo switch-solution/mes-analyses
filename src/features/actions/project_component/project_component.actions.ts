@@ -29,6 +29,8 @@ type Value = {
     chapterLevel_3: number
     recordId: string
     label: string
+    formSource?: string
+    inputSource?: string
 
 }
 export const createComponentValue = async (inputs: TypeInput[]) => {
@@ -80,7 +82,9 @@ export const createComponentValue = async (inputs: TypeInput[]) => {
             booleanValue: false,
             createdBy: userIsAuthorize.userId,
             inputLabel: input.label,
-            recordId: uuid
+            recordId: uuid,
+            formSource: input.formSource,
+            inputSource: input.inputSource
         }
         switch (inputParam?.type) {
             case 'number':

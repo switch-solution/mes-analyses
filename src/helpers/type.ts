@@ -60,5 +60,7 @@ export type TypeInput = {
     bookSlug: string,
     componentSlug: string,
     value: string,
-    label: string
+    label: string,
+    formSource?: string,
+    inputSource?: string,
 }

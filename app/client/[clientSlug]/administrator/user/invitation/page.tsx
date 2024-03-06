@@ -4,8 +4,8 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { InvitationSchema } from "@/src/helpers/definition"
-import { createInvitation } from "../../../../../../src/features/actions/invitation/invitation.action";
+import { InvitationProjectSchema } from "@/src/helpers/definition"
+import { createInvitationProject } from "@/src/features/actions/projet_invitation/projet_invitation.action";
 import {
     Form,
     FormControl,
@@ -18,8 +18,8 @@ import {
 import { Input } from "@/components/ui/input"
 
 export default function Page({ params }: { params: { id: string } }) {
-    const form = useForm<z.infer<typeof InvitationSchema>>({
-        resolver: zodResolver(InvitationSchema),
+    const form = useForm<z.infer<typeof InvitationProjectSchema>>({
+        resolver: zodResolver(InvitationProjectSchema),
         defaultValues: {
             civility: "",
             clientId: params.id,

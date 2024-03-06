@@ -39,8 +39,8 @@ interface DataTableProps<TData, TValue> {
     data: TData[],
     inputSearch: string
     inputSearchPlaceholder: string,
-    href: string,
-    buttonLabel: string
+    href?: string,
+    buttonLabel?: string
 }
 import { Input } from "@/components/ui/input"
 
@@ -121,7 +121,7 @@ export function DataTable<TData, TValue>({
                             })}
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <Button className="ml-2" type="button"><Link href={href}>{buttonLabel}</Link></Button>
+                {href ? <Button className="ml-2" type="button"><Link href={href}>{buttonLabel}</Link></Button> : undefined}
 
             </div>
             <div className="rounded-md border">

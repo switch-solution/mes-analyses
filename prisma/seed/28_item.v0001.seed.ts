@@ -23,7 +23,7 @@ const prisma = new PrismaClient(
 )
 import { Seed } from "./seedModel"
 
-class ItemV0001 extends Seed {
+class ItemV0001Seed extends Seed {
     constructor(
         protected name: string,
         protected description: string,
@@ -123,5 +123,5 @@ class ItemV0001 extends Seed {
 
 }
 
-export const itemV0001 = new ItemV0001("ITEM_V0001", "Rubriques de base", 28, "DEFAULT_SETTING_V0001")
+export const itemV0001Seed = new ItemV0001Seed("ITEM_V0001", "Rubriques de base", 28, "DEFAULT_SETTING_V0001")
 

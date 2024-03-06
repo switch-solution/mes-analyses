@@ -27,6 +27,34 @@ export const getInputByProjectSlug = async (projectSlug: string) => {
 
 export type getInputByProjectSlug = Prisma.PromiseReturnType<typeof getInputByProjectSlug>;
 
+export const getInputDsnByProjectSlug = async (projectSlug: string) => {
+    try {
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) throw new Error('Projet inexistant')
+        const inputs = await prisma.project_Input.findMany({
+            where: {
+                clientId: projectExist.clientId,
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                NOT: {
+                    dsnItem: ''
+                }
+            },
+            include: {
+                Project_Value: true
+            }
+        })
+        return inputs
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur de récupération des valeurs')
+    }
+
+}
+
+export type getInputDsnByProjectSlug = Prisma.PromiseReturnType<typeof getInputDsnByProjectSlug>;
+
+
 export const getInputByComponentSlug = async (componentSlug: string) => {
     try {
         const component = await getComponentBySlug(componentSlug)
@@ -42,6 +70,32 @@ export const getInputByComponentSlug = async (componentSlug: string) => {
             }
         })
         return inputs
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur de récupération des valeurs')
+    }
+
+}
+
+export const getGroupByComponentLabelDsnWitchProjectSlug = async (projectSlug: string) => {
+    try {
+        const projectExist = await getProjectBySlug(projectSlug)
+        const groupBy = await prisma.project_Input.groupBy({
+            by: ['componentLabel'],
+            where: {
+                clientId: projectExist.clientId,
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                NOT: {
+                    dsnItem: ''
+                }
+            },
+            orderBy: {
+                componentLabel: 'asc'
+            }
+
+        })
+        return groupBy
     } catch (err) {
         console.error(err)
         throw new Error('Erreur de récupération des valeurs')

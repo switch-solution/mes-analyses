@@ -220,6 +220,50 @@ export const userIsEditorProject = async (projectSlug: string) => {
     }
 }
 
+export const userIsValidatorProject = async (projectSlug: string) => {
+    try {
+        const userId = await userIsValid()
+        if (!userId) throw new ActionError("Vous devez être connecté pour effectuer cette action.")
+        const projectsExist = await getProjectBySlug(projectSlug)
+        if (!projectsExist) {
+            new ActionError("Le projet n'existe pas")
+        }
+        const userProjects = await getMyProjects()
+        if (!userProjects) throw new ActionError("Vous n'avez pas de projet")
+        const userExistInThisProject = userProjects.find((project) => project.project.slug === projectSlug)
+        if (!userExistInThisProject) {
+            const log: Logger = {
+                level: "security",
+                message: `Tentative d'accès au projet ${projectSlug} sans les droits`,
+                scope: "project",
+            }
+            await createLog(log)
+            await banUser(await userIsValid())
+            throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        }
+
+        const isEditor = await prisma.userProject.findFirst({
+            where: {
+                userId: userId,
+                projectLabel: projectsExist.label,
+                isValidator: true
+            }
+        })
+        if (!isEditor) throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        return {
+            userId,
+            clientId: projectsExist.clientId,
+            projectLabel: projectsExist.label,
+            softwareLabel: projectsExist.softwareLabel
+        }
+    } catch (err) {
+        console.error(err)
+        throw new ActionError("Une erreur est survenue lors de la vérification de l'utilisateur")
+    }
+}
+
+
+
 
 
 export const userIsAdminProject = async (projectSlug: string) => {
@@ -255,7 +299,8 @@ export const userIsAdminProject = async (projectSlug: string) => {
         return {
             userId,
             clientId: projectsExist.clientId,
-            projectLabel: projectsExist.label
+            projectLabel: projectsExist.label,
+            softwareLabel: projectsExist.softwareLabel
         }
     } catch (err) {
         console.error(err)

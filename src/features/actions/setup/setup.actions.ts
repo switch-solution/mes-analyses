@@ -13,6 +13,7 @@ import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
 import { copyFormToSoftware } from "@/src/query/form.query";
 import { createTypeRubrique } from "@/src/query/software_setting.query";
 import { copyBook } from "@/src/query/book.query";
+import { softwareCopyData } from "@/src/query/software.query";
 
 
 export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
@@ -117,24 +118,7 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
             }
         })
         if (!software) throw new ActionError("Le logiciel n'a pas été créé.")
-        await copyFormToSoftware(software.slug)
-        //Add DSN Attachment
-        //Add Settings
-        await createTypeRubrique(software.slug)
-        //Copy books and chapters
-        try {
-            await copyBook(software.slug)
-            const log: Logger = {
-                level: "info",
-                message: `Le logiciel ${label} a été ajouté`,
-                scope: "software",
-                clientId: clientId.clientId,
-            }
-        } catch (err) {
-            console.error(err)
-            throw new ActionError("Une erreur est survenue lors de la copie des livres.")
-        }
-
+        await softwareCopyData(software.slug)
 
 
     } catch (err) {

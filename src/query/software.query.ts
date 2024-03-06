@@ -2,6 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from '@prisma/client'
 import { getClientBySlug, getMyClientActive } from "./client.query";
 import { getMySoftware } from "./user.query";
+import { copyFormToSoftware } from "@/src/query/form.query";
+import { copyBook } from "@/src/query/book.query";
+import { copyTask } from "@/src/query/task.query";
+import { createTypeRubrique } from "./software_setting.query";
 export const getSoftwareBySlug = async (slug: string) => {
     const software = await prisma.software.findUniqueOrThrow({
         where: {
@@ -74,7 +78,17 @@ export const getSoftwareByClientSlug = async (clientSlug: string) => {
 }
 
 
+export const softwareCopyData = async (softwareSlug: string) => {
+    await copyFormToSoftware(softwareSlug)
+    //Add Settings
+    await createTypeRubrique(softwareSlug)
+    //Copy books and chapters
+    await copyBook(softwareSlug)
+    //Copy tasks
+    await copyTask(softwareSlug)
 
+    return
+}
 
 export const getSoftwaresItemsFilterByUserSoftware = async () => {
     try {

@@ -68,6 +68,7 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
             isDescription: boolean | null,
             formSource: string | null,
             otherData: string | null,
+            dsnItem: string | null,
 
 
         }[] = []
@@ -105,6 +106,7 @@ export const copyFormToSoftware = async (softwareSlug: string) => {
                 componentLabel: stdComponent?.label ? stdComponent?.label : '',
                 componentType: stdComponent?.type ? stdComponent?.type : '',
                 dsnType: input.dsnType ? input.dsnType : '',
+                dsnItem: input.dsnItem ? input.dsnItem : '',
             }
         })
 

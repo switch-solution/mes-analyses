@@ -3,6 +3,7 @@ import { userIsValid } from "./security.query";
 import { getClientBySiren } from "./client.query";
 import { syncGenerateSlug } from "@/src/helpers/generateSlug";
 import { getCountComponent } from "@/src/query/project_component.query";
+import { Prisma } from '@prisma/client'
 export const getMyProjects = async () => {
     try {
         const userId = await userIsValid()
@@ -47,6 +48,36 @@ export const getProjectTasks = async (projectSlug: string) => {
     }
 }
 
+export const getUsersProject = async (projectSlug: string) => {
+    try {
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) {
+            throw new Error('Le projet n\'existe pas')
+        }
+        const userProjects = await prisma.userProject.findMany({
+            where: {
+                projectLabel: projectExist.label,
+                projectClientId: projectExist.clientId
+            },
+            include: {
+                user: {
+                    include: {
+                        UserOtherData: true
+                    }
+                }
+            }
+        })
+        return userProjects
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la récupération des tâches')
+    }
+
+}
+
+export type getUsersProject = Prisma.PromiseReturnType<typeof getUsersProject>;
+
+
 
 export const copyBook = async (projectSlug: string) => {
     try {
@@ -61,9 +92,12 @@ export const copyBook = async (projectSlug: string) => {
                 clientId: project.clientId
             },
         })
+        const countBook = await prisma.project_Book.count()
+        const bookNumber = `00000000000000000000${countBook ? countBook + 1 : 1}`
+        const bookSlug = `${bookNumber.slice(-10)}`
         await prisma.project_Book.createMany({
             data: softwareBooks.map(book => {
-                let slug = `${project.slug}-cahier-${incrementSlugBook + 1}-${book.slug}`
+                let slug = syncGenerateSlug(`${bookSlug}-${book.label}`)
                 return {
                     label: book.label,
                     description: book.description,
@@ -146,9 +180,11 @@ export const copyBook = async (projectSlug: string) => {
                 }
             }
         })
-        let incrementInputSlug = await getCountComponent()
+        const incrementInputSlug = await getCountComponent()
+        let count = incrementInputSlug
         const datas = softwaresComponent.map(component => {
-            let slug = `champ-${incrementInputSlug += 1}-${component.slug}`
+            count += 1
+            let slug = syncGenerateSlug(`00000000000000000000${count}`)
             return {
                 label: component.label,
                 description: component.description,
@@ -164,7 +200,7 @@ export const copyBook = async (projectSlug: string) => {
                 isImage: component.isImage,
                 isTextArea: component.isTextArea,
                 projectSoftwareLabel: project.softwareLabel,
-                slug,
+                slug: slug.slice(-10),
                 projectLabel: project.label
             }
         })
@@ -172,8 +208,6 @@ export const copyBook = async (projectSlug: string) => {
         await prisma.project_Component.createMany({
             data: datas
         })
-
-
 
         await prisma.project_Input.createMany({
             data: softwaresInput.map(input => {
@@ -187,6 +221,7 @@ export const copyBook = async (projectSlug: string) => {
                     maxValue: input.maxValue,
                     placeholder: input.placeholder,
                     order: input.order,
+                    componentLabel: input.componentLabel,
                     isCode: input.isCode,
                     isLabel: input.isLabel,
                     isDescription: input.isDescription,
@@ -199,10 +234,13 @@ export const copyBook = async (projectSlug: string) => {
                     createdBy: project.createdBy,
                     projectLabel: project.label,
                     projectSoftwareLabel: project.softwareLabel,
+                    formSource: input.formSource,
+                    dsnItem: input.dsnItem,
                     bookLabel: input.Software_Component.SoftwareChapterSoftwareComponent[0].bookLabel,
                     chapterLevel_1: input.Software_Component.SoftwareChapterSoftwareComponent[0].level_1,
                     chapterLevel_2: input.Software_Component.SoftwareChapterSoftwareComponent[0].level_2,
                     chapterLevel_3: input.Software_Component.SoftwareChapterSoftwareComponent[0].level_3,
+
                 }
             })
         })
@@ -227,9 +265,11 @@ export const copyTask = async (projectSlug: string) => {
                 clientId: project.clientId
             }
         })
-        let countTasks = await getCountTaskByClientSlug(project.clientId)
+        let countTasks = await prisma.project_Task.count()
+        const taskNumber = `00000000000000000000${countTasks ? countTasks + 1 : 1}`
+        const taskSlug = `${taskNumber.slice(-10)}`
         const projectsTask = softwareTasks.map(task => {
-            const slug = syncGenerateSlug(`${countTasks ? countTasks + 1 : 1}-${task.label}`)
+            const slug = syncGenerateSlug(`${taskSlug}-${task.label}`)
             return {
                 label: task.label,
                 description: task.description,
@@ -335,6 +375,27 @@ export const getProjectBook = async (projectSlug: string) => {
 
         })
         return books
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la récupération des projets')
+    }
+
+}
+
+export const getValidatorProject = async (projectSlug: string) => {
+    try {
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) {
+            throw new Error('Le projet n\'existe pas')
+        }
+        const userProjectsValidator = await prisma.userProject.findMany({
+            where: {
+                projectLabel: projectExist.label,
+                projectClientId: projectExist.clientId,
+                isValidator: true
+            }
+        })
+        return userProjectsValidator
     } catch (err) {
         console.error(err)
         throw new Error('Une erreur est survenue lors de la récupération des projets')

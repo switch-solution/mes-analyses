@@ -46,21 +46,22 @@ model VerificationToken {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String          @unique
-  emailVerified DateTime?
-  image         String?
-  username      String?
-  accounts      Account[]
-  sessions      Session[]
-  UserOtherData UserOtherData[]
-  UserClient    UserClient[]
-  UserProject   UserProject[]
-  UserSoftware  UserSoftware[]
-  Validation    Validation[]
-  Alert         Alert[]
-  Project_Task  Project_Task[]
+  id                    String                  @id @default(cuid())
+  name                  String?
+  email                 String                  @unique
+  emailVerified         DateTime?
+  image                 String?
+  username              String?
+  accounts              Account[]
+  sessions              Session[]
+  UserOtherData         UserOtherData[]
+  UserClient            UserClient[]
+  UserProject           UserProject[]
+  UserSoftware          UserSoftware[]
+  Validation            Validation[]
+  Alert                 Alert[]
+  Project_Task          Project_Task[]
+  Project_Book_WorkFlow Project_Book_WorkFlow[]
 }
 
 model UserOtherData {
@@ -110,7 +111,6 @@ model Client {
   Software           Software[]
   Software_Component Software_Component[]
   Project            Project[]
-  invoice            Invoice[]
   Logger             Logger[]
 }
 
@@ -145,20 +145,41 @@ model UserClient {
 }
 
 model Invitation {
-  email      String   @unique
-  sendEmail  Boolean
-  civility   String
-  firstName  String
-  lastname   String
-  isBlocked  Boolean  @default(false)
-  isBillable Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  createdBy  String
-  clientId   String
-  client     Client   @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  email                 String   @unique
+  sendEmail             Boolean
+  civility              String
+  firstname             String
+  lastname              String
+  isBlocked             Boolean  @default(false)
+  isBillable            Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  createdBy             String
+  clientId              String
+  client                Client   @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  projectLabel          String?
+  projectSoftwareLabel  String?
+  isAdministratorClient Boolean  @default(false)
+  isEditorClient        Boolean  @default(false)
+  source                String
 
   @@id([email, clientId])
+}
+
+model Project_Invitation {
+  projectLabel         String
+  projectSoftwareLabel String
+  clientId             String
+  Project              Project  @relation(fields: [clientId, projectLabel, projectSoftwareLabel], references: [clientId, label, softwareLabel], onDelete: Cascade)
+  email                String
+  isAdministrator      Boolean  @default(false)
+  isEditor             Boolean  @default(false)
+  isValidator          Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  createdBy            String
+  updatedAt            DateTime @updatedAt
+
+  @@id([projectLabel, projectSoftwareLabel, clientId, email])
 }
 
 model Software {
@@ -295,6 +316,7 @@ model Software_Component {
 model Software_Component_Input {
   type                             String
   dsnType                          String?
+  dsnItem                          String?
   otherData                        String?
   label                            String
   maxLength                        Int?                               @default(255)
@@ -431,7 +453,6 @@ model Project {
   softwareLabel      String
   UserProject        UserProject[]
   Project_Book       Project_Book[]
-  Dsn                Dsn[]
   Logger             Logger[]
   Project_Attachment Project_Attachment[]
   slug               String               @unique
@@ -439,6 +460,7 @@ model Project {
   Project_Items      Project_Items[]
   Project_Task       Project_Task[]
   Constant_Legal     Constant_Legal[]
+  Project_Invitation Project_Invitation[]
 
   @@id([clientId, softwareLabel, label])
 }
@@ -456,30 +478,51 @@ model UserProject {
   projectClientId      String
   projectSoftwareLabel String
   projectLabel         String
+  team                 String
+  role                 String?
 
   @@id([userId, projectClientId, projectLabel, projectSoftwareLabel])
 }
 
 model Project_Book {
   label                     String
-  slug                      String            @unique
+  slug                      String                  @unique
   description               String
-  isHold                    Boolean           @default(false)
-  isStarted                 Boolean           @default(false)
-  isValidate                Boolean           @default(false)
-  isModifiedAfertValidation Boolean           @default(false)
-  isArchived                Boolean           @default(false)
+  isHold                    Boolean                 @default(false)
+  isStarted                 Boolean                 @default(false)
+  isValidate                Boolean                 @default(false)
+  isModifiedAfertValidation Boolean                 @default(false)
+  isArchived                Boolean                 @default(false)
   ProjectChapter            Project_Chapter[]
   Validation                Validation[]
-  project                   Project           @relation(fields: [clientId, projectLabel, projectSoftwareLabel], references: [clientId, label, softwareLabel], onDelete: Cascade)
+  project                   Project                 @relation(fields: [clientId, projectLabel, projectSoftwareLabel], references: [clientId, label, softwareLabel], onDelete: Cascade)
   clientId                  String
   projectLabel              String
   projectSoftwareLabel      String
-  createdAt                 DateTime          @default(now())
-  updatedAt                 DateTime          @updatedAt
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
   createdBy                 String
+  Project_Book_WorkFlow     Project_Book_WorkFlow[]
 
   @@id([clientId, label, projectLabel, projectSoftwareLabel])
+}
+
+model Project_Book_WorkFlow {
+  userId        String
+  projectLabel  String
+  softwareLabel String
+  bookLabel     String
+  clientId      String
+  response      String
+  commment      String?
+  deadline      DateTime
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  createdBy     String
+  Project_Book  Project_Book @relation(fields: [clientId, projectLabel, softwareLabel, bookLabel], references: [clientId, projectLabel, projectSoftwareLabel, label], onDelete: Cascade)
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectLabel, softwareLabel, clientId, bookLabel])
 }
 
 model Project_Chapter {
@@ -534,6 +577,7 @@ model Project_Input {
   slug                 String             @unique @default(cuid())
   type                 String
   dsnType              String?
+  dsnItem              String?
   label                String
   maxLength            Int?
   minLength            Int?
@@ -549,6 +593,7 @@ model Project_Input {
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   createdBy            String
+  componentLabel       String
   Projet_Composant     Project_Component? @relation(fields: [bookLabel, projectLabel, clientId, chapterLevel_1, chapterLevel_2, chapterLevel_3, projectSoftwareLabel], references: [bookLabel, projectLabel, clientId, chapterLevel_1, chapterLevel_2, chapterLevel_3, projectSoftwareLabel], onDelete: Cascade)
   clientId             String
   bookLabel            String
@@ -560,6 +605,7 @@ model Project_Input {
   chapterLevel_1       Int
   chapterLevel_2       Int
   chapterLevel_3       Int
+  formSource           String?
   Project_Value        Project_Value[]
   Project_Option       Project_Option[]
 
@@ -568,6 +614,7 @@ model Project_Input {
 
 model Project_Value {
   version              Int
+  slug                 String        @unique
   recordId             String
   label                String
   textValue            String?
@@ -580,8 +627,11 @@ model Project_Value {
   clientId             String
   bookLabel            String
   inputLabel           String
+  formSource           String?
+  inputSource          String?
   projectLabel         String
   projectSoftwareLabel String
+  componentLabel       String
   chapterLevel_1       Int
   chapterLevel_2       Int
   chapterLevel_3       Int
@@ -611,130 +661,6 @@ model Project_Option {
   @@id([clientId, bookLabel, inputLabel, projectLabel, chapterLevel_1, chapterLevel_2, chapterLevel_3, label, version, projectSoftwareLabel])
 }
 
-model Dsn {
-  siren                String
-  nic                  String
-  version              String
-  fraction             String
-  month                String
-  type                 String
-  project              Project             @relation(fields: [clientId, projectLabel, projectSoftwareLabel], references: [clientId, label, softwareLabel], onDelete: Cascade)
-  clientId             String
-  projectLabel         String
-  projectSoftwareLabel String
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
-  createdBy            String
-  DsnEstablishment     Dsn_Establishment[]
-  DsnIdcc              Dsn_Idcc[]
-  Dsn_Job              Dsn_Job[]
-
-  @@id([siren, nic, month, version, fraction])
-}
-
-model Dsn_Establishment {
-  nic                  String
-  apet                 String
-  address1             String
-  address2             String?
-  address3             String?
-  codeZip              String
-  city                 String
-  country              String                 @default("FR")
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  createdBy            String
-  Dsn                  Dsn                    @relation(fields: [dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction], references: [siren, nic, month, version, fraction])
-  dsnSiren             String
-  dsnNic               String
-  dsnMonth             String
-  dsnVersion           String
-  dsnFraction          String
-  clientId             String
-  siret                String
-  Dsn_RateAt           Dsn_RateAt[]
-  Dsn_ContributionFund Dsn_ContributionFund[]
-
-  @@id([clientId, siret])
-}
-
-model Dsn_RateAt {
-  code              String
-  rate              String
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  createdBy         String
-  siret             String
-  clientId          String
-  Dsn_Etablissement Dsn_Establishment @relation(fields: [clientId, siret], references: [clientId, siret])
-
-  @@id([code, siret, clientId])
-}
-
-model Dsn_ContributionFund {
-  code              String
-  name              String
-  address1          String
-  address2          String?
-  address3          String?
-  city              String
-  codeZip           String
-  country           String            @default("FR")
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  createdBy         String
-  siret             String
-  clientId          String
-  Dsn_Etablissement Dsn_Establishment @relation(fields: [clientId, siret], references: [clientId, siret])
-
-  @@id([code, siret, clientId])
-}
-
-model Dsn_Mutual {
-  contractId String
-  organisme  String?
-  delegate   String?
-  covererd   String?
-  techId     String?
-  clientId   String
-  siren      String
-
-  @@id([contractId, clientId, siren])
-}
-
-model Dsn_Idcc {
-  code        String
-  label       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String
-  Dsn         Dsn      @relation(fields: [dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction], references: [siren, nic, month, version, fraction])
-  dsnSiren    String
-  dsnNic      String
-  dsnMonth    String
-  dsnVersion  String
-  dsnFraction String
-  clientId    String
-
-  @@id([code, dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction, clientId])
-}
-
-model Dsn_Job {
-  label       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String
-  Dsn         Dsn      @relation(fields: [dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction], references: [siren, nic, month, version, fraction])
-  dsnSiren    String
-  dsnNic      String
-  dsnMonth    String
-  dsnVersion  String
-  dsnFraction String
-  clientId    String
-
-  @@id([label, dsnSiren, dsnNic, dsnMonth, dsnVersion, dsnFraction, clientId])
-}
-
 model Setting {
   code        String
   label       String
@@ -747,44 +673,6 @@ model Setting {
   createdBy   String
 
   @@id([code, dateStart, dateEnd])
-}
-
-model Invoice {
-  socialReason String
-  clientId     String
-  client       Client        @relation(fields: [clientId], references: [siren], onDelete: Cascade)
-  dateStart    DateTime
-  dateEnd      DateTime
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  createdBy    String
-  dateLimit    DateTime
-  status       String
-  quantity     Int
-  amount       Float
-  InvoiceLine  InvoiceLine[]
-  slug         String        @unique
-
-  @@id([clientId, dateStart, dateEnd])
-}
-
-model InvoiceLine {
-  invoice   Invoice  @relation(fields: [clientId, dateStart, dateEnd], references: [clientId, dateStart, dateEnd], onDelete: Cascade)
-  label     String
-  clientId  String
-  dateStart DateTime
-  dateEnd   DateTime
-  email     String
-  firstname String?
-  lastname  String?
-  quantity  Int
-  amount    Float
-  status    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy String
-
-  @@id([label, clientId, dateStart, dateEnd])
 }
 
 model Logger {
@@ -1003,6 +891,7 @@ model Form_Input {
   type          String
   label         String
   dsnType       String?
+  dsnItem       String?
   otherData     String?
   maxLength     Int?
   minLength     Int?

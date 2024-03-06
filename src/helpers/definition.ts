@@ -234,13 +234,29 @@ export const SetupSoftwareSchema = z.object({
 })
 
 export const InvitationSchema = z.object({
-    clientId: z.string().uuid(),
-    civility: z.string().min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
     email: z.string().email(),
-    firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    civility: z.enum(['M.', 'Mme']),
     lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
-
+    firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    projectSlug: z.string().min(1, { message: "Le projet est obligatoire." }),
+    isAdministratorClient: z.boolean().optional(),
+    isEditorClient: z.boolean().optional(),
+    source: z.enum(['client', 'project'])
 })
+
+export const InvitationProjectSchema = z.object({
+    clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    civility: z.string().min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
+    lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
+    firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    email: z.string().email(),
+    projectSlug: z.string().min(1, { message: "Le projet est obligatoire." }),
+    isAdministratorProject: z.boolean().optional(),
+    isEditorProject: z.boolean().optional(),
+    isValidatorProject: z.boolean().optional(),
+})
+
 
 export const ButtonDangerDeleteSchema = z.object({
     validation: z.string().regex(/oui/, { message: "La validation doit être 'oui'." }),
@@ -269,6 +285,7 @@ export const ProjectCreateSchema = z.object({
     softwareLabel: z.string().min(1, { message: "Le logiciel est obligatoire." }),
     description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
     clientSlug: z.string().min(1, { message: "Le client est obligatoire." }),
+    role: z.enum(['Consultant déploiement', 'Directeur de projet', 'Chef de projet', 'Consultant technique', 'Support']),
 })
 
 export const BookToProjectSchema = z.object({
@@ -356,4 +373,6 @@ export const DynamicFormSchema = z.object({
     componentSlug: z.string().min(1, { message: "Le composant est obligatoire." }),
     value: z.string().optional(),
     label: z.string().min(1, { message: "Le label est obligatoire." }),
+    formSource: z.string().optional(),
+    inputSource: z.string().optional(),
 })

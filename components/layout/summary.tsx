@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { getChapterByBookSlug } from "@/src/query/project_book.query"
-import { Button } from "@/components/ui/button";
-export default function Summary({ chapters, clientSlug, projectSlug }: { chapters: getChapterByBookSlug, clientSlug: string, projectSlug: string }) {
+import { Printer, CornerDownLeft, TicketCheck } from "lucide-react";
+export default function Summary({ chapters, clientSlug, projectSlug, bookSlug }: { chapters: getChapterByBookSlug, clientSlug: string, projectSlug: string, bookSlug: string }) {
 
     const level_1 = chapters.filter(chapter =>
         chapter.level_1 >= 1 && chapter.level_2 === 0 && chapter.level_3 === 0
@@ -25,9 +25,8 @@ export default function Summary({ chapters, clientSlug, projectSlug }: { chapter
         }
     })
     return (
-        <div className="h-full border-r-2">
-
-            <ul>
+        <div className="lg:h-full border-r-2 flex flex-col">
+            <ul className="h-3/4">
                 {merge.map(chapters => {
                     return (
                         <>
@@ -47,14 +46,20 @@ export default function Summary({ chapters, clientSlug, projectSlug }: { chapter
 
 
                 })}
-                <li>
-                    <Link href={`/client/${clientSlug}/project/${projectSlug}/book`}>Retour à la liste des cahiers</Link>
-                </li>
-                <li>
-                    <Button>Valider le cahier</Button>
-                </li>
 
-            </ul >
+
+            </ul>
+            <ul className="h-1/4 w-full">
+                <li className="flex flex-row w-full">
+                    <Printer /><Link className="ml-2" href={`/client/${clientSlug}/project/${projectSlug}/book/${bookSlug}/pdf`}>Imprimer en pdf</Link>
+                </li>
+                <li className="flex flex-row w-full">
+                    <CornerDownLeft /><Link className="ml-2" href={`/client/${clientSlug}/project/${projectSlug}/book`}>Retour à la liste des cahiers</Link>
+                </li>
+                <li className="flex flex-row w-full">
+                    <TicketCheck /><Link className="ml-2" href={`/client/${clientSlug}/project/${projectSlug}/book/${bookSlug}/validation`}>Valider le cahier</Link>
+                </li>
+            </ul>
         </div>
 
     )

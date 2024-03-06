@@ -1,4 +1,4 @@
-import CreateProject from "@/components/form/project/create"
+import CreateProject from "@/components/form/project/createProject"
 import { getMySoftware } from "@/src/query/user.query"
 export default async function ProjectCreate({ params }: { params: { clientSlug: string } }) {
 

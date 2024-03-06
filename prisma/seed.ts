@@ -25,8 +25,9 @@ import { bookV0011Seed } from './seed/23_book.v0011.seed'
 import { bookV0012Seed } from './seed/24_book.v0012.seed'
 import { bookV0013Seed } from './seed/25_book.v0013.seed'
 import { inputV0001Seed } from './seed/26_input.v0001.seed'
-import { itemV0001 } from './seed/28_item.v0001.seed'
+import { itemV0001Seed } from './seed/28_item.v0001.seed'
 import { defaultSettingV0001 } from './seed/27_defaultSetting.v0001.seed'
+import { formV0007Seed } from './seed/29_form.v0007.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -295,7 +296,7 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    await itemV0001.run()
+    await itemV0001Seed.run()
         .then(async () => {
             await prisma.$disconnect()
         })
@@ -304,6 +305,16 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
+    await formV0007Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+
 
 }
 

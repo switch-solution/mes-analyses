@@ -20,7 +20,9 @@ export default function Form({ clientSlug, projectSlug, bookSlug, component }: {
                 bookSlug: bookSlug,
                 componentSlug: component?.slug ? component.slug : '',
                 value: value,
-                label: key
+                label: key,
+                formSource: component?.Project_Input.find(input => input.label === key)?.formSource,
+                inputSource: component?.Project_Input.find(input => input.label === key)?.inputSource
             } as TypeInput)
             DynamicFormSchema.parse({
                 clientSlug: clientSlug,
@@ -28,24 +30,32 @@ export default function Form({ clientSlug, projectSlug, bookSlug, component }: {
                 bookSlug: bookSlug,
                 componentSlug: component?.slug ? component.slug : '',
                 value: value,
-                label: key
+                label: key,
+                formSource: component?.Project_Input.find(input => input.label === key)?.formSource,
+                inputSource: component?.Project_Input.find(input => input.label === key)?.inputSource
             })
 
         })
         await createComponentValue(inputs)
     }
-
     return (
         <form className="m-2 w-full" onSubmit={handleSubmit}>
             {component && component.Project_Input.map(input =>
                 <div key={input.label} className="flex flex-row items-center mt-2">
-                    <div className="w-1/3">
-                        <Label htmlFor={input.label}>{input.label}</Label>
-                    </div>
-                    <div className="w-2/3">
-                        <Input id={input.label} name={input.label} aria-label={input.label} type={input.type} minLength={input.minLength ? input.minLength : undefined} maxLength={input?.maxLength ? input.maxLength : undefined} />
-                    </div>
+                    {input.type === 'text' || input.type === 'number' || input.type === 'date' ?
+                        <>
+                            <div className="w-1/3">
+                                <Label htmlFor={input.label}>{input.label}</Label>
+                            </div>
+                            <div className="w-2/3">
+                                <Input id={input.label} name={input.label} aria-label={input.label} type={input.type} minLength={input.minLength ? input.minLength : undefined} maxLength={input?.maxLength ? input.maxLength : undefined} />
+                            </div>
+                        </>
+                        : undefined
+                    }
                 </div>
+
+
 
 
             )}

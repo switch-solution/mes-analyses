@@ -61,7 +61,7 @@ class FormV0004Seed extends Seed {
                         Form_Input: {
                             create: [{
                                 type: 'text',
-                                dsnType: 'DSN_TAUX_AT',
+                                dsnType: 'DSN_Code_AT',
                                 label: 'Code taux AT',
                                 isCode: true,
                                 maxLength: 50,
@@ -74,7 +74,7 @@ class FormV0004Seed extends Seed {
                             },
                             {
                                 type: 'text',
-                                otherData: 'Taux_AT_Libelle',
+                                otherData: 'Libelle_AT_Libelle',
                                 label: 'Libellé taux AT',
                                 maxLength: 50,
                                 isLabel: true,

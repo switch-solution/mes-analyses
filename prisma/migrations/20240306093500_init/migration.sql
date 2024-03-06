@@ -129,7 +129,7 @@ CREATE TABLE "Invitation" (
     "email" TEXT NOT NULL,
     "sendEmail" BOOLEAN NOT NULL,
     "civility" TEXT NOT NULL,
-    "firstName" TEXT NOT NULL,
+    "firstname" TEXT NOT NULL,
     "lastname" TEXT NOT NULL,
     "isBlocked" BOOLEAN NOT NULL DEFAULT false,
     "isBillable" BOOLEAN NOT NULL DEFAULT false,
@@ -137,8 +137,29 @@ CREATE TABLE "Invitation" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT,
+    "projectSoftwareLabel" TEXT,
+    "isAdministratorClient" BOOLEAN NOT NULL DEFAULT false,
+    "isEditorClient" BOOLEAN NOT NULL DEFAULT false,
+    "source" TEXT NOT NULL,
 
     CONSTRAINT "Invitation_pkey" PRIMARY KEY ("email","clientId")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Invitation" (
+    "projectLabel" TEXT NOT NULL,
+    "projectSoftwareLabel" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "isAdministrator" BOOLEAN NOT NULL DEFAULT false,
+    "isEditor" BOOLEAN NOT NULL DEFAULT false,
+    "isValidator" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Project_Invitation_pkey" PRIMARY KEY ("projectLabel","projectSoftwareLabel","clientId","email")
 );
 
 -- CreateTable
@@ -253,6 +274,7 @@ CREATE TABLE "Software_Component" (
 CREATE TABLE "Software_Component_Input" (
     "type" TEXT NOT NULL,
     "dsnType" TEXT,
+    "dsnItem" TEXT,
     "otherData" TEXT,
     "label" TEXT NOT NULL,
     "maxLength" INTEGER DEFAULT 255,
@@ -396,6 +418,8 @@ CREATE TABLE "UserProject" (
     "projectClientId" TEXT NOT NULL,
     "projectSoftwareLabel" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
+    "team" TEXT NOT NULL,
+    "role" TEXT,
 
     CONSTRAINT "UserProject_pkey" PRIMARY KEY ("userId","projectClientId","projectLabel","projectSoftwareLabel")
 );
@@ -418,6 +442,23 @@ CREATE TABLE "Project_Book" (
     "createdBy" TEXT NOT NULL,
 
     CONSTRAINT "Project_Book_pkey" PRIMARY KEY ("clientId","label","projectLabel","projectSoftwareLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Book_WorkFlow" (
+    "userId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "bookLabel" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "response" TEXT NOT NULL,
+    "commment" TEXT,
+    "deadline" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+
+    CONSTRAINT "Project_Book_WorkFlow_pkey" PRIMARY KEY ("userId","projectLabel","softwareLabel","clientId","bookLabel")
 );
 
 -- CreateTable
@@ -469,6 +510,7 @@ CREATE TABLE "Project_Input" (
     "slug" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "dsnType" TEXT,
+    "dsnItem" TEXT,
     "label" TEXT NOT NULL,
     "maxLength" INTEGER,
     "minLength" INTEGER,
@@ -484,6 +526,7 @@ CREATE TABLE "Project_Input" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
+    "componentLabel" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
     "bookLabel" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
@@ -494,6 +537,7 @@ CREATE TABLE "Project_Input" (
     "chapterLevel_1" INTEGER NOT NULL,
     "chapterLevel_2" INTEGER NOT NULL,
     "chapterLevel_3" INTEGER NOT NULL,
+    "formSource" TEXT,
 
     CONSTRAINT "Project_Input_pkey" PRIMARY KEY ("clientId","bookLabel","projectLabel","chapterLevel_1","chapterLevel_2","chapterLevel_3","label","projectSoftwareLabel")
 );
@@ -512,6 +556,8 @@ CREATE TABLE "Project_Value" (
     "clientId" TEXT NOT NULL,
     "bookLabel" TEXT NOT NULL,
     "inputLabel" TEXT NOT NULL,
+    "formSource" TEXT,
+    "inputSource" TEXT,
     "projectLabel" TEXT NOT NULL,
     "projectSoftwareLabel" TEXT NOT NULL,
     "chapterLevel_1" INTEGER NOT NULL,
@@ -544,126 +590,6 @@ CREATE TABLE "Project_Option" (
 );
 
 -- CreateTable
-CREATE TABLE "Dsn" (
-    "siren" TEXT NOT NULL,
-    "nic" TEXT NOT NULL,
-    "version" TEXT NOT NULL,
-    "fraction" TEXT NOT NULL,
-    "month" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "projectLabel" TEXT NOT NULL,
-    "projectSoftwareLabel" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-
-    CONSTRAINT "Dsn_pkey" PRIMARY KEY ("siren","nic","month","version","fraction")
-);
-
--- CreateTable
-CREATE TABLE "Dsn_Establishment" (
-    "nic" TEXT NOT NULL,
-    "apet" TEXT NOT NULL,
-    "address1" TEXT NOT NULL,
-    "address2" TEXT,
-    "address3" TEXT,
-    "codeZip" TEXT NOT NULL,
-    "city" TEXT NOT NULL,
-    "country" TEXT NOT NULL DEFAULT 'FR',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "dsnSiren" TEXT NOT NULL,
-    "dsnNic" TEXT NOT NULL,
-    "dsnMonth" TEXT NOT NULL,
-    "dsnVersion" TEXT NOT NULL,
-    "dsnFraction" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "siret" TEXT NOT NULL,
-
-    CONSTRAINT "Dsn_Establishment_pkey" PRIMARY KEY ("clientId","siret")
-);
-
--- CreateTable
-CREATE TABLE "Dsn_RateAt" (
-    "code" TEXT NOT NULL,
-    "rate" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "siret" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-
-    CONSTRAINT "Dsn_RateAt_pkey" PRIMARY KEY ("code","siret","clientId")
-);
-
--- CreateTable
-CREATE TABLE "Dsn_ContributionFund" (
-    "code" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "address1" TEXT NOT NULL,
-    "address2" TEXT,
-    "address3" TEXT,
-    "city" TEXT NOT NULL,
-    "codeZip" TEXT NOT NULL,
-    "country" TEXT NOT NULL DEFAULT 'FR',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "siret" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-
-    CONSTRAINT "Dsn_ContributionFund_pkey" PRIMARY KEY ("code","siret","clientId")
-);
-
--- CreateTable
-CREATE TABLE "Dsn_Mutual" (
-    "contractId" TEXT NOT NULL,
-    "organisme" TEXT,
-    "delegate" TEXT,
-    "covererd" TEXT,
-    "techId" TEXT,
-    "clientId" TEXT NOT NULL,
-    "siren" TEXT NOT NULL,
-
-    CONSTRAINT "Dsn_Mutual_pkey" PRIMARY KEY ("contractId","clientId","siren")
-);
-
--- CreateTable
-CREATE TABLE "Dsn_Idcc" (
-    "code" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "dsnSiren" TEXT NOT NULL,
-    "dsnNic" TEXT NOT NULL,
-    "dsnMonth" TEXT NOT NULL,
-    "dsnVersion" TEXT NOT NULL,
-    "dsnFraction" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-
-    CONSTRAINT "Dsn_Idcc_pkey" PRIMARY KEY ("code","dsnSiren","dsnNic","dsnMonth","dsnVersion","dsnFraction","clientId")
-);
-
--- CreateTable
-CREATE TABLE "Dsn_Job" (
-    "label" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "dsnSiren" TEXT NOT NULL,
-    "dsnNic" TEXT NOT NULL,
-    "dsnMonth" TEXT NOT NULL,
-    "dsnVersion" TEXT NOT NULL,
-    "dsnFraction" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-
-    CONSTRAINT "Dsn_Job_pkey" PRIMARY KEY ("label","dsnSiren","dsnNic","dsnMonth","dsnVersion","dsnFraction","clientId")
-);
-
--- CreateTable
 CREATE TABLE "Setting" (
     "code" TEXT NOT NULL,
     "label" TEXT NOT NULL,
@@ -676,43 +602,6 @@ CREATE TABLE "Setting" (
     "createdBy" TEXT NOT NULL,
 
     CONSTRAINT "Setting_pkey" PRIMARY KEY ("code","dateStart","dateEnd")
-);
-
--- CreateTable
-CREATE TABLE "Invoice" (
-    "socialReason" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "dateStart" TIMESTAMP(3) NOT NULL,
-    "dateEnd" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "dateLimit" TIMESTAMP(3) NOT NULL,
-    "status" TEXT NOT NULL,
-    "quantity" INTEGER NOT NULL,
-    "amount" DOUBLE PRECISION NOT NULL,
-    "slug" TEXT NOT NULL,
-
-    CONSTRAINT "Invoice_pkey" PRIMARY KEY ("clientId","dateStart","dateEnd")
-);
-
--- CreateTable
-CREATE TABLE "InvoiceLine" (
-    "label" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "dateStart" TIMESTAMP(3) NOT NULL,
-    "dateEnd" TIMESTAMP(3) NOT NULL,
-    "email" TEXT NOT NULL,
-    "firstname" TEXT,
-    "lastname" TEXT,
-    "quantity" INTEGER NOT NULL,
-    "amount" DOUBLE PRECISION NOT NULL,
-    "status" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-
-    CONSTRAINT "InvoiceLine_pkey" PRIMARY KEY ("label","clientId","dateStart","dateEnd")
 );
 
 -- CreateTable
@@ -924,6 +813,7 @@ CREATE TABLE "Form_Input" (
     "type" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "dsnType" TEXT,
+    "dsnItem" TEXT,
     "otherData" TEXT,
     "maxLength" INTEGER,
     "minLength" INTEGER,
@@ -1188,9 +1078,6 @@ CREATE UNIQUE INDEX "Project_Component_slug_key" ON "Project_Component"("slug");
 CREATE UNIQUE INDEX "Project_Input_slug_key" ON "Project_Input"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Invoice_slug_key" ON "Invoice"("slug");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Software_Items_slug_key" ON "Software_Items"("slug");
 
 -- CreateIndex
@@ -1231,6 +1118,9 @@ ALTER TABLE "UserClient" ADD CONSTRAINT "UserClient_clientId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "Invitation" ADD CONSTRAINT "Invitation_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Invitation" ADD CONSTRAINT "Project_Invitation_clientId_projectLabel_projectSoftwareLa_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Software" ADD CONSTRAINT "Software_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -1302,6 +1192,12 @@ ALTER TABLE "UserProject" ADD CONSTRAINT "UserProject_projectClientId_projectLab
 ALTER TABLE "Project_Book" ADD CONSTRAINT "Project_Book_clientId_projectLabel_projectSoftwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Project_Book_WorkFlow" ADD CONSTRAINT "Project_Book_WorkFlow_clientId_projectLabel_softwareLabel__fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel", "bookLabel") REFERENCES "Project_Book"("clientId", "projectLabel", "projectSoftwareLabel", "label") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Book_WorkFlow" ADD CONSTRAINT "Project_Book_WorkFlow_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Project_Chapter" ADD CONSTRAINT "Project_Chapter_bookLabel_clientId_projectLabel_level_1_le_fkey" FOREIGN KEY ("bookLabel", "clientId", "projectLabel", "level_1", "level_2", "level_3", "projectSoftwareLabel") REFERENCES "Project_Chapter"("bookLabel", "clientId", "projectLabel", "level_1", "level_2", "level_3", "projectSoftwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -1318,30 +1214,6 @@ ALTER TABLE "Project_Value" ADD CONSTRAINT "Project_Value_clientId_bookLabel_pro
 
 -- AddForeignKey
 ALTER TABLE "Project_Option" ADD CONSTRAINT "Project_Option_clientId_bookLabel_inputLabel_projectLabel__fkey" FOREIGN KEY ("clientId", "bookLabel", "inputLabel", "projectLabel", "chapterLevel_1", "chapterLevel_2", "chapterLevel_3", "projectSoftwareLabel") REFERENCES "Project_Input"("clientId", "bookLabel", "label", "projectLabel", "chapterLevel_1", "chapterLevel_2", "chapterLevel_3", "projectSoftwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Dsn" ADD CONSTRAINT "Dsn_clientId_projectLabel_projectSoftwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Dsn_Establishment" ADD CONSTRAINT "Dsn_Establishment_dsnSiren_dsnNic_dsnMonth_dsnVersion_dsnF_fkey" FOREIGN KEY ("dsnSiren", "dsnNic", "dsnMonth", "dsnVersion", "dsnFraction") REFERENCES "Dsn"("siren", "nic", "month", "version", "fraction") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Dsn_RateAt" ADD CONSTRAINT "Dsn_RateAt_clientId_siret_fkey" FOREIGN KEY ("clientId", "siret") REFERENCES "Dsn_Establishment"("clientId", "siret") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Dsn_ContributionFund" ADD CONSTRAINT "Dsn_ContributionFund_clientId_siret_fkey" FOREIGN KEY ("clientId", "siret") REFERENCES "Dsn_Establishment"("clientId", "siret") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Dsn_Idcc" ADD CONSTRAINT "Dsn_Idcc_dsnSiren_dsnNic_dsnMonth_dsnVersion_dsnFraction_fkey" FOREIGN KEY ("dsnSiren", "dsnNic", "dsnMonth", "dsnVersion", "dsnFraction") REFERENCES "Dsn"("siren", "nic", "month", "version", "fraction") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Dsn_Job" ADD CONSTRAINT "Dsn_Job_dsnSiren_dsnNic_dsnMonth_dsnVersion_dsnFraction_fkey" FOREIGN KEY ("dsnSiren", "dsnNic", "dsnMonth", "dsnVersion", "dsnFraction") REFERENCES "Dsn"("siren", "nic", "month", "version", "fraction") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "InvoiceLine" ADD CONSTRAINT "InvoiceLine_clientId_dateStart_dateEnd_fkey" FOREIGN KEY ("clientId", "dateStart", "dateEnd") REFERENCES "Invoice"("clientId", "dateStart", "dateEnd") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Logger" ADD CONSTRAINT "Logger_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE SET NULL ON UPDATE CASCADE;

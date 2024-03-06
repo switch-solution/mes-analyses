@@ -9,13 +9,14 @@ import { createLog } from '@/src/query/logger.query';
 import type { Logger } from '@/src/helpers/type';
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
 import { copyBook, copyTask } from '@/src/query/project.query';
-import { getCountClientProjects } from '@/src/query/client.query';
 export const createProjet = authentificationActionUserIsEditorClient(ProjectCreateSchema, async (values: z.infer<typeof ProjectCreateSchema>, { userId, clientId }) => {
 
-    const { label, description, softwareLabel, clientSlug } = ProjectCreateSchema.parse(values)
+    const { label, description, softwareLabel, clientSlug, role } = ProjectCreateSchema.parse(values)
     try {
-        const countProjects = await getCountClientProjects(clientSlug)
-        const slug = await generateSlug(`${countProjects ? countProjects + 1 : 1}-${label}`)
+        const countProjects = await prisma.project.count()
+        const projectNumber = `00000000000000000000${countProjects ? countProjects + 1 : 1}`
+        const projectSlug = `${projectNumber.slice(-10)}`
+        const slug = await generateSlug(`${projectSlug}-${label}`)
         const project = await prisma.project.create({
             data: {
                 label: label,
@@ -31,7 +32,9 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
                         isAdmin: true,
                         isEditor: true,
                         isValidator: true,
-                        createdBy: userId
+                        createdBy: userId,
+                        team: 'Editeur',
+                        role: role
                     }
                 },
             },

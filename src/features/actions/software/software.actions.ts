@@ -6,7 +6,6 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { SoftwaresSchema, AssociateSoftwareSchema } from "@/src/helpers/definition";
 import { createLog } from "@/src/query/logger.query";
-import { copyFormToSoftware } from "@/src/query/form.query";
 import type { Logger } from "@/src/helpers/type";
 import { generateSlug } from "@/src/helpers/generateSlug"
 import { getClientSirenBySlug } from "@/src/query/client.query";
@@ -14,9 +13,8 @@ import { authentificationActionUserIsAdminClient, ActionError } from "@/lib/safe
 import z from "zod";
 import { getSoftwareBySlug } from "@/src/query/software.query";
 import { getUserByEmail } from "@/src/query/user.query";
-import { createTypeRubrique } from "@/src/query/software_setting.query";
-import { copyBook } from "@/src/query/book.query";
-import { copyTask } from "@/src/query/task.query";
+import { softwareCopyData } from "@/src/query/software.query";
+
 export const deleteSoftware = async (softwareSlug: string, clientSlug: string) => {
     const userId = await userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
@@ -65,6 +63,7 @@ export const editSoftware = authentificationActionUserIsAdminClient(SoftwaresSch
             updatedAt: new Date()
         }
     })
+
 
     const log: Logger = {
         level: "info",
@@ -133,14 +132,8 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
                 createdBy: userId
             }
         })
-        await copyFormToSoftware(software.slug)
-        //Add DSN Attachment
-        //Add Settings
-        await createTypeRubrique(software.slug)
-        //Copy books and chapters
-        await copyBook(software.slug)
-        //Copy tasks
-        await copyTask(software.slug)
+        await softwareCopyData(software.slug)
+
         const log: Logger = {
             level: "info",
             message: `Le logiciel ${label} a été ajouté`,

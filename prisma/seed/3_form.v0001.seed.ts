@@ -63,13 +63,26 @@ class FormV0001Seed extends Seed {
                         Form_Input: {
                             create: [{
                                 type: 'text',
-                                dsnType: 'DSN_ETABLISSEMENT',
-                                label: 'SIRET',
+                                dsnType: 'DSN_NIC',
+                                label: 'NIC',
                                 isCode: true,
                                 maxLength: 5,
                                 minLength: 1,
-                                placeholder: "12345",
+                                placeholder: "00013",
                                 order: 1,
+                                required: true,
+                                readonly: false,
+                                createdBy: "system"
+                            },
+                            {
+                                type: 'text',
+                                dsnType: 'DSN_SIREN',
+                                label: 'SIREN',
+                                isCode: true,
+                                maxLength: 9,
+                                minLength: 1,
+                                placeholder: "123456789",
+                                order: 2,
                                 required: true,
                                 readonly: false,
                                 createdBy: "system"
@@ -82,7 +95,7 @@ class FormV0001Seed extends Seed {
                                 isLabel: true,
                                 minLength: 1,
                                 placeholder: "Mon établissement",
-                                order: 2,
+                                order: 3,
                                 required: true,
                                 readonly: false,
                                 createdBy: "system"
@@ -96,7 +109,7 @@ class FormV0001Seed extends Seed {
                                 minLength: 1,
                                 isDescription: true,
                                 placeholder: "Ma société",
-                                order: 3,
+                                order: 4,
                                 required: true,
                                 readonly: true,
                                 createdBy: "system"
@@ -108,7 +121,7 @@ class FormV0001Seed extends Seed {
                                 maxLength: 50,
                                 minLength: 1,
                                 placeholder: "Rue du test",
-                                order: 4,
+                                order: 5,
                                 required: true,
                                 readonly: false,
                                 createdBy: "system"
@@ -120,7 +133,7 @@ class FormV0001Seed extends Seed {
                                 maxLength: 50,
                                 minLength: 1,
                                 placeholder: "Batiment A",
-                                order: 5,
+                                order: 6,
                                 required: false,
                                 readonly: false,
                                 createdBy: "system"
@@ -133,7 +146,7 @@ class FormV0001Seed extends Seed {
                                 maxLength: 50,
                                 minLength: 1,
                                 placeholder: "Service paie",
-                                order: 6,
+                                order: 7,
                                 required: false,
                                 readonly: false,
                                 createdBy: "system"
@@ -145,7 +158,7 @@ class FormV0001Seed extends Seed {
                                 maxLength: 5,
                                 minLength: 1,
                                 placeholder: "75000",
-                                order: 7,
+                                order: 8,
                                 required: true,
                                 readonly: false,
                                 createdBy: "system"
@@ -157,7 +170,7 @@ class FormV0001Seed extends Seed {
                                 maxLength: 50,
                                 minLength: 1,
                                 placeholder: "Paris",
-                                order: 8,
+                                order: 9,
                                 required: true,
                                 readonly: false,
                                 createdBy: "system"
