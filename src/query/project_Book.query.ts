@@ -102,3 +102,18 @@ export const getCountBookByProject = async (projectSlug: string) => {
     }
 
 }
+
+export const getProjectBookBySlug = async (bookSlug: string) => {
+    try {
+        const bookExist = await prisma.project_Book.findUniqueOrThrow({
+            where: {
+                slug: bookSlug
+            }
+        })
+        return bookExist
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur de récupération des valeurs')
+    }
+
+}

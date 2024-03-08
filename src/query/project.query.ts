@@ -81,7 +81,6 @@ export type getUsersProject = Prisma.PromiseReturnType<typeof getUsersProject>;
 
 export const copyBook = async (projectSlug: string) => {
     try {
-        let incrementSlugBook = 0
         const project = await getProjectBySlug(projectSlug)
         if (!project) {
             throw new Error('Le projet n\'existe pas')
@@ -219,6 +218,7 @@ export const copyBook = async (projectSlug: string) => {
                     minLength: input.minLength,
                     minValue: input.minValue,
                     maxValue: input.maxValue,
+                    otherData: input.otherData,
                     placeholder: input.placeholder,
                     order: input.order,
                     componentLabel: input.componentLabel,
@@ -300,24 +300,6 @@ export const copyTask = async (projectSlug: string) => {
 
 }
 
-const getCountTaskByClientSlug = async (clientId: string) => {
-    try {
-        const clientExist = await getClientBySiren(clientId)
-        if (!clientExist) {
-            throw new Error('Le client n\'existe pas')
-        }
-        const count = await prisma.project_Task.count({
-            where: {
-                clientId: clientExist.siren
-            }
-        })
-        return count
-    } catch (err) {
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de la récupération des projets')
-    }
-
-}
 
 export const getProjectBySlug = async (projectSlug: string) => {
     try {

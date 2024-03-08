@@ -374,4 +374,6 @@ export const DynamicFormSchema = z.object({
     label: z.string().min(1, { message: "Le label est obligatoire." }),
     formSource: z.string().optional(),
     inputSource: z.string().optional(),
+    recordId: z.string().optional(),
 })
+

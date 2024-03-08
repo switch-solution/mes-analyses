@@ -4,10 +4,8 @@ import { getGroupByComponentLabelDsnWitchProjectSlug, getInputByProjectSlug } fr
 import { getClientBySlug } from '@/src/query/client.query';
 import { getProjectBySlug } from '@/src/query/project.query';
 import { userIsAuthorizeInThisProject } from '@/src/query/security.query'
-import { getCountComponentByComponentSlug } from '@/src/query/project_value.query'
-import { de } from '@faker-js/faker';
 import { ActionError } from '@/lib/safe-actions';
-import { get } from 'http';
+import { getIdccByCode } from '@/src/query/idcc.query';
 type Row = {
     code: string,
     value: string,
@@ -62,12 +60,11 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
                             chapterLevel_2: input.chapterLevel_2,
                             chapterLevel_3: input.chapterLevel_3,
                             projectSoftwareLabel: projectExist.softwareLabel,
-                            slug: count.toString(),
                             componentLabel: input.componentLabel,
                             isCode: input.isCode ? true : false,
                             isDescription: input.isDescription ? true : false,
                             isLabel: input.isLabel ? true : false,
-                            userId: clientSlug
+                            userId: userIsAuthorize.userId
                         })
                         break
                     case 'Contrat DSN':
@@ -92,12 +89,11 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
                             chapterLevel_2: input.chapterLevel_2,
                             chapterLevel_3: input.chapterLevel_3,
                             projectSoftwareLabel: projectExist.softwareLabel,
-                            slug: count.toString(),
                             componentLabel: input.componentLabel,
                             isCode: input.isCode ? true : false,
                             isDescription: input.isDescription ? true : false,
                             isLabel: input.isLabel ? true : false,
-                            userId: clientSlug
+                            userId: userIsAuthorize.userId
                         })
 
                         break
@@ -122,12 +118,11 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
                             chapterLevel_2: input.chapterLevel_2,
                             chapterLevel_3: input.chapterLevel_3,
                             projectSoftwareLabel: projectExist.softwareLabel,
-                            slug: count.toString(),
                             componentLabel: input.componentLabel,
                             isCode: input.isCode ? true : false,
                             isDescription: input.isDescription ? true : false,
                             isLabel: input.isLabel ? true : false,
-                            userId: clientSlug
+                            userId: userIsAuthorize.userId
                         })
                         break
                     case 'Convention collective':
@@ -136,7 +131,7 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
                         let ccnExist = getValuesLimit200.find((value) => value.textValue === row.value)
                         let recordIdCcn = `Formulaire_${component.componentLabel}_groupe_de_valeurs_${countRecord}`
                         if (ccnExist) {
-                            recordIdJob = ccnExist.recordId
+                            recordIdCcn = ccnExist.recordId
                         }
                         await upsertValue({
                             recordId: recordIdCcn,
@@ -149,13 +144,36 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
                             chapterLevel_2: input.chapterLevel_2,
                             chapterLevel_3: input.chapterLevel_3,
                             projectSoftwareLabel: projectExist.softwareLabel,
-                            slug: count.toString(),
                             componentLabel: input.componentLabel,
                             isCode: input.isCode ? true : false,
                             isDescription: input.isDescription ? true : false,
                             isLabel: input.isLabel ? true : false,
-                            userId: clientSlug
+                            userId: userIsAuthorize.userId
                         })
+                        const idcc = await getIdccByCode(row.value)
+                        const inputIdcc = inputs.find((input) => input.otherData === 'Libelle_Convention_Collective')
+                        if (idcc && inputIdcc) {
+                            count = count + 1
+                            await upsertValue({
+                                recordId: recordIdCcn,
+                                value: idcc.label,
+                                clientId: clientExist.siren,
+                                bookLabel: inputIdcc.bookLabel,
+                                inputLabel: inputIdcc.label,
+                                projectLabel: projectExist.label,
+                                chapterLevel_1: inputIdcc.chapterLevel_1,
+                                chapterLevel_2: inputIdcc.chapterLevel_2,
+                                chapterLevel_3: inputIdcc.chapterLevel_3,
+                                projectSoftwareLabel: projectExist.softwareLabel,
+                                componentLabel: inputIdcc.componentLabel,
+                                isCode: inputIdcc.isCode ? true : false,
+                                isDescription: inputIdcc.isDescription ? true : false,
+                                isLabel: inputIdcc.isLabel ? true : false,
+                                userId: userIsAuthorize.userId
+                            })
+
+
+                        }
                         break
                     default:
                         throw new ActionError(`Type de composant ${componentType} non reconnu`)
@@ -182,7 +200,6 @@ const upsertValue = async ({
     chapterLevel_2,
     chapterLevel_3,
     projectSoftwareLabel,
-    slug,
     componentLabel,
     isCode,
     isDescription,
@@ -201,7 +218,6 @@ const upsertValue = async ({
     chapterLevel_2: number,
     chapterLevel_3: number,
     projectSoftwareLabel: string,
-    slug: string,
     componentLabel: string,
     isCode: boolean,
     isDescription: boolean,
@@ -229,7 +245,6 @@ const upsertValue = async ({
             update: {},
             create: {
                 version: 1,
-                slug,
                 componentLabel,
                 label: inputLabel,
                 textValue: value,
@@ -246,6 +261,8 @@ const upsertValue = async ({
                 createdBy: userId,
                 bookLabel,
                 inputLabel: inputLabel,
+                isActivated: true,
+                origin: 'Analyse initiale'
             }
 
         })

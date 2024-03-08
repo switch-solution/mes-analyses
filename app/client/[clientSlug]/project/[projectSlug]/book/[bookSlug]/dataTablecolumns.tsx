@@ -14,6 +14,7 @@ export type Value = {
     isDescription: string | null | undefined
     clientSlug: string | null
     recordId: string | null
+    componentSlug: string | null
 
 }
 import {
@@ -30,7 +31,7 @@ export const columns: ColumnDef<Value>[] = [
         accessorKey: "isCode",
         header: "Code",
         cell: ({ row }) => {
-            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/book/${row.original.bookSlug}/input/${row.original.recordId}`}>{row.original.isCode}</Link>
+            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/book/${row.original.bookSlug}/component/${row.original.componentSlug}/value/${row.original.recordId}/edit`}>{row.original.isCode}</Link>
         }
     },
     {

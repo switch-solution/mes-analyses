@@ -73,6 +73,7 @@
     "react-quill": "^2.0.0",
     "react-resizable-panels": "^2.0.12",
     "recharts": "^2.12.2",
+    "sharp": "^0.33.2",
     "sonner": "^1.4.3",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",

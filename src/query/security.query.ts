@@ -6,6 +6,8 @@ import { getClientBySlug } from "./client.query";
 import { createLog } from "./logger.query";
 import type { Logger } from "@/src/helpers/type";
 import { getMyProjects, getProjectBySlug } from "./project.query";
+import { getRecordIdExist } from "./project_value.query";
+import { getProjectBookBySlug } from "./project_book.query";
 /**
  * Test if the user is an admin at least once
  * @param userId 
@@ -467,6 +469,58 @@ export const userRole = async () => {
     } catch (err) {
         console.error(err)
     }
+}
+
+/**
+ * This function is used to check if this record exist on this project and book
+ * @param param0 
+ * @returns 
+ */
+
+export const getCountValueByRecordIdForValidation = async (
+    {
+        recordId,
+        projectSlug,
+        bookSlug,
+        clientSlug
+    }:
+        {
+            recordId: string,
+            projectSlug: string,
+            bookSlug: string,
+            clientSlug: string
+        }
+
+) => {
+    try {
+        const clientExist = await getClientBySlug(clientSlug)
+        if (!clientExist) throw new Error('Client inexistant')
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) throw new Error('Projet inexistant')
+        const bookExist = await getProjectBookBySlug(bookSlug)
+        if (!bookExist) throw new Error('Livre inexistant')
+        const recordExit = await getRecordIdExist(recordId)
+        if (!recordExit) throw new Error('Record inexistant')
+        const count = await prisma.project_Value.count({
+            where: {
+                recordId: recordId,
+                isActivated: true,
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                bookLabel: bookExist.label,
+                clientId: clientExist.siren
+            }
+        })
+
+        return count
+
+
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des données")
+    }
+
 }
 
 

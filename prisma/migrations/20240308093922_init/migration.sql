@@ -512,6 +512,7 @@ CREATE TABLE "Project_Input" (
     "dsnType" TEXT,
     "dsnItem" TEXT,
     "label" TEXT NOT NULL,
+    "otherData" TEXT,
     "maxLength" INTEGER,
     "minLength" INTEGER,
     "minValue" INTEGER,
@@ -560,12 +561,15 @@ CREATE TABLE "Project_Value" (
     "inputSource" TEXT,
     "projectLabel" TEXT NOT NULL,
     "projectSoftwareLabel" TEXT NOT NULL,
+    "componentLabel" TEXT NOT NULL,
     "chapterLevel_1" INTEGER NOT NULL,
     "chapterLevel_2" INTEGER NOT NULL,
     "chapterLevel_3" INTEGER NOT NULL,
     "isCode" BOOLEAN DEFAULT false,
     "isDescription" BOOLEAN DEFAULT false,
     "isLabel" BOOLEAN DEFAULT false,
+    "isActivated" BOOLEAN NOT NULL DEFAULT false,
+    "origin" TEXT NOT NULL,
 
     CONSTRAINT "Project_Value_pkey" PRIMARY KEY ("clientId","bookLabel","inputLabel","projectLabel","chapterLevel_1","chapterLevel_2","chapterLevel_3","version","projectSoftwareLabel","recordId")
 );
@@ -1076,6 +1080,9 @@ CREATE UNIQUE INDEX "Project_Component_slug_key" ON "Project_Component"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Input_slug_key" ON "Project_Input"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Value_recordId_version_key" ON "Project_Value"("recordId", "version");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Software_Items_slug_key" ON "Software_Items"("slug");

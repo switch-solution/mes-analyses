@@ -3,11 +3,11 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { getComponentAndInputAndValuesBySlug } from "@/src/query/project_component.query";
-import { createComponentValue } from "@/src/features/actions/project_component/project_component.actions";
+import { createComponentValue, editComponentValue } from "@/src/features/actions/project_component/project_component.actions";
 import { DynamicFormSchema } from "@/src/helpers/definition";
 import { TypeInput } from "@/src/helpers/type";
 
-export default function Form({ clientSlug, projectSlug, bookSlug, component }: { clientSlug: string, projectSlug: string, bookSlug: string, component: getComponentAndInputAndValuesBySlug }) {
+export default function Form({ clientSlug, projectSlug, bookSlug, component, recordId }: { clientSlug: string, projectSlug: string, bookSlug: string, component: getComponentAndInputAndValuesBySlug, recordId?: string }) {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -21,6 +21,7 @@ export default function Form({ clientSlug, projectSlug, bookSlug, component }: {
                 componentSlug: component?.slug ? component.slug : '',
                 value: value,
                 label: key,
+                recordId: recordId,
                 formSource: component?.Project_Input.find(input => input.label === key)?.formSource,
                 inputSource: component?.Project_Input.find(input => input.label === key)?.inputSource
             } as TypeInput)
@@ -31,12 +32,19 @@ export default function Form({ clientSlug, projectSlug, bookSlug, component }: {
                 componentSlug: component?.slug ? component.slug : '',
                 value: value,
                 label: key,
+                recordId: recordId,
                 formSource: component?.Project_Input.find(input => input.label === key)?.formSource,
                 inputSource: component?.Project_Input.find(input => input.label === key)?.inputSource
             })
 
+
         })
-        await createComponentValue(inputs)
+        if (recordId) {
+            await editComponentValue(inputs)
+        } else {
+            await createComponentValue(inputs)
+
+        }
     }
     return (
         <form className="m-2 w-full" onSubmit={handleSubmit}>
@@ -48,7 +56,7 @@ export default function Form({ clientSlug, projectSlug, bookSlug, component }: {
                                 <Label htmlFor={input.label}>{input.label}</Label>
                             </div>
                             <div className="w-2/3">
-                                <Input id={input.label} name={input.label} aria-label={input.label} type={input.type} minLength={input.minLength ? input.minLength : undefined} maxLength={input?.maxLength ? input.maxLength : undefined} />
+                                <Input id={input.label} defaultValue={recordId ? input.Project_Value.find(value => value.inputLabel === input.label)?.textValue ?? "" : undefined} name={input.label} aria-label={input.label} type={input.type} minLength={input.minLength ? input.minLength : undefined} maxLength={input?.maxLength ? input.maxLength : undefined} />
                             </div>
                         </>
                         : undefined

@@ -63,4 +63,5 @@ export type TypeInput = {
     label: string,
     formSource?: string,
     inputSource?: string,
+    recordId?: string
 }

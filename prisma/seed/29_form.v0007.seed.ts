@@ -173,6 +173,22 @@ class FormV0007Seed extends Seed {
                         dsnItem: 'S21.G00.40.006'
                     }
                 })
+                await prisma.form_Input.update({
+                    where: {
+                        formTitle_formType_formVersion_label: {
+                            formTitle: "Emploi",
+                            formType: "DSN_EMPLOI",
+                            formVersion: 1,
+                            label: "Code emploi",
+
+                        },
+                        dsnType: 'DSN_Emploi_Libelle'
+
+                    },
+                    data: {
+                        dsnItem: 'S21.G00.40.006'
+                    }
+                })
 
                 //Code Idcc
 

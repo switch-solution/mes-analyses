@@ -28,6 +28,10 @@ import { inputV0001Seed } from './seed/26_input.v0001.seed'
 import { itemV0001Seed } from './seed/28_item.v0001.seed'
 import { defaultSettingV0001 } from './seed/27_defaultSetting.v0001.seed'
 import { formV0007Seed } from './seed/29_form.v0007.seed'
+import { opsV00001Seed } from './seed/30_ops.v00001.seed'
+import { opsV00002Seed } from './seed/31_ops.v00002.seed'
+import { opsV00003Seed } from './seed/32_ops.v00003.seed'
+import { opsV00004Seed } from './seed/33_ops.v00004.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -314,6 +318,43 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
+    await opsV00001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await opsV00002Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await opsV00003Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await opsV00004Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+
 
 
 }

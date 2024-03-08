@@ -579,6 +579,7 @@ model Project_Input {
   dsnType              String?
   dsnItem              String?
   label                String
+  otherData            String?
   maxLength            Int?
   minLength            Int?
   minValue             Int?
@@ -614,7 +615,6 @@ model Project_Input {
 
 model Project_Value {
   version              Int
-  slug                 String        @unique
   recordId             String
   label                String
   textValue            String?
@@ -638,6 +638,8 @@ model Project_Value {
   isCode               Boolean?      @default(false)
   isDescription        Boolean?      @default(false)
   isLabel              Boolean?      @default(false)
+  isActivated          Boolean       @default(false)
+  origin               String // origin = "Analyse initiale" | "Post analyse"
 
   @@id([clientId, bookLabel, inputLabel, projectLabel, chapterLevel_1, chapterLevel_2, chapterLevel_3, version, projectSoftwareLabel, recordId])
 }
@@ -1077,4 +1079,12 @@ model Default_Setting {
   createdBy   String
 
   @@id([id, label])
+}
+
+model Dsn_OPS {
+  id       String  @id
+  label    String
+  address1 String?
+  codeZip  String?
+  city     String?
 }

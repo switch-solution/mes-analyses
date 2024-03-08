@@ -3,6 +3,27 @@ import { getProjectBookByslug } from "./project_book.query";
 import { getProjectBySlug } from "./project.query";
 import { getComponentBySlug } from "./project_component.query";
 
+export const getCountAllValues = async () => {
+    try {
+        const count = await prisma.project_Value.count()
+        return count
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération du total des valeurs")
+    }
+}
+export const getCountRecordId = async () => {
+    try {
+        const count = await prisma.project_Value.groupBy({
+            by: ['recordId']
+        })
+        return count.length
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération du total des valeurs")
+    }
+}
+
 export const getValueForDataTable = async (bookSlug: string, projectSlug: string, clientSlug: string) => {
     try {
         const bookExist = await getProjectBookByslug(bookSlug)
@@ -12,7 +33,7 @@ export const getValueForDataTable = async (bookSlug: string, projectSlug: string
                 bookLabel: bookExist.label,
                 clientId: bookExist.clientId,
                 projectLabel: bookExist.projectLabel,
-                projectSoftwareLabel: bookExist.projectSoftwareLabel
+                projectSoftwareLabel: bookExist.projectSoftwareLabel,
             }
         })
         const values = []
@@ -28,12 +49,14 @@ export const getValueForDataTable = async (bookSlug: string, projectSlug: string
                     chapterLevel_1: component.chapterLevel_1,
                     chapterLevel_2: component.chapterLevel_2,
                     chapterLevel_3: component.chapterLevel_3,
+                    isActivated: true
                 }
             })
             for (const recordId of componentRecordIdList) {
                 const recordIdValues = await prisma.project_Value.findMany({
                     where: {
                         recordId: recordId.recordId,
+                        isActivated: true,
                         OR: [
                             {
                                 isCode: true
@@ -109,17 +132,54 @@ export const getCountComponentByComponentSlug = async (componentSlug: string) =>
 
 }
 
-const getValuesBySlug = async (slug: string) => {
+
+
+export const getRecordIdExist = async (recordId: string) => {
     try {
-        const values = await prisma.project_Value.findMany({
+        const recordIdExist = await prisma.project_Value.findFirst({
             where: {
-                slug: slug
+                recordId: recordId,
+                isActivated: true
             }
         })
-        return values
+        return recordIdExist
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des données")
+    }
+
+}
+
+export const getValueByRecordId = async (componentSlug: string, recordId: string) => {
+    try {
+        const recordExit = await getRecordIdExist(recordId)
+        if (!recordExit) throw new Error('Record inexistant')
+        const componentExist = await getComponentBySlug(componentSlug)
+        if (!componentExist) throw new Error('Composant inexistant')
+        const component = await prisma.project_Component.findUnique({
+            where: {
+                slug: componentSlug
+            },
+            include: {
+                Project_Input: {
+                    include: {
+                        Project_Value: {
+                            where: {
+                                recordId: recordId,
+                                isActivated: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        return component
+
+
 
     } catch (err) {
-
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des données")
     }
 
 }

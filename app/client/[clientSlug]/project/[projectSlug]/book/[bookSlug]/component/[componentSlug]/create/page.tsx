@@ -9,6 +9,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const component = await getComponentAndInputAndValuesBySlug(params.componentSlug)
     return (
         <Container>
+            <h1>Formulaire de création des {component?.label}</h1>
             <DynamicForm clientSlug={params.clientSlug} projectSlug={params.projectSlug} bookSlug={params.bookSlug} component={component} />
         </Container>
     )
