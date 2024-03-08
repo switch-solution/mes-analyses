@@ -1,185 +1,104 @@
-import React from 'react'
 import {
-    Cloud,
-    Book,
-    Github,
-    LifeBuoy,
-    LogOut,
-    Mail,
-    MessageSquare,
-    Plus,
-    PlusCircle,
-    Home,
-    User,
-    UserPlus,
-    Users,
-    Menu,
-    FolderKanban,
-    FolderPlus,
-    Cog,
-    FormInput
-} from "lucide-react"
-import { LogoutButton } from "./LogoutButton";
-
-import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuPortal,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { getAuthSession } from "@/lib/auth";
+    Menubar,
+    MenubarCheckboxItem,
+    MenubarContent,
+    MenubarItem,
+    MenubarMenu,
+    MenubarRadioGroup,
+    MenubarRadioItem,
+    MenubarSeparator,
+    MenubarShortcut,
+    MenubarSub,
+    MenubarSubContent,
+    MenubarSubTrigger,
+    MenubarTrigger,
+} from "@/components/ui/menubar"
+import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/src/theme/ThemeToggle";
+import UserAvatar from "@/components/layout/userAvatar";
 import Link from "next/link";
-import { getRoleUser } from '@/src/query/user.query';
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "@/components/ui/avatar"
-
+import { userRole } from '@/src/query/security.query';
+import { getMyClientActive } from "@/src/query/client.query";
 export const UserMenu = async () => {
-    const session = await getAuthSession()
-    const role = await getRoleUser()
+    const clientSlug = await getMyClientActive()
     return (
+        <Menubar>
+            <MenubarMenu>
+                <MenubarTrigger> <Link href={`/home`}>Accueil</Link></MenubarTrigger>
+            </MenubarMenu>
+            <MenubarMenu>
+                <MenubarTrigger>Client</MenubarTrigger>
+                <MenubarContent>
+                    <MenubarItem>
+                        <Link href={`/client/${clientSlug}`}>Ouvrir</Link>
+                    </MenubarItem>
+                    <MenubarItem>
+                        <Link href={`/client/${clientSlug}/administrator/edit`}>Editer</Link>
+                    </MenubarItem>
+                    <MenubarSeparator />
+                    <MenubarSub>
+                        <MenubarSubTrigger>Créer</MenubarSubTrigger>
+                        <MenubarSubContent>
+                            <MenubarItem><Link href={`/client/${clientSlug}/administrator/software`}>Logiciels</Link></MenubarItem>
+                            <MenubarItem><Link href={`/client/${clientSlug}/administrator/user`}>Utilisateur</Link></MenubarItem>
+                            <MenubarItem><Link href={`/client/${clientSlug}/administrator/invoice`}>Facture</Link></MenubarItem>
+                        </MenubarSubContent>
+                    </MenubarSub>
+                    <MenubarSeparator />
+                    <MenubarSeparator />
+                    <MenubarSub>
+                        <MenubarSubTrigger>Editeur</MenubarSubTrigger>
+                        <MenubarSubContent>
+                            <MenubarItem><Link href={`/client/${clientSlug}/editor/`}>Consulter</Link></MenubarItem>
+                            <MenubarItem><Link href={`/client/${clientSlug}/editor/book`}>Livres</Link></MenubarItem>
+                            <MenubarItem><Link href={`/client/${clientSlug}/editor/attachment`}>PJ</Link></MenubarItem>
+                            <MenubarItem><Link href={`/client/${clientSlug}/editor/constant`}>Constante</Link></MenubarItem>
+                            <MenubarItem><Link href={`/client/${clientSlug}/editor/item`}>Rubriques</Link></MenubarItem>
+                            <MenubarItem><Link href={`/client/${clientSlug}/editor/component`}>Composant</Link></MenubarItem>
+                        </MenubarSubContent>
+                    </MenubarSub>
+                    <MenubarSeparator />
+                </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+                <MenubarTrigger>Projets</MenubarTrigger>
+                <MenubarContent>
+                    <MenubarItem>
+                        <Link href={`/client/${clientSlug}/project`}>Voir mes projets</Link>
+                    </MenubarItem>
+                    <MenubarItem>
+                        <Link href={`/client/${clientSlug}/project/create`}>Créer un nouveau projet</Link>
+                    </MenubarItem>
+                </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+                <MenubarTrigger>Profil</MenubarTrigger>
+                <MenubarContent>
+                    <MenubarItem>
+                        <MenubarItem><Link href={`/profil/`}>Ouvrir</Link></MenubarItem>
+                    </MenubarItem>
+                    <MenubarItem>
+                        <MenubarItem><Link href={`/profil/edit`}>Editer</Link></MenubarItem>
+                    </MenubarItem>
+                    <MenubarItem>
+                        <MenubarItem><ThemeToggle /></MenubarItem>
+                    </MenubarItem>
+                </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+                <MenubarTrigger>Aide</MenubarTrigger>
+                <MenubarContent>
+                    <MenubarItem>
+                        <MenubarItem><Link href={`/profil/`}>Documentation</Link></MenubarItem>
+                    </MenubarItem>
+                    <MenubarItem>
+                        <MenubarItem><Link href={`/profil/`}>A propos</Link></MenubarItem>
+                    </MenubarItem>
+                </MenubarContent>
+            </MenubarMenu>
+        </Menubar>
 
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline"><Menu /></Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-                <DropdownMenuLabel>Mon menu</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <Home className="mr-2 h-4 w-4" />
-                        <span><Link href={`/home`}>Accueil</Link></span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <User className="mr-2 h-4 w-4" />
-                        <span><Link href={`/profile`}>Profil</Link></span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>
-                            <FolderKanban className="mr-2 h-4 w-4" />
-                            <span>Mes projets</span>
-                            <DropdownMenuPortal>
-                                <DropdownMenuSubContent>
-                                    <DropdownMenuItem>
-                                        <FolderKanban className="mr-2 h-4 w-4" />
-                                        <span><Link href={`/project`}>Voir mes projets</Link></span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <FolderPlus className="mr-2 h-4 w-4" />
-                                        <span><Link href={`/project/create`}>Créer un nouveau projet</Link></span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                        </DropdownMenuSubTrigger>
-                    </DropdownMenuSub>
-
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuSub>
-                        <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                                <FolderKanban className="mr-2 h-4 w-4" />
-                                <span>Client</span>
-                                <DropdownMenuPortal>
-                                    <DropdownMenuSubContent>
-                                        <DropdownMenuItem>
-                                            <Cog className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/client`}>Voir ma fiche client</Link></span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <Book className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/client/`}>Editer</Link></span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                    </DropdownMenuSubContent>
-                                </DropdownMenuPortal>
-                            </DropdownMenuSubTrigger>
-                        </DropdownMenuSub>
-                        <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                                <FolderKanban className="mr-2 h-4 w-4" />
-                                <span>Editeur</span>
-                                <DropdownMenuPortal>
-                                    <DropdownMenuSubContent>
-                                        <DropdownMenuItem>
-                                            <Cog className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/editor`}>Ouvrir l&apos;editeur</Link></span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <Book className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/editor/book/create`}>Créer un nouveau livre</Link></span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <FormInput className="mr-2 h-4 w-4" />
-                                            <span><Link href={`/editor/component/create`}>Créer un nouveau composant</Link></span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                    </DropdownMenuSubContent>
-                                </DropdownMenuPortal>
-                            </DropdownMenuSubTrigger>
-                        </DropdownMenuSub>
-                        <DropdownMenuSubTrigger>
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            <span>Invite users</span>
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuPortal>
-                            <DropdownMenuSubContent>
-                                <DropdownMenuItem>
-                                    <Mail className="mr-2 h-4 w-4" />
-                                    <span>Email</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <MessageSquare className="mr-2 h-4 w-4" />
-                                    <span>Message</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    <span>More...</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuSubContent>
-                        </DropdownMenuPortal>
-                    </DropdownMenuSub>
-                    <DropdownMenuItem>
-                        <Plus className="mr-2 h-4 w-4" />
-                        <span>New Team</span>
-                        <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <Github className="mr-2 h-4 w-4" />
-                    <span><Link href={`https://github.com/switch-solution/mes-analyses`}>Github</Link></span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <LifeBuoy className="mr-2 h-4 w-4" />
-                    <span><Link href={`/support`}>Support</Link></span>
-                </DropdownMenuItem>
-                <DropdownMenuItem disabled>
-                    <Cloud className="mr-2 h-4 w-4" />
-                    <span>API</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span><LogoutButton /></span>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>)
+    )
 }
 
 

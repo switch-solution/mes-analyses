@@ -1,4 +1,37 @@
 import { PrismaClient } from '@prisma/client'
+import { formV0001Seed } from './seed/3_form.v0001.seed'
+import { idccV0001Seed } from './seed/2_idcc.v0001.seed'
+import { settingV0001 } from './seed/1_setting.v0001.seed'
+import { bookV0001Seed } from './seed/4_book.v0001.seed'
+import { formV0002Seed } from './seed/9_form.v0002.seed'
+import { bookV0002Seed } from './seed/8_book.v0002.seed'
+import { legalV0001Seed } from './seed/5_legal.v0001.seed'
+import { chapterFormV0001Seed } from './seed/6_chapterForm.v0001.seed'
+import { taskV0001Seed } from './seed/7_task.v0001.seed'
+import { bookV0003Seed } from './seed/10_book.v0003.seed'
+import { bookV0004Seed } from './seed/11_book.v0004.seed'
+import { bookV0005Seed } from './seed/12_book.v0005.seed'
+import { formV0003Seed } from './seed/13_form.v0003.seed'
+import { bookV0006Seed } from './seed/14_book.v0006.seed'
+import { formV0004Seed } from './seed/15_form.v0004.seed'
+import { bookV0007Seed } from './seed/16_book.v0007.seed'
+import { bookV0008Seed } from './seed/17_book.v0008.seed'
+import { absenceV0001 } from './seed/18_absence.v0001.seed'
+import { formV0005Seed } from './seed/19_form.v0005.seed'
+import { bookV0009Seed } from './seed/20_book.v0009.seed'
+import { bookV0010Seed } from './seed/21_book.v0010.seed'
+import { formV0006Seed } from './seed/22_form.v0006.seed'
+import { bookV0011Seed } from './seed/23_book.v0011.seed'
+import { bookV0012Seed } from './seed/24_book.v0012.seed'
+import { bookV0013Seed } from './seed/25_book.v0013.seed'
+import { inputV0001Seed } from './seed/26_input.v0001.seed'
+import { itemV0001Seed } from './seed/28_item.v0001.seed'
+import { defaultSettingV0001 } from './seed/27_defaultSetting.v0001.seed'
+import { formV0007Seed } from './seed/29_form.v0007.seed'
+import { opsV00001Seed } from './seed/30_ops.v00001.seed'
+import { opsV00002Seed } from './seed/31_ops.v00002.seed'
+import { opsV00003Seed } from './seed/32_ops.v00003.seed'
+import { opsV00004Seed } from './seed/33_ops.v00004.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -22,350 +55,308 @@ const prisma = new PrismaClient(
     }
 )
 
-async function main() {
-    try {
-        await prisma.setting.upsert({
-            where: {
-                code_dateStart_dateEnd: {
-                    code: "PRICING",
-                    dateStart: new Date("2024-01-01"),
-                    dateEnd: new Date("4000-01-01")
-                }
-            },
-            update: {},
-            create: {
-                code: "PRICING",
-                label: "Prix",
-                dateStart: new Date("2024-01-01"),
-                dateEnd: new Date("4000-01-01"),
-                description: "Prix par default pour un utilisateur par mois",
-                value: "10",
-                createdBy: "admin"
-            }
+const main = async () => {
+    await settingV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await idccV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+
+    await legalV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await chapterFormV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await taskV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0002Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0002Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0003Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0004Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0005Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0003Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0006Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0004Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0007Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0008Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await absenceV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0005Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0009Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0010Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0006Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0011Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0012Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await bookV0013Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await inputV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await defaultSettingV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await itemV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0007Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await opsV00001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await opsV00002Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await opsV00003Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await opsV00004Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
 
 
-        })
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "text",
-            },
-            update: {},
-            create: {
-                name: "Input_text",
-                type: "text",
-                label: "Champ texte",
-                createdBy: "admin"
-            }
-
-
-        })
-        console.log("Input_text created")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "number",
-            },
-            update: {},
-            create: {
-                name: "Input_number",
-                type: "number",
-                label: "Champ numérique",
-                createdBy: "admin"
-            }
-
-
-        })
-        console.log("Input_number created")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "date",
-            },
-            update: {},
-            create: {
-                name: "Input_date",
-                type: "date",
-                label: "Champ date",
-                createdBy: "admin"
-            }
-
-
-        })
-        console.log("Input_date created")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "select",
-            },
-            update: {},
-            create: {
-                name: "Select",
-                type: "select",
-                label: "Liste déroulante",
-                createdBy: "admin"
-            }
-
-
-        })
-        console.log("Select created")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "switch",
-            },
-            update: {},
-            create: {
-                name: "Switch",
-                type: "switch",
-                label: "Bouton switch",
-                createdBy: "admin"
-            }
-
-
-        })
-        console.log("Switch created")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "Textarea",
-            },
-            update: {},
-            create: {
-                name: "Textarea",
-                type: "Textarea",
-                label: "Zone de texte",
-                createdBy: "admin"
-            }
-
-
-        })
-        console.log("Textarea created")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "Image",
-            },
-            update: {},
-            create: {
-                name: "Image",
-                type: "Image",
-                label: "Image",
-                createdBy: "admin"
-            }
-        })
-        console.log("Image created")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnSocietySiren",
-            },
-            update: {},
-            create: {
-                name: "Siren DSN",
-                type: "dsnSocietySiren",
-                label: "Siren de la société",
-                createdBy: "admin"
-            }
-        })
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnSocietySiren",
-            },
-            update: {},
-            create: {
-                name: "Raison sociale de la société",
-                type: "dsnSocietySiren",
-                label: "Raison sociale de la société",
-                createdBy: "admin"
-            }
-        })
-        console.log("Siren dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnEstablishmentSiret",
-            },
-            update: {},
-            create: {
-                name: "Siret DSN",
-                type: "dsnEstablishmentSiret",
-                label: "Siret de l'établissement",
-                createdBy: "admin"
-            }
-        })
-        console.log("Siren dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnEstablishmentApe",
-            },
-            update: {},
-            create: {
-                name: "APE DSN",
-                type: "dsnEstablishmentApe",
-                label: "APE DSN",
-                createdBy: "admin"
-            }
-        })
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnSocietyAddress1",
-            },
-            update: {},
-            create: {
-                name: "Société adresse 1 DSN",
-                type: "dsnSocietyAddress1",
-                label: "Adresse 1",
-                createdBy: "admin"
-            }
-        })
-        console.log("Adresse 1 socitety dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnSocietyAddress2",
-            },
-            update: {},
-            create: {
-                name: "Société adresse 2 DSN",
-                type: "dsnSocietyAddress2",
-                label: "Adresse 2",
-                createdBy: "admin"
-            }
-        })
-        console.log("Adresse 2 society dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnSocietyAddress3",
-            },
-            update: {},
-            create: {
-                name: "Society adresse 3 DSN",
-                type: "dsnSocietyAddress3",
-                label: "Adresse 3",
-                createdBy: "admin"
-            }
-        })
-        console.log("Adresse 3 establish dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnSocietyZipCode",
-            },
-            update: {},
-            create: {
-                name: "Société code postal DSN",
-                type: "dsnSocietyZipCode",
-                label: "Code postal",
-                createdBy: "admin"
-            }
-        })
-        console.log("ZipCode establish dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnSocietyCity",
-            },
-            update: {},
-            create: {
-                name: "Société ville DSN",
-                type: "dsnSocietyCity",
-                label: "Ville",
-                createdBy: "admin"
-            }
-        })
-        console.log("City society dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnEstablishmentAddress1",
-            },
-            update: {},
-            create: {
-                name: "Etablissement adresse 1 DSN",
-                type: "dsnEstablishmentAddress1",
-                label: "Adresse 1",
-                createdBy: "admin"
-            }
-        })
-        console.log("Adresse 1 establish dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnEstablishmentAddress2",
-            },
-            update: {},
-            create: {
-                name: "Etablissement adresse 2 DSN",
-                type: "dsnEstablishmentAddress2",
-                label: "Adresse 2",
-                createdBy: "admin"
-            }
-        })
-        console.log("Adresse 1 establish dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnEstablishmentAddress3",
-            },
-            update: {},
-            create: {
-                name: "Etablissement adresse 3 DSN",
-                type: "dsnEstablishmentAddress3",
-                label: "Adresse 3",
-                createdBy: "admin"
-            }
-        })
-        console.log("Adresse 3 establish dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnEstablishmentZipCode",
-            },
-            update: {},
-            create: {
-                name: "Etablissement code postal DSN",
-                type: "dsnEstablishmentZipCode",
-                label: "Code postal",
-                createdBy: "admin"
-            }
-        })
-        console.log("ZipCode establish dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnEstablishmentCity",
-            },
-            update: {},
-            create: {
-                name: "Etablissement ville DSN",
-                type: "dsnEstablishmentCity",
-                label: "Ville",
-                createdBy: "admin"
-            }
-        })
-        console.log("City establish dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnJobLabel",
-            },
-            update: {},
-            create: {
-                name: "Libellé emploi DSN",
-                type: "dsnJobLabel",
-                label: "Libellé emploi",
-                createdBy: "admin"
-            }
-        })
-        console.log("Job label dsn")
-        await prisma.standard_Input.upsert({
-            where: {
-                type: "dsnIdcc",
-            },
-            update: {},
-            create: {
-                name: "Code convention collective DSN",
-                type: "dsnIdcc",
-                label: "Code IDCC",
-                createdBy: "admin"
-            }
-        })
-        console.log("Job label dsn")
-    } catch (err) {
-        console.error(err)
-    }
 
 }
 
 main()
-    .then(async () => {
-        await prisma.$disconnect()
-    })
-    .catch(async (e) => {
-        console.error(e)
-        await prisma.$disconnect()
-        process.exit(1)
-    })

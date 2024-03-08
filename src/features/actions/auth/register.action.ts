@@ -5,37 +5,40 @@ import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { RegisterSchema } from '@/src/helpers/definition';
 import * as z from "zod"
-import { createEvent } from "@/src/query/logger.query";
-import type { Event } from "@/src/helpers/type";
+import { getInvitation } from "@/src/query/invitation.query";
 export const createUser = async (data: z.infer<typeof RegisterSchema>) => {
-    const { email, civility, firstname, lastname, password, confirmPassword } = data;
+    const { email, password, confirmPassword } = data;
     const user = await getUserByEmail(email);
-
+    if (password !== confirmPassword) {
+        throw new Error('Les mots de passe ne correspondent pas')
+    }
     if (user) {
-        throw new Error("L'utilisateur existe déjà");
+        redirect('/api/auth/signin?callbackUrl=%2Fhome');
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-    const newUser = await prisma.user.create({
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userRegister = await prisma.user.create({
         data: {
-            email: email, name: `${lastname} ${firstname}`,
+            email: email,
             UserOtherData: {
-                create: { password: hashedPassword, civility: civility, isBlocked: false }
+                create: { password: hashedPassword, isBlocked: false }
             }
         }
     })
 
-    const event: Event = {
-        level: "warning",
-        message: "Un nouvel utilisateur a été créé",
-        scope: "user",
-        createdBy: newUser.id
+    const invitation = await getInvitation(email)
+    if (invitation) {
+        await prisma.userClient.create({
+            data: {
+                clientId: invitation.clientId,
+                userId: userRegister.id,
+                isBillable: invitation.isBillable,
+                isBlocked: invitation.isBlocked
+            }
+        })
     }
-    await createEvent(event);
 
 
-
-    redirect('/api/auth/signin');
-
+    redirect('/api/auth/signin?callbackUrl=%2Fhome');
 
 }

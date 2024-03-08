@@ -1,82 +1,137 @@
 import { prisma } from "@/lib/prisma";
-import { userIsValid, userIsAuthorizeForClient, userIsClientEditor, userIsAdminClient } from "./security.query";
-import { getLastPricing } from "./setting.query";
-export const getCountUsersClient = async (clientId: string) => {
-    try {
+import { userIsValid, userIsAdminClient } from "./security.query";
+import { userIsAdminSystem } from "./security.query";
+import { getAuthSession } from "@/lib/auth";
+import { Prisma } from '@prisma/client'
+import { th } from "@faker-js/faker";
+import { getMySoftware } from "./user.query";
 
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        const idClient = await prisma.client.findUnique({
-            where: {
-                id: clientId
-            }
-        })
-        if (!idClient) {
+export const getCountClientProjects = async (clientSlug: string) => {
+    try {
+        const clientExist = await getClientBySlug(clientSlug)
+        if (!clientExist) {
             throw new Error("Le client n'existe pas.")
         }
-        const countUser = await prisma.userClient.count({
+        const countProjects = await prisma.project.count({
             where: {
-                clientId: clientId
+                clientId: clientExist.siren
             }
         })
-        return countUser
+        return countProjects
+
     } catch (err) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération du nombre d'utilisateurs du client.")
-
     }
 
 }
 
-export const getSoftwaresClient = async (clientId: string) => {
+export const getCountBook = async (clientSlug: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        const clientExist = await getClientById(clientId)
-
-        await userIsAuthorizeForClient(clientId)
-        await userIsClientEditor(clientId)
-        const softwareClient = await prisma.software.findMany({
+        const clientExist = await getClientBySlug(clientSlug)
+        if (!clientExist) {
+            throw new Error("Le client n'existe pas.")
+        }
+        const countBooks = await prisma.software_Book.count({
             where: {
-                clientId: clientId
+                clientId: clientExist.siren
             }
         })
-        if (!softwareClient) {
-            throw new Error("Aucun logiciel n'a été trouvé pour ce client.")
-        }
-        return softwareClient
+        return countBooks
     } catch (err) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des logiciels du client.")
+        throw new Error("Une erreur est survenue lors de la récupération des livres.")
     }
+
 }
 
-export const getCountProjectClient = async (clientId: string) => {
+export const getCountMySoftware = async (clientSlug: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        if (!clientId) {
-            throw new Error("Le client id est obligatoire.")
+        const clientExist = await getClientBySlug(clientSlug)
+        if (!clientExist) {
+            throw new Error("Le client n'existe pas.")
         }
-        const clientExist = await getClientById(clientId)
-        const userIsAuthorize = await userIsAuthorizeForClient(clientId)
-        const projetsClient = await prisma.project.count({
+        const countSoftwares = await prisma.software.count({
             where: {
-                clientId: clientId
+                clientId: clientExist.siren
             }
         })
-        return projetsClient
+        return countSoftwares
     } catch (err) {
-        throw new Error("Une erreur est survenue lors de la récupération du nombre de projets du client.")
+        console.error(err)
+    }
+
+
+}
+
+export const getComponentFilterByUser = async (clientSlug: string) => {
+    try {
+        const mySoftware = await getMySoftware()
+        const clientExist = await getClientBySlug(clientSlug)
+        const countComponents = await prisma.software_Component.count({
+            where: {
+                softwareLabel: {
+                    in: mySoftware.map(software => software.softwareLabel)
+                },
+                clientId: clientExist.siren
+            }
+        })
+        return countComponents
+    } catch (err) {
+        console.error(err)
+
     }
 
 }
 
-export const getClientById = async (clientId: string) => {
+
+export const getClientBySlug = async (clientSlug: string) => {
+    try {
+        const client = await prisma.client.findUniqueOrThrow({
+            where: {
+                slug: clientSlug
+            }
+        })
+        return client
+    } catch (err) {
+        console.error(err)
+        await prisma.logger.create({
+            data: {
+                level: "error",
+                message: `L'utilisateur essaye d'accéder à un cient qui n'existe pas ${clientSlug}`,
+                scope: "project",
+                createdBy: "system"
+            }
+        })
+        throw new Error("Une erreur est survenue lors de la récupération du client par le slug.")
+    }
+
+}
+
+export const getEndTrialClient = async (clientSlug: string) => {
+    try {
+        const clientExist = await getClientBySlug(clientSlug)
+
+        const startDate = new Date(clientExist?.dateStartTrial ? clientExist?.dateStartTrial : new Date())
+        const endDate = new Date(clientExist?.dateEndTrial ? clientExist?.dateEndTrial : new Date())
+        const diffInMs = Math.abs(endDate.getTime() - startDate.getTime());
+        const days = diffInMs / (1000 * 60 * 60 * 24);
+        const numberDaysBeforeEndTrial = days.toFixed(0)
+        return numberDaysBeforeEndTrial
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération de la date de fin d'essai.")
+
+
+    }
+}
+
+
+
+export const getClientBySiren = async (siren: string) => {
     try {
         const client = await prisma.client.findUnique({
             where: {
-                id: clientId
+                siren
             }
         })
         return client
@@ -87,53 +142,6 @@ export const getClientById = async (clientId: string) => {
 
 }
 
-export const getCountContactClient = async (clientId: string) => {
-
-    try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        if (!clientId) {
-            throw new Error("Le client id est obligatoire.")
-        }
-        const clientExist = await getClientById(clientId)
-        const userIsAuthorize = await userIsAuthorizeForClient(clientId)
-        const countContact = await prisma.contact.count({
-            where: {
-                clientId: clientId
-            }
-        })
-        return countContact
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération du nombre de contacts du client.")
-    }
-
-}
-
-export const getContactsClient = async (clientId: string) => {
-    try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        if (!clientId) {
-            throw new Error("Le client id est obligatoire.")
-        }
-        const clientExist = await getClientById(clientId)
-        const userIsAuthorize = await userIsAuthorizeForClient(clientId)
-
-        const contacts = await prisma.contact.findMany({
-            where: {
-                clientId: clientId
-            }
-        })
-
-        return contacts
-
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des contacts du client.")
-    }
-
-}
 
 export const getProjectsClient = async (clientId: string) => {
     try {
@@ -154,117 +162,22 @@ export const getProjectsClient = async (clientId: string) => {
 
 }
 
-export const getCountSoftwareClient = async (clientId: string) => {
+
+export const getUsersIsBillableDetail = async (siren: string) => {
 
     try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        if (!clientId) {
-            throw new Error("Le client id est obligatoire.")
-        }
-        const idClient = await prisma.client.findUnique({
-            where: {
-                id: clientId
-            }
-        })
-        if (!idClient) {
-            throw new Error("Le client n'existe pas.")
-        }
-
-        const countSoftware = await prisma.software.count({
-            where: {
-                clientId: clientId
-            }
-        })
-
-        return countSoftware
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération du nombre de logiciel du client.")
-    }
-
-}
-
-export const getNumberDaysBeforeEndTrial = async (clientId: string) => {
-    try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        const userIsAuthorize = await userIsAuthorizeForClient(clientId)
-        if (!userIsAuthorize) {
-            throw new Error("Vous n'êtes pas autorisé à accéder à ce client.")
-        }
-        const clientExist = await getClientById(clientId)
+        const clientExist = await getClientBySiren(siren)
         if (!clientExist) {
             throw new Error("Le client n'existe pas.")
         }
-        const client = await prisma.client.findUniqueOrThrow({
-            where: {
-                id: clientId
-            }
-        })
-        const startDate = new Date(client.dateStartTrial)
-        const endDate = new Date(client.dateEndTrial)
-        const diffInMs = Math.abs(endDate.getTime() - startDate.getTime());
-        const days = diffInMs / (1000 * 60 * 60 * 24);
-        return days.toFixed(0)
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération du nombre de jours avant la fin de l'essai.")
-    }
 
-}
-
-export const getCountInvitation = async (clientId: string) => {
-    try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        if (!clientId) {
-            throw new Error("Le client id est obligatoire.")
-        }
-        const idClient = await prisma.client.findUnique({
-            where: {
-                id: clientId
-            }
-        })
-        if (!idClient) {
-            throw new Error("Le client n'existe pas.")
-        }
-        const countUser = await prisma.invitation.count({
-            where: {
-                clientId: clientId
-            }
-        })
-        return countUser
-
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération du nombre d'utilisateurs du client.")
-
-    }
-
-
-}
-
-export const getUsersIsBillableDetail = async (clientId: string) => {
-
-    try {
-        const userId = await userIsValid()
-        const clientExist = await getClientById(clientId)
-        if (!clientExist) {
-            throw new Error("Le client n'existe pas.")
-        }
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        const userIsAuthorize = await userIsAuthorizeForClient(clientId)
-        if (!userIsAuthorize) {
-            throw new Error("Vous n'êtes pas autorisé à accéder à ce client.")
-        }
-        const userIsAdmin = await userIsAdminClient(clientId)
+        const userIsAdmin = await userIsAdminClient(siren)
         if (userIsAdmin) {
             throw new Error("Vous n'êtes pas autorisé à accéder à ce client.")
         }
         const userIsBillable = await prisma.userClient.findMany({
             where: {
-                clientId: clientId,
+                clientId: siren,
                 isBillable: true,
                 isBlocked: false
             },
@@ -290,81 +203,68 @@ export const getUsersIsBillableDetail = async (clientId: string) => {
 }
 
 
-export const getCountUserIsBillable = async (clientId: string) => {
 
+export const getClientSirenBySlug = async (slug: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        const userIsAuthorize = await userIsAuthorizeForClient(clientId)
-        if (!userIsAuthorize) {
-            throw new Error("Vous n'êtes pas autorisé à accéder à ce client.")
-        }
-        const clientExist = await getClientById(clientId)
-        if (!clientExist) {
-            throw new Error("Le client n'existe pas.")
-        }
-        const userIsBillable = await prisma.userClient.count({
+        const siren = await prisma.client.findUniqueOrThrow({
             where: {
-                clientId: clientId,
-                isBillable: true,
-                isBlocked: false
-            }
-        })
-        return userIsBillable
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération de la facturation future.")
-    }
-
-}
-
-export const getFutureBilling = async (clientId: string) => {
-    try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        const userIsAuthorize = await userIsAuthorizeForClient(clientId)
-        if (!userIsAuthorize) {
-            throw new Error("Vous n'êtes pas autorisé à accéder à ce client.")
-        }
-        const clientExist = await getClientById(clientId)
-        if (!clientExist) {
-            throw new Error("Le client n'existe pas.")
-        }
-
-        const pricing = await getLastPricing()
-        const getUserIsBilling = await getCountUserIsBillable(clientId)
-        const bill = pricing * getUserIsBilling
-        const futureBilling = bill.toFixed(2)
-        return futureBilling
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération de la facturation future.")
-    }
-
-}
-export const getSoftwareClientList = async (clientId: string) => {
-    try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        if (!clientId) {
-            throw new Error("Le client id est obligatoire.")
-        }
-        const idClient = await prisma.client.findUnique({
-            where: {
-                id: clientId
-            },
-        })
-        if (!idClient) {
-            throw new Error("Le client n'existe pas.")
-        }
-        const softwareClient = await prisma.software.findMany({
-            where: {
-                clientId: clientId
+                slug
             },
             select: {
-                provider: true,
-                name: true,
-                id: true,
+                siren: true
+
+            }
+        })
+        return siren.siren
+    } catch (err) {
+        console.error(err)
+        throw new Error(`Une erreur est survenue lors de la récupération du client`)
+    }
+
+}
+
+/**
+ * This function return the client slug.
+ * @returns 
+ */
+
+export const getMyClientActive = async () => {
+    try {
+        const session = await getAuthSession()
+        if (!session) {
+            throw new Error("L'utilisateur n'est pas connecté.")
+        }
+        const clientId = await prisma.userClient.findFirst({
+            where: {
+                userId: session.user.id,
+                isActivated: true,
+            },
+            include: {
+                client: true
+            }
+        })
+        return clientId?.client?.slug
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération du client actif.")
+
+    }
+}
+
+
+export const getSoftwareClientList = async (clientSlug: string) => {
+    try {
+        const idClient = await getClientBySlug(clientSlug)
+        const softwareClient = await prisma.software.findMany({
+            where: {
+                clientId: idClient.siren
+            },
+            include: {
+                client: {
+                    select: {
+                        slug: true
+                    }
+                }
             }
         })
         return softwareClient
@@ -375,40 +275,57 @@ export const getSoftwareClientList = async (clientId: string) => {
 
 }
 
-export const getUsersClientList = async (clientId: string) => {
+export const getUsersClientList = async (slug: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        if (!clientId) {
-            throw new Error("Le client id est obligatoire.")
-        }
-        const idClient = await prisma.client.findUnique({
-            where: {
-                id: clientId
-            }
-        })
-        if (!idClient) {
-            throw new Error("Le client n'existe pas.")
-        }
+        const client = await getClientBySlug(slug)
         const usersClient = await prisma.userClient.findMany({
             where: {
-                clientId: clientId
+                clientId: client.siren
             },
             include: {
                 user: {
-                    select: {
-                        name: true,
-                        email: true,
-                        image: true,
-                        id: true
+                    include: {
+                        UserOtherData: true
                     }
                 }
             }
         })
-
         return usersClient
     } catch (err) {
         console.error(err)
         throw new Error("Une erreur est survenue lors de la récupération des utilisateurs du client.")
     }
+}
+
+export type getUsersClientList = Prisma.PromiseReturnType<typeof getUsersClientList>;
+
+export const getClientsToInvoices = async (dateInvoice: Date) => {
+    try {
+        const userIsAdmin = await userIsAdminSystem()
+        if (!userIsAdmin) {
+            throw new Error("Vous n'êtes pas autorisé à effectuer cette action.")
+        }
+        const clients = await prisma.client.findMany({
+            where: {
+                isBlocked: false,
+                OR: [
+                    {
+                        dateEndTrial: {
+                            lt: dateInvoice
+                        }
+                    },
+                    {
+                        invoiceEnd: {
+                            lt: dateInvoice
+                        }
+                    }
+                ]
+            }
+        })
+        return clients
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des clients pour la facturation.")
+    }
+
 }

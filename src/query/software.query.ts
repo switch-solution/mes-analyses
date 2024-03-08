@@ -1,78 +1,138 @@
 import { prisma } from "@/lib/prisma";
-import { userIsAdminClient, userIsValid } from "@/src/query/security.query";
-export const getSoftwareByClientId = async (clientId: string) => {
-    const userId = await userIsValid()
-    if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-
-    const clientExist = await prisma.client.findUnique({ where: { id: clientId } })
-
-    if (!clientExist) throw new Error("Le client n'existe pas.")
-
-    const isAdmin = await userIsAdminClient(clientId)
-    if (!isAdmin) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
-    const softwares = await prisma.software.findMany({
+import { Prisma } from '@prisma/client'
+import { getClientBySlug, getMyClientActive } from "./client.query";
+import { getMySoftware } from "./user.query";
+import { copyFormToSoftware } from "@/src/query/form.query";
+import { copyBook } from "@/src/query/book.query";
+import { copyTask } from "@/src/query/task.query";
+import { createTypeRubrique } from "./software_setting.query";
+export const getSoftwareBySlug = async (slug: string) => {
+    const software = await prisma.software.findUniqueOrThrow({
         where: {
-            clientId: clientId
+            slug: slug,
+        },
+        include: {
+            client: true
         }
     })
 
-    return softwares
+    return software
+}
+export type getSoftwareBySlug = Prisma.PromiseReturnType<typeof getSoftwareBySlug>;
+
+export const getSoftwareUsers = async (slug: string) => {
+    try {
+        const software = await getSoftwareBySlug(slug)
+        if (!software) {
+            throw new Error(`Le logiciel ${slug} n'existe pas.`)
+        }
+        const usersSoftware = await prisma.userSoftware.findMany({
+            where: {
+                softwareLabel: software.label,
+                softwareClientId: software.clientId
+            },
+            include: {
+                user: {
+                    include: {
+                        UserOtherData: true
+                    }
+                }
+            }
+        })
+        const users = usersSoftware.map((userSoftware) => {
+            const firstname = userSoftware.user.UserOtherData.at(0)?.firstname
+            const lastname = userSoftware.user.UserOtherData.at(0)?.lastname
+            return {
+                lastname: lastname ? lastname : 'Non renseigné',
+                firstname: firstname ? firstname : 'Non renseigné',
+                isEditor: userSoftware.isEditor ? 'Oui' : 'Non'
+            }
+
+
+        })
+        return users
+    } catch (err) {
+        console.error(err)
+        throw new Error(`Une erreur est survenue lors de la récupération des utilisateurs du logiciels logiciel.`)
+    }
+
 
 }
 
-export const getSoftwareByClient = async (clientId: { id: string, socialReason: string, siret: string }[]) => {
+export type getSoftwareUsers = Prisma.PromiseReturnType<typeof getSoftwareUsers>;
+
+export const getSoftwareByClientSlug = async (clientSlug: string) => {
     try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+        const clientId = await getClientBySlug(clientSlug)
         const softwares = await prisma.software.findMany({
             where: {
-                clientId: {
-                    in: clientId.map((client) => client.id)
-                }
-            },
+                clientId: clientId.siren
+            }
         })
         return softwares
     } catch (err) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des logiciels.")
+        throw new Error(`Une erreur est survenue lors de la récupération des logiciels du client.`)
     }
+
 }
 
-export const getSoftwareClient = async (softwareId: string) => {
+
+export const softwareCopyData = async (softwareSlug: string) => {
+    await copyFormToSoftware(softwareSlug)
+    //Add Settings
+    await createTypeRubrique(softwareSlug)
+    //Copy books and chapters
+    await copyBook(softwareSlug)
+    //Copy tasks
+    await copyTask(softwareSlug)
+
+    return
+}
+
+export const getSoftwaresItemsFilterByUserSoftware = async () => {
     try {
-        const userId = await userIsValid()
-        if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
-        const software = await prisma.software.findUnique({
+        const softwares = await getMySoftware()
+        const clientId = await getMyClientActive()
+
+        const items = await prisma.software_Items.findMany({
             where: {
-                id: softwareId
+                softwareLabel: {
+                    in: softwares.map((software) => software.softwareLabel)
+                },
+                clientId: clientId
             }
         })
-        if (!software) throw new Error("Le logiciel n'existe pas.")
-        return software.clientId
+        return items
     } catch (err) {
         console.error(err)
-        throw new Error("Impossible de récupérer le client du logiciel.")
+        throw new Error(`Une erreur est survenue lors de la récupération des logiciels du client.`)
     }
+
 }
 
-export const getSoftwareById = async (softwareId: string) => {
-    const userId = await userIsValid()
-    if (!userId) { throw new Error("L'utilisateur n'est pas connecté.") }
+export const getBookBySoftwareLabelAndClientSlug = async (softwareLabel: string, clientSlug: string) => {
+    try {
+        const clientExist = await getClientBySlug(clientSlug)
+        const books = await prisma.software_Book.findMany({
+            where: {
+                softwareLabel: softwareLabel,
+                clientId: clientExist.siren
 
-    const software = await prisma.software.findUnique({
-        where: {
-            id: softwareId
-        }
-    })
+            }
+        })
+        return books
+    } catch (err) {
+        console.error(err)
+        throw new Error(`Une erreur est survenue lors de la récupération des cahiers du logiciel.`)
+    }
 
-    if (!software) throw new Error("Le logiciel n'existe pas.")
-
-    const clientExist = await prisma.client.findUnique({ where: { id: software.clientId } })
-
-    if (!clientExist) throw new Error("Le client n'existe pas.")
-
-    const isAdmin = await userIsAdminClient(software.clientId)
-    if (!isAdmin) throw new Error("Vous n'avez pas les droits pour effectuer cette action.")
-
-    return software
 }
+
+export type getBookBySoftwareLabelAndClientSlug = Prisma.PromiseReturnType<typeof getBookBySoftwareLabelAndClientSlug>;
+
+
+
+
+
+
