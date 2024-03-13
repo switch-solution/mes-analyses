@@ -7,7 +7,7 @@ import { createLog } from "./logger.query";
 import type { Logger } from "@/src/helpers/type";
 import { getMyProjects, getProjectBySlug } from "./project.query";
 import { getRecordIdExist } from "./project_value.query";
-import { getProjectBookBySlug } from "./project_Book.query";
+import { getProjectBookBySlug } from "./project_book.query";
 /**
  * Test if the user is an admin at least once
  * @param userId 

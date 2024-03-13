@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { getChapterByBookSlug } from "@/src/query/project_Book.query"
+import type { getChapterByBookSlug } from "@/src/query/project_book.query"
 import { Printer, CornerDownLeft, TicketCheck, Table } from "lucide-react";
 export default function Summary({ chapters, clientSlug, projectSlug, bookSlug }: { chapters: getChapterByBookSlug, clientSlug: string, projectSlug: string, bookSlug: string }) {
 

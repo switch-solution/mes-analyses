@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getProjectBookByslug } from "./project_Book.query";
+import { getProjectBookByslug } from "./project_book.query";
 import { getProjectBySlug } from "./project.query";
 import { getComponentBySlug } from "./project_component.query";
 
