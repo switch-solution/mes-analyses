@@ -52,7 +52,7 @@ export default function EditFormContact({ contact }: { contact: z.infer<typeof C
         }
     }
     return (
-        <div className="flex flex-col w-full items-center">
+        <div className="flex w-full flex-col items-center">
             <Form {...form} >
                 <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField

@@ -1,3 +1,4 @@
+//Explication scroll={false} https://github.com/shadcn-ui/ui/issues/1355
 import {
     Menubar,
     MenubarCheckboxItem,
@@ -22,9 +23,9 @@ import { getMyClientActive } from "@/src/query/client.query";
 export const UserMenu = async () => {
     const clientSlug = await getMyClientActive()
     return (
-        <Menubar>
+        <Menubar className="max-w-full">
             <MenubarMenu>
-                <MenubarTrigger> <Link href={`/home`}>Accueil</Link></MenubarTrigger>
+                <MenubarTrigger> <Link href={`/feedback`} scroll={false}>Feedback</Link></MenubarTrigger>
             </MenubarMenu>
             <MenubarMenu>
                 <MenubarTrigger>Client</MenubarTrigger>
@@ -44,22 +45,23 @@ export const UserMenu = async () => {
                             <MenubarItem><Link href={`/client/${clientSlug}/administrator/invoice`}>Facture</Link></MenubarItem>
                         </MenubarSubContent>
                     </MenubarSub>
-                    <MenubarSeparator />
-                    <MenubarSeparator />
+
                     <MenubarSub>
-                        <MenubarSubTrigger>Editeur</MenubarSubTrigger>
-                        <MenubarSubContent>
-                            <MenubarItem><Link href={`/client/${clientSlug}/editor/`}>Consulter</Link></MenubarItem>
-                            <MenubarItem><Link href={`/client/${clientSlug}/editor/book`}>Livres</Link></MenubarItem>
-                            <MenubarItem><Link href={`/client/${clientSlug}/editor/attachment`}>PJ</Link></MenubarItem>
-                            <MenubarItem><Link href={`/client/${clientSlug}/editor/constant`}>Constante</Link></MenubarItem>
-                            <MenubarItem><Link href={`/client/${clientSlug}/editor/item`}>Rubriques</Link></MenubarItem>
-                            <MenubarItem><Link href={`/client/${clientSlug}/editor/component`}>Composant</Link></MenubarItem>
-                        </MenubarSubContent>
                     </MenubarSub>
-                    <MenubarSeparator />
                 </MenubarContent>
             </MenubarMenu>
+            <MenubarMenu>
+                <MenubarTrigger>Editeur</MenubarTrigger>
+                <MenubarContent>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/`}>Consulter</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/book`}>Livres</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/attachment`}>PJ</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/constant`}>Constante</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/item`}>Rubriques</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/component`}>Composant</Link></MenubarItem>
+                </MenubarContent>
+            </MenubarMenu>
+
             <MenubarMenu>
                 <MenubarTrigger>Projets</MenubarTrigger>
                 <MenubarContent>

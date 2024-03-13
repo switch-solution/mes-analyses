@@ -2,9 +2,19 @@ import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { userIsAdminProject } from "@/src/query/security.query";
 import { getUsersProject } from "@/src/query/project.query";
-import Breadcrumb from "@/components/ui/breadcrumb";
-
+import { getProjectBySlug } from "@/src/query/project.query";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import Container from "@/components/layout/container";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
+    const projectExist = await getProjectBySlug(params.projectSlug)
+    if (!projectExist) throw new Error("Projet non trouvé")
     const userIsAdmin = await userIsAdminProject(params.projectSlug)
     if (!userIsAdmin) {
         throw new Error("L'utilisateur n'est pas connecté.")
@@ -29,9 +39,24 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     }).flat(1)
 
     return (
-        <div className="container mx-auto py-10">
-            <Breadcrumb />
+        <Container>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/`}>Projets</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectExist.label}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                </BreadcrumbList>
+            </Breadcrumb>
             <DataTable columns={columns} data={users} inputSearch="lastname" inputSearchPlaceholder="Chercher par nom" href={`/client/${params.clientSlug}/project/${params.projectSlug}/user/create`} buttonLabel="Inviter un utilisateur" />
-        </div>
+        </Container>
     )
 }

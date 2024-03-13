@@ -39,7 +39,6 @@ export default function CreateFormContact({ clientId }: { clientId: string }) {
     })
     const onSubmit = async (values: z.infer<typeof ContactSchema>) => {
         try {
-            await ContactSchema.parseAsync(values)
             await createContact(values)
         } catch (err) {
             console.error(err)
@@ -51,7 +50,7 @@ export default function CreateFormContact({ clientId }: { clientId: string }) {
         }
     }
     return (
-        <div className="flex flex-col w-full items-center">
+        <div className="flex w-full flex-col items-center">
             <Form {...form} >
                 <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField

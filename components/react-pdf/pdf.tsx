@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
 // Create Document Component
 export const Pdf = () => {
     return (
-        <div className='h-full w-full'>
+        <div className='size-full'>
             <PDFViewer width="100%" height="100%">
                 <Document>
                     <Page style={styles.body}>

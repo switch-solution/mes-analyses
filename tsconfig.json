@@ -37,7 +37,8 @@
     "__tests__/page.test.jsx",
     "jest.setup.js",
     "jest.config.ts",
-    "__tests__/page.test.jsx"
+    "__tests__/page.test.jsx",
+    "app/@modal/default.tsx"
   ],
   "exclude": [
     "node_modules"

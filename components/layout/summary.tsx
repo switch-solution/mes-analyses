@@ -25,7 +25,7 @@ export default function Summary({ chapters, clientSlug, projectSlug, bookSlug }:
         }
     })
     return (
-        <div className="lg:h-full border-r-2 flex flex-col">
+        <div className="flex flex-col border-r-2 lg:h-full">
             <ul className="h-3/4">
                 {merge.map(chapters => {
                     return (
@@ -50,13 +50,13 @@ export default function Summary({ chapters, clientSlug, projectSlug, bookSlug }:
 
             </ul>
             <ul className="h-1/4 w-full">
-                <li className="flex flex-row w-full">
+                <li className="flex w-full flex-row">
                     <Printer /><Link className="ml-2" href={`/client/${clientSlug}/project/${projectSlug}/book/${bookSlug}/pdf`}>Imprimer en pdf</Link>
                 </li>
-                <li className="flex flex-row w-full">
+                <li className="flex w-full flex-row">
                     <CornerDownLeft /><Link className="ml-2" href={`/client/${clientSlug}/project/${projectSlug}/book`}>Retour à la liste des cahiers</Link>
                 </li>
-                <li className="flex flex-row w-full">
+                <li className="flex w-full flex-row">
                     <TicketCheck /><Link className="ml-2" href={`/client/${clientSlug}/project/${projectSlug}/book/${bookSlug}/validation`}>Valider le cahier</Link>
                 </li>
             </ul>

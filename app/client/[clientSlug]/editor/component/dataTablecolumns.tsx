@@ -13,6 +13,9 @@ export type StdComponent = {
     softwareLabel: string | null
     slug: string | null
     status: string | null
+    isForm: boolean | null
+    isTextArea: boolean | null
+    isImage: boolean | null
 }
 import { Badge } from "@/components/ui/badge"
 import {
@@ -29,17 +32,49 @@ export const columns: ColumnDef<StdComponent>[] = [
     {
         accessorKey: "label",
         header: "Libellé",
-        cell: ({ row }) => <Link href={`/client/${row.original.clientSlug}/editor/component/${row.original.slug}`}>{row.getValue("label")}</Link>,
+        cell: ({ row }) => {
+            if (row.original.isForm) {
+                return <Link href={`/client/${row.original.clientSlug}/editor/component/${row.original.slug}/form`}>{row.getValue("label")}</Link>
+
+            }
+            if (row.original.isImage) {
+                return <Link href={`/client/${row.original.clientSlug}/editor/component/${row.original.slug}/image`}>{row.getValue("label")}</Link>
+
+            }
+            if (row.original.isTextArea) {
+                return <Link href={`/client/${row.original.clientSlug}/editor/component/${row.original.slug}/textarea`}>{row.getValue("label")}</Link>
+
+            }
+        }
     },
     {
         accessorKey: "description",
         header: "Description",
     },
     {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => {
+            if (row.original.isForm) {
+                return <Badge>Formulaire</Badge>
+
+            }
+            if (row.original.isImage) {
+                return <Badge>Image</Badge>
+
+            }
+            if (row.original.isTextArea) {
+                return <Badge>Zone de texte</Badge>
+
+            }
+
+            throw new Error(`Type de composant inconnu`)
+        }
+    },
+    {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => <Badge variant={row.getValue("status") === "actif" ? "default" : "secondary"}>{row.getValue("status")}</Badge>,
-
     },
     {
         accessorKey: "softwareLabel",
@@ -53,9 +88,9 @@ export const columns: ColumnDef<StdComponent>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="size-8 p-0">
                             <span className="sr-only">Menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreHorizontal className="size-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">

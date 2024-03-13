@@ -26,11 +26,13 @@ import {
 import { ArrowRight } from "lucide-react";
 import Link from "next/link"
 import { getMyProjects } from "@/src/query/project.query";
-import { countMyAlert } from "@/src/query/alert.query";
 import { getMyClientActive } from "@/src/query/client.query";
 import { WhatIsNew } from "@/components/layout/whatIsNew";
 import { countMyTaskActive } from "@/src/query/project_task.query";
+import { headers } from 'next/headers'
+
 export default async function Page() {
+    const nonce = headers().get('x-nonce')
     const userIsSetup = await userIsComplete()
 
     const clientSlug = await getMyClientActive()
@@ -73,35 +75,34 @@ export default async function Page() {
 
             ),
             className: "md:col-span-2",
-            icon: <IconClipboardCopy className="h-4 w-4 text-neutral-500" />,
+            icon: <IconClipboardCopy className="size-4 text-neutral-500" />,
         },
         {
             title: "Mes taches",
             description: (<Link href={`/home/task`}>Consulter vos taches</Link>),
-            header: <span className="flex flex-col justify-center items-center h-full text-6xl">{countTask}</span>,
+            header: <span className="flex h-full flex-col items-center justify-center text-6xl">{countTask}</span>,
             className: "md:col-span-1",
-            icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
+            icon: <IconFileBroken className="size-4 text-neutral-500" />,
         },
         {
             title: "Mes taches en attentes",
             description: "Consultez vos taches en attentes.",
             header: <TinyLineChart />,
             className: "md:col-span-1",
-            icon: <IconSignature className="h-4 w-4 text-neutral-500" />,
+            icon: <IconSignature className="size-4 text-neutral-500" />,
         },
         {
             title: "Quoi de neuf ?",
-            description:
-                "Consultez les dernières mises à jour de vos projets.",
+            description: (<Link href={`/home/new`}>Consulter les dernières mises à jour de vos projets.</Link>),
             header: <WhatIsNew />,
             className: "md:col-span-2",
-            icon: <IconTableColumn className="h-4 w-4 text-neutral-500" />,
+            icon: <IconTableColumn className="size-4 text-neutral-500" />,
         },
     ];
 
     return (
         <Container>
-            <BentoGrid className="max-w-4xl mx-auto md:auto-rows-[20rem]">
+            <BentoGrid className="mx-auto max-w-4xl md:auto-rows-[20rem]">
                 {items.map((item, i) => (
                     <BentoGridItem
                         key={i}

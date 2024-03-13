@@ -27,12 +27,12 @@ export default async function RootLayout({
   const session = await getAuthSession()
   return (
     <html lang="fr" className='h-full' suppressHydrationWarning>
-      <body className={clsx(inter.className, 'bg-background h-full')}>
+      <body className={clsx(inter.className, 'h-full bg-background')}>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           <Header>
             {session ? <NavBar /> : <NavaBarInformation />}
           </Header>
-          <main className='flex flex-col w-full h-full items-center'>
+          <main className='flex size-full flex-col items-center'>
             {children}
           </main>
           {modal}

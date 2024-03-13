@@ -40,7 +40,7 @@ export const columns: ColumnDef<Task>[] = [
         header: "Charger des fichiers",
         cell: ({ row }) => {
             const task = row.original
-            return task.isUpload ? <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/task/${row.original.slug}/upload`}><Upload className="h-6 w-6" /></Link> : null
+            return task.isUpload ? <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/task/${row.original.slug}/upload`}><Upload className="size-6" /></Link> : null
         },
     },
     {
@@ -59,9 +59,9 @@ export const columns: ColumnDef<Task>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="size-8 p-0">
                             <span className="sr-only">Menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreHorizontal className="size-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">

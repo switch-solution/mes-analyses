@@ -11,16 +11,15 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const chapters = await getChapterByBookSlug(params.bookSlug)
     const components = await getComponentWitchInputByBookSlug(params.bookSlug)
     const values = await getValueForDataTable(params.bookSlug, params.projectSlug, params.clientSlug)
-    console.log(values)
     return (
-        <div className="flex flex-col flex-wrap	 w-full h-full">
+        <div className="flex size-full flex-col	 flex-wrap">
             <div className="lg:h-full lg:w-1/4">
                 <Summary chapters={chapters} clientSlug={params.clientSlug} projectSlug={params.projectSlug} bookSlug={params.bookSlug} />
             </div>
-            <div className="lg:h-full lg:w-3/4">
+            <div className="lg:h-full lg:w-1/2">
                 {components.map(component =>
                     <div key={`${component.chapterLevel_1}.${component.chapterLevel_2}.${component.chapterLevel_3}`} id={`${component.chapterLevel_1}.${component.chapterLevel_2}.${component.chapterLevel_3}`}>
-                        <h2 className="ml-2 font-bold">{`${component.chapterLevel_1}.${component.chapterLevel_2}.${component.chapterLevel_3}.${component.label}`}</h2>
+                        <h2 className="ml-2 mt-2 font-bold">{`${component.chapterLevel_1}.${component.chapterLevel_2}.${component.chapterLevel_3}.${component.label}`}</h2>
                         <DataTable columns={columns} data={values.filter(value => value.componentSlug === component.slug)} inputSearch="isCode" inputSearchPlaceholder="Chercher par code" href={`/client/${params.clientSlug}/project/${params.projectSlug}/book/${params.bookSlug}/component/${component.slug}/create`} buttonLabel={`Ajouter ${component.label}`} />
                     </div>
 

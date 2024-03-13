@@ -1,6 +1,6 @@
 import { Scale, UserRoundCog, Building2, MoveRight, Computer } from "lucide-react"
 export default function SetupSteep({ step }: { step: number }) {
-    return (<div className="flex flex-row w-full justify-between lg:w-3/4">
+    return (<div className="flex w-full flex-row justify-between lg:w-3/4">
         <div>
             <Scale />
             {step === 1 && "En cours"}

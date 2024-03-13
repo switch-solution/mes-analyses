@@ -49,7 +49,7 @@ export default function CreateStandardAttchment({ clientSlug, softwares }: { cli
 
     }
     return (
-        <div className="flex flex-col w-full items-center">
+        <div className="flex w-full flex-col items-center">
             <Form {...form} >
                 <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
                     <FormField

@@ -11,6 +11,11 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
+                hostname: 'gaarltlslp2rg4a1.public.blob.vercel-storage.com',
+                port: '',
+            },
+            {
+                protocol: 'https',
                 hostname: 'github.com',
                 port: '',
             },

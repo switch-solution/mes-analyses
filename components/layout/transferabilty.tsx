@@ -38,12 +38,13 @@ export function Transferabilty({ availableValues, useValues, chapterSlug, client
 
     }, [dones, donesList, chapterSlug, clientSlug])
     return (
-        <div className="flex flex-col h-full justify-between lg:flex-row" >
+        <div className="flex h-full flex-col justify-between lg:flex-row" >
             <div className="h-1/2">
                 <span>Composant disponible</span>
                 <ul ref={
                     todoList}>
                     {availables.map((available) => (
+                        // eslint-disable-next-line tailwindcss/no-custom-classname
                         <li className="kanban-item"
                             key={available}>
                             {available}
@@ -56,6 +57,7 @@ export function Transferabilty({ availableValues, useValues, chapterSlug, client
                 <ul className="border" ref={doneList}>
                     {
                         dones.map((done) => (
+                            // eslint-disable-next-line tailwindcss/no-custom-classname
                             <li className="kanban-item"
                                 key={done}>
                                 {done}

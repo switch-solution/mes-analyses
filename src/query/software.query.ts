@@ -131,6 +131,28 @@ export const getBookBySoftwareLabelAndClientSlug = async (softwareLabel: string,
 
 export type getBookBySoftwareLabelAndClientSlug = Prisma.PromiseReturnType<typeof getBookBySoftwareLabelAndClientSlug>;
 
+export const getSoftwareByClientSlugAndSoftwareLabel = async (clientSlug: string, softwareLabel: string) => {
+    try {
+        const clientExist = await getClientBySlug(clientSlug)
+        const software = await prisma.software.findUnique({
+            where: {
+                label_clientId: {
+                    clientId: clientExist.siren,
+                    label: softwareLabel
+
+                }
+            }
+        })
+        return software
+    } catch (err) {
+        console.error(err)
+        throw new Error(`Une erreur est survenue lors de la récupération du logiciel.`)
+    }
+
+
+
+}
+
 
 
 

@@ -12,6 +12,9 @@ export const getStdInputsByStdComponentSlug = async (stdComponentSlug: string) =
                 softwareLabel: stdComponentExist.softwareLabel,
                 clientId: stdComponentExist.clientId,
             },
+            include: {
+                Software_Component_Select_Option: true
+            },
             orderBy: {
                 order: 'asc'
             }

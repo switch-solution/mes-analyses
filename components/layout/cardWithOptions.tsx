@@ -19,7 +19,7 @@ export default function CardWithOptions({ titre, content, href }: { titre: strin
                     <CardTitle>{titre}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl text-center"> <span>{content}</span></p>
+                    <p className="text-center text-2xl"> <span>{content}</span></p>
                 </CardContent>
                 <CardFooter className='flex justify-end'>
                     <ExternalLink className='mr-2' />

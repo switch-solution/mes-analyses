@@ -33,7 +33,7 @@ export default function CreateSoftware() {
 
     }
     return (
-        <div className="flex flex-col w-full items-center">
+        <div className="flex w-full flex-col items-center">
             <Suspense fallback={<Skeleton />}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>

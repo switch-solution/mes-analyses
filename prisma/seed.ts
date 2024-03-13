@@ -32,6 +32,7 @@ import { opsV00001Seed } from './seed/30_ops.v00001.seed'
 import { opsV00002Seed } from './seed/31_ops.v00002.seed'
 import { opsV00003Seed } from './seed/32_ops.v00003.seed'
 import { opsV00004Seed } from './seed/33_ops.v00004.seed'
+import { textareaV0001 } from './seed/34_textarea.v0001.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -346,6 +347,15 @@ const main = async () => {
             process.exit(1)
         })
     await opsV00004Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await textareaV0001.run()
         .then(async () => {
             await prisma.$disconnect()
         })

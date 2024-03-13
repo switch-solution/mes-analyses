@@ -4,7 +4,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
     if (!userIsAuthorized) throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
     const attachments = await getProjectAttachment(params.projectSlug)
-    return (<div className="flex flex-col justify-center w-full lg:w-2/3">
+    return (<div className="flex w-full flex-col justify-center lg:w-2/3">
         <p>test</p>
     </div>)
 }

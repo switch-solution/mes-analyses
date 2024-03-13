@@ -73,7 +73,7 @@ export default function ConstantFormCreate({ clientSlug, softwares, idcc }: { cl
 
     }
     return (
-        <div className="flex flex-col w-full items-center">
+        <div className="flex w-full flex-col items-center">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
                     <FormField
@@ -192,7 +192,7 @@ export default function ConstantFormCreate({ clientSlug, softwares, idcc }: { cl
                                                 ) : (
                                                     <span>Pick a date</span>
                                                 )}
-                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                <CalendarIcon className="ml-auto size-4 opacity-50" />
                                             </Button>
                                         </FormControl>
                                     </PopoverTrigger>
@@ -233,7 +233,7 @@ export default function ConstantFormCreate({ clientSlug, softwares, idcc }: { cl
                                                 ) : (
                                                     <span>Pick a date</span>
                                                 )}
-                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                <CalendarIcon className="ml-auto size-4 opacity-50" />
                                             </Button>
                                         </FormControl>
                                     </PopoverTrigger>
@@ -275,7 +275,7 @@ export default function ConstantFormCreate({ clientSlug, softwares, idcc }: { cl
                                                         (idcc) => idcc.code === field.value
                                                     )?.code
                                                     : "Chercher par code IDCC"}
-                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                                             </Button>
                                         </FormControl>
                                     </PopoverTrigger>

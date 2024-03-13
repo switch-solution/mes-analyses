@@ -2,6 +2,15 @@ import { userIsEditor } from "@/src/query/security.query"
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { getBookChapterByBookSlug } from "@/src/query/software_book.query";
+import Container from "@/components/layout/container";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 export default async function Page({ params }: { params: { clientSlug: string, bookSlug: string } }) {
 
     const isEditor = await userIsEditor(params.clientSlug);
@@ -19,9 +28,23 @@ export default async function Page({ params }: { params: { clientSlug: string, b
         }
     })
     return (
-        <div className="container mx-auto py-10">
+        <Container>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/`}>Editeur</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/book`}>Cahiers</BreadcrumbLink>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
             <DataTable columns={columns} data={chapters} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/editor/book/${params.bookSlug}/chapter/create`} buttonLabel="Créer un nouveau chapitre" />
-
-        </div>
+        </Container>
     )
 }

@@ -1,6 +1,6 @@
 export default function Container({ children }: { children: React.ReactNode }) {
     return (
-        <div className="lg:mt-2">
+        <div className="container mx-auto py-10">
             {children}
         </div>
 

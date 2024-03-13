@@ -3,7 +3,7 @@ type HeaderProps = {
 }
 export const Header = async ({ children }: HeaderProps) => {
     return (
-        <header className="border-bg border-b-accent flex flex-row items-center justify-end w-full border-b-2 z-10">
+        <header className="z-10 flex w-full max-w-full flex-row items-center justify-end border-b-2 border-b-accent">
             {children}
         </header >
     )

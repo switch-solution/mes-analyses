@@ -6,7 +6,7 @@ export default async function Chapter({ params }: { params: { bookId: string, ch
     }
 
     return <div>
-        <div className="mt-4 ml-10">
+        <div className="ml-10 mt-4">
             <p>test</p>
         </div>
 

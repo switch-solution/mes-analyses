@@ -1,6 +1,4 @@
 "use client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Suspense } from 'react';
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SoftwaresSchema } from '@/src/helpers/definition'
@@ -34,7 +32,7 @@ export default function SoftwareForm({ clientSlug }: { clientSlug: string }) {
 
     }
     return (
-        <div className="flex flex-col w-full items-center">
+        <div className="flex w-full flex-col items-center">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
                     <FormField

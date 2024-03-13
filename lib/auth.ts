@@ -5,6 +5,7 @@ import { prisma } from "./prisma"
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from 'next-auth/providers/email';
 import { env } from "./env"
+
 export const authOptions: AuthOptions = {
     adapter: PrismaAdapter(prisma),
     session: {

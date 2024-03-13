@@ -7,15 +7,25 @@ import { createLog } from "@/src/query/logger.query";
 import type { Logger } from "@/src/helpers/type";
 import z from "zod";
 import { getStdComponentBySlug } from "@/src/query/software_component.query";
-import { CreateStdInputSchema, DeleteStdInputSchema, EdidStdInputSchema } from "@/src/helpers/definition";
-export const createStdInput = authentificationActionUserIsEditorClient(CreateStdInputSchema, async (data: z.infer<typeof CreateStdInputSchema>, { clientId, userId }) => {
+import { CreateSoftwareInputSchema, DeleteStdInputSchema, EdidStdInputSchema, DetailSoftwareInputShema, CreateOptionSchema } from "@/src/helpers/definition";
+import { getStandardInputById } from "@/src/query/sofwtare_input.query";
+export const createSoftwareStdInput = authentificationActionUserIsEditorClient(CreateSoftwareInputSchema, async (data: z.infer<typeof CreateSoftwareInputSchema>, { clientId, userId }) => {
 
-    const { componentSlug, type, clientSlug, label } = CreateStdInputSchema.parse(data)
+    const { componentSlug, type, clientSlug, label, typeDataImport, typeDataTable } = CreateSoftwareInputSchema.parse(data)
     const componentExist = await getStdComponentBySlug(componentSlug)
     if (!componentExist) {
         throw new Error('Le composant n\'existe pas')
     }
     try {
+        const inputExist = await prisma.software_Component_Input.findFirst({
+            where: {
+                componentLabel: componentExist.label,
+                softwareLabel: componentExist.softwareLabel,
+                clientId: clientId,
+                label: label
+            }
+        })
+        if (inputExist) throw new ActionError('Le champ existe déjà')
         const countInput = await prisma.software_Component_Input.count({
             where: {
                 componentLabel: componentExist.label,
@@ -25,7 +35,7 @@ export const createStdInput = authentificationActionUserIsEditorClient(CreateStd
             }
         })
         const order = countInput + 1
-        await prisma.software_Component_Input.create({
+        const input = await prisma.software_Component_Input.create({
             data: {
                 type: type,
                 createdBy: userId,
@@ -33,6 +43,12 @@ export const createStdInput = authentificationActionUserIsEditorClient(CreateStd
                 componentType: componentExist.type,
                 softwareLabel: componentExist.softwareLabel,
                 componentLabel: componentExist.label,
+                isCode: typeDataTable === 'isCode' ? true : false,
+                isLabel: typeDataTable === 'isLabel' ? true : false,
+                isDescription: typeDataTable === 'isDescription' ? true : false,
+                isDsnField: typeDataImport === 'dsn' ? true : false,
+                isOtherData: typeDataImport === 'items' || typeDataImport === 'other' ? true : false,
+                isDependOtherField: typeDataImport === 'items' || typeDataImport === 'otherField' ? true : false,
                 label,
                 order,
             }
@@ -44,16 +60,95 @@ export const createStdInput = authentificationActionUserIsEditorClient(CreateStd
             scope: "standardComponent",
         }
         await createLog(log)
-    } catch (err) {
+    } catch (err: unknown) {
         console.error(err)
-        throw new ActionError('Une erreur est survenue lors de la création du texte')
+        throw new ActionError(err as string)
     }
-    revalidatePath(`/client/${clientSlug}/editor/component/${componentSlug}`);
-    redirect(`/client/${clientSlug}/editor/component/${componentSlug}`);
+    const input = await prisma.software_Component_Input.findFirst({
+        where: {
+            componentLabel: componentExist.label,
+            softwareLabel: componentExist.softwareLabel,
+            clientId: clientId,
+            label: label
+        }
+    })
+    revalidatePath(`/client/${clientSlug}/editor/component/${componentSlug}}/input/${input?.id}/detail`);
+    redirect(`/client/${clientSlug}/editor/component/${componentSlug}/input/${input?.id}/detail`);
 })
 
+export const createOption = authentificationActionUserIsEditorClient(CreateOptionSchema, async (data: z.infer<typeof CreateOptionSchema>, { clientId, userId }) => {
+    const { clientSlug, componentSlug, inputSlug, label, selected } = CreateOptionSchema.parse(data)
+    const inputExist = await getStandardInputById(inputSlug)
+    if (!inputExist) {
+        throw new ActionError('Le champ n\'existe pas')
+    }
+    try {
+        await prisma.software_Component_Select_Option.create({
+            data: {
+                createdBy: userId,
+                clientId: inputExist.clientId,
+                inputLabel: inputExist.label,
+                softwareLabel: inputExist.softwareLabel,
+                componentLabel: inputExist.componentLabel,
+                label,
+                selected: selected ? true : false
+            }
+        })
+    } catch (err: unknown) {
+        console.error(err)
+        throw new ActionError(err as string)
+    }
+    revalidatePath(`/client/${clientSlug}/editor/component/${componentSlug}/input/${inputSlug}/option`);
+    redirect(`/client/${clientSlug}/editor/component/${componentSlug}/input/${inputSlug}/option`);
+
+})
+export const detailStdInput = authentificationActionUserIsEditorClient(DetailSoftwareInputShema, async (data: z.infer<typeof DetailSoftwareInputShema>, { clientId, userId }) => {
+    const { clientSlug, componentSlug, inputSlug, dsnType, otherData, placeholder, maxLength, maxValue, minLength, minValue, multiple, fieldSource } = DetailSoftwareInputShema.parse(data)
+    const inputExist = await getStandardInputById(inputSlug)
+    if (!inputExist) {
+        throw new ActionError('Le champ n\'existe pas')
+    }
+    const componentExist = await getStdComponentBySlug(componentSlug)
+    if (!componentExist) {
+        throw new ActionError('Le composant n\'existe pas')
+    }
+    try {
+        await prisma.software_Component_Input.update({
+            where: {
+                id: inputExist.id
+            },
+            data: {
+                createdBy: userId,
+                clientId,
+                dsnType,
+                otherData,
+                placeholder,
+                maxLength,
+                maxValue,
+                minLength,
+                minValue,
+                multiple,
+                formSource: fieldSource ? (await getStandardInputById(fieldSource)).componentLabel : null,
+                inputSource: fieldSource ? (await getStandardInputById(fieldSource)).label : null
+            }
+        })
+    } catch (err: unknown) {
+        console.error(err)
+        throw new ActionError(err as string)
+    }
+    if (inputExist.type === 'select') {
+        revalidatePath(`/client/${clientSlug}/editor/component/${componentSlug}/input/${inputSlug}/option`);
+        redirect(`/client/${clientSlug}/editor/component/${componentSlug}/input/${inputSlug}/option`);
+    }
+    revalidatePath(`/client/${clientSlug}/editor/component/${componentSlug}/form/`);
+    redirect(`/client/${clientSlug}/editor/component/${componentSlug}/form/`);
+
+})
+
+
+
+
 export const deleteStdInput = authentificationActionUserIsEditorClient(DeleteStdInputSchema, async (data: z.infer<typeof DeleteStdInputSchema>, { clientId, userId }) => {
-    console.log(data)
     const { componentSlug, id, clientSlug } = DeleteStdInputSchema.parse(data)
     const componentExist = await getStdComponentBySlug(componentSlug)
     if (!componentExist) {

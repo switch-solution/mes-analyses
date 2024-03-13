@@ -24,13 +24,13 @@ export default async function Home() {
   }
   return (
     <>
-      <main className="flex h-full w-full flex-col items-center justify-start p-12">
+      <main className="flex size-full flex-col items-center justify-start p-12">
         <div className="flex flex-col">
-          <h1 className="text-3xl font-bold text-center p-6">Gérer la rédaction de vos cahiers d&apos;analyses de paie avec une solution dédiée</h1>
+          <h1 className="p-6 text-center text-3xl font-bold">Gérer la rédaction de vos cahiers d&apos;analyses de paie avec une solution dédiée</h1>
           <h2 className="text-left">Créer vos formulaires</h2>
 
         </div>
-        <div id='pricing' className="flex justify-between flex-col md:flex-row h:full lg:w-1/2">
+        <div id='pricing' className="flex h-full flex-col justify-between md:flex-row lg:w-1/2">
           <Container>
             <CardPricing title="Mode local" description="Installer la solution sur vos serveurs" content="Utilis" footer="/documentation" />
           </Container>
@@ -46,7 +46,7 @@ export default async function Home() {
 const CardPricing = ({ title, description, content, footer }: CardProps) => {
 
   return (
-    <Card className="h-80 w-80">
+    <Card className="size-80">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>

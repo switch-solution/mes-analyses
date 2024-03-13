@@ -6,9 +6,8 @@ import type { getComponentAndInputAndValuesBySlug } from "@/src/query/project_co
 import { createComponentValue, editComponentValue } from "@/src/features/actions/project_component/project_component.actions";
 import { DynamicFormSchema } from "@/src/helpers/definition";
 import { TypeInput } from "@/src/helpers/type";
-
+import ButtonBack from "@/components/ui/button-back";
 export default function Form({ clientSlug, projectSlug, bookSlug, component, recordId }: { clientSlug: string, projectSlug: string, bookSlug: string, component: getComponentAndInputAndValuesBySlug, recordId?: string }) {
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.target as HTMLFormElement)
@@ -47,27 +46,26 @@ export default function Form({ clientSlug, projectSlug, bookSlug, component, rec
         }
     }
     return (
+
         <form className="m-2 w-full" onSubmit={handleSubmit}>
             {component && component.Project_Input.map(input =>
-                <div key={input.label} className="flex flex-row items-center mt-2">
+                <div key={input.label} className="mt-2 flex flex-row items-center">
                     {input.type === 'text' || input.type === 'number' || input.type === 'date' ?
                         <>
                             <div className="w-1/3">
                                 <Label htmlFor={input.label}>{input.label}</Label>
                             </div>
                             <div className="w-2/3">
-                                <Input id={input.label} defaultValue={recordId ? input.Project_Value.find(value => value.inputLabel === input.label)?.textValue ?? "" : undefined} name={input.label} aria-label={input.label} type={input.type} minLength={input.minLength ? input.minLength : undefined} maxLength={input?.maxLength ? input.maxLength : undefined} />
+                                <Input id={input.label} defaultValue={recordId ? input.Project_Value.find(value => value.inputLabel === input.label)?.textValue ?? "" : undefined} name={input.label} aria-label={input.label} type={input.type} minLength={input.minLength ? input.minLength : undefined} maxLength={input?.maxLength ? input.maxLength : undefined} required={input.required} />
                             </div>
                         </>
                         : undefined
                     }
                 </div>
-
-
-
-
             )}
+            <ButtonBack />
             <Button type="submit">Sauvegarder {component?.label ? component.label : 'Sauvegarder'}</Button>
+
         </form>
 
     )

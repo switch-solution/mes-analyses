@@ -251,7 +251,7 @@ model Book {
 model Chapter {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  createdBy   String        @default("System")
+  createdBy   String        @default("system")
   level_1     Int
   level_2     Int
   level_3     Int
@@ -281,7 +281,7 @@ model ChapterForm {
   formVersion Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  createdBy   String   @default("System")
+  createdBy   String   @default("system")
 
   @@id([bookLabel, level_1, level_2, level_3, formTitle, formType, formVersion])
 }
@@ -318,6 +318,9 @@ model Software_Component_Input {
   dsnType                          String?
   dsnItem                          String?
   otherData                        String?
+  isDsnField                       Boolean?                           @default(false)
+  isOtherData                      Boolean?                           @default(false)
+  isDependOtherField               Boolean?                           @default(false)
   label                            String
   maxLength                        Int?                               @default(255)
   minLength                        Int?                               @default(0)
@@ -350,7 +353,7 @@ model Software_Component_Input {
 }
 
 model Software_Component_TextArea {
-  value              String
+  value              Json               @default("{}")
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   createdBy          String
@@ -365,6 +368,7 @@ model Software_Component_TextArea {
 
 model Software_Component_Image {
   description        String
+  provider           String
   slug               String             @unique
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -377,6 +381,10 @@ model Software_Component_Image {
   componentType      String
   url                String
   device             String
+  downloadUrl        String
+  pathname           String
+  contentType        String
+  contentDisposition String
 
   @@id([componentLabel, softwareLabel, clientId, version, componentType])
 }
@@ -384,7 +392,6 @@ model Software_Component_Image {
 model Software_Component_Select_Option {
   label                    String
   selected                 Boolean?
-  value                    String
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @updatedAt
   createdBy                String
@@ -829,7 +836,7 @@ model Idcc {
   label           String
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
-  createdBy       String             @default("System")
+  createdBy       String             @default("system")
   SoftwareItems   Software_Items[]
   ConstantLegal   Constant_Legal[]
   ProjectConstant Project_Constant[]
@@ -968,7 +975,7 @@ model Task {
   level       String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  createdBy   String   @default("System")
+  createdBy   String   @default("system")
   bookLabel   String?
   Book        Book?    @relation(fields: [bookLabel], references: [label])
 }
@@ -985,7 +992,7 @@ model Software_Task {
   Software      Software       @relation(fields: [softwareLabel, clientId], references: [label, clientId])
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  createdBy     String         @default("System")
+  createdBy     String         @default("system")
   bookLabel     String?
   Software_Book Software_Book? @relation(fields: [bookLabel, softwareLabel, clientId], references: [label, softwareLabel, clientId])
 
@@ -1008,7 +1015,7 @@ model Project_Task {
   Project       Project  @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  createdBy     String   @default("System")
+  createdBy     String   @default("system")
   owner         String
   message       String?
   dateStart     DateTime @default(now())
@@ -1025,7 +1032,7 @@ model Absence {
   isSocialSecurity Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  createdBy        String   @default("System")
+  createdBy        String   @default("system")
 }
 
 model Item {
@@ -1063,7 +1070,7 @@ model Software_Absence {
   clientId         String
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  createdBy        String   @default("System")
+  createdBy        String   @default("system")
   Software         Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
 
   @@id([label, code, clientId, softwareLabel])
@@ -1087,4 +1094,26 @@ model Dsn_OPS {
   address1 String?
   codeZip  String?
   city     String?
+}
+
+model TextArea {
+  label       String   @id
+  value       Json     @default("{}")
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String   @default("system")
+  package     String
+}
+
+model Feedback {
+  id         String   @id @default(cuid())
+  feature    String
+  message    String
+  level      String
+  isBlocked  Boolean  @default(false)
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  createdBy  String
 }

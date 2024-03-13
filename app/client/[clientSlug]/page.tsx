@@ -3,11 +3,7 @@ import Container from "@/components/layout/container";
 import { userIsAdminClient } from "@/src/query/security.query";
 import TinyLineChart from "@/components/chart/tinyLineChart"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
 import {
-    IconArrowWaveRightUp,
-    IconBoxAlignRightFilled,
-    IconBoxAlignTopLeft,
     IconClipboardCopy,
     IconFileBroken,
     IconSignature,
@@ -23,6 +19,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+
 import Link from "next/link"
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { getUsersClientList } from "@/src/query/client.query";
@@ -63,21 +60,21 @@ export default async function Page({ params }: { params: { clientSlug: string } 
 
             ),
             className: "md:col-span-2",
-            icon: <IconClipboardCopy className="h-4 w-4 text-neutral-500" />,
+            icon: <IconClipboardCopy className="size-4 text-neutral-500" />,
         },
         {
             title: "Fin période de test",
             description: "Nombre de jours restants avant la fin de la période de test",
-            header: <span className="flex flex-col justify-center items-center h-full text-6xl">{endTrial}</span>,
+            header: <span className="flex h-full flex-col items-center justify-center text-6xl">{endTrial}</span>,
             className: "md:col-span-1",
-            icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
+            icon: <IconFileBroken className="size-4 text-neutral-500" />,
         },
         {
             title: "Mes projets",
             description: "Discover the beauty of thoughtful and functional design.",
             header: <TinyLineChart />,
             className: "md:col-span-1",
-            icon: <IconSignature className="h-4 w-4 text-neutral-500" />,
+            icon: <IconSignature className="size-4 text-neutral-500" />,
         },
         {
             title: "The Power of Communication",
@@ -85,12 +82,12 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                 "Understand the impact of effective communication in our lives.",
             header: <p>test</p>,
             className: "md:col-span-2",
-            icon: <IconTableColumn className="h-4 w-4 text-neutral-500" />,
+            icon: <IconTableColumn className="size-4 text-neutral-500" />,
         },
     ];
     return (
         <Container>
-            <BentoGrid className="max-w-4xl mx-auto md:auto-rows-[20rem]">
+            <BentoGrid className="mx-auto max-w-4xl md:auto-rows-[20rem]">
                 {items.map((item, i) => (
                     <BentoGridItem
                         key={i}

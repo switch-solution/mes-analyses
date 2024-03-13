@@ -78,8 +78,10 @@ export const createComponent = authentificationActionUserIsEditorClient(Standard
                 softwareLabel,
                 clientId,
                 version: 1,
-                slug
-
+                slug,
+                isForm: type === "form" ? true : false,
+                isTextArea: type === "textarea" ? true : false,
+                isImage: type === "image" ? true : false
             }
         })
         const log: Logger = {
@@ -90,19 +92,37 @@ export const createComponent = authentificationActionUserIsEditorClient(Standard
         }
         await createLog(log)
 
-    } catch (err) {
+    } catch (err: unknown) {
         console.error(err)
-        throw new ActionError("Une erreur est survenue lors de la création du composant.")
+        throw new ActionError(err as string)
     }
     const stdComponent = await prisma.software_Component.findFirstOrThrow({
         where: {
             label: label,
             softwareLabel: softwareLabel,
             clientId: clientId,
-            type: type
+            type: type,
+            isForm: type === "form" ? true : false,
+            isTextArea: type === "textarea" ? true : false,
+            isImage: type === "image" ? true : false
         }
     })
-    revalidatePath(`/client/${clientSlug}/editor/component/${stdComponent.slug}`);
-    redirect(`/client/${clientSlug}/editor/component/${stdComponent.slug}`);
+    switch (type) {
+        case "form":
+            revalidatePath(`/client/${clientSlug}/editor/component/${stdComponent.slug}/form`);
+            redirect(`/client/${clientSlug}/editor/component/${stdComponent.slug}/form`);
+            break
+        case "textarea":
+            revalidatePath(`/client/${clientSlug}/editor/component/${stdComponent.slug}/textarea`);
+            redirect(`/client/${clientSlug}/editor/component/${stdComponent.slug}/textarea`);
+            break
+        case "image":
+            revalidatePath(`/client/${clientSlug}/editor/component/${stdComponent.slug}/image/upload`);
+            redirect(`/client/${clientSlug}/editor/component/${stdComponent.slug}/image/upload`);
+            break
+        default:
+            throw new ActionError("Le type n'est pas reconnu.")
+    }
+
 
 })

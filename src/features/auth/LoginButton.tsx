@@ -9,7 +9,7 @@ export const LoginButton = ({ label }: { label: string }) => {
     const [isPending, startTransition] = useTransition()
     return (
         <Button variant="default" onClick={() => startTransition(() => signIn())}>
-            {isPending ? <Loader className="mr-2 h-4 w-4" /> : (<LogIn className="mr-2 h-4 w-4" />)}{label}
+            {isPending ? <Loader className="mr-2 size-4" /> : (<LogIn className="mr-2 size-4" />)}{label}
         </Button>
     )
 

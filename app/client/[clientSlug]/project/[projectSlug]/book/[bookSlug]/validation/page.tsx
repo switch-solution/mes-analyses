@@ -2,7 +2,6 @@ import { userIsAuthorizeInThisProject } from "@/src/query/security.query"
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { getWorkflow } from "@/src/query/project_book_workflow";
-import Breadcrumb from "@/components/ui/breadcrumb";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string, bookSlug: string } }) {
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug);
     if (!userIsAuthorized) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
@@ -23,7 +22,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     }).flat(1)
     return (
         <div className="container mx-auto py-10">
-            <Breadcrumb />
             <DataTable columns={columns} data={workFlows} inputSearch="response" inputSearchPlaceholder="Chercher par réponse" />
         </div>
     )

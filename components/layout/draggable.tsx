@@ -5,17 +5,10 @@ import type { getStdInputsByStdComponentSlug } from "@/src/query/sofwtare_compon
 import { useDragAndDrop } from "@formkit/drag-and-drop/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"
-import DeleteStdInput from "@/components/form/software_ComponentInput/delete";
+import DeleteStdInput from "@/components/form/software_Input/delete";
+import DynamicSelect from "../dynamic/dynamicSelect";
 import { SquarePen } from "lucide-react";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+
 export function Draggable({ inputs, clientSlug, componentSlug }: { inputs: getStdInputsByStdComponentSlug, clientSlug: string, componentSlug: string }) {
     const inputsLabel = inputs.map(input => input.label)
     const [parent, inputsLabelList] =
@@ -34,7 +27,7 @@ export function Draggable({ inputs, clientSlug, componentSlug }: { inputs: getSt
                 const inputParam = inputs.find(inputParam => inputParam.label === input)
                 if (inputParam?.type === 'text' || inputParam?.type === 'number' || inputParam?.type === 'date') {
                     return (
-                        <li className="flex flex-row items-center w-full justify-between mt-2" data-label={input} key={inputParam.id}>
+                        <li className="mt-2 flex w-full flex-row items-center justify-between" data-label={input} key={inputParam.id}>
                             <Link href={`/client/${clientSlug}/editor/component/${componentSlug}/input/${inputParam.id}/edit`}><SquarePen /></Link>
                             <DeleteStdInput key={input} clientSlug={clientSlug} componentSlug={componentSlug} id={inputParam.id} />
                             <Label className="w-1/4" htmlFor={inputParam.id}>{input}</Label>
@@ -42,25 +35,15 @@ export function Draggable({ inputs, clientSlug, componentSlug }: { inputs: getSt
                         </li>)
                 }
                 if (inputParam?.type === 'select') {
-                    return (<li className="flex flex-row items-center w-full justify-between mt-2" data-label={input} key={inputParam.id} >
-                        <Link href={`/client/${clientSlug}/editor/component/${componentSlug}/input/${inputParam.id}/edit`}><SquarePen /></Link>
-                        <DeleteStdInput key={input} clientSlug={clientSlug} componentSlug={componentSlug} id={inputParam.id} />
-                        <Select>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select a fruit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>Fruits</SelectLabel>
-                                    <SelectItem value="apple">Apple</SelectItem>
-                                    <SelectItem value="banana">Banana</SelectItem>
-                                    <SelectItem value="blueberry">Blueberry</SelectItem>
-                                    <SelectItem value="grapes">Grapes</SelectItem>
-                                    <SelectItem value="pineapple">Pineapple</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </li>)
+                    return (
+                        <li className="mt-2 flex w-full flex-row items-center justify-between" key={inputParam.id}>
+                            <Link href={`/client/${clientSlug}/editor/component/${componentSlug}/input/${inputParam.id}/edit`}><SquarePen /></Link>
+                            <DeleteStdInput key={input} clientSlug={clientSlug} componentSlug={componentSlug} id={inputParam.id} />
+                            <Label className="w-1/4" htmlFor={inputParam.id}>{input}</Label>
+
+                            <DynamicSelect key={inputParam.id} placeholder={inputParam.placeholder} label={inputParam.label} options={inputParam.Software_Component_Select_Option} />
+
+                        </li>)
                 }
                 return (
                     undefined

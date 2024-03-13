@@ -1,8 +1,17 @@
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import { getMyProjects } from "@/src/query/project.query";
 import { userIsValid } from "@/src/query/security.query";
+import { Slash } from "lucide-react"
+import Container from "@/components/layout/container"
 import { getMyTasks } from "@/src/query/project_task.query";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 export default async function Page() {
     const userId = await userIsValid()
     if (!userId) {
@@ -26,8 +35,21 @@ export default async function Page() {
         }
     })
     return (
-        <div className="container mx-auto py-10">
+
+        <Container>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <Slash />
+                    </BreadcrumbSeparator>
+                </BreadcrumbList>
+            </Breadcrumb>
             <DataTable columns={columns} data={tasks} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/home/task`} buttonLabel="Créer une nouvelle tache" />
-        </div>
+        </Container>
+
+
     )
 }

@@ -21,7 +21,7 @@ export default function DangerButtonDelete({ form }: {
 }) {
 
     return (
-        <div className="flex flex-col w-full items-center">
+        <div className="flex w-full flex-col items-center">
 
             <FormField
                 control={form.control}

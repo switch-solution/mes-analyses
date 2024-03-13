@@ -2,7 +2,14 @@ import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { getMyProjects } from "@/src/query/project.query";
 import { userIsValid } from "@/src/query/security.query";
-import Breadcrumb from "@/components/ui/breadcrumb";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import Container from "@/components/layout/container";
 export default async function Page({ params }: { params: { clientSlug: string } }) {
     const userId = await userIsValid()
     if (!userId) {
@@ -23,9 +30,20 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     })
 
     return (
-        <div className="container mx-auto py-10">
-            <Breadcrumb />
+        <Container>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/`}>Projets</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                </BreadcrumbList>
+            </Breadcrumb>
             <DataTable columns={columns} data={projects} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/project/create`} buttonLabel="Créer un nouveau projet" />
-        </div>
+        </Container>
     )
 }

@@ -42,14 +42,17 @@ export default function CreateFormComponent({ clientSlug, softwares }: {
     })
     const onSubmit = async (values: z.infer<typeof StandardComposantSchema>) => {
         try {
-            await createComponent(values)
+            const action = await createComponent(values)
+            if (action?.serverError) {
+                console.log(action.serverError)
+            }
         } catch (err) {
             console.error(err)
         }
     }
     return (
 
-        <div className="flex flex-col w-full items-center">
+        <div className="flex w-full flex-col items-center">
             <Form {...form} >
                 <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
                     <FormField

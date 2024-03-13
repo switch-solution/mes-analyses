@@ -1,6 +1,6 @@
 export default function Footer() {
     return (
-        <footer className="flex justify-center items-center bg-zinc-900 h-20 w-full">
+        <footer className="flex h-20 w-full items-center justify-center bg-zinc-900">
             <ul>
                 <li>CGV</li>
                 <li>Prix</li>

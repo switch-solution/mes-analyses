@@ -28,6 +28,9 @@ export const columns: ColumnDef<StdChapter>[] = [
     {
         accessorKey: "bookLabel",
         header: "Livre",
+        cell: ({ row }) => {
+            return <Link href={`/client/${row.original.clientSlug}/editor/book/${row.original.bookSlug}/edit/`}>{row.original.bookLabel}</Link>
+        }
     },
     {
         accessorKey: "label",
@@ -44,9 +47,9 @@ export const columns: ColumnDef<StdChapter>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="size-8 p-0">
                             <span className="sr-only">Menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreHorizontal className="size-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
