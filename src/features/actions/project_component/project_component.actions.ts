@@ -8,7 +8,7 @@ import { getCountAllValues, getCountRecordId, getRecordIdExist } from "@/src/que
 import { userIsAuthorizeInThisProject } from "@/src/query/security.query";
 import { getInputByComponentSlug } from "@/src/query/project_input.query";
 import { getClientBySlug } from "@/src/query/client.query";
-import { getProjectBookByslug } from "@/src/query/project_book.query";
+import { getProjectBookByslug } from "@/src/query/project_Book.query";
 import { getProjectBySlug } from "@/src/query/project.query";
 import { getCountValueByRecordIdForValidation } from "@/src/query/security.query";
 type Value = {

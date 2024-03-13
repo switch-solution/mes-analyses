@@ -1,6 +1,6 @@
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import { getChapterByBookSlug } from "@/src/query/project_book.query"
+import { getChapterByBookSlug } from "@/src/query/project_Book.query"
 import { getComponentWitchInputByBookSlug } from "@/src/query/project_component_input.query"
 import Summary from "@/components/layout/summary"
 import { getValueForDataTable } from "@/src/query/project_value.query"

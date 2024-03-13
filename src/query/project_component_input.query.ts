@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getProjectBookByslug } from "./project_book.query";
+import { getProjectBookByslug } from "./project_Book.query";
 
 export const getComponentWitchInputByBookSlug = async (bookSlug: string) => {
     try {
