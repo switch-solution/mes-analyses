@@ -6,7 +6,6 @@ import { SetupClientSchema } from "@/src/helpers/definition";
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
-
 import {
     Form,
     FormControl,
@@ -19,12 +18,10 @@ import {
 
 import { Input } from '@/components/ui/input'
 import { createSetupClient } from "@/src/features/actions/setup/setup.actions";
-import { ToastAction } from "@/components/ui/toast"
+import { toast } from "sonner"
 
 
 export default function CreateClient() {
-    const { toast } = useToast()
-
     const form = useForm<z.infer<typeof SetupClientSchema>>({
         resolver: zodResolver(SetupClientSchema),
         defaultValues: {
@@ -35,15 +32,16 @@ export default function CreateClient() {
 
     const onSubmit = async (data: z.infer<typeof SetupClientSchema>) => {
         try {
-            const values = await createSetupClient(data)
-            toast({
-                variant: "destructive",
-                title: "Uh oh! Something went wrong.",
-                description: "There was a problem with your request.",
-                action: <ToastAction altText="Try again">Try again</ToastAction>,
-            })
-
-
+            const action = await createSetupClient(data)
+            if (action?.serverError) {
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
+            }
 
         } catch (err) {
             console.error(err)
@@ -54,7 +52,7 @@ export default function CreateClient() {
     return (
         <div className="flex w-full flex-col items-center">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
 
                     <FormField
                         control={form.control}

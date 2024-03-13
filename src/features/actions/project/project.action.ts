@@ -17,42 +17,60 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
         const projectNumber = `00000000000000000000${countProjects ? countProjects + 1 : 1}`
         const projectSlug = `${projectNumber.slice(-10)}`
         const slug = await generateSlug(`${projectSlug}-${label}`)
-        const project = await prisma.project.create({
-            data: {
-                label: label,
-                description: description,
-                softwareLabel: softwareLabel,
-                clientId: clientId,
-                createdBy: userId,
-                status: 'actif',
-                slug: slug,
-                UserProject: {
-                    create: {
-                        userId: userId,
-                        isAdmin: true,
-                        isEditor: true,
-                        isValidator: true,
-                        createdBy: userId,
-                        team: 'Editeur',
-                        role: role
-                    }
-                },
-            },
+        const projectIsUnique = await prisma.project.findFirst({
+            where: {
+                label,
+                clientId,
+                softwareLabel
+            }
         })
-        await copyBook(project.slug)
-        await copyTask(project.slug)
-        const log: Logger = {
-            level: "info",
-            scope: "project",
-            message: `Le projet ${label} a été créé`,
-            clientId: clientId,
-            projectLabel: project.label,
-            projectSoftwareLabel: project.softwareLabel
+        if (projectIsUnique) {
+            const log: Logger = {
+                level: "error",
+                scope: "project",
+                message: `Le projet ${slug} existe déjà a été créé`,
+                clientId: clientId,
+            }
+            await createLog(log)
+            throw new ActionError("Il existe déjà un projet avec le même libellé sur ce logiciel.")
+        } else {
+            const project = await prisma.project.create({
+                data: {
+                    label: label,
+                    description: description,
+                    softwareLabel: softwareLabel,
+                    clientId: clientId,
+                    createdBy: userId,
+                    status: 'actif',
+                    slug: slug,
+                    UserProject: {
+                        create: {
+                            userId: userId,
+                            isAdmin: true,
+                            isEditor: true,
+                            isValidator: true,
+                            createdBy: userId,
+                            team: 'Editeur',
+                            role: role
+                        }
+                    },
+                },
+            })
+            await copyBook(project.slug)
+            await copyTask(project.slug)
+            const log: Logger = {
+                level: "info",
+                scope: "project",
+                message: `Le projet ${label} a été créé`,
+                clientId: clientId,
+                projectLabel: project.label,
+                projectSoftwareLabel: project.softwareLabel
+            }
+            await createLog(log)
         }
-        await createLog(log)
-    } catch (error) {
-        console.log(error)
-        throw new ActionError("Une erreur est survenue lors de la création du projet.")
+    } catch (err: unknown) {
+        console.log(err)
+        throw new ActionError(err as string)
     }
     const project = await prisma.project.findFirstOrThrow({
         where: {

@@ -12,6 +12,13 @@ import {
     IconTableColumn,
 } from "@tabler/icons-react";
 import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import {
     Table,
     TableBody,
     TableCaption,
@@ -86,6 +93,14 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     ];
     return (
         <Container>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                </BreadcrumbList>
+            </Breadcrumb>
             <BentoGrid className="mx-auto max-w-4xl md:auto-rows-[20rem]">
                 {items.map((item, i) => (
                     <BentoGridItem

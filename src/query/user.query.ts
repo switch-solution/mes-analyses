@@ -151,3 +151,19 @@ export const getRoleUser = async () => {
     return role
 
 }
+
+export const getUserOtherData = async (userId: string) => {
+    try {
+        const userOther = await prisma.userOtherData.findUnique({
+            where: {
+                userId
+            }
+
+        })
+        return userOther
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des données de l'utilisateur.")
+    }
+
+}

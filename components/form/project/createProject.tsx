@@ -22,6 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { toast } from "sonner"
 
 export default function CreateProject({ clientSlug, softwares }: { clientSlug: string, softwares: getMySoftware }) {
     const form = useForm<z.infer<typeof ProjectCreateSchema>>({
@@ -35,10 +36,18 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
         },
     })
 
-    const onSubmit = async (values: z.infer<typeof ProjectCreateSchema>) => {
+    const onSubmit = async (data: z.infer<typeof ProjectCreateSchema>) => {
         try {
-            await createProjet(values)
-
+            const action = await createProjet(data)
+            if (action?.serverError) {
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
+            }
         } catch (err) {
             console.error(err)
 

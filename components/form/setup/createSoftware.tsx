@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SetupSoftwareSchema } from '@/src/helpers/definition'
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import { createSetupSoftware } from "@/src/features/actions/setup/setup.actions"
 import {
     Form,
@@ -26,7 +27,16 @@ export default function CreateSoftware() {
     })
     const onSubmit = async (data: z.infer<typeof SetupSoftwareSchema>) => {
         try {
-            await createSetupSoftware(data)
+            const action = await createSetupSoftware(data)
+            if (action?.serverError) {
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
+            }
         } catch (err) {
             console.error(err)
         }
@@ -36,7 +46,7 @@ export default function CreateSoftware() {
         <div className="flex w-full flex-col items-center">
             <Suspense fallback={<Skeleton />}>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
                         <FormField
                             control={form.control}
                             name="label"

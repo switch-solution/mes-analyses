@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Input } from '@/components/ui/input'
 import { createSetupProfil } from "@/src/features/actions/setup/setup.actions";
+import { toast } from "sonner"
 
 export default function CreateProfil() {
 
@@ -38,8 +39,14 @@ export default function CreateProfil() {
     const onSubmit = async (data: z.infer<typeof SetupProfilSchema>) => {
         try {
             const action = await createSetupProfil(data)
-            if (action) {
-                console.log(action)
+            if (action?.serverError) {
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
             }
         } catch (err) {
             console.error(err)
@@ -50,14 +57,14 @@ export default function CreateProfil() {
     return (
         <div className="flex w-full flex-col items-center">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
                     <FormField
                         control={form.control}
                         name="civility"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Civilité</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value} required>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Indiquer votre civilité" />
@@ -79,7 +86,7 @@ export default function CreateProfil() {
                             <FormItem>
                                 <FormLabel>Nom</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="DUPONT" type="text" {...field} required />
+                                    <Input placeholder="DUPONT" type="text" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -94,7 +101,7 @@ export default function CreateProfil() {
                             <FormItem>
                                 <FormLabel>Prénom</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Henry" type="text" {...field} required />
+                                    <Input placeholder="Henry" type="text" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

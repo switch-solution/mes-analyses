@@ -3,7 +3,6 @@ import Container from "@/components/layout/container";
 import { userIsAdminClient } from "@/src/query/security.query";
 import TinyLineChart from "@/components/chart/tinyLineChart"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
 import {
     IconArrowWaveRightUp,
     IconBoxAlignRightFilled,
@@ -23,6 +22,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import Link from "next/link"
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { getUsersClientList } from "@/src/query/client.query";
@@ -90,6 +96,14 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     ];
     return (
         <Container>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                </BreadcrumbList>
+            </Breadcrumb>
             <BentoGrid className="mx-auto max-w-4xl md:auto-rows-[20rem]">
                 {items.map((item, i) => (
                     <BentoGridItem

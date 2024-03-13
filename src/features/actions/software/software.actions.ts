@@ -114,7 +114,17 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
                 slug
             }
         })
-        if (softwareExist) throw new ActionError("Ce logiciel existe déjà.")
+        if (softwareExist) {
+            const log: Logger = {
+                level: "error",
+                message: `Erreur lors de la création du logiciel ${label} `,
+                scope: "software",
+                clientId: clientId,
+            }
+
+            await createLog(log)
+            throw new ActionError("Ce logiciel existe déjà.")
+        }
         const software = await prisma.software.create({
             data: {
                 label,
@@ -142,19 +152,12 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
         }
 
         await createLog(log)
-    } catch (err) {
-        const log: Logger = {
-            level: "error",
-            message: `Erreur lors de la création du logiciel ${label} `,
-            scope: "software",
-            clientId: clientId,
-        }
+    } catch (err: unknown) {
 
-        await createLog(log)
         console.error(err)
-        throw new ActionError("Une erreur est survenue lors de la création du logiciel.")
+        throw new ActionError(err as string)
     }
 
-    revalidatePath(`/client/${clientSlug}/administrator/software/`)
-    redirect(`/client/${clientSlug}/administrator/software/`)
+    revalidatePath(`/client/${clientSlug}/editor/`)
+    redirect(`/client/${clientSlug}/editor/`)
 })

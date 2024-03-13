@@ -125,8 +125,6 @@ export const getEndTrialClient = async (clientSlug: string) => {
     }
 }
 
-
-
 export const getClientBySiren = async (siren: string) => {
     try {
         const client = await prisma.client.findUnique({

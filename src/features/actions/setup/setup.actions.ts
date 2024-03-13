@@ -8,13 +8,10 @@ import { createLog } from "@/src/query/logger.query";
 import z from "zod";
 import { getMyClient } from "@/src/query/user.query";
 import { generateSlug } from "@/src/helpers/generateSlug";
-import { getClientBySiren } from "@/src/query/client.query";
+import { getClientBySiren, getClientBySlug } from "@/src/query/client.query";
 import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
-import { copyFormToSoftware } from "@/src/query/form.query";
-import { createTypeRubrique } from "@/src/query/software_setting.query";
-import { copyBook } from "@/src/query/book.query";
 import { softwareCopyData } from "@/src/query/software.query";
-
+import { getUserOtherData } from "@/src/query/user.query";
 
 export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
     try {
@@ -22,6 +19,8 @@ export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<
         const { cgv, gdpr } = SetupLegalSchema.parse(values)
         if (cgv === false) throw new ActionError("Vous devez accepter les CGV.")
         if (gdpr === false) throw new ActionError("Vous devez accepter le RGPD.")
+        const userOtherDataExist = await getUserOtherData(userId)
+        if (userOtherDataExist) throw new ActionError("Vous avez déjà accepté les CGV et le RGPD.")
         await prisma.userOtherData.create({
             data: {
                 userId: userId,
@@ -30,9 +29,9 @@ export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<
                 gdpr: gdpr
             }
         })
-    } catch (err) {
+    } catch (err: unknown) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la création des CGV.")
+        throw new ActionError(err as string)
 
     }
     revalidatePath(`/setup/profil/`)
@@ -86,13 +85,20 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
     })
     if (!clientId) throw new ActionError("Vous n'avez pas de client.")
     const { label } = SetupSoftwareSchema.parse(values)
-    const clientSlug = await prisma.client.findFirstOrThrow({
+    const clientSlug = await prisma.client.findUnique({
         where: {
             siren: clientId.clientId
         }
     })
+    if (!clientSlug) throw new ActionError("Le client n'existe pas.")
     try {
         const slug = await generateSlug(`${clientSlug.slug}-${label}`)
+        const softwareSlugExist = await prisma.software.findFirst({
+            where: {
+                slug: slug
+            }
+        })
+        if (softwareSlugExist) throw new ActionError("Le logiciel existe déjà.")
         await prisma.software.create({
             data: {
                 label,
@@ -121,9 +127,9 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
         await softwareCopyData(software.slug)
 
 
-    } catch (err) {
+    } catch (err: unknown) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la création de la configuration du logiciel.")
+        throw new ActionError(err as string)
     }
 
     revalidatePath(`/client/${clientSlug.slug}`)
@@ -132,49 +138,73 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
 
 export const createSetupClient = authentifcationAction(SetupClientSchema, async (values: z.infer<typeof SetupClientSchema>, userId) => {
 
-    const client = await getMyClient()
-    if (client?.length !== 0) {
-        throw new Error("Vous avez déjà une configuration.")
-    }
     const { socialReason, siren } = SetupClientSchema.parse(values)
     const slug = await generateSlug(socialReason)
+    const clientSlugExist = await prisma.client.findUnique({
+        where: {
+            slug: slug
+        }
+
+    })
+    if (clientSlugExist) {
+        const log: Logger = {
+            level: "error",
+            message: `Le slug ${slug} est déjà utilisé.`,
+            scope: "client",
+        }
+        await createLog(log)
+        throw new ActionError("Ce nom de client existe déjà.")
+    }
     const sirenExist = await getClientBySiren(siren)
-    if (sirenExist) throw new ActionError("Ce siren est déjà utilisé.")
+    if (sirenExist) {
+        const log: Logger = {
+            level: "error",
+            message: `Le siren ${siren} est déjà utilisé.`,
+            scope: "client",
+        }
+        await createLog(log)
+        throw new ActionError("Ce siren est déjà utilisé.")
+    }
+
     try {
         const currentDate = new Date();
         const add90Days = new Date(currentDate.setDate(currentDate.getDate() + 90))
-        await prisma.client.create({
-            data: {
-                socialReason: socialReason,
-                siren: siren,
-                slug: slug,
-                createdBy: userId,
-                isBlocked: false,
-                dateStartTrial: new Date(),
-                dateEndTrial: add90Days,
-                UserClient: {
-                    create: {
-                        userId: userId,
-                        isBillable: true,
-                        isAdministrator: true,
-                        isActivated: true,
-                        isBlocked: false,
-                        isEditor: true,
+        if (!sirenExist) {
+            await prisma.client.create({
+                data: {
+                    socialReason: socialReason,
+                    siren: siren,
+                    slug: slug,
+                    createdBy: userId,
+                    isBlocked: false,
+                    dateStartTrial: new Date(),
+                    dateEndTrial: add90Days,
+                    UserClient: {
+                        create: {
+                            userId: userId,
+                            isBillable: true,
+                            isAdministrator: true,
+                            isActivated: true,
+                            isBlocked: false,
+                            isEditor: true,
 
+                        }
                     }
                 }
-            }
-        })
+            })
+        }
+
         const Log: Logger = {
             level: "warning",
             message: `Création de l'utilisateur`,
             scope: "client",
         }
         await createLog(Log)
-    } catch (err) {
+    } catch (err: unknown) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la création de la configuration du client.")
+        throw new ActionError(err as string)
     }
+
     revalidatePath(`/setup/software/`)
     redirect(`/setup/software/`)
 

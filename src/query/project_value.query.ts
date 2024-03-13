@@ -175,8 +175,6 @@ export const getValueByRecordId = async (componentSlug: string, recordId: string
         })
         return component
 
-
-
     } catch (err) {
         console.error(err)
         throw new Error("Erreur lors de la récupération des données")

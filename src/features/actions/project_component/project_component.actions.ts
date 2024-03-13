@@ -158,7 +158,6 @@ export const editComponentValue = async (inputs: TypeInput[]) => {
 
 export const createComponentValue = async (inputs: TypeInput[]) => {
 
-
     const userIsAuthorize = await userIsAuthorizeInThisProject(inputs[0].projectSlug)
     if (!userIsAuthorize) throw new ActionError("Vous n'êtes pas autorisé à effectuer cette action.")
 
@@ -207,7 +206,7 @@ export const createComponentValue = async (inputs: TypeInput[]) => {
             booleanValue: false,
             createdBy: userIsAuthorize.userId,
             inputLabel: input.label,
-            recordId: `Formulaire_${inputParam?.componentLabel}_groupe_de_valeurs_${countRecord.toString()}`,
+            recordId: `Formulaire_${inputParam?.componentLabel.replace(/\s/g, "_")}_groupe_de_valeurs_${countRecord.toString()}`,
             formSource: input.formSource,
             inputSource: input.inputSource,
             componentLabel: inputParam?.componentLabel ? inputParam.componentLabel : '',

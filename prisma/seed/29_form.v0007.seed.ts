@@ -179,7 +179,7 @@ class FormV0007Seed extends Seed {
                             formTitle: "Emploi",
                             formType: "DSN_EMPLOI",
                             formVersion: 1,
-                            label: "Code emploi",
+                            label: "Libellé emploi",
 
                         },
                         dsnType: 'DSN_Emploi_Libelle'

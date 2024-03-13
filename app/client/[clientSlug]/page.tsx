@@ -33,7 +33,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     const items = [
         {
             title: "Utilisateurs",
-            description: "Gérez vos utilisateurs.",
+            description: (<Link href={`/client/${params.clientSlug}/administrator/user`}>Consulter la liste de vos utilisateurs</Link>),
             header: (<Table>
                 <TableHeader>
                     <TableRow>

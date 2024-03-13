@@ -24,6 +24,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useRouter } from 'next/navigation'
+import { toast } from "sonner"
 import { createFeedback } from "@/src/features/actions/feedback/feedback.actions";
 export default function FeedBackForm() {
     const router = useRouter()
@@ -41,7 +42,13 @@ export default function FeedBackForm() {
         try {
             const action = await createFeedback(data)
             if (action?.serverError) {
-                console.error(action.serverError)
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
             }
             router.back()
         } catch (err) {
@@ -108,7 +115,7 @@ export default function FeedBackForm() {
                             <FormItem>
                                 <FormLabel>Message</FormLabel>
                                 <FormControl>
-                                    <Input {...field} required />
+                                    <Input {...field} />
                                 </FormControl>
                                 <FormDescription>
                                     Votre message
@@ -137,8 +144,9 @@ export default function FeedBackForm() {
                             </FormItem>
                         )}
                     />
+                    <Button type="submit">Envoyer</Button>
+
                 </form>
-                <Button type="submit">Envoyer</Button>
             </Form>
 
         </Container>

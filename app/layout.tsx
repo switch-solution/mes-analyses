@@ -9,6 +9,8 @@ const inter = Inter({ subsets: ['latin'] })
 import NavaBarInformation from '@/components/layout/navBarInformation'
 import NavBar from '@/components/layout/navBar'
 import { getAuthSession } from '@/lib/auth'
+import { Toaster } from "@/components/ui/sonner"
+
 export const metadata: Metadata = {
   title: 'Mes analyses paie',
   description: 'Logiciel de rédaction des cahiers des charges de paie',
@@ -34,6 +36,8 @@ export default async function RootLayout({
           </Header>
           <main className='flex size-full flex-col items-center'>
             {children}
+            <Toaster />
+
           </main>
           {modal}
         </ThemeProvider>

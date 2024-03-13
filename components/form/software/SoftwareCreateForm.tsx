@@ -14,8 +14,10 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
+import { toast } from "sonner"
+
 import { Input } from '@/components/ui/input'
-export default function SoftwareForm({ clientSlug }: { clientSlug: string }) {
+export default function SoftwareCreateForm({ clientSlug }: { clientSlug: string }) {
     const form = useForm<z.infer<typeof SoftwaresSchema>>({
         resolver: zodResolver(SoftwaresSchema),
         defaultValues: {
@@ -25,7 +27,16 @@ export default function SoftwareForm({ clientSlug }: { clientSlug: string }) {
     })
     const onSubmit = async (data: z.infer<typeof SoftwaresSchema>) => {
         try {
-            await createSoftware(data)
+            const action = await createSoftware(data)
+            if (action?.serverError) {
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
+            }
         } catch (err) {
             console.error(err)
         }

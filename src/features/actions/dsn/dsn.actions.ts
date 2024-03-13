@@ -10,7 +10,8 @@ type Row = {
     code: string,
     value: string,
     dsnType: string
-    componentLabel: string
+    componentLabel: string,
+    idRate?: number
 
 }
 export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row[]) => {
@@ -35,6 +36,9 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
         take: 200
     })
     for (let component of componentLabel) {
+        const idRateAt = []
+        let rateAt = null
+        let idRate = null
         countRecord += 1
         let dsnRows = rows.filter((row) => row.componentLabel === component.componentLabel)
         for (let row of dsnRows) {
@@ -77,7 +81,6 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
                         if (contractDsnExist) {
                             recordIdContractDsn = contractDsnExist.recordId
                         }
-
                         await upsertValue({
                             recordId: recordIdContractDsn,
                             value: row.value,
@@ -98,6 +101,69 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
 
                         break
                     case 'Taux AT':
+                        //On va recevoir 2 lignes, une ligne avec le taux et une ligne avec le code.
+                        //Dans la DSN les structures S21.G00.40.040 et S21.G00.40.043 contiennent respectivement le taux AT et le code AT
+                        //Nouveau taux
+                        if (row.code === "S21.G00.40.040") {
+                            idRateAt.push({
+                                code: row.value,
+                                id: row.idRate
+                            })
+                            idRate = row.value
+                        }
+                        if (row.code === "S21.G00.40.043") {
+                            rateAt = idRateAt.find((rate) => rate.id === row.idRate)
+                        }
+                        if (rateAt && idRate) {
+                            let inputIdRate = inputs.find((input) => input.dsnType === 'DSN_Code_AT' && input.dsnItem === 'S21.G00.40.040')
+
+                            let inputRate = inputs.find((input) => input.dsnType === 'DSN_Taux_AT' && input.dsnItem === 'S21.G00.40.043')
+                            if (!inputRate || !inputIdRate) {
+                                throw new Error('Le taux AT n\'a pas été trouvé')
+                            }
+                            countRecord += 1
+                            let tauxAtExist = getValuesLimit200.find((value) => value.textValue === row.value)
+                            let recordIdTauxAt = `Formulaire_${component.componentLabel}_groupe_de_valeurs_${countRecord}`
+                            if (tauxAtExist) {
+                                recordIdTauxAt = tauxAtExist.recordId
+                            }
+                            //Ajout du code
+                            await upsertValue({
+                                recordId: recordIdTauxAt,
+                                value: idRate.toString(),
+                                clientId: clientExist.siren,
+                                bookLabel: inputIdRate.bookLabel,
+                                inputLabel: inputIdRate.label,
+                                projectLabel: projectExist.label,
+                                chapterLevel_1: inputIdRate.chapterLevel_1,
+                                chapterLevel_2: inputIdRate.chapterLevel_2,
+                                chapterLevel_3: inputIdRate.chapterLevel_3,
+                                projectSoftwareLabel: projectExist.softwareLabel,
+                                componentLabel: inputIdRate.componentLabel,
+                                isCode: inputIdRate.isCode ? true : false,
+                                isDescription: inputIdRate.isDescription ? true : false,
+                                isLabel: inputIdRate.isCode ? true : false,
+                                userId: userIsAuthorize.userId
+                            })
+                            //Ajout du taux
+                            await upsertValue({
+                                recordId: recordIdTauxAt,
+                                value: row.value,
+                                clientId: clientExist.siren,
+                                bookLabel: inputRate.bookLabel,
+                                inputLabel: inputRate.label,
+                                projectLabel: projectExist.label,
+                                chapterLevel_1: inputRate.chapterLevel_1,
+                                chapterLevel_2: inputRate.chapterLevel_2,
+                                chapterLevel_3: inputRate.chapterLevel_3,
+                                projectSoftwareLabel: projectExist.softwareLabel,
+                                componentLabel: inputRate.componentLabel,
+                                isCode: inputRate.isCode ? true : false,
+                                isDescription: inputRate.isDescription ? true : false,
+                                isLabel: inputRate.isLabel ? true : false,
+                                userId: userIsAuthorize.userId
+                            })
+                        }
                         break
                     case 'Emploi':
                         //On peut avoir X emplois donc on alimente le recordId de +1
@@ -107,6 +173,23 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
                         if (jobExist) {
                             recordIdJob = jobExist.recordId
                         }
+                        await upsertValue({
+                            recordId: recordIdJob,
+                            value: row.value,
+                            clientId: clientExist.siren,
+                            bookLabel: input.bookLabel,
+                            inputLabel: input.label,
+                            projectLabel: projectExist.label,
+                            chapterLevel_1: input.chapterLevel_1,
+                            chapterLevel_2: input.chapterLevel_2,
+                            chapterLevel_3: input.chapterLevel_3,
+                            projectSoftwareLabel: projectExist.softwareLabel,
+                            componentLabel: input.componentLabel,
+                            isCode: true,
+                            isDescription: input.isDescription ? true : false,
+                            isLabel: input.isLabel ? true : false,
+                            userId: userIsAuthorize.userId
+                        })
                         await upsertValue({
                             recordId: recordIdJob,
                             value: row.value,
@@ -176,12 +259,10 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
                         }
                         break
                     default:
-                        throw new ActionError(`Type de composant ${componentType} non reconnu`)
+                        throw new Error(`Type de composant ${componentType} non reconnu`)
                 }
 
             }
-
-
         }
 
     }

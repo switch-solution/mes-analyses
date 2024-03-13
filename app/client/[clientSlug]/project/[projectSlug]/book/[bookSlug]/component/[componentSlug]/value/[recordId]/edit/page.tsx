@@ -3,6 +3,7 @@ import DynamicForm from "@/components/form/project_book/dynamicFormBook"
 import { getValueByRecordId } from "@/src/query/project_value.query"
 import { getCountValueByRecordIdForValidation } from "@/src/query/security.query"
 import Container from "@/components/layout/container"
+
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string, bookSlug: string, componentSlug: string, recordId: string } }) {
 
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
@@ -19,7 +20,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     if (countRecordId === 0) throw new Error("Vous n'êtes pas autorisé à accéder à cet enregistrement.")
     return (
         <Container>
-            <div className="flex flex-col">
+            <div className="flex w-full flex-col">
                 <h1>Formulaire de modification des {component?.label}</h1>
                 <span>Version : {component?.Project_Input.at(0)?.Project_Value.at(0)?.version}</span>
                 <span>Création : {component?.Project_Input.at(0)?.Project_Value.at(0)?.origin}</span>

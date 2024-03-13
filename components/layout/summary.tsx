@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { getChapterByBookSlug } from "@/src/query/project_book.query"
-import { Printer, CornerDownLeft, TicketCheck } from "lucide-react";
+import { Printer, CornerDownLeft, TicketCheck, Table } from "lucide-react";
 export default function Summary({ chapters, clientSlug, projectSlug, bookSlug }: { chapters: getChapterByBookSlug, clientSlug: string, projectSlug: string, bookSlug: string }) {
 
     const level_1 = chapters.filter(chapter =>
@@ -50,6 +50,9 @@ export default function Summary({ chapters, clientSlug, projectSlug, bookSlug }:
 
             </ul>
             <ul className="h-1/4 w-full">
+                <li className="flex w-full flex-row">
+                    <Table /><Link className="ml-2" href={`/client/${clientSlug}/project/${projectSlug}/book/${bookSlug}/excel`}>Exporter dans Excel</Link>
+                </li>
                 <li className="flex w-full flex-row">
                     <Printer /><Link className="ml-2" href={`/client/${clientSlug}/project/${projectSlug}/book/${bookSlug}/pdf`}>Imprimer en pdf</Link>
                 </li>

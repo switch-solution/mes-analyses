@@ -59,9 +59,9 @@ export const BookFormSchemaEdit = z.object({
 })
 
 export const SetupProfilSchema = z.object({
-    civility: z.string().min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
-    firstname: z.string().min(2, { message: "Le prénom doit contenir au moins 2 caractères." }),
-    lastname: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
+    civility: z.string({ required_error: "La civilité est obligatoire." }).min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
+    firstname: z.string({ required_error: "Le prénom est obligatoire" }).min(2, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    lastname: z.string({ required_error: "Le nom est obligatoire" }).min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
 })
 
 export const SetupClientSchema = z.object({

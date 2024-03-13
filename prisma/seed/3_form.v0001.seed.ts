@@ -219,7 +219,7 @@ class FormV0001Seed extends Seed {
                                     label: 'Libellé emploi',
                                     maxLength: 50,
                                     minLength: 1,
-                                    isDescription: true,
+                                    isLabel: true,
                                     placeholder: "Consultant",
                                     order: 2,
                                     required: true,

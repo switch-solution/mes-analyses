@@ -1,26 +1,19 @@
-export { default } from "next-auth/middleware"
-import { NextRequest, NextResponse } from 'next/server'
 import { env } from "./lib/env"
 import { Ratelimit } from '@upstash/ratelimit'
 import { kv } from '@vercel/kv'
 export const config = {
-    matcher: ["/home/:patch", "/profile", "/client/:path*", "/editor/:path*", "/support/:path*", "/project/:path*", "/setup/:path*", "/feedback",
-        {
-            source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
-            missing: [
-                { type: 'header', key: 'next-router-prefetch' },
-                { type: 'header', key: 'purpose', value: 'prefetch' },
-            ],
-        },
-
-    ]
+    matcher: ["/home/:patch*", "/profile", "/client/:path*", "/editor/:path*", "/support/:path*", "/project/:path*", "/setup/:path*", "/feedback",]
 }
+
 
 const ratelimit = new Ratelimit({
     redis: kv,
     // 5 requests from the same IP in 10 seconds
     limiter: Ratelimit.slidingWindow(5, '10 s'),
 })
+
+import { NextRequest, NextResponse } from 'next/server'
+
 
 export function middleware(request: NextRequest) {
     //Application is only available in France 

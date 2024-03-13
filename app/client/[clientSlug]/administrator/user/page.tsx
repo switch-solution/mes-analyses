@@ -2,6 +2,14 @@ import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { getUsersClientList } from "@/src/query/client.query";
 import { userIsAdminClient } from "@/src/query/security.query";
+import Container from "@/components/layout/container";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 export default async function Page({ params }: { params: { clientSlug: string } }) {
 
     const isAdmin = await userIsAdminClient(params.clientSlug)
@@ -22,8 +30,20 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     })
 
     return (
-        <div className="container mx-auto py-10">
+        <Container>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/`}>Client</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                </BreadcrumbList>
+            </Breadcrumb>
             <DataTable columns={columns} data={users} inputSearch="email" inputSearchPlaceholder="Chercher par email" href={`/client/${params.clientSlug}/administrator/software/create`} buttonLabel="Inviter un utilisateur" />
-        </div>
+        </Container>
     )
 }
