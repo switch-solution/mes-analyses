@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react'
+import { useState } from 'react'
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { StandardComposantSchema } from '@/src/helpers/definition';
@@ -25,10 +25,14 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Input } from '@/components/ui/input'
+import { ButtonLoading } from "@/components/ui/button-loader";
+
 export default function CreateFormComponent({ clientSlug, softwares }: {
     clientSlug: string,
     softwares: getMySoftware
 }) {
+    const [loading, setLoading] = useState(false)
+
     const form = useForm<z.infer<typeof StandardComposantSchema>>({
         resolver: zodResolver(StandardComposantSchema),
         defaultValues: {
@@ -42,11 +46,14 @@ export default function CreateFormComponent({ clientSlug, softwares }: {
     })
     const onSubmit = async (values: z.infer<typeof StandardComposantSchema>) => {
         try {
+            setLoading(true)
             const action = await createComponent(values)
             if (action?.serverError) {
                 console.log(action.serverError)
             }
+            setLoading(true)
         } catch (err) {
+            setLoading(true)
             console.error(err)
         }
     }
@@ -146,7 +153,7 @@ export default function CreateFormComponent({ clientSlug, softwares }: {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Envoyer</Button>
+                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 
                 </form>
             </Form>

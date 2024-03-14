@@ -1,6 +1,9 @@
 {
   "name": "mes-analyses",
   "version": "0.0.1",
+  "engines": {
+    "node": "~20.0.0"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",

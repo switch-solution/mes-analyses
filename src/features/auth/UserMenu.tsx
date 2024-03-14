@@ -69,7 +69,7 @@ export const UserMenu = async () => {
                         <Link href={`/client/${clientSlug}/project`}>Voir mes projets</Link>
                     </MenubarItem>
                     <MenubarItem>
-                        <Link href={`/client/${clientSlug}/project/create`}>Créer un nouveau projet</Link>
+                        <Link href={`/client/${clientSlug}/project/create`} scroll={false}>Créer un nouveau projet</Link>
                     </MenubarItem>
                 </MenubarContent>
             </MenubarMenu>
@@ -94,7 +94,10 @@ export const UserMenu = async () => {
                         <MenubarItem><Link href={`/profil/`}>Documentation</Link></MenubarItem>
                     </MenubarItem>
                     <MenubarItem>
-                        <MenubarItem><Link href={`/profil/`}>A propos</Link></MenubarItem>
+                        <MenubarItem><Link href={`/about/`} scroll={false} >A propos</Link></MenubarItem>
+                    </MenubarItem>
+                    <MenubarItem>
+                        <MenubarItem><Link href={`https://github.com/switch-solution/mes-analyses`} scroll={false} >Github</Link></MenubarItem>
                     </MenubarItem>
                 </MenubarContent>
             </MenubarMenu>

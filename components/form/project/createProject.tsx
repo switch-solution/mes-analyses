@@ -1,10 +1,12 @@
 "use client";
+import { useState } from "react"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { createProjet } from "@/src/features/actions/project/project.action"
 import { ProjectCreateSchema } from "@/src/helpers/definition";
+import { ButtonLoading } from "@/components/ui/button-loader";
 import {
     Form,
     FormControl,
@@ -25,6 +27,7 @@ import {
 import { toast } from "sonner"
 
 export default function CreateProject({ clientSlug, softwares }: { clientSlug: string, softwares: getMySoftware }) {
+    const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof ProjectCreateSchema>>({
         resolver: zodResolver(ProjectCreateSchema),
         defaultValues: {
@@ -38,8 +41,10 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
 
     const onSubmit = async (data: z.infer<typeof ProjectCreateSchema>) => {
         try {
+            setLoading(true)
             const action = await createProjet(data)
             if (action?.serverError) {
+                setLoading(true)
                 toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
@@ -49,6 +54,7 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
                 })
             }
         } catch (err) {
+            setLoading(true)
             console.error(err)
 
         }
@@ -145,7 +151,7 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Envoyer</Button>
+                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 
                 </form>
             </Form>

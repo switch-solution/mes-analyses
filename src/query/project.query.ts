@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { userIsValid } from "./security.query";
-import { getClientBySiren } from "./client.query";
 import { syncGenerateSlug } from "@/src/helpers/generateSlug";
 import { getCountComponent } from "@/src/query/project_component.query";
 import { Prisma } from '@prisma/client'

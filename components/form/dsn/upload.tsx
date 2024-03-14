@@ -1,15 +1,18 @@
 "use client";
+import { useState } from "react"
 import { dsnData } from "@/src/features/actions/dsn/dsn.actions"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button";
+import { ButtonLoading } from "@/components/ui/button-loader";
 import type { getInputDsnByProjectSlug } from "@/src/query/project_input.query";
 export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { clientSlug: string, projectSlug: string, inputs: getInputDsnByProjectSlug }) {
 
-
+    const [loading, setLoading] = useState(false)
     const dsnDataWithOption = dsnData.bind(null, projectSlug, clientSlug)
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        setLoading(true)
         const dsn = (e.target as HTMLFormElement).elements[0] as HTMLInputElement
         const files = dsn.files ? Array.from(dsn.files) : [] // Convert FileList to Array
         const dsnRows: any = []
@@ -54,6 +57,7 @@ export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { cli
 
                 }
                 await dsnDataWithOption(dsnRowsObject)
+                setLoading(false)
             }
 
             reader.readAsText(file, 'ISO-8859-1');
@@ -65,7 +69,7 @@ export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { cli
             <form onSubmit={handleSubmit}>
                 <Label htmlFor="dsn">DSN</Label>
                 <Input id="dsn" name="dsn" type="file" accept=".dsn" required multiple />
-                <Button type="submit">Envoyer</Button>
+                {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
             </form>
         </div>
 

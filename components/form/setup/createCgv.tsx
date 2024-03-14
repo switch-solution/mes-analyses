@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react"
 import { SetupLegalSchema } from "@/src/helpers/definition";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -6,6 +7,8 @@ import { Switch } from "@/components/ui/switch"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { createSetupLegal } from "@/src/features/actions/setup/setup.actions"
+import { ButtonLoading } from "@/components/ui/button-loader";
+import { toast } from "sonner"
 
 import {
     Form,
@@ -15,9 +18,9 @@ import {
     FormItem,
     FormLabel,
 } from "@/components/ui/form"
-import { toast } from "sonner"
 
 export function CreateCgv() {
+    const [loading, setLoading] = useState(false)
 
     const form = useForm<z.infer<typeof SetupLegalSchema>>({
         resolver: zodResolver(SetupLegalSchema),
@@ -28,8 +31,10 @@ export function CreateCgv() {
     })
     const onSubmit = async (data: z.infer<typeof SetupLegalSchema>) => {
         try {
+            setLoading(true)
             const action = await createSetupLegal(data)
             if (action?.serverError) {
+                setLoading(true)
                 toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
@@ -39,6 +44,7 @@ export function CreateCgv() {
                 })
             }
         } catch (err) {
+            setLoading(true)
             console.error(err)
         }
 
@@ -95,7 +101,7 @@ export function CreateCgv() {
                         />
                     </div>
                 </div>
-                <Button type="submit">Envoyer</Button>
+                {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 
             </form>
         </Form>

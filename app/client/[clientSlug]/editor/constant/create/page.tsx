@@ -1,6 +1,6 @@
 
 import { userIsEditor } from "@/src/query/security.query"
-import ConstantFormCreate from "@/components/form/constant/create"
+import ConstantFormCreate from "@/components/form/constant/ConstantFormCreate"
 import { getMySoftware } from "@/src/query/user.query";
 import { getIdcc } from "@/src/query/idcc.query";
 export default async function Page({ params }: { params: { clientSlug: string } }) {

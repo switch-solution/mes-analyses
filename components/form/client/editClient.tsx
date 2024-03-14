@@ -1,11 +1,12 @@
 "use client";
-import React from "react"
+import { useState } from "react"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { editClient } from "@/src/features/actions/client/client.action";
-
+import { ButtonLoading } from "@/components/ui/button-loader";
+import { toast } from "sonner"
 import {
     Form,
     FormControl,
@@ -17,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { ClientEditFormSchema } from "@/src/helpers/definition";
 export default function EditClient({ slug, client }: { slug: string, client: any }) {
+    const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof ClientEditFormSchema>>({
         resolver: zodResolver(ClientEditFormSchema),
         defaultValues: {
@@ -33,10 +35,23 @@ export default function EditClient({ slug, client }: { slug: string, client: any
         },
     })
 
-    const onSubmit = async (values: z.infer<typeof ClientEditFormSchema>) => {
+    const onSubmit = async (data: z.infer<typeof ClientEditFormSchema>) => {
         try {
-            await editClient(values)
+            setLoading(true)
+            const action = await editClient(data)
+            if (action?.serverError) {
+                setLoading(true)
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
+            }
+            setLoading(true)
         } catch (err) {
+            setLoading(true)
             console.error(err)
         }
 
@@ -135,21 +150,6 @@ export default function EditClient({ slug, client }: { slug: string, client: any
                     />
                     <FormField
                         control={form.control}
-                        name="address4"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Complément d&apos;adresse</FormLabel>
-                                <FormControl>
-                                    <Input maxLength={50} placeholder="Rue de la victoire" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-
-                        )}
-
-                    />
-                    <FormField
-                        control={form.control}
                         name="city"
                         render={({ field }) => (
                             <FormItem>
@@ -190,7 +190,7 @@ export default function EditClient({ slug, client }: { slug: string, client: any
                         )}
 
                     />
-                    <Button type="submit">Envoyer</Button>
+                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
                 </form>
             </Form>
         </div>

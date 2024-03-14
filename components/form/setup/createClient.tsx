@@ -1,11 +1,11 @@
 "use client";
-import React from "react";
+import { useState } from "react"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SetupClientSchema } from "@/src/helpers/definition";
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { ButtonLoading } from "@/components/ui/button-loader";
 import {
     Form,
     FormControl,
@@ -22,6 +22,8 @@ import { toast } from "sonner"
 
 
 export default function CreateClient() {
+    const [loading, setLoading] = useState(false)
+
     const form = useForm<z.infer<typeof SetupClientSchema>>({
         resolver: zodResolver(SetupClientSchema),
         defaultValues: {
@@ -32,8 +34,10 @@ export default function CreateClient() {
 
     const onSubmit = async (data: z.infer<typeof SetupClientSchema>) => {
         try {
+            setLoading(true)
             const action = await createSetupClient(data)
             if (action?.serverError) {
+                setLoading(true)
                 toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
@@ -44,6 +48,7 @@ export default function CreateClient() {
             }
 
         } catch (err) {
+            setLoading(true)
             console.error(err)
         }
 
@@ -84,8 +89,7 @@ export default function CreateClient() {
                         )}
 
                     />
-
-                    <Button type="submit">Envoyer</Button>
+                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
                 </form>
             </Form>
 
