@@ -17,16 +17,33 @@ import {
 export type ClientUser = {
     image: string | null
     name: string | null
-    status: string | null
+    isBilling: string | null
+    isActivated: boolean
     email: string | null
+    isBlocked: boolean
 
 }
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 
 
 export const columns: ColumnDef<ClientUser>[] = [
-
+    {
+        accessorKey: "email",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Email
+                    <ArrowUpDown className="ml-2 size-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    },
     {
         accessorKey: "image",
         header: "Avatar",
@@ -44,24 +61,24 @@ export const columns: ColumnDef<ClientUser>[] = [
 
     },
     {
-        accessorKey: "status",
+        accessorKey: "isBilling",
         header: "Facturable",
 
     },
     {
-        accessorKey: "email",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Email
-                    <ArrowUpDown className="ml-2 size-4" />
-                </Button>
-            )
-        },
-        cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+        accessorKey: "isBlocked",
+        header: "Bloqué",
+        cell: ({ row }) => {
+            return (row.original.isBlocked ? <Badge variant="destructive">Bloqué</Badge> : <Badge>Actif</Badge>)
+        }
+
+    },
+    {
+        accessorKey: "isActivated",
+        header: "Actif",
+        cell: ({ row }) => {
+            return (row.original.isActivated ? <Badge>Actif</Badge> : <Badge variant="secondary">Invitation en attente</Badge>)
+        }
     },
 
     {

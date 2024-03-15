@@ -34,7 +34,7 @@ export function CreateCgv() {
             setLoading(true)
             const action = await createSetupLegal(data)
             if (action?.serverError) {
-                setLoading(true)
+                setLoading(false)
                 toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
@@ -43,8 +43,9 @@ export function CreateCgv() {
                     },
                 })
             }
+
         } catch (err) {
-            setLoading(true)
+            setLoading(false)
             console.error(err)
         }
 

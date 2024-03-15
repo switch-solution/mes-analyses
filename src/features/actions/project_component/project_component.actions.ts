@@ -185,6 +185,7 @@ export const createComponentValue = async (inputs: TypeInput[]) => {
     const countRecordId = await getCountRecordId()
     let count = countValues
     let countRecord = countRecordId + 1
+    console.log(countRecord)
     inputs.forEach((input) => {
         const inputParam = inputsParam.find(inputPa => inputPa.label === input.label)
         count += 1
@@ -228,13 +229,17 @@ export const createComponentValue = async (inputs: TypeInput[]) => {
                 break;
 
         }
-
+        console.log(`${value.clientId}+${value.bookLabel}/${value.inputLabel}/${value.projectLabel}/${value.chapterLevel_1}/${value.chapterLevel_2}/${value.chapterLevel_3}/${value.inputLabel}/${value.recordId}`)
         values.push(value)
+
     })
+
 
     await prisma.project_Value.createMany({
         data: values
     })
+
+
 
     revalidatePath(`/client/${clientSlug}/project/${projectSlug}/book/${bookSlug}/`)
     redirect(`/client/${clientSlug}/project/${projectSlug}/book/${bookSlug}/`)

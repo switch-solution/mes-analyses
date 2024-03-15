@@ -11,7 +11,8 @@ export const getMyProjects = async () => {
         }
         const myProjects = await prisma.userProject.findMany({
             where: {
-                userId: userId
+                userId: userId,
+                isBlocked: false
             },
             include: {
                 project: true
@@ -76,6 +77,24 @@ export const getUsersProject = async (projectSlug: string) => {
 
 export type getUsersProject = Prisma.PromiseReturnType<typeof getUsersProject>;
 
+export const getUserIsInvited = async (projectSlug: string) => {
+    try {
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) {
+            throw new Error('Le projet n\'existe pas')
+        }
+        const invitation = await prisma.invitation.findMany({
+            where: {
+                projectLabel: projectExist.label,
+                clientId: projectExist.clientId
+            }
+        })
+        return invitation
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la récupération des tâches')
+    }
+}
 
 
 export const copyBook = async (projectSlug: string) => {

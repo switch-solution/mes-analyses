@@ -3,7 +3,7 @@ import { userIsValid } from "./security.query"
 import { getAuthSession } from "@/lib/auth"
 import { getClientBySlug, getMyClientActive } from "./client.query"
 import { Prisma } from '@prisma/client'
-
+import { getMyProjects } from "./project.query"
 export const getUser = async () => {
     //Ajouter une notion si user est actif
     const session = await getAuthSession()
@@ -59,6 +59,9 @@ export const getUserById = async (id: string) => {
     }
 
 }
+
+export type getUserById = Prisma.PromiseReturnType<typeof getUserById>;
+
 
 export const getUserByEmail = async (email: string) => {
     try {
@@ -167,3 +170,37 @@ export const getUserOtherData = async (userId: string) => {
     }
 
 }
+
+export type getUserOtherData = Prisma.PromiseReturnType<typeof getUserOtherData>;
+
+export const getEvents = async (limit: number) => {
+    try {
+        const clientActiveSlug = await getMyClientActive()
+        if (!clientActiveSlug) throw new Error("Vous n'êtes pas rattaché à un client actif.")
+        const clientId = await getClientBySlug(clientActiveSlug)
+        if (!clientId) throw new Error("Vous n'êtes pas rattaché à un client actif.")
+        const myProjects = await getMyProjects()
+        if (!myProjects || myProjects.length === 0) throw new Error("Vous n'êtes pas rattaché à un projet actif.")
+        const events = await prisma.logger.findMany({
+            where: {
+                clientId: clientId.siren,
+                projectLabel: {
+                    in: myProjects.map(project => project.projectLabel)
+                },
+                level: {
+                    in: ["info", "warning", "error"]
+                }
+            },
+            orderBy: {
+                createdAt: "desc"
+            },
+            take: limit
+        })
+        return events
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des événements de l'utilisateur.")
+    }
+
+}
+

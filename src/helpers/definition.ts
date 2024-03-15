@@ -234,6 +234,20 @@ export const FeedbackCreateSchema = z.object({
     isBlocked: z.boolean().optional(),
 })
 
+export const UserCreateSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    email: z.string({ required_error: "L email est obligatoire." }).email(),
+    civility: z.enum(['M', 'Mme']),
+    lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
+    firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+})
+
+export const UserEditSchema = z.object({
+    civility: z.enum(['M', 'Mme']),
+    lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
+    firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+})
+
 export const SoftwareConstantCreateSchema = z.object({
     id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
     level: z.enum(['Logiciel', 'Idcc', 'Project']),

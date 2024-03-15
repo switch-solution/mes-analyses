@@ -60,102 +60,100 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
         }
     }
     return (
-        <div className="flex w-full flex-col items-center">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <FormField
-                        control={form.control}
-                        name="clientSlug"
-                        render={({ field }) => (
-                            <FormItem>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField
+                    control={form.control}
+                    name="clientSlug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input type="hidden" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+
+                    )}
+
+                />
+                <FormField
+                    control={form.control}
+                    name="softwareLabel"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Choisir votre logiciel</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                    <Input type="hidden" required {...field} />
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choisir votre logiciel" />
+                                    </SelectTrigger>
                                 </FormControl>
-                                <FormMessage />
-                            </FormItem>
+                                <SelectContent>
+                                    {softwares.map((software) => (
+                                        <SelectItem key={software.softwareLabel} value={software.softwareLabel}>{software.softwareLabel}</SelectItem>))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="label"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Nom de votre projet</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Mon nouveau projet" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
 
-                        )}
+                    )}
 
-                    />
-                    <FormField
-                        control={form.control}
-                        name="softwareLabel"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Choisir votre logiciel</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Choisir votre logiciel" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {softwares.map((software) => (
-                                            <SelectItem key={software.softwareLabel} value={software.softwareLabel}>{software.softwareLabel}</SelectItem>))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="label"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Nom de votre projet</FormLabel>
+                />
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Description de votre projet</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Mon nouveau projet" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+
+                    )}
+
+                />
+                <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Votre role</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                    <Input placeholder="Mon nouveau projet" required {...field} />
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Votre role" />
+                                    </SelectTrigger>
                                 </FormControl>
-                                <FormMessage />
-                            </FormItem>
+                                <SelectContent>
+                                    <SelectItem value="Consultant déploiement">Consultant déploiement</SelectItem>
+                                    <SelectItem value="Consultant fonctionnel">Consultant fonctionnel</SelectItem>
+                                    <SelectItem value="Directeur de projet">Directeur de projet</SelectItem>
+                                    <SelectItem value="Chef de projet">Chef de projet</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 
-                        )}
-
-                    />
-                    <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Description de votre projet</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Mon nouveau projet" required {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-
-                        )}
-
-                    />
-                    <FormField
-                        control={form.control}
-                        name="role"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Votre role</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Votre role" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Consultant déploiement">Consultant déploiement</SelectItem>
-                                        <SelectItem value="Consultant fonctionnel">Consultant fonctionnel</SelectItem>
-                                        <SelectItem value="Directeur de projet">Directeur de projet</SelectItem>
-                                        <SelectItem value="Chef de projet">Chef de projet</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
-
-                </form>
-            </Form>
-        </div>
+            </form>
+        </Form>
 
     )
 }

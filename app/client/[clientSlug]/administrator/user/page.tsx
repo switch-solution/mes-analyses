@@ -10,6 +10,7 @@ import {
     BreadcrumbList,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { getInvitationByClientSlug } from "@/src/query/invitation.query";
 export default async function Page({ params }: { params: { clientSlug: string } }) {
 
     const isAdmin = await userIsAdminClient(params.clientSlug)
@@ -17,18 +18,31 @@ export default async function Page({ params }: { params: { clientSlug: string } 
         throw new Error('User is not admin')
     }
     const userClient = await getUsersClientList(params.clientSlug)
-    const users = userClient.map((user) => {
+    const invitationsList = await getInvitationByClientSlug(params.clientSlug)
+    const invitations = invitationsList.map((invitation) => {
         return {
-            name: `${user.user.UserOtherData.at(0)?.lastname} ${user.user.UserOtherData.at(0)?.firstname}`,
-            status: user.isActivated === true ? "Oui" : "Non",
-            email: user.user.email,
-            image: user.user.image,
-            open: user.user.id,
-            edit: user.user.id,
-            delete: user.user.id,
+            name: `${invitation.lastname} ${invitation.firstname}`,
+            isBilling: "Non",
+            email: invitation.email,
+            image: null,
+            isActivated: false,
+            isBlocked: true
         }
     })
+    const usersClient = userClient.map((user) => {
+        return {
+            name: `${user.user.UserOtherData.at(0)?.lastname} ${user.user.UserOtherData.at(0)?.firstname}`,
+            isBilling: user.isActivated === true ? "Oui" : "Non",
+            email: user.user.email,
+            image: user.user.image,
+            isActivated: true,
+            isBlocked: user.user.UserOtherData.at(0)?.isBlocked === true ? true : false
 
+
+
+        }
+    })
+    const users = [...usersClient, ...invitations]
     return (
         <Container>
             <Breadcrumb>
@@ -43,7 +57,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                     <BreadcrumbSeparator />
                 </BreadcrumbList>
             </Breadcrumb>
-            <DataTable columns={columns} data={users} inputSearch="email" inputSearchPlaceholder="Chercher par email" href={`/client/${params.clientSlug}/administrator/software/create`} buttonLabel="Inviter un utilisateur" />
+            <DataTable columns={columns} data={users} inputSearch="email" inputSearchPlaceholder="Chercher par email" href={`/client/${params.clientSlug}/administrator/user/create`} buttonLabel="Inviter un utilisateur" />
         </Container>
     )
 }

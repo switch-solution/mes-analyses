@@ -37,7 +37,7 @@ export default function CreateClient() {
             setLoading(true)
             const action = await createSetupClient(data)
             if (action?.serverError) {
-                setLoading(true)
+                setLoading(false)
                 toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
@@ -48,7 +48,7 @@ export default function CreateClient() {
             }
 
         } catch (err) {
-            setLoading(true)
+            setLoading(false)
             console.error(err)
         }
 

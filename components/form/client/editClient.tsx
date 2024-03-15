@@ -176,20 +176,6 @@ export default function EditClient({ slug, client }: { slug: string, client: any
                         )}
 
                     />
-                    <FormField
-                        control={form.control}
-                        name="country"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Pays</FormLabel>
-                                <FormControl>
-                                    <Input maxLength={50} placeholder="Rue de la victoire" {...field} required />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-
-                    />
                     {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
                 </form>
             </Form>

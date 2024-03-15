@@ -182,3 +182,37 @@ export const getValueByRecordId = async (componentSlug: string, recordId: string
 
 }
 
+export const getTestValueExist = async ({ projectLabel, projectSoftwareLabel, clientId, componentLabel, chapterLevel_1, chapterLevel_2, chapterLevel_3, bookLabel, label }:
+    {
+        projectLabel: string,
+        projectSoftwareLabel: string,
+        clientId: string,
+        componentLabel: string,
+        chapterLevel_1: number,
+        chapterLevel_2: number,
+        chapterLevel_3: number,
+        bookLabel: string,
+        label: string
+    }) => {
+    try {
+        const valueExist = await prisma.project_Value.findFirst({
+            where: {
+                projectLabel,
+                projectSoftwareLabel,
+                clientId,
+                componentLabel,
+                chapterLevel_1,
+                chapterLevel_2,
+                chapterLevel_3,
+                bookLabel,
+                label,
+            }
+        })
+        return valueExist
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des données")
+    }
+
+}
+

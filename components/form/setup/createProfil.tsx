@@ -43,7 +43,7 @@ export default function CreateProfil() {
             setLoading(true)
             const action = await createSetupProfil(data)
             if (action?.serverError) {
-                setLoading(true)
+                setLoading(false)
                 toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
@@ -53,7 +53,7 @@ export default function CreateProfil() {
                 })
             }
         } catch (err) {
-            setLoading(true)
+            setLoading(false)
             console.error(err)
         }
 

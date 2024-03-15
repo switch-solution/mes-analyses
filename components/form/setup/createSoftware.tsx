@@ -31,7 +31,7 @@ export default function CreateSoftware() {
             setLoading(true)
             const action = await createSetupSoftware(data)
             if (action?.serverError) {
-                setLoading(true)
+                setLoading(false)
                 toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
@@ -41,7 +41,7 @@ export default function CreateSoftware() {
                 })
             }
         } catch (err) {
-            setLoading(true)
+            setLoading(false)
             console.error(err)
         }
 

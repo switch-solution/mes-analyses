@@ -30,7 +30,7 @@ import { getMyClientActive } from "@/src/query/client.query";
 import { WhatIsNew } from "@/components/layout/whatIsNew";
 import { countMyTaskActive } from "@/src/query/project_task.query";
 import { headers } from 'next/headers'
-
+import { getEvents } from "@/src/query/user.query";
 export default async function Page() {
     const nonce = headers().get('x-nonce')
     const userIsSetup = await userIsComplete()
@@ -42,6 +42,8 @@ export default async function Page() {
     }
     const projects = await getMyProjects()
     const countTask = await countMyTaskActive()
+
+    const last3Events = await getEvents(3)
 
     const items = [
         {

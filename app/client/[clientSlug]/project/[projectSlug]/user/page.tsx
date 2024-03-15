@@ -12,6 +12,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import Container from "@/components/layout/container";
+import { getUserIsInvited } from "@/src/query/project.query";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const projectExist = await getProjectBySlug(params.projectSlug)
     if (!projectExist) throw new Error("Projet non trouvé")
@@ -20,7 +21,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         throw new Error("L'utilisateur n'est pas connecté.")
     }
     const usersList = await getUsersProject(params.projectSlug)
-
     const users = usersList.map((user) => {
         return (
             user.user.UserOtherData.map(userData => {
@@ -33,11 +33,26 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     isAdmin: user.isAdmin,
                     isEditor: user.isEditor,
                     isValidator: user.isValidator,
+                    isActivated: true
                 }
             }))
 
     }).flat(1)
+    const invitedUsers = await getUserIsInvited(params.projectSlug)
+    invitedUsers.map((user) => {
+        users.push({
+            image: "",
+            clientSlug: params.clientSlug,
+            projectSlug: params.projectSlug,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            isAdmin: false,
+            isEditor: false,
+            isValidator: false,
+            isActivated: false
 
+        })
+    })
     return (
         <Container>
             <Breadcrumb>

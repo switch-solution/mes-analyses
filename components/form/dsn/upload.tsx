@@ -6,20 +6,21 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import type { getInputDsnByProjectSlug } from "@/src/query/project_input.query";
+import type { Row } from "@/src/features/actions/dsn/dsn.actions";
 export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { clientSlug: string, projectSlug: string, inputs: getInputDsnByProjectSlug }) {
-
     const [loading, setLoading] = useState(false)
     const dsnDataWithOption = dsnData.bind(null, projectSlug, clientSlug)
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        setLoading(true)
-        const dsn = (e.target as HTMLFormElement).elements[0] as HTMLInputElement
-        const files = dsn.files ? Array.from(dsn.files) : [] // Convert FileList to Array
-        const dsnRows: any = []
-        const dsnRowsObject: { code: string, value: string, dsnType: string, componentLabel: string, idRate?: number }[] = []
-        for (let file of files) {
+    const parseFile = async (file: File) => {
+        return new Promise((resolve, reject) => {
+            const dsnRows: any = []
+            const dsnRowsObject: { code: string, value: string, dsnType: string, componentLabel: string, idRate?: number, date: string, siret: string }[] = []
+            let date: string | null = null
+            let siren: string | null = null
+            let nic: string | null = null
             const reader = new FileReader()
-            reader.onload = async function (e) {
+            reader.readAsText(file, 'ISO-8859-1');
+            reader.onload = function (e: any) {
+                // Le contenu du fichier est dans e.target.result
                 let idRate = 0
                 dsnRows.splice(0, dsnRows.length)
                 //On récupère le texte dans la variable dsnRows
@@ -30,21 +31,30 @@ export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { cli
                 }
                 //On utilisera un set pour éviter les doublons
                 const setRow = new Set();
-                //On vide le tableau dsnRowsObject
-                dsnRowsObject.splice(0, dsnRowsObject.length)
                 for (let row of dsnRows) {
                     //On split la structure et la donnée
                     let lineSplit = row.split(`,'`);
                     let code = lineSplit.at(0)
                     let value = lineSplit.at(1).replace(/'/g, "").replace(/\r/g, "")
                     //Test si code est dans inputs
+                    if (code === "S20.G00.05.005") {
+                        date = value
+                    }
+                    if (code === "S10.G00.01.001") {
+                        siren = value
+                    }
+                    if (code === "S10.G00.01.002") {
+                        nic = value
+                    }
                     let codeExist = inputs.find((input) => input.dsnItem === code)
                     let set = setRow.has(value)
-                    if (codeExist && !set) {
+                    if (codeExist && !set && date && siren && nic) {
                         if (code === "S21.G00.40.040") {
                             idRate += 1
                         }
                         let object = {
+                            date,
+                            siret: siren + nic,
                             code: code,
                             value: value,
                             dsnType: codeExist.dsnType ? codeExist.dsnType : "",
@@ -54,14 +64,46 @@ export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { cli
                         dsnRowsObject.push(object)
                         setRow.add(value)
                     }
+                }//Fin boucle du fiichier
+                resolve(dsnRowsObject);
 
-                }
-                await dsnDataWithOption(dsnRowsObject)
-                setLoading(false)
-            }
+            }//Fin boucle lecture
+            reader.onerror = function (e) {
+                reject(new Error("Erreur de lecture du fichier : " + e));
+            };
+        })
+    }
 
-            reader.readAsText(file, 'ISO-8859-1');
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setLoading(true)
+        const dsn = (e.target as HTMLFormElement).elements[0] as HTMLInputElement
+        const files = dsn.files ? Array.from(dsn.files) : []
+        const dsnParse = []
+
+        for (let file of files) {
+            dsnParse.push(await parseFile(file))
+
         }
+        //Suppression des doublons
+        const flatArray: unknown = dsnParse.flat(1);
+
+        const set = new Set();
+        const dsnUnique = []
+        for (let row of flatArray as Row[]) {
+            if (!set.has(row.value)) {
+                dsnUnique.push(row)
+                set.add(row.value)
+            }
+        }
+
+        try {
+            await dsnDataWithOption(dsnUnique as Row[]);
+        } catch (err) {
+            setLoading(false);
+            console.error(err);
+        }
+        setLoading(false);
 
     }
     return (

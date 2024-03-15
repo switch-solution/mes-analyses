@@ -2,7 +2,7 @@ import { env } from "./lib/env"
 import { Ratelimit } from '@upstash/ratelimit'
 import { kv } from '@vercel/kv'
 export const config = {
-    matcher: ["/home/:patch*", "/profile", "/client/:path*", "/editor/:path*", "/support/:path*", "/project/:path*", "/setup/:path*", "/feedback", "/about"]
+    matcher: ["/home/:patch*", "/profile", "/client/:path*", "/editor/:path*", "/support/:path*", "/project/:path*", "/setup/:path*", "/feedback", "/about", "/profil"]
 }
 
 

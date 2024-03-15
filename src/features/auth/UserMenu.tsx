@@ -36,6 +36,9 @@ export const UserMenu = async () => {
                     <MenubarItem>
                         <Link href={`/client/${clientSlug}/administrator/edit`}>Editer</Link>
                     </MenubarItem>
+                    <MenubarItem>
+                        <Link href={`/client/${clientSlug}/administrator/user/create`}>Inviter un utilisateur</Link>
+                    </MenubarItem>
                     <MenubarSeparator />
                     <MenubarSub>
                         <MenubarSubTrigger>Créer</MenubarSubTrigger>
@@ -80,7 +83,7 @@ export const UserMenu = async () => {
                         <MenubarItem><Link href={`/profil/`}>Ouvrir</Link></MenubarItem>
                     </MenubarItem>
                     <MenubarItem>
-                        <MenubarItem><Link href={`/profil/edit`}>Editer</Link></MenubarItem>
+                        <MenubarItem><Link href={`/profil/edit`} scroll={false}>Editer</Link></MenubarItem>
                     </MenubarItem>
                     <MenubarItem>
                         <MenubarItem><ThemeToggle /></MenubarItem>

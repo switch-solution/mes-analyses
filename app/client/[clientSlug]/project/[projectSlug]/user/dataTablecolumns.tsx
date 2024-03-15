@@ -21,6 +21,7 @@ export type UserProject = {
     isAdmin: boolean | null
     isEditor: boolean | null
     isValidator: boolean | null
+    isActivated: boolean
 }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -44,6 +45,13 @@ export const columns: ColumnDef<UserProject>[] = [
     {
         accessorKey: "firstname",
         header: "Prénom",
+    },
+    {
+        accessorKey: "isActivated",
+        header: "Actif",
+        cell: ({ row }) => {
+            return row.getValue("isActivated") ? <Badge>Actif</Badge> : <Badge variant="secondary">Invitation en attente</Badge>
+        }
     },
     {
         accessorKey: "isAdmin",

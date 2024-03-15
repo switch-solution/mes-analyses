@@ -27,6 +27,22 @@ export const getInputByProjectSlug = async (projectSlug: string) => {
 
 export type getInputByProjectSlug = Prisma.PromiseReturnType<typeof getInputByProjectSlug>;
 
+export const getInputByDsnItem = async (dsnType: string, dsnItem: string) => {
+    try {
+        const input = await prisma.project_Input.findFirst({
+            where: {
+                dsnType,
+                dsnItem
+            }
+        })
+        return input
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur de récupération des valeurs')
+    }
+
+}
+
 export const getInputDsnByProjectSlug = async (projectSlug: string) => {
     try {
         const projectExist = await getProjectBySlug(projectSlug)

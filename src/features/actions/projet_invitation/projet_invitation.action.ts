@@ -20,19 +20,16 @@ export const createInvitationProject = authentifcationActionUserIsAuthorizeToAdm
     const projectExist = await getProjectBySlug(projectSlug)
     if (!projectExist) throw new ActionError("Project not found")
     const userExist = await getUserByEmail(email)
-    const userExistInProject = await prisma.userProject.findFirst({
-        where: {
-            userId: userExist?.id,
-            projectLabel: projectExist.label,
-            projectSoftwareLabel: projectExist.softwareLabel,
-            projectClientId: clientExist.siren
-        }
-    })
-    if (userExistInProject) throw new ActionError("Utilisateur déjà présent sur le projet")
-
-
-
     if (userExist) {
+        const userExistInProject = await prisma.userProject.findFirst({
+            where: {
+                userId: userExist?.id,
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                projectClientId: clientExist.siren
+            }
+        })
+        if (userExistInProject) throw new ActionError("Utilisateur déjà présent sur le projet")
         await prisma.userProject.create({
             data: {
                 userId: userExist.id,
@@ -60,7 +57,6 @@ export const createInvitationProject = authentifcationActionUserIsAuthorizeToAdm
     } else {
         //L'utilisateur n'existe pas on doit donc lui envoyer un email pour qu'il puisse s'inscrire
         //Fonctionnalité à venir
-
         await prisma.invitation.create({
             data: {
                 email,
