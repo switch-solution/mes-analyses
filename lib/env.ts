@@ -24,12 +24,18 @@ export const env = createEnv({
         KV_REST_API_URL: z.string().min(1).optional(),
         KV_REST_API_TOKEN: z.string().min(1).optional(),
         KV_REST_API_READ_ONLY_TOKEN: z.string().min(1).optional(),
-        MAINTENANCE: z.string().toLowerCase().transform((x) => x === 'true').pipe(z.boolean())
+        MAINTENANCE: z.string().toLowerCase().transform((x) => x === 'true').pipe(z.boolean()),
+        RESEND_API_KEY: z.string().min(1),
+        API_KEY: z.string().min(1),
+        DOMAIN: z.string().min(1),
     },
     client: {
     },
     // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
     runtimeEnv: {
+        DOMAIN: process.env.DOMAIN,
+        API_KEY: process.env.API_KEY,
+        RESEND_API_KEY: process.env.RESEND_API_KEY,
         POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
         POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
         GITHUB_ID: process.env.GITHUB_ID,
