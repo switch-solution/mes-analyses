@@ -1,6 +1,5 @@
 import { columns } from "./dataTablecolumns"
 import { userIsValid } from "@/src/query/security.query";
-import { getEvents } from "@/src/query/user.query";
 import Container from "@/components/layout/container";
 import {
     Breadcrumb,
@@ -16,16 +15,7 @@ export default async function Page() {
     if (!userIdValid) {
         throw new Error("L'utilisateur n'est pas connecté.")
     }
-    const last100Events = await getEvents(100)
-    console.log(last100Events)
-    const events = last100Events.map(event => {
-        return {
-            project: event.projectLabel,
-            level: event.level,
-            message: event.message,
-            date: event.createdAt.toLocaleDateString()
-        }
-    })
+
     return (
         <Container>
             <Breadcrumb>
@@ -36,7 +26,7 @@ export default async function Page() {
                     <BreadcrumbSeparator />
                 </BreadcrumbList>
             </Breadcrumb>
-            <DataTable columns={columns} data={events} inputSearch="project" inputSearchPlaceholder="Chercher par projet" />
+            <DataTable columns={columns} data={[]} inputSearch="project" inputSearchPlaceholder="Chercher par projet" />
         </Container>
     )
 }
