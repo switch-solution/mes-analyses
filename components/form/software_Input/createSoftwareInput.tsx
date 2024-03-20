@@ -23,12 +23,13 @@ import {
 
 import { Input } from '@/components/ui/input'
 import { createSoftwareStdInput } from "@/src/features/actions/software_input/stdInput.actions"
-export default function CreateSoftwareInput({ clientSlug, componentSlug }: { clientSlug: string, componentSlug: string }) {
+export default function CreateSoftwareInput({ clientSlug, softwareSlug, formSlug }: { clientSlug: string, softwareSlug: string, formSlug: string }) {
     const form = useForm<z.infer<typeof CreateSoftwareInputSchema>>({
         resolver: zodResolver(CreateSoftwareInputSchema),
         defaultValues: {
             clientSlug: clientSlug,
-            componentSlug: componentSlug,
+            softwareSlug: softwareSlug,
+            formSlug: formSlug,
             label: "",
             typeDataTable: "never",
             typeDataImport: "never",
@@ -64,7 +65,18 @@ export default function CreateSoftwareInput({ clientSlug, componentSlug }: { cli
                     />
                     <FormField
                         control={form.control}
-                        name="componentSlug"
+                        name="softwareSlug"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <Input type="hidden" {...field} required />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="formSlug"
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>

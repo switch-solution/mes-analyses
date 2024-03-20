@@ -41,57 +41,64 @@ class SettingV0001 extends Seed {
                 await this.seedUpdateStatus("pending")
                 await prisma.setting.upsert({
                     where: {
-                        code_dateStart_dateEnd: {
-                            code: "MODE",
+                        id_label_dateStart_dateEnd: {
+                            id: "MODE",
+                            label: "Environnement",
                             dateStart: new Date("2024-01-01"),
                             dateEnd: new Date("4000-01-01")
                         }
                     },
                     update: {
-                        code: "MODE",
+                        id: "MODE",
                         label: "Environnement",
                         dateStart: new Date("2024-01-01"),
                         dateEnd: new Date("4000-01-01"),
                         description: "Environnement de l'application",
                         value: process.env.MODE ? process.env.MODE : "development",
-                        createdBy: "system"
+                        createdBy: "system",
+                        system: true
                     },
                     create: {
-                        code: "MODE",
+                        id: "MODE",
                         label: "Environnement",
                         dateStart: new Date("2024-01-01"),
                         dateEnd: new Date("4000-01-01"),
                         description: "Environnement de l'application",
                         value: process.env.MODE ? process.env.MODE : "development",
-                        createdBy: "system"
+                        createdBy: "system",
+                        system: true
+
                     }
                 })
 
                 await prisma.setting.upsert({
                     where: {
-                        code_dateStart_dateEnd: {
-                            code: "PRICING",
+                        id_label_dateStart_dateEnd: {
+                            id: "PRICING",
+                            label: "Prix",
                             dateStart: new Date("2024-01-01"),
                             dateEnd: new Date("4000-01-01")
                         }
                     },
                     update: {
-                        code: "PRICING",
+                        id: "PRICING",
                         label: "Prix",
                         dateStart: new Date("2024-01-01"),
                         dateEnd: new Date("4000-01-01"),
                         description: "Prix par default pour un utilisateur par mois",
                         value: "10",
-                        createdBy: "system"
+                        createdBy: "system",
+                        system: true
                     },
                     create: {
-                        code: "PRICING",
+                        id: "PRICING",
                         label: "Prix",
                         dateStart: new Date("2024-01-01"),
                         dateEnd: new Date("4000-01-01"),
                         description: "Prix par default pour un utilisateur par mois",
                         value: "10",
-                        createdBy: "system"
+                        createdBy: "system",
+                        system: true
                     }
 
 

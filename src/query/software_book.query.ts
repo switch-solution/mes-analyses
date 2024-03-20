@@ -1,19 +1,17 @@
 import { prisma } from "@/lib/prisma";
-import { getMySoftware } from "./user.query";
-import { getClientBySlug } from "./client.query";
 import { Prisma } from '@prisma/client'
-
-export const getStdBookByClientFilterByUserSoftware = async (clientSlug: string) => {
+import { getClientActiveAndSoftwareActive } from "./security.query";
+export const getStdBookForSoftwareActive = async () => {
     try {
+        const validation = await getClientActiveAndSoftwareActive()
+        if (!validation) {
+            throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
+        }
 
-        const softwaresUser = await getMySoftware()
-        const clientId = await getClientBySlug(clientSlug)
         const stdBook = await prisma.software_Book.findMany({
             where: {
-                softwareLabel: {
-                    in: softwaresUser.map(software => software.softwareLabel)
-                },
-                clientId: clientId.siren
+                softwareLabel: validation.softwareLabel,
+                clientId: validation.clientId
             }
 
         })
@@ -25,7 +23,7 @@ export const getStdBookByClientFilterByUserSoftware = async (clientSlug: string)
 
 }
 
-export type getStdBookByClientFilterByUserSoftware = Prisma.PromiseReturnType<typeof getStdBookByClientFilterByUserSoftware>;
+export type getStdBookForSoftwareActive = Prisma.PromiseReturnType<typeof getStdBookForSoftwareActive>;
 
 export const getSoftwareBookBySlug = async (bookSlug: string) => {
     try {

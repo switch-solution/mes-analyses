@@ -4,7 +4,7 @@ export default async function Page() {
     const user = await userIsValid()
     return (
         <Container>
-            <div className="flex flex-col items-center w-full">
+            <div className="flex w-full flex-col items-center">
                 <h1 className="text-4xl font-bold">Profil</h1>
             </div>
         </Container>

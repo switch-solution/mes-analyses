@@ -46,7 +46,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Maladie",
-                        code: "MAL",
+                        id: "MAL",
                         isSocialSecurity: true,
                         description: "Absence pour maladie",
                         createdBy: "system",
@@ -59,7 +59,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Maladie professionnelle",
-                        code: "MAL_PRO",
+                        id: "MAL_PRO",
                         isSocialSecurity: true,
                         description: "Absence pour maladie professionnelle",
                         createdBy: "system",
@@ -72,7 +72,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Accident du travail",
-                        code: "AT",
+                        id: "AT",
                         isSocialSecurity: true,
                         description: "Absence pour accident du travail",
                         createdBy: "system",
@@ -85,7 +85,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Accident de trajet",
-                        code: "ATJ",
+                        id: "ATJ",
                         isSocialSecurity: true,
                         description: "Absence pour accident de trajet",
                         createdBy: "system",
@@ -98,7 +98,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Maternité",
-                        code: "MAT",
+                        id: "MAT",
                         isSocialSecurity: true,
                         description: "Absence pour maternité",
                         createdBy: "system",
@@ -111,7 +111,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Paternité",
-                        code: "PAT",
+                        id: "PAT",
                         isSocialSecurity: true,
                         description: "Absence pour paternité",
                         createdBy: "system",
@@ -124,7 +124,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Adoption",
-                        code: "ADO",
+                        id: "ADO",
                         isSocialSecurity: true,
                         description: "Absence pour adoption",
                         createdBy: "system",
@@ -137,7 +137,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Congé sans solde",
-                        code: "CSS",
+                        id: "CSS",
                         isSocialSecurity: false,
                         description: "Absence pour congé sans solde",
                         createdBy: "system",
@@ -150,7 +150,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Congé sabbatique",
-                        code: "CSB",
+                        id: "CSB",
                         isSocialSecurity: false,
                         description: "Absence pour congé sabbatique",
                         createdBy: "system",
@@ -163,7 +163,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Congé payé",
-                        code: "CP",
+                        id: "CP",
                         isSocialSecurity: false,
                         description: "Absence pour congé payé",
                         createdBy: "system",
@@ -176,7 +176,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Congé parental",
-                        code: "CPA",
+                        id: "CPA",
                         isSocialSecurity: false,
                         description: "Absence pour congé parental",
                         createdBy: "system",
@@ -189,7 +189,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Congé de formation",
-                        code: "CFO",
+                        id: "CFO",
                         isSocialSecurity: false,
                         description: "Absence pour congé formation",
                         createdBy: "system",
@@ -202,7 +202,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Activité parielle",
-                        code: "ACP",
+                        id: "ACP",
                         isSocialSecurity: false,
                         description: "Absence pour activité partielle",
                         createdBy: "system",
@@ -215,7 +215,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "RTT",
-                        code: "RTT",
+                        id: "RTT",
                         isSocialSecurity: false,
                         description: "Absence pour RTT",
                         createdBy: "system",
@@ -228,7 +228,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Repos compensateur",
-                        code: "RC",
+                        id: "RC",
                         isSocialSecurity: false,
                         description: "Absence pour repos compensateur",
                         createdBy: "system",
@@ -241,7 +241,7 @@ class AbsenceV0001 extends Seed {
                     update: {},
                     create: {
                         label: "Compte epargne temps",
-                        code: "CET",
+                        id: "CET",
                         isSocialSecurity: false,
                         description: "Absence pour CET",
                         createdBy: "system",

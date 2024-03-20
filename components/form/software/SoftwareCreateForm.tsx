@@ -1,9 +1,12 @@
 "use client";
+import { useState } from "react"
+
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SoftwaresSchema } from '@/src/helpers/definition'
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
+import { ButtonLoading } from "@/components/ui/button-loader";
 import { createSoftware } from '@/src/features/actions/software/software.actions'
 import {
     Form,
@@ -17,7 +20,10 @@ import {
 import { toast } from "sonner"
 
 import { Input } from '@/components/ui/input'
+import { set } from "date-fns";
 export default function SoftwareCreateForm({ clientSlug }: { clientSlug: string }) {
+    const [loading, setLoading] = useState(false)
+
     const form = useForm<z.infer<typeof SoftwaresSchema>>({
         resolver: zodResolver(SoftwaresSchema),
         defaultValues: {
@@ -27,8 +33,10 @@ export default function SoftwareCreateForm({ clientSlug }: { clientSlug: string 
     })
     const onSubmit = async (data: z.infer<typeof SoftwaresSchema>) => {
         try {
+            setLoading(true)
             const action = await createSoftware(data)
             if (action?.serverError) {
+                setLoading(false)
                 toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
@@ -38,6 +46,7 @@ export default function SoftwareCreateForm({ clientSlug }: { clientSlug: string 
                 })
             }
         } catch (err) {
+            setLoading(false)
             console.error(err)
         }
 
@@ -73,7 +82,7 @@ export default function SoftwareCreateForm({ clientSlug }: { clientSlug: string 
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Enregistrer</Button>
+                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 
                 </form>
 

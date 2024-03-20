@@ -3,6 +3,8 @@ import { z } from "zod";
 
 export const env = createEnv({
     server: {
+        POSTGRES_PRISMA_URL: z.string().min(1),
+        POSTGRES_URL_NON_POOLING: z.string().optional(),
         GITHUB_ID: z.string().min(1),
         GITHUB_SECRET: z.string().min(1),
         GOOGLE_ID: z.string().min(1),
@@ -28,6 +30,8 @@ export const env = createEnv({
     },
     // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
     runtimeEnv: {
+        POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
+        POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
         GITHUB_ID: process.env.GITHUB_ID,
         GITHUB_SECRET: process.env.GITHUB_SECRET,
         GOOGLE_ID: process.env.GOOGLE_ID,
@@ -48,7 +52,6 @@ export const env = createEnv({
         KV_REST_API_URL: process.env.KV_REST_API_URL,
         KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,
         KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
-
     },
     // For Next.js >= 13.4.4, you only need to destructure client variables:
     // experimental__runtimeEnv: {

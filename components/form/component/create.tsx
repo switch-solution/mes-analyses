@@ -7,7 +7,6 @@ import { StandardComposantSchema } from '@/src/helpers/definition';
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { createComponent } from '@/src/features/actions/component/component.action'
-import type { getMySoftware } from '@/src/query/user.query'
 import {
     Form,
     FormControl,
@@ -27,9 +26,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { ButtonLoading } from "@/components/ui/button-loader";
 
-export default function CreateFormComponent({ clientSlug, softwares }: {
+export default function CreateFormComponent({ clientSlug, softwareSlug }: {
     clientSlug: string,
-    softwares: getMySoftware
+    softwareSlug: string
 }) {
     const [loading, setLoading] = useState(false)
 
@@ -37,10 +36,10 @@ export default function CreateFormComponent({ clientSlug, softwares }: {
         resolver: zodResolver(StandardComposantSchema),
         defaultValues: {
             label: "",
+            softwareSlug,
             clientSlug,
             description: "",
             status: "actif",
-            softwareLabel: softwares?.at(0)?.softwareLabel,
             type: 'form'
         },
     })
@@ -73,30 +72,7 @@ export default function CreateFormComponent({ clientSlug, softwares }: {
                             </FormItem>
                         )}
                     />
-                    <FormField
-                        control={form.control}
-                        name="softwareLabel"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Logiciel</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selectionner un logiciel" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {softwares.map((software) => (
-                                            <SelectItem key={software.softwareLabel} value={software.softwareLabel}>{software.softwareLabel}</SelectItem>
-                                        ))}
 
-                                    </SelectContent>
-                                </Select>
-
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
                     <FormField
                         control={form.control}
                         name="type"

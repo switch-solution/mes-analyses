@@ -1,8 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { userIsEditor, userIsValid } from "@/src/query/security.query";
-import { getMyClient, getMySoftware } from "./user.query";
-import { getSoftwareByClientSlug } from "./software.query";
-import { getClientBySlug } from "./client.query";
+import { userIsValid } from "@/src/query/security.query";
 
 
 export const getMyBookEditable = async () => {

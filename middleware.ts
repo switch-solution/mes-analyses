@@ -1,6 +1,7 @@
 import { env } from "./lib/env"
 import { Ratelimit } from '@upstash/ratelimit'
 import { kv } from '@vercel/kv'
+
 export const config = {
     matcher: ["/home/:patch*", "/profile", "/client/:path*", "/editor/:path*", "/support/:path*", "/project/:path*", "/setup/:path*", "/feedback", "/about", "/profil"]
 }
@@ -27,11 +28,13 @@ export function middleware(request: NextRequest) {
     }
 
 
-
     //Ip blocking
 
-
-
+    //Cookie
+    const cookieStore = request.cookies.get('next-auth.csrf-token')
+    if (!cookieStore) {
+        return NextResponse.rewrite(new URL('/api/auth/signin', request.url))
+    }
 
     /** 
     //CSP 

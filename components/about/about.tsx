@@ -10,11 +10,35 @@ import {
 } from "@/components/ui/table"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-export default function About() {
+import { getLastSeedOrder } from "@/src/query/prisma.query"
+import { userIsValid } from "@/src/query/security.query"
+
+export default async function About() {
 
     return (
         <div>
-            <span>Mes analyses paie : version beta 1</span>
+            <Table>
+                <TableCaption>Version</TableCaption>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-[100px]">Logiciel</TableHead>
+                        <TableHead>Version</TableHead>
+                        <TableHead>Licence</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow>
+                        <TableCell>Mes analyses</TableCell>
+                        <TableCell><Badge>0.1.0</Badge></TableCell>
+                        <TableCell className="text-right">En attente</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Version de la bae de données</TableCell>
+                        <TableCell><Badge><Link href={'/about/bdd'}>39</Link></Badge></TableCell>
+                        <TableCell className="text-right"></TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
             <Table>
                 <TableCaption>Liste des dépendances.</TableCaption>
                 <TableHeader>

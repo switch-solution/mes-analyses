@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 model Account {
@@ -183,22 +184,26 @@ model Project_Invitation {
 }
 
 model Software {
-  label              String
-  slug               String               @unique
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  createdBy          String
-  clientId           String
-  client             Client               @relation(fields: [clientId], references: [siren], onDelete: Cascade)
-  Software_Book      Software_Book[]
-  Software_Component Software_Component[]
-  SoftwareItems      Software_Items[]
-  UserSoftware       UserSoftware[]
-  Software_Setting   Software_Setting[]
-  Project            Project[]
-  Software_Task      Software_Task[]
-  Constant_Legal     Constant_Legal[]
-  Software_Absence   Software_Absence[]
+  label                   String
+  slug                    String                    @unique
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  createdBy               String
+  clientId                String
+  client                  Client                    @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  Software_Book           Software_Book[]
+  Software_Component      Software_Component[]
+  SoftwareItems           Software_Items[]
+  UserSoftware            UserSoftware[]
+  Software_Setting        Software_Setting[]
+  Project                 Project[]
+  Software_Task           Software_Task[]
+  Software_Absence        Software_Absence[]
+  Software_Constant_Legal Software_Constant_Legal[]
+  Software_Counter        Software_Counter[]
+  Software_Profile        Software_Profile[]
+  isArchived              Boolean                   @default(false)
+  Software_Accumulation   Software_Accumulation[]
 
   @@id([label, clientId])
 }
@@ -213,6 +218,7 @@ model UserSoftware {
   software         Software @relation(fields: [softwareLabel, softwareClientId], references: [label, clientId], onDelete: Cascade)
   softwareLabel    String
   softwareClientId String
+  isActivated      Boolean  @default(false)
 
   @@id([userId, softwareLabel, softwareClientId])
 }
@@ -287,8 +293,9 @@ model ChapterForm {
 }
 
 model Software_Component {
+  id                               String?
   label                            String
-  description                      String
+  description                      String?
   type                             String
   createdAt                        DateTime                           @default(now())
   updatedAt                        DateTime                           @updatedAt
@@ -298,6 +305,8 @@ model Software_Component {
   isForm                           Boolean?                           @default(false)
   isTextArea                       Boolean?                           @default(false)
   isImage                          Boolean?                           @default(false)
+  isTable                          Boolean?                           @default(false)
+  isArchived                       Boolean                            @default(false)
   buttonLabel                      String                             @default("Ajouter")
   slug                             String                             @unique
   status                           String
@@ -308,6 +317,7 @@ model Software_Component {
   SoftwareChapterSoftwareComponent SoftwareChapterSoftwareComponent[]
   Software_Component_TextArea      Software_Component_TextArea[]
   Software_Component_Image         Software_Component_Image[]
+  Software_Table_Column            Software_Table_Column[]
   SandboxValues                    SandboxValues[]
 
   @@id([label, softwareLabel, clientId, type])
@@ -362,6 +372,7 @@ model Software_Component_TextArea {
   componentLabel     String
   componentType      String
   softwareLabel      String
+  isArchived         Boolean            @default(false)
 
   @@id([componentLabel, softwareLabel, clientId, componentType])
 }
@@ -385,6 +396,7 @@ model Software_Component_Image {
   pathname           String
   contentType        String
   contentDisposition String
+  isArchived         Boolean            @default(false)
 
   @@id([componentLabel, softwareLabel, clientId, version, componentType])
 }
@@ -466,7 +478,6 @@ model Project {
   Project_Constant   Project_Constant[]
   Project_Items      Project_Items[]
   Project_Task       Project_Task[]
-  Constant_Legal     Constant_Legal[]
   Project_Invitation Project_Invitation[]
   Project_DSN_Data   Project_DSN_Data[]
 
@@ -644,6 +655,9 @@ model Project_Value {
   chapterLevel_1       Int
   chapterLevel_2       Int
   chapterLevel_3       Int
+  dsnEstablishementId  String?
+  dsnRateAtId          String?
+  dsnContractDsnId     String?
   isCode               Boolean?      @default(false)
   isDescription        Boolean?      @default(false)
   isLabel              Boolean?      @default(false)
@@ -673,7 +687,7 @@ model Project_Option {
 }
 
 model Setting {
-  code        String
+  id          String
   label       String
   description String?
   value       String
@@ -682,8 +696,9 @@ model Setting {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdBy   String
+  system      Boolean  @default(false)
 
-  @@id([code, dateStart, dateEnd])
+  @@id([id, label, dateStart, dateEnd])
 }
 
 model Logger {
@@ -742,6 +757,7 @@ model Software_Items {
   employeeContribution String?
   employerContribution String?
   dateStart            DateTime
+  isArchived           Boolean  @default(false)
 
   @@id([id, type, softwareLabel, clientId, dateStart])
 }
@@ -795,22 +811,43 @@ model Constant_Legal {
   level         String
   label         String
   description   String?
-  idccCode      String    @default("9999")
-  Idcc          Idcc?     @relation(fields: [idccCode], references: [code])
+  idccCode      String   @default("9999")
+  Idcc          Idcc?    @relation(fields: [idccCode], references: [code])
   value         String
-  dateStart     DateTime  @default(now())
-  dateEnd       DateTime
+  dateStart     DateTime @default(now())
   softwareLabel String?
   clientId      String?
-  software      Software? @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
   projectLabel  String?
-  project       Project?  @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel], onDelete: Cascade)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   createdBy     String
-  slug          String    @unique
+  slug          String   @unique
+  isDuplicate   Boolean  @default(false)
+  sourceId      String?
 
-  @@id([id, level, dateStart, dateEnd])
+  @@id([id, level, dateStart, isDuplicate])
+}
+
+model Software_Constant_Legal {
+  id            String
+  level         String
+  label         String
+  description   String?
+  idccCode      String   @default("9999")
+  Idcc          Idcc?    @relation(fields: [idccCode], references: [code])
+  value         String
+  dateStart     DateTime @default(now())
+  softwareLabel String
+  clientId      String
+  software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String
+  slug          String   @unique
+  isDuplicate   Boolean  @default(false)
+  isArchived    Boolean  @default(false)
+
+  @@id([id, level, dateStart, isDuplicate, clientId, softwareLabel])
 }
 
 model Project_Constant {
@@ -821,7 +858,6 @@ model Project_Constant {
   Idcc                 Idcc?    @relation(fields: [idccCode], references: [code])
   value                String
   dateStart            DateTime
-  dateEnd              DateTime
   projectLabel         String
   projectSoftwareLabel String
   clientId             String
@@ -830,19 +866,21 @@ model Project_Constant {
   updatedAt            DateTime @updatedAt
   createdBy            String
 
-  @@id([code, dateStart, dateEnd, projectLabel, projectSoftwareLabel, clientId])
+  @@id([code, dateStart, projectLabel, projectSoftwareLabel, clientId])
 }
 
 model Idcc {
-  code            String             @id
-  label           String
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  createdBy       String             @default("system")
-  SoftwareItems   Software_Items[]
-  ConstantLegal   Constant_Legal[]
-  ProjectConstant Project_Constant[]
-  Project_Items   Project_Items[]
+  code                    String                    @id
+  label                   String
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  createdBy               String                    @default("system")
+  SoftwareItems           Software_Items[]
+  ConstantLegal           Constant_Legal[]
+  ProjectConstant         Project_Constant[]
+  Project_Items           Project_Items[]
+  Software_Constant_Legal Software_Constant_Legal[]
+  Table                   Table[]
 }
 
 model Validation {
@@ -988,6 +1026,7 @@ model Software_Task {
   isSwitch      Boolean        @default(false)
   isUpload      Boolean        @default(false)
   accept        String?
+  slug          String         @unique
   softwareLabel String
   description   String
   clientId      String
@@ -1029,8 +1068,11 @@ model Project_Task {
 
 model Absence {
   label            String   @id
-  code             String   @unique
+  id               String   @unique
   description      String
+  isPrintable      Boolean  @default(false)
+  dsnCode          String?
+  dsnLabel         String?
   isSocialSecurity Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -1062,10 +1104,54 @@ model Item {
   @@id([id, type])
 }
 
+model Counter {
+  id          String   @id
+  label       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String   @default("system")
+  inHours     Boolean  @default(false)
+  inDays      Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+}
+
+model Software_Counter {
+  id            String
+  label         String
+  description   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String   @default("system")
+  softwareLabel String
+  clientId      String
+  inHours       Boolean  @default(false)
+  inDays        Boolean  @default(false)
+  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  isArchived    Boolean  @default(false)
+
+  @@id([id, label, clientId, softwareLabel])
+}
+
+model Software_Profile {
+  id            String
+  label         String
+  description   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String   @default("system")
+  softwareLabel String
+  clientId      String
+  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  isArchived    Boolean  @default(false)
+
+  @@id([id, label, clientId, softwareLabel])
+}
+
 model Software_Absence {
   label            String
-  code             String
-  description      String
+  id               String
+  description      String?
   isSocialSecurity Boolean  @default(false)
   softwareLabel    String
   slug             String   @unique
@@ -1073,9 +1159,18 @@ model Software_Absence {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   createdBy        String   @default("system")
+  dsnCode          String?
+  dsnLabel         String?
   Software         Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  methodOfCalcul   String
+  population       String?
+  itemHour         String?
+  itemDay          String?
+  counter          String?
+  isPrintable      Boolean  @default(false)
+  isArchived       Boolean  @default(false)
 
-  @@id([label, code, clientId, softwareLabel])
+  @@id([label, id, clientId, softwareLabel])
 }
 
 model Default_Setting {
@@ -1096,6 +1191,14 @@ model Dsn_OPS {
   address1 String?
   codeZip  String?
   city     String?
+}
+
+model Dsn_Absence {
+  id        String   @id
+  label     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String   @default("system")
 }
 
 model TextArea {
@@ -1136,4 +1239,110 @@ model Project_DSN_Data {
   order                Int
 
   @@id([projectLabel, projectSoftwareLabel, clientId, date, order, id, siret])
+}
+
+model Accumulation {
+  id          String   @id
+  label       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String   @default("system")
+}
+
+model Software_Accumulation {
+  id            String
+  label         String
+  description   String?
+  clientId      String
+  softwareLabel String
+  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String   @default("system")
+  isArchived    Boolean  @default(false)
+  slug          String   @unique
+
+  @@id([id, label, clientId, softwareLabel])
+}
+
+model Table {
+  id           String         @id
+  type         String
+  idcc         String?
+  Idcc         Idcc?          @relation(fields: [idcc], references: [code])
+  label        String
+  description  String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  createdBy    String         @default("system")
+  population   String?
+  absence      String?
+  Table_Column Table_Column[]
+}
+
+model Table_Column {
+  id                 String
+  tableId            String
+  Table              Table                @relation(fields: [tableId], references: [id])
+  label              String
+  Table_Column_Value Table_Column_Value[]
+  updatedAt          DateTime             @updatedAt
+  createdAt          DateTime             @default(now())
+  createdBy          String               @default("system")
+
+  @@id([id, tableId])
+}
+
+model Table_Column_Value {
+  id           String
+  columnId     String
+  tableId      String
+  value        String
+  row          Int
+  updatedAt    DateTime     @updatedAt
+  createdAt    DateTime     @default(now())
+  createdBy    String       @default("system")
+  Table_Column Table_Column @relation(fields: [columnId, tableId], references: [id, tableId])
+
+  @@id([id, tableId, columnId])
+}
+
+model Software_Table_Column {
+  id                   String
+  tableId              String
+  label                String
+  componentType        String
+  description          String?
+  slug                 String                 @unique
+  clientId             String
+  softwareLabel        String
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  createdBy            String                 @default("system")
+  isArchived           Boolean                @default(false)
+  componentLabel       String
+  Software_Component   Software_Component     @relation(fields: [componentLabel, softwareLabel, clientId, componentType], references: [label, softwareLabel, clientId, type], onDelete: Cascade)
+  Software_Table_Value Software_Table_Value[]
+
+  @@id([id, tableId, clientId, softwareLabel, componentLabel, componentType])
+}
+
+model Software_Table_Value {
+  id                    String
+  componentLabel        String
+  componentType         String
+  tableId               String
+  columnId              String
+  slug                  String                @unique
+  value                 String
+  row                   Int
+  updatedAt             DateTime              @updatedAt
+  createdAt             DateTime              @default(now())
+  createdBy             String                @default("system")
+  clientId              String
+  softwareLabel         String
+  Software_Table_Column Software_Table_Column @relation(fields: [columnId, tableId, clientId, softwareLabel, componentLabel, componentType], references: [id, tableId, clientId, softwareLabel, componentLabel, componentType])
+
+  @@id([id, tableId, columnId, clientId, softwareLabel])
 }

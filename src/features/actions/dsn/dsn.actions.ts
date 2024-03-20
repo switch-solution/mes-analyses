@@ -17,6 +17,7 @@ export type Row = {
     idRate?: number,
     date: string,
     siret: string
+    establishmentId: number
 
 }
 type Input = {
@@ -29,7 +30,7 @@ type Input = {
     otherData: string,
     isCode: boolean,
     isDescription: boolean,
-    isLabel: boolean
+    isLabel: boolean,
 
 }
 import { getTestValueExist } from '@/src/query/project_value.query';
@@ -462,19 +463,21 @@ const createJob = async ({ row, componentLabel, siren, projectLabel, projectSoft
 const createEstablishment = async ({ row, componentLabel, siren, projectLabel, projectSoftwareLabel, input, userId }: { row: Row, componentLabel: string, siren: string, projectLabel: string, projectSoftwareLabel: string, input: Input, userId: string }) => {
     const recordId = await getNewrecordId()
     let recordIdLabel = await makeRecordIdLabel({ componentLabel, countRecord: recordId })
-    let estabslishmentExist = await valueExist({
-        projectLabel,
-        projectSoftwareLabel,
-        clientId: siren,
-        componentLabel: componentLabel,
-        chapterLevel_1: input.chapterLevel_1,
-        chapterLevel_2: input.chapterLevel_2,
-        chapterLevel_3: input.chapterLevel_3,
-        bookLabel: input.bookLabel,
-        label: input.label
+    let estabslishmentExist = await prisma.project_Value.findFirst({
+        where: {
+            projectLabel,
+            projectSoftwareLabel,
+            clientId: siren,
+            componentLabel: componentLabel,
+            chapterLevel_1: input.chapterLevel_1,
+            chapterLevel_2: input.chapterLevel_2,
+            chapterLevel_3: input.chapterLevel_3,
+            bookLabel: input.bookLabel,
+            dsnEstablishementId: row.establishmentId.toString()
+        }
 
     })
-    if (estabslishmentExist && estabslishmentExist.textValue === row.value) {
+    if (estabslishmentExist) {
         recordIdLabel = estabslishmentExist.recordId
     }
     await upsertValue({
@@ -496,7 +499,8 @@ const createEstablishment = async ({ row, componentLabel, siren, projectLabel, p
         idDsn: row.code,
         labelDsn: row.dsnType,
         dateDsn: row.date,
-        siretDsn: row.siret
+        siretDsn: row.siret,
+        establishmentId: row.establishmentId.toString()
     })
 }
 
@@ -524,7 +528,8 @@ const upsertValue = async ({
     idDsn,
     labelDsn,
     dateDsn,
-    siretDsn
+    siretDsn,
+    establishmentId
 
 }: {
     recordId: string,
@@ -545,7 +550,8 @@ const upsertValue = async ({
     idDsn: string,
     labelDsn: string,
     dateDsn: string,
-    siretDsn: string
+    siretDsn: string,
+    establishmentId?: string
 
 }) => {
     try {
@@ -586,7 +592,8 @@ const upsertValue = async ({
                 bookLabel,
                 inputLabel: inputLabel,
                 isActivated: true,
-                origin: 'Analyse initiale'
+                origin: 'Analyse initiale',
+                dsnEstablishementId: establishmentId
             }
 
         })

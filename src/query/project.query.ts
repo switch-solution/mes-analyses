@@ -204,7 +204,7 @@ export const copyBook = async (projectSlug: string) => {
             let slug = syncGenerateSlug(`00000000000000000000${count}`)
             return {
                 label: component.label,
-                description: component.description,
+                description: component.description ? component.description : "",
                 type: component.type,
                 buttonLabel: component.buttonLabel,
                 clientId: component.clientId,

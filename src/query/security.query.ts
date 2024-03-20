@@ -8,6 +8,8 @@ import type { Logger } from "@/src/helpers/type";
 import { getMyProjects, getProjectBySlug } from "./project.query";
 import { getRecordIdExist } from "./project_value.query";
 import { getProjectBookBySlug } from "./project_book.query";
+import { getMyClientActive, getMySoftwareActive } from "./user.query";
+import { getSoftwareBySlug } from "./software.query";
 /**
  * Test if the user is an admin at least once
  * @param userId 
@@ -50,17 +52,23 @@ export const userIsAdminClient = async (clientSlug: string) => {
     }
 
 }
-export const userIsEditorClient = async (clientSlug: string) => {
+
+/**
+ * This function test if user is editor 
+ * @param clientSlug 
+ * @returns 
+ */
+
+export const userIsEditorClient = async () => {
     try {
-        if (!clientSlug) throw new ActionError("Le slug est obligatoire")
         const userId = await userIsValid()
         if (!userId) throw new ActionError("Vous devez être connecté pour effectuer cette action.")
-        const client = await getClientBySlug(clientSlug)
-        if (!client) throw new ActionError("Le client n'existe pas.")
+        const validation = await getClientActiveAndSoftwareActive()
+        if (!validation) throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
         const isAdmin = await prisma.userClient.findFirstOrThrow({
             where: {
                 userId: userId,
-                clientId: client.siren,
+                clientId: validation.clientId,
                 isBlocked: false,
                 isBillable: true,
                 isEditor: true
@@ -78,7 +86,11 @@ export const userIsEditorClient = async (clientSlug: string) => {
         }
         return {
             userId,
-            clientId: client.siren
+            clientId: validation.clientId,
+            clientSlug: validation.clientSlug,
+            softwareLabel: validation.softwareLabel,
+            softwareSlug: validation.softwareSlug
+
         }
     } catch (err) {
         console.error(err)
@@ -363,42 +375,6 @@ export const userIsAuthorizeInThisProject = async (projectSlug: string) => {
 
 }
 
-export const userIsEditor = async (clientSlug: string) => {
-    try {
-        if (!clientSlug) throw new ActionError("Le slug est obligatoire")
-        const userId = await userIsValid()
-        if (!userId) throw new ActionError("Vous devez être connecté pour effectuer cette action.")
-        const client = await getClientBySlug(clientSlug)
-        if (!client) throw new ActionError("Le client n'existe pas.")
-        const isEditor = await prisma.userClient.findFirstOrThrow({
-            where: {
-                userId: userId,
-                clientId: client.siren,
-                isBlocked: false,
-                isBillable: true,
-                isEditor: true
-            }
-        })
-        if (!isEditor) throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
-        return {
-            userId,
-            clientId: client.siren
-        }
-    } catch (err) {
-        const userId = await userIsValid()
-        const clientId = await getClientBySlug(clientSlug)
-        const log: Logger = {
-            level: "security",
-            message: `L'utilisateur essaye d'accéder à une page sans les droits éditeur sur le client`,
-            scope: "client",
-            clientId: clientId.siren
-        }
-        await createLog(log)
-        await banUser(userId)
-        throw new ActionError(`Une erreur est survenue lors de la vérification des droits`)
-
-    }
-}
 
 /**
  * This function is used to ban a user if he has more than 3 security incidents
@@ -520,6 +496,53 @@ export const getCountValueByRecordIdForValidation = async (
         console.error(err)
         throw new Error("Erreur lors de la récupération des données")
     }
+
+}
+
+/**
+ * This function return the client and software active for the user
+ * @returns 
+ */
+export const getClientActiveAndSoftwareActive = async () => {
+    try {
+        const clientActive = await getMyClientActive()
+        if (!clientActive) throw new Error('Client inexistant')
+        const softwareActive = await getMySoftwareActive()
+
+        const clientExist = await getClientBySlug(clientActive)
+        if (!clientExist) throw new Error('Client inexistant')
+        const softwareExist = await getSoftwareBySlug(softwareActive)
+
+        //User is authorized to access for this client and software
+
+        const validation = await prisma.client.findFirst({
+            where: {
+                siren: clientExist.siren,
+            },
+            include: {
+                Software: {
+                    where: {
+                        label: softwareExist.label,
+                        clientId: clientExist.siren
+                    }
+                }
+            }
+
+        })
+        if (!validation) throw new Error('Vous n\'avez pas les droits pour réaliser cettea action')
+
+        return {
+            clientSlug: clientExist.slug,
+            softwareSlug: softwareExist.slug,
+            clientId: clientExist.siren,
+            softwareLabel: softwareExist.label
+        }
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des données")
+    }
+
 
 }
 

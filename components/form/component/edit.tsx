@@ -34,7 +34,7 @@ export default function EditFormComponent({ clientSlug, component }: {
         defaultValues: {
             label: component.label,
             clientSlug,
-            description: component.description,
+            description: component.description ?? '',
             status: component.status === 'actif' ? 'actif' : 'archivé',
             componentSlug: component.slug
         },

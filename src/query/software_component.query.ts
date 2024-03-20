@@ -1,23 +1,118 @@
 import { prisma } from "@/lib/prisma";
-import { getMySoftware } from "./user.query";
 import { getClientBySlug } from "./client.query";
 import { Prisma } from '@prisma/client'
 import { getSoftwareBySlug } from "./software.query";
+import { getClientActiveAndSoftwareActive } from "./security.query";
 
-export const getComponnentByClientFilterUserSoftware = async (clientSlug: string) => {
+export const getComponnentByClientFilterAndSoftware = async (clientSlug: string, softwareSlug: string) => {
     try {
-        const softwares = await getMySoftware()
+        const software = await getSoftwareBySlug(softwareSlug)
         const client = await getClientBySlug(clientSlug)
         const component = await prisma.software_Component.findMany({
             where: {
-                softwareLabel: {
-                    in: softwares.map(software => software.softwareLabel)
-                },
+                softwareLabel: software.label,
                 clientId: client.siren
 
             }
         })
         return component
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des composants")
+    }
+
+}
+
+export const getComponentTable = async () => {
+    try {
+        const validation = await getClientActiveAndSoftwareActive()
+        if (!validation) {
+            throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
+        }
+        const tables = await prisma.software_Component.findMany({
+            where: {
+                isTable: true,
+                softwareLabel: validation.softwareLabel,
+                clientId: validation.clientId
+            }
+        })
+        return tables
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des composants")
+    }
+
+}
+
+
+export const getComponentTextareta = async () => {
+    try {
+        const validation = await getClientActiveAndSoftwareActive()
+        if (!validation) {
+            throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
+        }
+        const tables = await prisma.software_Component.findMany({
+            where: {
+                isTextArea: true,
+                softwareLabel: validation.softwareLabel,
+                clientId: validation.clientId
+            }
+        })
+        return tables
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des composants")
+    }
+
+}
+
+export const getComponentImage = async () => {
+    try {
+        const validation = await getClientActiveAndSoftwareActive()
+        if (!validation) {
+            throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
+        }
+        const tables = await prisma.software_Component.findMany({
+            where: {
+                isImage: true,
+                softwareLabel: validation.softwareLabel,
+                clientId: validation.clientId
+            }
+        })
+        return tables
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des composants")
+    }
+
+}
+
+export const getComponentForm = async () => {
+    try {
+        const validation = await getClientActiveAndSoftwareActive()
+        if (!validation) {
+            throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
+        }
+        const tables = await prisma.software_Component.findMany({
+            where: {
+                isForm: true,
+                softwareLabel: validation.softwareLabel,
+                clientId: validation.clientId
+            }
+        })
+        return tables
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des composants")
+    }
+
+}
+
+
+export const getCountAllSoftwareComponent = async () => {
+    try {
+        const count = await prisma.software_Component.count()
+        return count
     } catch (err) {
         console.error(err)
         throw new Error("Erreur lors de la récupération des composants")
@@ -31,7 +126,6 @@ export const getStdComponentBySlug = async (stdComponentSlug: string) => {
             where: {
                 slug: stdComponentSlug
             }
-
         })
         return stdComponent
     } catch (err) {

@@ -3,8 +3,8 @@ import { userIsValid, userIsAdminClient } from "./security.query";
 import { userIsAdminSystem } from "./security.query";
 import { getAuthSession } from "@/lib/auth";
 import { Prisma } from '@prisma/client'
-import { th } from "@faker-js/faker";
-import { getMySoftware } from "./user.query";
+import { getMySoftware, getMySoftwareActive } from "./user.query";
+import { getSoftwareBySlug } from "./software.query";
 
 export const getCountClientProjects = async (clientSlug: string) => {
     try {
@@ -65,13 +65,15 @@ export const getCountMySoftware = async (clientSlug: string) => {
 
 export const getComponentFilterByUser = async (clientSlug: string) => {
     try {
-        const mySoftware = await getMySoftware()
+        const mySoftwareSlug = await getMySoftwareActive()
+        if (!mySoftwareSlug) {
+            throw new Error("Vous n'avez pas de logiciel par default.")
+        }
+        const software = await getSoftwareBySlug(mySoftwareSlug)
         const clientExist = await getClientBySlug(clientSlug)
         const countComponents = await prisma.software_Component.count({
             where: {
-                softwareLabel: {
-                    in: mySoftware.map(software => software.softwareLabel)
-                },
+                softwareLabel: software.label,
                 clientId: clientExist.siren
             }
         })
@@ -226,28 +228,8 @@ export const getClientSirenBySlug = async (slug: string) => {
  * @returns 
  */
 
-export const getMyClientActive = async () => {
-    try {
-        const session = await getAuthSession()
-        if (!session) {
-            throw new Error("L'utilisateur n'est pas connecté.")
-        }
-        const clientId = await prisma.userClient.findFirst({
-            where: {
-                userId: session.user.id,
-                isActivated: true,
-            },
-            include: {
-                client: true
-            }
-        })
-        return clientId?.client?.slug
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération du client actif.")
 
-    }
-}
+
 
 
 export const getSoftwareClientList = async (clientSlug: string) => {

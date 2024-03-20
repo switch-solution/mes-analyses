@@ -138,7 +138,8 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
                 isEditor: true,
                 softwareLabel: label,
                 softwareClientId: clientId,
-                createdBy: userId
+                createdBy: userId,
+                isActivated: true
             }
         })
         await softwareCopyData(software.slug)
@@ -157,6 +158,6 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
         throw new ActionError(err as string)
     }
 
-    revalidatePath(`/client/${clientSlug}/editor/`)
-    redirect(`/client/${clientSlug}/editor/`)
+    revalidatePath(`/client/${clientSlug}/administrator/software/`)
+    redirect(`/client/${clientSlug}/administrator/software/`)
 })

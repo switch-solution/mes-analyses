@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import type { getInputDsnByProjectSlug } from "@/src/query/project_input.query";
 import type { Row } from "@/src/features/actions/dsn/dsn.actions";
+import { toast } from "sonner"
+
 export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { clientSlug: string, projectSlug: string, inputs: getInputDsnByProjectSlug }) {
     const [loading, setLoading] = useState(false)
     const dsnDataWithOption = dsnData.bind(null, projectSlug, clientSlug)
-    const parseFile = async (file: File) => {
+    const parseFile = async (file: File, establishmentId: number) => {
         return new Promise((resolve, reject) => {
             const dsnRows: any = []
             const dsnRowsObject: { code: string, value: string, dsnType: string, componentLabel: string, idRate?: number, date: string, siret: string }[] = []
@@ -59,7 +61,8 @@ export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { cli
                             value: value,
                             dsnType: codeExist.dsnType ? codeExist.dsnType : "",
                             componentLabel: codeExist.componentLabel ? codeExist.componentLabel : "",
-                            idRate: codeExist.componentLabel === "Taux AT" ? idRate : 0
+                            idRate: codeExist.componentLabel === "Taux AT" ? idRate : 0,
+                            establishmentId
                         }
                         dsnRowsObject.push(object)
                         setRow.add(value)
@@ -80,9 +83,10 @@ export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { cli
         const dsn = (e.target as HTMLFormElement).elements[0] as HTMLInputElement
         const files = dsn.files ? Array.from(dsn.files) : []
         const dsnParse = []
-
+        let establishmentId = 1
         for (let file of files) {
-            dsnParse.push(await parseFile(file))
+            dsnParse.push(await parseFile(file, establishmentId))
+            establishmentId += 1
 
         }
         //Suppression des doublons
@@ -96,11 +100,17 @@ export default function UploadFileDsn({ clientSlug, projectSlug, inputs }: { cli
                 set.add(row.value)
             }
         }
-
         try {
             await dsnDataWithOption(dsnUnique as Row[]);
         } catch (err) {
             setLoading(false);
+            toast(`${err}`, {
+                description: new Date().toLocaleDateString(),
+                action: {
+                    label: "fermer",
+                    onClick: () => console.log("fermeture"),
+                },
+            })
             console.error(err);
         }
         setLoading(false);

@@ -11,8 +11,8 @@ import { CreateSoftwareInputSchema, DeleteStdInputSchema, EdidStdInputSchema, De
 import { getStandardInputById } from "@/src/query/sofwtare_input.query";
 export const createSoftwareStdInput = authentificationActionUserIsEditorClient(CreateSoftwareInputSchema, async (data: z.infer<typeof CreateSoftwareInputSchema>, { clientId, userId }) => {
 
-    const { componentSlug, type, clientSlug, label, typeDataImport, typeDataTable } = CreateSoftwareInputSchema.parse(data)
-    const componentExist = await getStdComponentBySlug(componentSlug)
+    const { formSlug, type, clientSlug, softwareSlug, label, typeDataImport, typeDataTable } = CreateSoftwareInputSchema.parse(data)
+    const componentExist = await getStdComponentBySlug(formSlug)
     if (!componentExist) {
         throw new Error('Le composant n\'existe pas')
     }
@@ -56,7 +56,7 @@ export const createSoftwareStdInput = authentificationActionUserIsEditorClient(C
         })
         const log: Logger = {
             level: 'info',
-            message: `Ajout du champ ${label} sur le  ${componentSlug}`,
+            message: `Ajout du champ ${label} sur le  ${formSlug}`,
             scope: "standardComponent",
         }
         await createLog(log)
@@ -72,8 +72,8 @@ export const createSoftwareStdInput = authentificationActionUserIsEditorClient(C
             label: label
         }
     })
-    revalidatePath(`/client/${clientSlug}/editor/component/${componentSlug}}/input/${input?.id}/detail`);
-    redirect(`/client/${clientSlug}/editor/component/${componentSlug}/input/${input?.id}/detail`);
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/form/${formSlug}}/input/${input?.id}/detail`);
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/form/${formSlug}/input/${input?.id}/detail`);
 })
 
 export const createOption = authentificationActionUserIsEditorClient(CreateOptionSchema, async (data: z.infer<typeof CreateOptionSchema>, { clientId, userId }) => {
@@ -103,12 +103,12 @@ export const createOption = authentificationActionUserIsEditorClient(CreateOptio
 
 })
 export const detailStdInput = authentificationActionUserIsEditorClient(DetailSoftwareInputShema, async (data: z.infer<typeof DetailSoftwareInputShema>, { clientId, userId }) => {
-    const { clientSlug, componentSlug, inputSlug, dsnType, otherData, placeholder, maxLength, maxValue, minLength, minValue, multiple, fieldSource } = DetailSoftwareInputShema.parse(data)
+    const { clientSlug, formSlug, inputSlug, dsnType, otherData, softwareSlug, placeholder, maxLength, maxValue, minLength, minValue, multiple, fieldSource } = DetailSoftwareInputShema.parse(data)
     const inputExist = await getStandardInputById(inputSlug)
     if (!inputExist) {
         throw new ActionError('Le champ n\'existe pas')
     }
-    const componentExist = await getStdComponentBySlug(componentSlug)
+    const componentExist = await getStdComponentBySlug(formSlug)
     if (!componentExist) {
         throw new ActionError('Le composant n\'existe pas')
     }
@@ -137,11 +137,11 @@ export const detailStdInput = authentificationActionUserIsEditorClient(DetailSof
         throw new ActionError(err as string)
     }
     if (inputExist.type === 'select') {
-        revalidatePath(`/client/${clientSlug}/editor/component/${componentSlug}/input/${inputSlug}/option`);
-        redirect(`/client/${clientSlug}/editor/component/${componentSlug}/input/${inputSlug}/option`);
+        revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/form/${formSlug}/input/${inputSlug}/option`);
+        redirect(`/client/${clientSlug}/editor/${softwareSlug}/form/${formSlug}/input/${inputSlug}/option`);
     }
-    revalidatePath(`/client/${clientSlug}/editor/component/${componentSlug}/form/`);
-    redirect(`/client/${clientSlug}/editor/component/${componentSlug}/form/`);
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/form/${formSlug}/`);
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/form/${formSlug}/`);
 
 })
 

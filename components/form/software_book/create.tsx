@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { createBook } from "@/src/features/actions/software_book/software_book.actions";
 import { BookFormSchema } from '@/src/helpers/definition';
-import type { getMySoftware } from "@/src/query/user.query"
 import {
     Select,
     SelectContent,
@@ -23,12 +22,12 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-export default function BookCreateForm({ softwares, clientSlug }: { softwares: getMySoftware, clientSlug: string }) {
+export default function BookCreateForm({ softwareSlug, clientSlug }: { softwareSlug: string, clientSlug: string }) {
     const form = useForm<z.infer<typeof BookFormSchema>>({
         resolver: zodResolver(BookFormSchema),
         defaultValues: {
             clientSlug: clientSlug,
-            softwareLabel: softwares?.at(0)?.softwareLabel,
+            softwareSlug: softwareSlug,
             status: "actif",
             description: "",
             label: ""
@@ -51,30 +50,20 @@ export default function BookCreateForm({ softwares, clientSlug }: { softwares: g
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <FormField
                         control={form.control}
-                        name="softwareLabel"
+                        name="clientSlug"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Logiciel</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Affecter le cahier à un logiciel" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {softwares.map((software) => (
-                                            <SelectItem key={software.softwareLabel} value={software.softwareLabel}>{software.softwareLabel}</SelectItem>))}
-                                    </SelectContent>
-                                </Select>
-
+                                <FormControl>
+                                    <Input type='hidden' {...field} />
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
+
                         )}
                     />
-
                     <FormField
                         control={form.control}
-                        name="clientSlug"
+                        name="softwareSlug"
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>

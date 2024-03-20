@@ -26,12 +26,13 @@ import type { getOtherInputs, getDsnInputs } from "@/src/query/input.query"
 import { Input } from '@/components/ui/input'
 import type { getStandardInputById } from "@/src/query/sofwtare_input.query"
 import { detailStdInput } from "@/src/features/actions/software_input/stdInput.actions";
-export default function DetailSoftwareInput({ clientSlug, componentSlug, inputSlug, inputs, components, input }: { clientSlug: string, componentSlug: string, inputSlug: string, inputs?: getOtherInputs | getDsnInputs, components?: getSoftwareComponentBySoftwareSlug, input: getStandardInputById }) {
+export default function DetailSoftwareInput({ clientSlug, softwareSlug, formSlug, inputSlug, inputs, components, input }: { clientSlug: string, softwareSlug: string, formSlug: string, inputSlug: string, inputs?: getOtherInputs | getDsnInputs, components?: getSoftwareComponentBySoftwareSlug, input: getStandardInputById }) {
     const form = useForm<z.infer<typeof DetailSoftwareInputShema>>({
         resolver: zodResolver(DetailSoftwareInputShema),
         defaultValues: {
             clientSlug,
-            componentSlug,
+            softwareSlug,
+            formSlug,
             inputSlug,
             placeholder: "",
             minLength: 0,
@@ -71,7 +72,18 @@ export default function DetailSoftwareInput({ clientSlug, componentSlug, inputSl
                 />
                 <FormField
                     control={form.control}
-                    name="componentSlug"
+                    name="formSlug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input type="hidden" {...field} required />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="softwareSlug"
                     render={({ field }) => (
                         <FormItem>
                             <FormControl>

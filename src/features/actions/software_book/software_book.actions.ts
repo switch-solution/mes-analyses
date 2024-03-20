@@ -11,6 +11,7 @@ import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/saf
 import { generateSlug } from "@/src/helpers/generateSlug";
 import { getSoftwareBookBySlug } from "@/src/query/software_book.query";
 import { getCountBook } from "@/src/query/client.query";
+import { getSoftwareBySlug } from "@/src/query/software.query";
 
 export const editBook = authentificationActionUserIsEditorClient(BookFormSchemaEdit, async (values: z.infer<typeof BookFormSchemaEdit>, { clientId, userId }) => {
 
@@ -56,8 +57,9 @@ export const editBook = authentificationActionUserIsEditorClient(BookFormSchemaE
 export const createBook = authentificationActionUserIsEditorClient(BookFormSchema, async (values: z.infer<typeof BookFormSchema>, { clientId, userId }) => {
 
 
-    const { label, description, softwareLabel, clientSlug } = BookFormSchema.parse(values)
-
+    const { label, description, softwareSlug, clientSlug } = BookFormSchema.parse(values)
+    const softwareExist = await getSoftwareBySlug(softwareSlug)
+    if (!softwareExist) throw new ActionError("Le logiciel n'existe pas.")
     try {
         const countBook = await getCountBook(clientSlug)
         const slug = await generateSlug(`cahier-${countBook + 1}-${label}`)
@@ -68,13 +70,13 @@ export const createBook = authentificationActionUserIsEditorClient(BookFormSchem
                 createdBy: userId,
                 description: description,
                 clientId: clientId,
-                softwareLabel: softwareLabel,
+                softwareLabel: softwareExist.label,
                 slug: slug
             }
         })
         const log: Logger = {
             scope: "book",
-            message: `L'utilisateur a créé un livre avec le nom ${label} et le logiciel ${softwareLabel}`,
+            message: `L'utilisateur a créé un livre avec le nom ${label} et le logiciel ${softwareExist.label}`,
             level: "info"
         }
         await createLog(log)
@@ -83,8 +85,8 @@ export const createBook = authentificationActionUserIsEditorClient(BookFormSchem
         throw new Error("Une erreur est survenue lors de la création du livre.")
     }
 
-    revalidatePath(`/client/${clientSlug}/editor/book/`)
-    redirect(`/client/${clientSlug}/editor/book/`)
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/book/`)
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/book/`)
 
 
 

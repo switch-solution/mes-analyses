@@ -1,9 +1,38 @@
 import { prisma } from "@/lib/prisma"
 import { userIsValid } from "./security.query"
 import { getAuthSession } from "@/lib/auth"
-import { getClientBySlug, getMyClientActive } from "./client.query"
+import { getClientBySlug } from "./client.query"
 import { Prisma } from '@prisma/client'
 import { getMyProjects } from "./project.query"
+
+export const userIsSetup = async () => {
+    try {
+        const session = await getAuthSession()
+        if (!session?.user.email) {
+            return null
+        }
+
+        const user = await prisma.user.findUnique({
+            where: {
+                email: session.user.email
+            },
+            include: {
+                UserOtherData: true
+            }
+        })
+        if (user?.UserOtherData.at(0)?.cgv) {
+            return true
+        } else {
+            return false
+        }
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la vérification de l'utilisateur.")
+
+    }
+
+}
 export const getUser = async () => {
     //Ajouter une notion si user est actif
     const session = await getAuthSession()
@@ -21,6 +50,72 @@ export const getUser = async () => {
     return user
 }
 
+/**
+ * This function return the software slug active of the user
+ * @returns 
+ */
+
+export const getMySoftwareActive = async () => {
+    try {
+        const session = await getAuthSession()
+        if (!session) {
+            throw new Error("L'utilisateur n'est pas connecté.")
+        }
+        const softwareId = await prisma.userSoftware.findFirstOrThrow({
+            where: {
+                userId: session.user.id,
+                isActivated: true,
+            },
+            include: {
+                software: {
+                    select: {
+                        slug: true
+                    }
+                }
+            }
+        })
+        return softwareId?.software?.slug
+    } catch (err) {
+        console.error(err)
+        throw new Error(`Une erreur est survenue lors de la récupération des logiciels du client.`)
+    }
+
+}
+export type getMySoftwareActive = Prisma.PromiseReturnType<typeof getMySoftwareActive>;
+
+/**
+ * Return the client slug active of the user
+ * @returns 
+ */
+
+export const getMyClientActive = async () => {
+    try {
+        const session = await getAuthSession()
+        if (!session) {
+            throw new Error("L'utilisateur n'est pas connecté.")
+        }
+        const clientId = await prisma.userClient.findFirstOrThrow({
+            where: {
+                userId: session.user.id,
+                isActivated: true,
+            },
+            include: {
+                client: {
+                    select: {
+                        slug: true
+                    }
+                }
+            }
+        })
+        return clientId?.client?.slug
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération du client actif.")
+
+    }
+}
+
+export type getMyClientActive = Prisma.PromiseReturnType<typeof getMyClientActive>;
 export const userIsComplete = async () => {
     try {
         const session = await getAuthSession()
@@ -92,6 +187,9 @@ export const getMySoftware = async () => {
                 softwareClientId: clientId.siren,
                 isEditor: true
             },
+            include: {
+                software: true
+            }
 
         })
         return softwares
@@ -113,24 +211,20 @@ export const getMyClient = async () => {
     if (!userId) {
         return null
     }
-    const client = await prisma.client.findMany({
-        select: {
-            socialReason: true,
-            siren: true,
-            slug: true,
-
-        },
+    const client = await prisma.userClient.findMany({
         where: {
-            UserClient: {
-                some: {
-                    userId: userId
-                }
-            }
+            userId: userId
+        },
+        include: {
+            client: true
         }
 
     })
     return client
 }
+
+export type getMyClient = Prisma.PromiseReturnType<typeof getMyClient>;
+
 
 export const getRoleUser = async () => {
     const userId = await userIsValid()
@@ -173,34 +267,4 @@ export const getUserOtherData = async (userId: string) => {
 
 export type getUserOtherData = Prisma.PromiseReturnType<typeof getUserOtherData>;
 
-export const getEvents = async (limit: number) => {
-    try {
-        const clientActiveSlug = await getMyClientActive()
-        if (!clientActiveSlug) throw new Error("Vous n'êtes pas rattaché à un client actif.")
-        const clientId = await getClientBySlug(clientActiveSlug)
-        if (!clientId) throw new Error("Vous n'êtes pas rattaché à un client actif.")
-        const myProjects = await getMyProjects()
-        if (!myProjects || myProjects.length === 0) throw new Error("Vous n'êtes pas rattaché à un projet actif.")
-        const events = await prisma.logger.findMany({
-            where: {
-                clientId: clientId.siren,
-                projectLabel: {
-                    in: myProjects.map(project => project.projectLabel)
-                },
-                level: {
-                    in: ["info", "warning", "error"]
-                }
-            },
-            orderBy: {
-                createdAt: "desc"
-            },
-            take: limit
-        })
-        return events
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des événements de l'utilisateur.")
-    }
-
-}
 

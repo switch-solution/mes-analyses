@@ -33,7 +33,13 @@ import { opsV00002Seed } from './seed/31_ops.v00002.seed'
 import { opsV00003Seed } from './seed/32_ops.v00003.seed'
 import { opsV00004Seed } from './seed/33_ops.v00004.seed'
 import { textareaV0001 } from './seed/34_textarea.v0001.seed'
-
+import { settingV0002 } from './seed/35_setting.v0002.seed'
+import { dsnAbsenceV0001 } from './seed/36_dsn_absence.v0001.seed'
+import { settingV0003 } from './seed/37_setting.v0003.seed'
+import { absenceV0002 } from './seed/38_absence.v0002.seed'
+import { counterV0001 } from './seed/39_counter.v0001.seed'
+import { accumulationV0001 } from './seed/40_accumulation.v0001.seed'
+import { tableV0001 } from './seed/41_table.v0001.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -365,8 +371,69 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-
-
+    await settingV0002.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await dsnAbsenceV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await settingV0003.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await absenceV0002.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await counterV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await accumulationV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await tableV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
 
 
 }

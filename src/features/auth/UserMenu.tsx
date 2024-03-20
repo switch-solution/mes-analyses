@@ -14,14 +14,12 @@ import {
     MenubarSubTrigger,
     MenubarTrigger,
 } from "@/components/ui/menubar"
-import { cn } from "@/lib/utils"
-import { ThemeToggle } from "@/src/theme/ThemeToggle";
-import UserAvatar from "@/components/layout/userAvatar";
 import Link from "next/link";
-import { userRole } from '@/src/query/security.query';
-import { getMyClientActive } from "@/src/query/client.query";
+import { getMyClientActive } from "@/src/query/user.query";
+import { getMySoftwareActive } from "@/src/query/user.query";
 export const UserMenu = async () => {
     const clientSlug = await getMyClientActive()
+    const softwareSlug = await getMySoftwareActive()
     return (
         <Menubar className="max-w-full">
             <MenubarMenu>
@@ -48,7 +46,6 @@ export const UserMenu = async () => {
                             <MenubarItem><Link href={`/client/${clientSlug}/administrator/invoice`}>Facture</Link></MenubarItem>
                         </MenubarSubContent>
                     </MenubarSub>
-
                     <MenubarSub>
                     </MenubarSub>
                 </MenubarContent>
@@ -56,15 +53,22 @@ export const UserMenu = async () => {
             <MenubarMenu>
                 <MenubarTrigger>Editeur</MenubarTrigger>
                 <MenubarContent>
-                    <MenubarItem><Link href={`/client/${clientSlug}/editor/`}>Consulter</Link></MenubarItem>
-                    <MenubarItem><Link href={`/client/${clientSlug}/editor/book`}>Livres</Link></MenubarItem>
-                    <MenubarItem><Link href={`/client/${clientSlug}/editor/attachment`}>PJ</Link></MenubarItem>
-                    <MenubarItem><Link href={`/client/${clientSlug}/editor/constant`}>Constante</Link></MenubarItem>
-                    <MenubarItem><Link href={`/client/${clientSlug}/editor/item`}>Rubriques</Link></MenubarItem>
-                    <MenubarItem><Link href={`/client/${clientSlug}/editor/component`}>Composant</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}`}>Ouvrir</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/form`}>Formulaire</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/textarea`}>Zone de texte</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/image`}>Image</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/table`}>Table</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/book`}>Livres</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/attachment`}>PJ</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/constant`}>Constante</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/item`}>Rubriques</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/component`}>Composant</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/table`}>Table</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/compensation`}>Maintien des salaires</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/absence`}>Absences</Link></MenubarItem>
+                    <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/accumulation`}>Cumul de paie</Link></MenubarItem>
                 </MenubarContent>
             </MenubarMenu>
-
             <MenubarMenu>
                 <MenubarTrigger>Projets</MenubarTrigger>
                 <MenubarContent>
@@ -86,7 +90,7 @@ export const UserMenu = async () => {
                         <MenubarItem><Link href={`/profil/edit`} scroll={false}>Editer</Link></MenubarItem>
                     </MenubarItem>
                     <MenubarItem>
-                        <MenubarItem><ThemeToggle /></MenubarItem>
+                        <MenubarItem><Link href={`/profil/default`} scroll={false}>Environnement</Link></MenubarItem>
                     </MenubarItem>
                 </MenubarContent>
             </MenubarMenu>
@@ -98,6 +102,9 @@ export const UserMenu = async () => {
                     </MenubarItem>
                     <MenubarItem>
                         <MenubarItem><Link href={`/about/`} scroll={false} >A propos</Link></MenubarItem>
+                    </MenubarItem>
+                    <MenubarItem>
+                        <MenubarItem><Link href={`/about/indicator`} scroll={false} >Statistique de la base de donnéees</Link></MenubarItem>
                     </MenubarItem>
                     <MenubarItem>
                         <MenubarItem><Link href={`https://github.com/switch-solution/mes-analyses`} scroll={false} >Github</Link></MenubarItem>

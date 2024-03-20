@@ -26,13 +26,10 @@ import {
 import { ArrowRight } from "lucide-react";
 import Link from "next/link"
 import { getMyProjects } from "@/src/query/project.query";
-import { getMyClientActive } from "@/src/query/client.query";
+import { getMyClientActive } from "@/src/query/user.query";
 import { WhatIsNew } from "@/components/layout/whatIsNew";
 import { countMyTaskActive } from "@/src/query/project_task.query";
-import { headers } from 'next/headers'
-import { getEvents } from "@/src/query/user.query";
 export default async function Page() {
-    const nonce = headers().get('x-nonce')
     const userIsSetup = await userIsComplete()
 
     const clientSlug = await getMyClientActive()
@@ -43,7 +40,6 @@ export default async function Page() {
     const projects = await getMyProjects()
     const countTask = await countMyTaskActive()
 
-    const last3Events = await getEvents(3)
 
     const items = [
         {
@@ -87,8 +83,8 @@ export default async function Page() {
             icon: <IconFileBroken className="size-4 text-neutral-500" />,
         },
         {
-            title: "Mes taches en attentes",
-            description: "Consultez vos taches en attentes.",
+            title: "Mon tableau de bord",
+            description: (<Link href={`/home/dashboard`}>Consulter mes indicateurs</Link>),
             header: <TinyLineChart />,
             className: "md:col-span-1",
             icon: <IconSignature className="size-4 text-neutral-500" />,

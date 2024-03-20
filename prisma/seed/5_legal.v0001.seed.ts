@@ -45,8 +45,9 @@ class LegalV0001Seed extends Seed {
                         label: 'Plafond de la sécurité sociale',
                         description: 'Plafond de la sécurité sociale',
                         idccCode: '9999',
-                        dateStart: new Date('2024-01-01 00:00:00.000'),
-                        slug: 'PLSS_2024_01'
+                        dateStart: new Date('2024-01-01'),
+                        slug: `STD_PLSS_2024_01_${new Date('2024-01-01').toISOString().split('T')[0].replace(/-/g, '_')}`,
+
                     },
                     update: {},
                     create: {
@@ -56,10 +57,9 @@ class LegalV0001Seed extends Seed {
                         idccCode: '9999',
                         value: '3864',
                         createdBy: 'system',
-                        dateStart: new Date('2024-01-01 00:00:00.000'),
-                        dateEnd: new Date('2024-12-31'),
+                        dateStart: new Date('2024-01-01'),
                         level: 'Standard',
-                        slug: 'STD_001_PLSS'
+                        slug: `STD_PLSS_2024_01_${new Date('2024-01-01').toISOString().split('T')[0].replace(/-/g, '_')}`,
                     }
 
                 })
@@ -83,8 +83,7 @@ class LegalV0001Seed extends Seed {
                         value: '11.65',
                         createdBy: 'system',
                         dateStart: new Date('2024-01-01'),
-                        dateEnd: new Date('2024-12-31'),
-                        slug: 'STD_002_SMIC'
+                        slug: `STD_SMIC_2024_01${new Date('2024-01-01').toISOString().split('T')[0].replace(/-/g, '_')}`,
                     }
 
                 })
