@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { userIsAdminClient, userIsValid } from "@/src/query/security.query";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { SoftwaresSchema, AssociateSoftwareSchema } from "@/src/helpers/definition";
+import { SoftwaresSchema, CreateUserSoftwareSchema } from "@/src/helpers/definition";
 import { createLog } from "@/src/query/logger.query";
 import type { Logger } from "@/src/helpers/type";
 import { generateSlug } from "@/src/helpers/generateSlug"
@@ -11,7 +11,7 @@ import { getClientSirenBySlug } from "@/src/query/client.query";
 import { authentificationActionUserIsAdminClient, ActionError } from "@/lib/safe-actions";
 import z from "zod";
 import { getSoftwareBySlug } from "@/src/query/software.query";
-import { getUserByEmail } from "@/src/query/user.query";
+import { getUserByEmail, getUserById } from "@/src/query/user.query";
 import { softwareCopyData } from "@/src/query/software.query";
 
 export const deleteSoftware = async (softwareSlug: string, clientSlug: string) => {
@@ -77,30 +77,44 @@ export const editSoftware = authentificationActionUserIsAdminClient(SoftwaresSch
 
 })
 
-export const associateSoftwareUser = authentificationActionUserIsAdminClient(AssociateSoftwareSchema, async (values: z.infer<typeof AssociateSoftwareSchema>, { clientId, userId }) => {
-    const { isEditor, softwareSlug, email, clientSlug } = AssociateSoftwareSchema.parse(values)
+export const createUserSoftware = authentificationActionUserIsAdminClient(CreateUserSoftwareSchema, async (values: z.infer<typeof CreateUserSoftwareSchema>, { clientId, userId }) => {
+    const { isEditor, softwareSlug, userInternalId, clientSlug } = CreateUserSoftwareSchema.parse(values)
+    console.log(values)
     try {
         const software = await getSoftwareBySlug(softwareSlug)
         if (!software) throw new ActionError("Ce logiciel n'existe pas.")
-        const user = await getUserByEmail(email)
+        const user = await getUserById(userInternalId)
         if (!user) throw new ActionError("Cet utilisateur n'existe pas.")
+        const userExistForSoftware = await prisma.userSoftware.findFirst({
+            where: {
+                userId: user.id,
+                softwareClientId: clientId
+            }
+        })
+        if (userExistForSoftware) throw new ActionError("Cet utilisateur est déjà associé à ce logiciel.")
+        const userHaveSoftware = await prisma.userSoftware.count({
+            where: {
+                userId: user.id,
+            }
+        })
         await prisma.userSoftware.create({
             data: {
                 userId: user.id,
                 isEditor,
                 softwareLabel: software.label,
                 softwareClientId: clientId,
-                createdBy: userId
+                createdBy: userId,
+                isActivated: userHaveSoftware ? false : true
             }
         })
     } catch (err) {
         console.error(err)
-        throw new ActionError("Une erreur est survenue lors de l'association du logiciel.")
+        throw new ActionError(err as string)
 
     }
 
-    revalidatePath(`/client/${clientSlug}/administrator/software/${softwareSlug}/`)
-    redirect(`/client/${clientSlug}/administrator/software/${softwareSlug}/`)
+    revalidatePath(`/client/${clientSlug}/administrator/software/${softwareSlug}/user`)
+    redirect(`/client/${clientSlug}/administrator/software/${softwareSlug}/user`)
 })
 
 export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresSchema, async (values: z.infer<typeof SoftwaresSchema>, { clientId, userId }) => {

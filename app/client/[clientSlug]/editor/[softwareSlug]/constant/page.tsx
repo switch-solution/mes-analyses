@@ -14,8 +14,8 @@ import { getConstantInMyActiveClientAndSoftware } from "@/src/query/software_con
 import { getSoftwareBySlug } from "@/src/query/software.query";
 
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
-    const isEditor = await userIsEditorClient();
-    if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const softwareExist = await getSoftwareBySlug(params.softwareSlug)
     if (!softwareExist) {
         throw new Error("Ce logiciel n'existe pas.")

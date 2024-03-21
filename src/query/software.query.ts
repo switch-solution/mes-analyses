@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from '@prisma/client'
 import { getClientBySlug } from "./client.query";
-import { getMyClientActive } from "./user.query";
+import { getMyClientActive, getMySoftwareActive } from "./user.query";
 import { getMySoftware } from "./user.query";
 import { copyFormToSoftware } from "@/src/query/form.query";
 import { copyBook } from "@/src/query/book.query";
@@ -27,11 +27,17 @@ export const getSoftwareBySlug = async (slug: string) => {
 }
 export type getSoftwareBySlug = Prisma.PromiseReturnType<typeof getSoftwareBySlug>;
 
-export const getSoftwareUsers = async (slug: string) => {
+/**
+ * This function get the software of the user for my software active
+ * @returns 
+ */
+
+export const getSoftwareUsers = async () => {
     try {
-        const software = await getSoftwareBySlug(slug)
+        const mySoftwareSlug = await getMySoftwareActive()
+        const software = await getSoftwareBySlug(mySoftwareSlug)
         if (!software) {
-            throw new Error(`Le logiciel ${slug} n'existe pas.`)
+            throw new Error(`Le logiciel ${mySoftwareSlug} n'existe pas.`)
         }
         const usersSoftware = await prisma.userSoftware.findMany({
             where: {
@@ -52,7 +58,8 @@ export const getSoftwareUsers = async (slug: string) => {
             return {
                 lastname: lastname ? lastname : 'Non renseigné',
                 firstname: firstname ? firstname : 'Non renseigné',
-                isEditor: userSoftware.isEditor ? 'Oui' : 'Non'
+                isEditor: userSoftware.isEditor ? 'Oui' : 'Non',
+                id: userSoftware.user.id
             }
 
 
@@ -65,6 +72,92 @@ export const getSoftwareUsers = async (slug: string) => {
 
 
 }
+
+
+export const getSoftwareUsersBySoftwareSlug = async (softwareSlug: string) => {
+    try {
+        const software = await getSoftwareBySlug(softwareSlug)
+        if (!software) {
+            throw new Error(`Le logiciel ${softwareSlug} n'existe pas.`)
+        }
+        const usersSoftware = await prisma.userSoftware.findMany({
+            where: {
+                softwareLabel: software.label,
+                softwareClientId: software.clientId
+            },
+            include: {
+                user: {
+                    include: {
+                        UserOtherData: true
+                    }
+                }
+            }
+        })
+        const users = usersSoftware.map((userSoftware) => {
+            const firstname = userSoftware.user.UserOtherData.at(0)?.firstname
+            const lastname = userSoftware.user.UserOtherData.at(0)?.lastname
+            return {
+                lastname: lastname ? lastname : 'Non renseigné',
+                firstname: firstname ? firstname : 'Non renseigné',
+                isEditor: userSoftware.isEditor ? 'Oui' : 'Non',
+                id: userSoftware.user.id
+            }
+
+
+        })
+        return users
+    } catch (err) {
+        console.error(err)
+        throw new Error(`Une erreur est survenue lors de la récupération des utilisateurs du logiciels logiciel.`)
+    }
+
+
+}
+
+
+export const getUserInternalNotInSoftware = async (softwareSlug: string) => {
+    try {
+        const software = await getSoftwareBySlug(softwareSlug)
+        if (!software) {
+            throw new Error(`Le logiciel ${softwareSlug} n'existe pas.`)
+        }
+        const usersSoftwareNotInSoftwareLabel = await prisma.userSoftware.groupBy({
+            by: ['userId'],
+            where: {
+                softwareLabel: {
+                    notIn: [software.label]
+                },
+                softwareClientId: software.clientId
+            },
+
+
+        })
+
+        const usersOtherData = await prisma.userOtherData.findMany({
+            where: {
+                userId: {
+                    in: usersSoftwareNotInSoftwareLabel.map((userSoftware) => userSoftware.userId)
+                }
+            },
+            select: {
+                firstname: true,
+                lastname: true,
+                userId: true
+            }
+
+        })
+
+        return usersOtherData
+
+    } catch (err) {
+        console.error(err)
+        throw new Error(`Une erreur est survenue lors de la récupération des utilisateurs du logiciels logiciel.`)
+    }
+
+
+}
+export type getUserInternalNotInSoftware = Prisma.PromiseReturnType<typeof getUserInternalNotInSoftware>;
+
 
 export type getSoftwareUsers = Prisma.PromiseReturnType<typeof getSoftwareUsers>;
 

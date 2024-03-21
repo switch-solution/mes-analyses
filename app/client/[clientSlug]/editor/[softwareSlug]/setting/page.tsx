@@ -13,9 +13,8 @@ import {
 } from "@/components/ui/breadcrumb"
 
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
-    const isEditor = await userIsEditorClient();
-    if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
-
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const settingList = await getSoftwareSettingFilterByUserSoftware(params.clientSlug)
     const settings = settingList.map((setting) => {
         return {

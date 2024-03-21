@@ -74,15 +74,10 @@ export const UserMenu = ({ clientSlug, softwareSlug }: { clientSlug: string, sof
                         <MenubarItem>
                             <Link href={`/client/${clientSlug}/administrator/user/create`}>S&apos;abonner</Link>
                         </MenubarItem>
-                        <MenubarSeparator />
-                        <MenubarSub>
-                            <MenubarSubTrigger>Créer</MenubarSubTrigger>
-                            <MenubarSubContent>
-                                <MenubarItem><Link href={`/client/${clientSlug}/administrator/software`}>Logiciels</Link></MenubarItem>
-                                <MenubarItem><Link href={`/client/${clientSlug}/administrator/user`}>Utilisateur</Link></MenubarItem>
-                                <MenubarItem><Link href={`/client/${clientSlug}/administrator/invoice`}>Facture</Link></MenubarItem>
-                            </MenubarSubContent>
-                        </MenubarSub>
+                        <MenubarItem><Link href={`/client/${clientSlug}/administrator/software`}>Logiciels</Link></MenubarItem>
+                        <MenubarItem><Link href={`/client/${clientSlug}/administrator/user`}>Utilisateur</Link></MenubarItem>
+                        <MenubarItem><Link href={`/client/${clientSlug}/administrator/invoice`}>Facture</Link></MenubarItem>
+
                         <MenubarSub>
                         </MenubarSub>
                     </MenubarContent>

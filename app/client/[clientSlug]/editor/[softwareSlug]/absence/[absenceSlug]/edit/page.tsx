@@ -17,7 +17,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string, absenceSlug: string } }) {
-    const userIsEditor = await userIsEditorClient()
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
     if (!userIsEditor) {
         throw new Error("Vous n'êtes pas autorisé à accéder à cette page")
     }

@@ -7,10 +7,9 @@ import Link from "next/link"
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type ClientSoftware = {
-    id: string | null
     label: string | null
     clientSlug: string | null
-
+    softwareSlug: string | null
 }
 import {
     DropdownMenu,
@@ -26,6 +25,9 @@ export const columns: ColumnDef<ClientSoftware>[] = [
     {
         accessorKey: "id",
         header: "id",
+        cell: ({ row }) => {
+            return (<Link href={`/client/${row.original.clientSlug}/administrator/software/${row.original.softwareSlug}/user`} >{row.original.label}</Link>)
+        }
     },
     {
         accessorKey: "label",
@@ -47,9 +49,9 @@ export const columns: ColumnDef<ClientSoftware>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Mes options</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem><Link href={`/client/${software.clientSlug}/administrator/software/${software.id}/`}>Ouvrir</Link></DropdownMenuItem>
-                        <DropdownMenuItem><Link href={`/client/${software.clientSlug}/administrator/software/${software.id}/edit`}>Editer</Link></DropdownMenuItem>
-                        <DropdownMenuItem><Link href={`/client/${software.clientSlug}/administrator/software/${software.id}/delete`}>Supprimer</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${software.clientSlug}/administrator/software/${software.softwareSlug}/`}>Ouvrir</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${software.clientSlug}/administrator/software/${software.softwareSlug}/edit`}>Editer</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${software.clientSlug}/administrator/software/${software.softwareSlug}/delete`}>Supprimer</Link></DropdownMenuItem>
 
                     </DropdownMenuContent>
                 </DropdownMenu>

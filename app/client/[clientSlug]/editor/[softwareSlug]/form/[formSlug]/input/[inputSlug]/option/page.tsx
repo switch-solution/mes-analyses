@@ -5,8 +5,8 @@ import { getStandardInputById } from "@/src/query/sofwtare_input.query"
 import { getSoftwareByClientSlugAndSoftwareLabel } from "@/src/query/software.query"
 import { getOptionsByInputSlug } from "@/src/query/software_option.query"
 export default async function Page({ params }: { params: { clientSlug: string, componentSlug: string, inputSlug: string } }) {
-    const isEditor = await userIsEditorClient();
-    if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const input = await getStandardInputById(params.inputSlug)
     const software = await getSoftwareByClientSlugAndSoftwareLabel(params.clientSlug, input.softwareLabel)
     if (!software) throw new Error("Le logiciel n'existe pas")

@@ -35,7 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { getCountProjectTaskActive } from "@/src/query/project_task.query";
 import { getUsersProject } from "@/src/query/project.query";
 import { ArrowRight } from "lucide-react";
-
+import { getPourcentageValidation } from "@/src/query/project_workflow.query";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
 
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
@@ -43,7 +43,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const books = await getBookByProjectSlug(params.projectSlug)
     const countTasks = await getCountProjectTaskActive(params.projectSlug)
     const getUsers = await getUsersProject(params.projectSlug)
-
+    const pourcentage = await getPourcentageValidation(params.projectSlug)
     const items = [
         {
 
@@ -82,8 +82,8 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         },
         {
             title: "Pourcentage de réalisation",
-            description: (<Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/dashboard`}>Consulter l&apos;avancement</Link>),
-            header: <span className="flex size-full flex-col items-center justify-center text-8xl">10%</span>,
+            description: (<Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/workflow`}>Avancement de la validation des cahiers</Link>),
+            header: <span className="flex size-full flex-col items-center justify-center text-8xl">{pourcentage}%</span>,
             className: "md:col-span-1",
             icon: <IconSignature className="size-4 text-neutral-500" />,
         },

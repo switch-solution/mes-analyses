@@ -57,7 +57,7 @@ const second = {
 };
 
 export default async function Page({ params }: { params: { clientSlug: string } }) {
-    const isEditor = await userIsEditorClient();
+    const isEditor = await userIsEditorClient(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const countSoftwares = await getComponentFilterByUser(params.clientSlug)
     const softwareActive = await getMySoftwareActive()

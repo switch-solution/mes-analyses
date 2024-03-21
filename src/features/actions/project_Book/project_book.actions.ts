@@ -2,18 +2,17 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { ImportBookProjectSchema } from "@/src/helpers/definition";
+import { ImportBookProjectSchema, ValidationBookSchema } from "@/src/helpers/definition";
 import { createLog } from "@/src/query/logger.query";
 import type { Logger } from "@/src/helpers/type";
 import z from "zod";
-import { authentifcationActionUserIsAuthorizeToEditProject, ActionError } from "@/lib/safe-actions";
+import { authentifcationActionUserIsAuthorizeToEditProject, ActionError, authentifcationActionUserIValidatorProject } from "@/lib/safe-actions";
 import { getSoftwareBookBySlug } from "@/src/query/software_book.query";
-import { getProjectBySlug } from "@/src/query/project.query";
 import { generateSlug } from "@/src/helpers/generateSlug";
+import { getProjectBookBySlug } from "@/src/query/project_book.query";
 export const importBookProject = authentifcationActionUserIsAuthorizeToEditProject(ImportBookProjectSchema, async (values: z.infer<typeof ImportBookProjectSchema>, { clientId, userId, projectLabel, softwareLabel }) => {
     const { label, bookSlug, projectSlug, clientSlug } = ImportBookProjectSchema.parse(values)
-    const projectExist = await getProjectBySlug(projectSlug)
-    if (!projectExist) throw new ActionError("Le projet n'existe pas")
+
     const bookExist = await getSoftwareBookBySlug(bookSlug)
     if (!bookExist) throw new ActionError("Le livre n'existe pas")
     try {
@@ -57,5 +56,53 @@ export const importBookProject = authentifcationActionUserIsAuthorizeToEditProje
 
     revalidatePath(`/client/${clientSlug}/administrator/software/`)
     redirect(`/client/${clientSlug}/administrator/software/`)
+
+})
+
+export const validationProjectBook = authentifcationActionUserIValidatorProject(ValidationBookSchema, async (values: z.infer<typeof ValidationBookSchema>, { clientId, userId, projectLabel, softwareLabel }) => {
+
+    const { bookSlug, projectSlug, clientSlug, isValid, comment } = ValidationBookSchema.parse(values)
+    const bookExist = await getProjectBookBySlug(bookSlug)
+    if (!bookExist) throw new ActionError("Le livre n'existe pas")
+    try {
+        await prisma.project_Book_WorkFlow.upsert({
+            where: {
+                userId_projectLabel_softwareLabel_clientId_bookLabel: {
+                    userId,
+                    bookLabel: bookExist.label,
+                    projectLabel: projectLabel,
+                    clientId,
+                    softwareLabel: softwareLabel
+                }
+            },
+            update: {
+                isValid,
+                comment: comment || ""
+            },
+            create: {
+                userId,
+                bookLabel: bookExist.label,
+                projectLabel,
+                clientId,
+                softwareLabel,
+                isValid,
+                comment: comment || ""
+            }
+        })
+    } catch (err) {
+        console.error(err)
+        const log: Logger = {
+            level: "error",
+            message: `Erreur de validation du livre ${bookExist.label}`,
+            scope: "project",
+            clientId,
+            projectLabel,
+            projectSoftwareLabel: softwareLabel,
+        }
+        throw new ActionError(err as string)
+    }
+
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/workflow/`)
+    redirect(`/client/${clientSlug}/project/${projectSlug}/workflow/`)
 
 })

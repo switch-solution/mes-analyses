@@ -1,4 +1,3 @@
-import CreateSoftwareConstant from "@/components/form/software_setting/createSoftwareSetting";
 import Container from "@/components/layout/container";
 import { userIsEditorClient } from "@/src/query/security.query";
 import {
@@ -11,10 +10,8 @@ import {
 import { getSoftwareSettingBySlug } from "@/src/query/software_setting.query";
 import EditSoftwareSetting from "@/components/form/software_setting/editSoftwareSetting";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string, settingSlug: string } }) {
-    const userIsEditor = await userIsEditorClient()
-    if (!userIsEditor) {
-        throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
-    }
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const setting = await getSoftwareSettingBySlug(params.settingSlug)
     return (<Container>
         <Breadcrumb>

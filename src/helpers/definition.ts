@@ -15,6 +15,14 @@ export const ClientFormSchema = z.object({
 
 })
 
+export const ValidationBookSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string().min(1, { message: "Le projet est obligatoire." }),
+    bookSlug: z.string().min(1, { message: "Le livre est obligatoire." }),
+    isValid: z.boolean().optional(),
+    comment: z.string().optional(),
+})
+
 export const createBlockNoteSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     componentSlug: z.string().min(1, { message: "Le composant est obligatoire." }),
@@ -377,6 +385,14 @@ export const InvitationSchema = z.object({
     source: z.enum(['client', 'project'])
 })
 
+export const BookValidationSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string().min(1, { message: "Le projet est obligatoire." }),
+    bookSlug: z.string().min(1, { message: "Le livre est obligatoire." }),
+    response: z.boolean(),
+    comment: z.string().optional(),
+})
+
 export const InvitationProjectSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     civility: z.string().min(1, { message: "La civilité doit contenir au moins 1 caractères." }),
@@ -388,6 +404,16 @@ export const InvitationProjectSchema = z.object({
     isEditorProject: z.boolean().optional(),
     isValidatorProject: z.boolean().optional(),
 })
+
+export const InvitationInternalProjectSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    userInternalId: z.string({ required_error: "L'utilisateur est obligatoire." }),
+    projectSlug: z.string().min(1, { message: "Le projet est obligatoire." }),
+    isAdministratorProject: z.boolean().optional(),
+    isEditorProject: z.boolean().optional(),
+    isValidatorProject: z.boolean().optional(),
+})
+
 
 
 export const ButtonDangerDeleteSchema = z.object({
@@ -414,7 +440,6 @@ export const ChapterStandardComponenttSchema = z.object({
 
 export const ProjectCreateSchema = z.object({
     label: z.string().min(2, { message: "Le nom du projet doit contenir au moins 2 caractères." }),
-    softwareLabel: z.string().min(1, { message: "Le logiciel est obligatoire." }),
     description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     role: z.enum(['Consultant déploiement', 'Directeur de projet', 'Chef de projet', 'Consultant technique', 'Support']),
@@ -440,9 +465,9 @@ export const CreateInvoiceSchema = z.object({
     date: z.string().min(1, { message: "La date est obligatoire." }),
 })
 
-export const AssociateSoftwareSchema = z.object({
+export const CreateUserSoftwareSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
-    email: z.string().min(1, { message: "L'utilisateur est obligatoire." }),
+    userInternalId: z.string({ required_error: "L'utilisateur est obligatoire." }).min(1, { message: "L'utilisateur est obligatoire." }),
     isEditor: z.boolean(),
     softwareSlug: z.string().min(1, { message: "Le logiciel est obligatoire." }),
 

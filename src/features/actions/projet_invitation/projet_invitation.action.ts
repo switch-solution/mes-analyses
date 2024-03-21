@@ -3,14 +3,19 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { InvitationProjectSchema } from "@/src/helpers/definition"
+import { InvitationProjectSchema, InvitationInternalProjectSchema } from "@/src/helpers/definition"
 import z from "zod";
-import { getUserByEmail } from "@/src/query/user.query";
+import { getUserByEmail, getUserById } from "@/src/query/user.query";
 import { authentifcationActionUserIsAuthorizeToAdminProject, ActionError } from "@/lib/safe-actions";
 import { getClientBySlug } from "@/src/query/client.query";
 import { getProjectBySlug } from "@/src/query/project.query";
 import { Logger } from "@/src/helpers/type";
 import { createLog } from "@/src/query/logger.query";
+import { apiFetch } from "@/src/helpers/api";
+import { getUsersProject } from "@/src/query/project.query";
+import { addValidator } from "@/src/query/project_book_workflow.query";
+import { add } from "date-fns";
+
 export const createInvitationProject = authentifcationActionUserIsAuthorizeToAdminProject(InvitationProjectSchema, async (values: z.infer<typeof InvitationProjectSchema>, { clientId, userId }) => {
 
     const { clientSlug, civility, lastname, firstname, email, projectSlug, isAdministratorProject, isValidatorProject, isEditorProject } = InvitationProjectSchema.parse(values)
@@ -64,15 +69,42 @@ export const createInvitationProject = authentifcationActionUserIsAuthorizeToAdm
                 projectLabel: projectExist.label,
                 projectSoftwareLabel: projectExist.softwareLabel,
                 clientId: clientExist.siren,
+                softwareLabel: projectExist.softwareLabel,
                 createdBy: userId,
                 source: "project",
                 civility,
                 lastname,
-                firstname
+                firstname,
+                isEditorProject: isEditorProject,
+                isAdministratorProject: isAdministratorProject,
+                isValidatorProject: isValidatorProject
             }
 
         })
+        await apiFetch(`/api/send`, {
+            method: "POST", body: JSON.stringify({
+                email,
+                firstname,
+                lastname,
+                civility,
+                clientLabel: 'test',
+                projectLabel: projectExist.label,
+                subject: 'Invitation à rejoindre le projet',
+            })
+        })
+        await prisma.invitation.update({
+            where: {
+                email,
+                projectLabel: projectExist.label,
+                projectSoftwareLabel: projectExist.softwareLabel,
+                clientId: clientExist.siren,
+                createdBy: userId
 
+            },
+            data: {
+                sendEmail: true
+            }
+        })
         const logCreateUser: Logger = {
             level: "warning",
             scope: "invitation",
@@ -110,6 +142,42 @@ export const createInvitationProject = authentifcationActionUserIsAuthorizeToAdm
 
 
     }
+
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/user/`)
+    redirect(`/client/${clientSlug}/project/${projectSlug}/user/`)
+
+})
+
+export const createInternalInvitationProject = authentifcationActionUserIsAuthorizeToAdminProject(InvitationInternalProjectSchema, async (values: z.infer<typeof InvitationInternalProjectSchema>, { clientId, userId, projectLabel, softwareLabel }) => {
+    const { clientSlug, projectSlug, isAdministratorProject, isValidatorProject, isEditorProject, userInternalId } = InvitationInternalProjectSchema.parse(values)
+    const userExist = await getUserById(userInternalId)
+    if (!userExist) throw new ActionError(`L'utilisateur n'existe pas`)
+    const usersProject = await getUsersProject(projectSlug)
+    const userExistInProject = usersProject.find(user => user.userId === userInternalId)
+    if (userExistInProject) throw new ActionError("Utilisateur déjà présent sur le projet")
+    try {
+        await prisma.userProject.create({
+            data: {
+                userId: userInternalId,
+                projectLabel: projectLabel,
+                projectSoftwareLabel: softwareLabel,
+                projectClientId: clientId,
+                isAdmin: isAdministratorProject,
+                isEditor: isEditorProject,
+                isValidator: isValidatorProject,
+                createdBy: userId,
+                team: 'client'
+            }
+
+        })
+        if (isValidatorProject) {
+            await addValidator(projectSlug, userInternalId)
+        }
+    } catch (err: unknown) {
+        console.error(err)
+        throw new ActionError(err as string)
+    }
+
     revalidatePath(`/client/${clientSlug}/project/${projectSlug}/user/`)
     redirect(`/client/${clientSlug}/project/${projectSlug}/user/`)
 

@@ -16,7 +16,6 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { getMySoftware } from "@/src/query/user.query"
 import {
     Select,
     SelectContent,
@@ -25,8 +24,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
-
-export default function CreateProject({ clientSlug, softwares }: { clientSlug: string, softwares: getMySoftware }) {
+export default function CreateProject({ clientSlug }: { clientSlug: string }) {
     const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof ProjectCreateSchema>>({
         resolver: zodResolver(ProjectCreateSchema),
@@ -34,7 +32,6 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
             clientSlug: clientSlug,
             label: "",
             description: "",
-            softwareLabel: softwares.at(0)?.softwareLabel,
             role: "Consultant déploiement"
         },
     })
@@ -44,7 +41,7 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
             setLoading(true)
             const action = await createProjet(data)
             if (action?.serverError) {
-                setLoading(true)
+                setLoading(false)
                 toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
@@ -54,7 +51,7 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
                 })
             }
         } catch (err) {
-            setLoading(true)
+            setLoading(false)
             console.error(err)
 
         }
@@ -75,27 +72,6 @@ export default function CreateProject({ clientSlug, softwares }: { clientSlug: s
 
                     )}
 
-                />
-                <FormField
-                    control={form.control}
-                    name="softwareLabel"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Choisir votre logiciel</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Choisir votre logiciel" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {softwares.map((software) => (
-                                        <SelectItem key={software.softwareLabel} value={software.softwareLabel}>{software.softwareLabel}</SelectItem>))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
                 />
                 <FormField
                     control={form.control}

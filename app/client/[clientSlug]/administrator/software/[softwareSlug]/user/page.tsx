@@ -1,5 +1,5 @@
 import { userIsAdminClient } from "@/src/query/security.query"
-import { getSoftwareUsers } from "@/src/query/software.query"
+import { getSoftwareUsersBySoftwareSlug } from "@/src/query/software.query"
 import { columns } from "./dataTablecolumns"
 
 import { DataTable } from "@/components/layout/dataTable";
@@ -9,10 +9,10 @@ export default async function Page({ params }: { params: { clientSlug: string, s
     if (!isAdmin) {
         throw new Error('User is not admin')
     }
-    const users = await getSoftwareUsers(params.softwareSlug)
+    const users = await getSoftwareUsersBySoftwareSlug(params.softwareSlug)
     return (
         <div className="container mx-auto py-10">
-            <DataTable columns={columns} data={users} inputSearch="lastname" inputSearchPlaceholder="Chercher par logiciel" href={`/client/${params.clientSlug}/administrator/software/${params.softwareSlug}/associate`} buttonLabel="Ajouter un utilisateur" />
+            <DataTable columns={columns} data={users} inputSearch="lastname" inputSearchPlaceholder="Chercher par logiciel" href={`/client/${params.clientSlug}/administrator/software/${params.softwareSlug}/user/create`} buttonLabel="Ajouter un utilisateur" />
         </div>
     )
 }

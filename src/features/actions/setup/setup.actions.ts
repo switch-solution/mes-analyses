@@ -93,6 +93,21 @@ export const createSetupProfil = authentifcationAction(SetupProfilSchema, async 
                 isActivated: true,
             }
         })
+        if (invitation.projectLabel) {
+            await prisma.userProject.create({
+                data: {
+                    userId: userId,
+                    projectLabel: invitation.projectLabel,
+                    projectSoftwareLabel: invitation.softwareLabel,
+                    projectClientId: invitation.clientId,
+                    isAdmin: invitation.isAdministratorProject,
+                    isEditor: invitation.isEditorProject,
+                    isValidator: invitation.isValidatorProject,
+                    createdBy: invitation.createdBy,
+                    team: "client"
+                }
+            })
+        }
         revalidatePath(`/home`)
         redirect(`/home`)
     }

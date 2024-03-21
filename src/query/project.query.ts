@@ -3,16 +3,20 @@ import { userIsValid } from "./security.query";
 import { syncGenerateSlug } from "@/src/helpers/generateSlug";
 import { getCountComponent } from "@/src/query/project_component.query";
 import { Prisma } from '@prisma/client'
+import { getClientActiveAndSoftwareActive } from "./security.query";
 export const getMyProjects = async () => {
     try {
         const userId = await userIsValid()
         if (!userId) {
             throw new Error('Vous devez etre connecté')
         }
+        const validation = await getClientActiveAndSoftwareActive()
         const myProjects = await prisma.userProject.findMany({
             where: {
                 userId: userId,
-                isBlocked: false
+                isBlocked: false,
+                projectSoftwareLabel: validation.softwareLabel,
+                projectClientId: validation.clientId
             },
             include: {
                 project: true
@@ -57,7 +61,8 @@ export const getUsersProject = async (projectSlug: string) => {
         const userProjects = await prisma.userProject.findMany({
             where: {
                 projectLabel: projectExist.label,
-                projectClientId: projectExist.clientId
+                projectClientId: projectExist.clientId,
+                projectSoftwareLabel: projectExist.softwareLabel
             },
             include: {
                 user: {

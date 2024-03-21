@@ -13,8 +13,8 @@ import {
 import { Slash } from "lucide-react"
 
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
-    const userEditor = await userIsEditorClient()
-    if (!userEditor) {
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) {
         throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
     }
     const softwareExist = await getSoftwareBySlug(params.softwareSlug)

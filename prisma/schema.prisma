@@ -59,25 +59,25 @@ model User {
   UserClient            UserClient[]
   UserProject           UserProject[]
   UserSoftware          UserSoftware[]
-  Validation            Validation[]
   Alert                 Alert[]
   Project_Task          Project_Task[]
   Project_Book_WorkFlow Project_Book_WorkFlow[]
 }
 
 model UserOtherData {
-  userId    String   @id
-  firstname String?
-  lastname  String?
-  password  String?
-  civility  String?
-  cgv       Boolean  @default(false)
-  gdpr      Boolean  @default(false)
-  isBlocked Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isSetup   Boolean  @default(false)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @id
+  firstname  String?
+  lastname   String?
+  password   String?
+  civility   String?
+  cgv        Boolean  @default(false)
+  gdpr       Boolean  @default(false)
+  isBlocked  Boolean
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isInternal Boolean  @default(false)
+  isSetup    Boolean  @default(false)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Client {
@@ -147,25 +147,28 @@ model UserClient {
 }
 
 model Invitation {
-  email                 String   @unique
-  sendEmail             Boolean
-  civility              String
-  firstname             String
-  lastname              String
-  isBlocked             Boolean  @default(false)
-  isBillable            Boolean  @default(false)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  createdBy             String
-  clientId              String
-  client                Client   @relation(fields: [clientId], references: [siren], onDelete: Cascade)
-  softwareLabel         String
-  Software              Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
-  projectLabel          String?
-  projectSoftwareLabel  String?
-  isAdministratorClient Boolean  @default(false)
-  isEditorClient        Boolean  @default(false)
-  source                String
+  email                  String   @unique
+  sendEmail              Boolean
+  civility               String
+  firstname              String
+  lastname               String
+  isBlocked              Boolean  @default(false)
+  isBillable             Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  createdBy              String
+  isEditorProject        Boolean  @default(false)
+  isAdministratorProject Boolean  @default(false)
+  isValidatorProject     Boolean  @default(false)
+  clientId               String
+  client                 Client   @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  softwareLabel          String
+  Software               Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+  projectLabel           String?
+  projectSoftwareLabel   String?
+  isAdministratorClient  Boolean  @default(false)
+  isEditorClient         Boolean  @default(false)
+  source                 String
 
   @@id([email, clientId])
 }
@@ -518,7 +521,6 @@ model Project_Book {
   isModifiedAfertValidation Boolean                 @default(false)
   isArchived                Boolean                 @default(false)
   ProjectChapter            Project_Chapter[]
-  Validation                Validation[]
   project                   Project                 @relation(fields: [clientId, projectLabel, projectSoftwareLabel], references: [clientId, label, softwareLabel], onDelete: Cascade)
   clientId                  String
   projectLabel              String
@@ -537,12 +539,12 @@ model Project_Book_WorkFlow {
   softwareLabel String
   bookLabel     String
   clientId      String
-  response      String
-  commment      String?
-  deadline      DateTime
+  isValid       Boolean      @default(false)
+  comment       String?
+  deadline      DateTime     @default("4000-01-01T00:00:00Z")
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-  createdBy     String
+  createdBy     String       @default("system")
   Project_Book  Project_Book @relation(fields: [clientId, projectLabel, softwareLabel, bookLabel], references: [clientId, projectLabel, projectSoftwareLabel, label], onDelete: Cascade)
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -885,22 +887,6 @@ model Idcc {
   Project_Items           Project_Items[]
   Software_Constant_Legal Software_Constant_Legal[]
   Table                   Table[]
-}
-
-model Validation {
-  Project_Book         Project_Book @relation(fields: [bookLabel, clientId, projectLabel, projectSoftwareLabel], references: [label, clientId, projectLabel, projectSoftwareLabel])
-  bookLabel            String
-  clientId             String
-  projectLabel         String
-  projectSoftwareLabel String
-  response             String
-  userId               String
-  User                 User         @relation(fields: [userId], references: [id])
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-  createdBy            String
-
-  @@id([bookLabel, userId, clientId, projectLabel, projectSoftwareLabel])
 }
 
 model Project_Attachment {

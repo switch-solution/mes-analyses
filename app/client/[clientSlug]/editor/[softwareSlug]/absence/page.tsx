@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { userIsEditorClient } from "@/src/query/security.query";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
-    const userIsEditot = await userIsEditorClient()
-    if (!userIsEditot) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const softwareExist = await getSoftwareBySlug(params.softwareSlug)
     if (!softwareExist) throw new Error("Ce logiciel n'existe pas.")
     const absencesList = await getSofwareAbsenceForMyActiveSoftware()

@@ -2,8 +2,8 @@ import { userIsEditorClient } from "@/src/query/security.query"
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 export default async function Page({ params }: { params: { clientSlug: string } }) {
-    const isEditor = await userIsEditorClient();
-    if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
 
     return (
         <div className="container mx-auto py-10">

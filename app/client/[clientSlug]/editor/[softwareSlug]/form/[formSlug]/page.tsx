@@ -4,8 +4,8 @@ import { getStdInputsByStdComponentSlug } from "@/src/query/sofwtare_component_i
 import { getStdComponentBySlug } from "@/src/query/software_component.query";
 
 export default async function Page({ params }: { params: { clientSlug: string, formSlug: string, softwareSlug: string } }) {
-    const isEditor = await userIsEditorClient();
-    if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const stdComponent = await getStdComponentBySlug(params.formSlug)
     const inputs = await getStdInputsByStdComponentSlug(params.formSlug)
     return (<div className="size-full lg:w-1/2">

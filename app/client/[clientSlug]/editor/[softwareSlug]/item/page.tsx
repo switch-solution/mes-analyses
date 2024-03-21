@@ -3,8 +3,8 @@ import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { getSoftwaresItemsFilterByUserSoftware } from "@/src/query/software.query";
 export default async function Page({ params }: { params: { clientSlug: string } }) {
-    const isEditor = await userIsEditorClient();
-    if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
 
     const itemsList = await getSoftwaresItemsFilterByUserSoftware()
     const items = itemsList.map((item) => {

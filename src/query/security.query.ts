@@ -59,12 +59,23 @@ export const userIsAdminClient = async (clientSlug: string) => {
  * @returns 
  */
 
-export const userIsEditorClient = async () => {
+export const userIsEditorClient = async (clientSlug: string) => {
     try {
         const userId = await userIsValid()
         if (!userId) throw new ActionError("Vous devez être connecté pour effectuer cette action.")
         const validation = await getClientActiveAndSoftwareActive()
         if (!validation) throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        const clientActive = validation.clientSlug
+        if (clientActive !== clientSlug) {
+            const log: Logger = {
+                level: "security",
+                message: `L'utilisateur essaye d'accéder de réaliser une opération d'édition sur le client sans les droits`,
+                scope: "client",
+            }
+            await createLog(log)
+            await banUser(await userIsValid())
+            throw new ActionError("Vous n'avez pas les droits pour effectuer cette action.")
+        }
         const isAdmin = await prisma.userClient.findFirstOrThrow({
             where: {
                 userId: userId,

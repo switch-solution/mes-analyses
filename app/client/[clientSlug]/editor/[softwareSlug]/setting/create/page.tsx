@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/breadcrumb"
 
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
-    const userIsEditor = await userIsEditorClient()
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
     if (!userIsEditor) {
         throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
     }

@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { getVercelBlobFiles } from "@/lib/vercelBlob";
 import { getImageByComponentSlug } from "@/src/query/software_component_image";
 export default async function Page({ params }: { params: { clientSlug: string, componentSlug: string } }) {
-    const isEditor = await userIsEditorClient();
+    const isEditor = await userIsEditorClient(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const getImage = await getImageByComponentSlug(params.componentSlug)
     if (!getImage) throw new Error("Aucune image n'a été trouvée")

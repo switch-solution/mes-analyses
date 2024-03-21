@@ -9,9 +9,13 @@ import { createLog } from '@/src/query/logger.query';
 import type { Logger } from '@/src/helpers/type';
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
 import { copyBook, copyTask } from '@/src/query/project.query';
+import { getMySoftwareActive } from '@/src/query/user.query';
+import { getSoftwareBySlug } from '@/src/query/software.query';
+import { addValidator } from '@/src/query/project_book_workflow.query';
 export const createProjet = authentificationActionUserIsEditorClient(ProjectCreateSchema, async (values: z.infer<typeof ProjectCreateSchema>, { userId, clientId }) => {
-
-    const { label, description, softwareLabel, clientSlug, role } = ProjectCreateSchema.parse(values)
+    const { label, description, clientSlug, role } = ProjectCreateSchema.parse(values)
+    const mySoftwareSlug = await getMySoftwareActive()
+    const software = await getSoftwareBySlug(mySoftwareSlug)
     try {
         const countProjects = await prisma.project.count()
         const projectNumber = `00000000000000000000${countProjects ? countProjects + 1 : 1}`
@@ -21,7 +25,7 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
             where: {
                 label,
                 clientId,
-                softwareLabel
+                softwareLabel: software.label
             }
         })
         if (projectIsUnique) {
@@ -38,7 +42,7 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
                 data: {
                     label: label,
                     description: description,
-                    softwareLabel: softwareLabel,
+                    softwareLabel: software.label,
                     clientId: clientId,
                     createdBy: userId,
                     status: 'actif',
@@ -58,6 +62,7 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
             })
             await copyBook(project.slug)
             await copyTask(project.slug)
+            await addValidator(project.slug, userId)
             const log: Logger = {
                 level: "info",
                 scope: "project",
@@ -75,7 +80,7 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
     const project = await prisma.project.findFirstOrThrow({
         where: {
             label: label,
-            softwareLabel: softwareLabel,
+            softwareLabel: software.label,
             clientId: clientId
         }
     })

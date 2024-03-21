@@ -6,8 +6,8 @@ import { getDsnInputs, getOtherInputs } from "@/src/query/input.query"
 import { getSoftwareComponentBySoftwareSlug } from "@/src/query/software_component.query"
 import { getSoftwareByClientSlugAndSoftwareLabel } from "@/src/query/software.query"
 export default async function Page({ params }: { params: { clientSlug: string, formSlug: string, inputSlug: string, softwareSlug: string } }) {
-    const isEditor = await userIsEditorClient();
-    if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
+    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const input = await getStandardInputById(params.inputSlug)
     const isDsn = input.isDsnField
     const isOtherData = input.isOtherData

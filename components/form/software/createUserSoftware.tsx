@@ -1,11 +1,13 @@
 "use client";
+import { useState } from "react"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { AssociateSoftwareSchema } from "@/src/helpers/definition";
+import { CreateUserSoftwareSchema } from "@/src/helpers/definition";
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { associateSoftwareUser } from "@/src/features/actions/software/software.actions"
-import type { getUsersClientList } from "@/src/query/client.query"
+import { ButtonLoading } from "@/components/ui/button-loader";
+import { createUserSoftware } from "@/src/features/actions/software/software.actions"
+import type { getUserInternalNotInSoftware } from "@/src/query/software.query"
 import {
     Form,
     FormControl,
@@ -25,21 +27,36 @@ import {
 import { Switch } from "@/components/ui/switch"
 
 import { Input } from '@/components/ui/input'
+import { toast } from "sonner"
 
-export default function AssociateSoftwareForm({ clientSlug, softwareSlug, users }: { clientSlug: string, softwareSlug: string, users: getUsersClientList }) {
-    const form = useForm<z.infer<typeof AssociateSoftwareSchema>>({
-        resolver: zodResolver(AssociateSoftwareSchema),
+export default function CreateUserSoftware({ clientSlug, softwareSlug, users }: { clientSlug: string, softwareSlug: string, users: getUserInternalNotInSoftware }) {
+    const [loading, setLoading] = useState(false)
+
+    const form = useForm<z.infer<typeof CreateUserSoftwareSchema>>({
+        resolver: zodResolver(CreateUserSoftwareSchema),
         defaultValues: {
             clientSlug: clientSlug,
             softwareSlug: softwareSlug,
-            email: "",
+            userInternalId: "",
             isEditor: false
         },
     })
-    const onSubmit = async (data: z.infer<typeof AssociateSoftwareSchema>) => {
+    const onSubmit = async (data: z.infer<typeof CreateUserSoftwareSchema>) => {
         try {
-            await associateSoftwareUser(data)
+            const action = await createUserSoftware(data)
+            if (action?.serverError) {
+                setLoading(false)
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
+            }
         } catch (err) {
+            setLoading(false)
+
             console.error(err)
         }
 
@@ -72,20 +89,21 @@ export default function AssociateSoftwareForm({ clientSlug, softwareSlug, users 
                     />
                     <FormField
                         control={form.control}
-                        name="email"
+                        name="userInternalId"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Utilisateurs</FormLabel>
+                                <FormLabel>Utilisateur</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Ajouter un utilisateur" />
+                                            <SelectValue placeholder="Séléctionner un utilisateur" />
                                         </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent >
-
+                                    <SelectContent>
+                                        {users.map((user) => (<SelectItem key={user.userId} value={user.userId}>{user.lastname} {user.firstname}</SelectItem>))}
                                     </SelectContent>
                                 </Select>
+
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -112,7 +130,7 @@ export default function AssociateSoftwareForm({ clientSlug, softwareSlug, users 
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Ajouter</Button>
+                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 
                 </form>
             </Form>

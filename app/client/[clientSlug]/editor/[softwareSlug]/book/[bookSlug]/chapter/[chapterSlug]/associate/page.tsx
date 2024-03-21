@@ -2,7 +2,7 @@ import { userIsEditorClient } from "@/src/query/security.query";
 import { getComponentByChapterSlug, getComponentNotInChapterSlug } from "@/src/query/software_chapter.query";
 import { Transferabilty } from "@/components/layout/transferabilty";
 export default async function Page({ params }: { params: { clientSlug: string, chapterSlug: string } }) {
-    const isEditor = await userIsEditorClient();
+    const isEditor = await userIsEditorClient(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const componentsInChapter = await getComponentByChapterSlug(params.chapterSlug);
     const componentsNotInChapter = await getComponentNotInChapterSlug(params.chapterSlug);

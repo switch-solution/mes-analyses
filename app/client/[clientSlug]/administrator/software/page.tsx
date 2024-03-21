@@ -20,7 +20,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     const softwaresList = await getSoftwareClientList(params.clientSlug)
     const softwares = softwaresList.map((software) => {
         return {
-            id: software.slug,
+            softwareSlug: software.slug,
             label: software.label,
             clientSlug: software.client.slug
         }
