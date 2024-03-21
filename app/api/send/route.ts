@@ -21,6 +21,9 @@ export async function POST(request: NextRequest) {
             return Response.json({ error: 'Email from is not set' });
         }
         const body = await request.json();
+        if (!body.email) {
+            return Response.json({ error: 'Email is required' });
+        }
         const data = await resend.emails.send({
             from: emaiFrom,
             to: body.email,
@@ -31,6 +34,7 @@ export async function POST(request: NextRequest) {
 
         return Response.json(data);
     } catch (error) {
+        console.error(error);
         return Response.json({ error });
     }
 }

@@ -42,17 +42,22 @@ export const createUser = authentificationActionUserIsAdminClient(UserCreateSche
             message: `L'utilisateur ${email} a été créé invité`
         }
         await createLog(log)
-
-        await apiFetch(`/api/send`, {
-            method: "POST", body: JSON.stringify({
-                email,
-                firstname,
-                lastname,
-                civility,
-                clientLabel: 'test',
-                subject: 'Invitation à rejoindre le client',
+        try {
+            await apiFetch(`/api/send`, {
+                method: "POST", body: JSON.stringify({
+                    email,
+                    firstname,
+                    lastname,
+                    civility,
+                    clientLabel: 'test',
+                    subject: 'Invitation à rejoindre le client',
+                })
             })
-        })
+        } catch (err) {
+            console.error('Erreur lors de l\'envoi de l\'email')
+            throw new ActionError(err as string)
+        }
+
 
         await prisma.invitation.update({
             where: {
