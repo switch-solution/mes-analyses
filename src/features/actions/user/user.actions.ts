@@ -33,7 +33,8 @@ export const createUser = authentificationActionUserIsAdminClient(UserCreateSche
                 createdBy: userId,
                 sendEmail: false,
                 isBillable: true,
-                source: "Client"
+                source: "Client",
+                isInternal: true
             }
         })
         const log: Logger = {

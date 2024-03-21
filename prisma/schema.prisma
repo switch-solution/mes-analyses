@@ -160,6 +160,7 @@ model Invitation {
   isEditorProject        Boolean  @default(false)
   isAdministratorProject Boolean  @default(false)
   isValidatorProject     Boolean  @default(false)
+  isInternal             Boolean  @default(false)
   clientId               String
   client                 Client   @relation(fields: [clientId], references: [siren], onDelete: Cascade)
   softwareLabel          String
@@ -169,6 +170,7 @@ model Invitation {
   isAdministratorClient  Boolean  @default(false)
   isEditorClient         Boolean  @default(false)
   source                 String
+  isArchived             Boolean  @default(false)
 
   @@id([email, clientId])
 }
@@ -220,7 +222,7 @@ model UserSoftware {
   createdAt        DateTime @default(now())
   isEditor         Boolean  @default(false)
   updatedAt        DateTime @updatedAt
-  createdBy        String
+  createdBy        String   @default("system")
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   software         Software @relation(fields: [softwareLabel, softwareClientId], references: [label, clientId], onDelete: Cascade)
   softwareLabel    String

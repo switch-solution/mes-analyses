@@ -30,6 +30,8 @@ import { getMyClientActive } from "@/src/query/user.query";
 import { WhatIsNew } from "@/components/layout/whatIsNew";
 import { countMyTaskActive } from "@/src/query/project_task.query";
 export default async function Page() {
+
+
     const userIsSetup = await userIsComplete()
 
     const clientSlug = await getMyClientActive()

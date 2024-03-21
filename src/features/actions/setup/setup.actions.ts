@@ -6,37 +6,58 @@ import { SetupProfilSchema, SetupClientSchema, SetupLegalSchema, SetupSoftwareSc
 import type { Logger } from "@/src/helpers/type";
 import { createLog } from "@/src/query/logger.query";
 import z from "zod";
-import { getMyClient, getUserByEmail, getUserById } from "@/src/query/user.query";
+import { getMyClient, getUserById } from "@/src/query/user.query";
 import { generateSlug } from "@/src/helpers/generateSlug";
-import { getClientBySiren, getClientBySlug } from "@/src/query/client.query";
+import { getClientBySiren } from "@/src/query/client.query";
 import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
 import { softwareCopyData } from "@/src/query/software.query";
-import { getUserOtherData } from "@/src/query/user.query";
-import { getInvitation } from "@/src/query/invitation.query";
+import { copyInvitation, getInvitation } from "@/src/query/invitation.query";
 import { userSetup } from "@/src/query/user.query";
 export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
+    if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
+    const email = await prisma.user.findFirst({
+        where: {
+            id: userId
+        }
+    })
+    if (!email) throw new ActionError("L'utilisateur n'existe pas.")
+    console.log(email.email)
+    const invitation = await getInvitation(email.email)
     try {
         if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
         const { cgv, gdpr } = SetupLegalSchema.parse(values)
-        if (cgv === false) throw new ActionError("Vous devez accepter les CGV.")
-        if (gdpr === false) throw new ActionError("Vous devez accepter le RGPD.")
-        const userOtherDataExist = await getUserOtherData(userId)
-        if (userOtherDataExist) throw new ActionError("Vous avez déjà accepté les CGV et le RGPD.")
-        await prisma.userOtherData.create({
-            data: {
+        await prisma.userOtherData.upsert({
+            where: {
+                userId: userId
+            },
+            update: {
+                userId: userId,
+                isBlocked: false,
+                cgv: cgv,
+                gdpr: gdpr
+            },
+            create: {
                 userId: userId,
                 isBlocked: false,
                 cgv: cgv,
                 gdpr: gdpr
             }
         })
+
     } catch (err: unknown) {
         console.error(err)
         throw new ActionError(err as string)
 
     }
-    revalidatePath(`/setup/profil/`)
-    redirect(`/setup/profil/`)
+    if (invitation) {
+        await copyInvitation(invitation, userId)
+        revalidatePath(`/home`)
+        redirect(`/home`)
+    } else {
+        revalidatePath(`/setup/profil/`)
+        redirect(`/setup/profil/`)
+    }
+
 
 })
 export const createSetupProfil = authentifcationAction(SetupProfilSchema, async (values: z.infer<typeof SetupProfilSchema>, userId) => {
@@ -69,48 +90,7 @@ export const createSetupProfil = authentifcationAction(SetupProfilSchema, async 
         console.error(err)
         throw new ActionError("Une erreur est survenue lors de la création de la configuration du profil.")
     }
-    const email = (await getUserById(userId)).email
-    const invitation = await getInvitation(email)
-    console.log('invitation', invitation)
-    if (invitation) {
-        await prisma.userClient.create({
-            data: {
-                userId: userId,
-                clientId: invitation.clientId,
-                isBlocked: false,
-                isBillable: invitation.isBillable,
-                isActivated: true,
 
-            }
-        })
-        await prisma.userSoftware.create({
-            data: {
-                userId: userId,
-                softwareLabel: invitation.softwareLabel,
-                isEditor: invitation.isEditorClient,
-                createdBy: invitation.createdBy,
-                softwareClientId: invitation.clientId,
-                isActivated: true,
-            }
-        })
-        if (invitation.projectLabel) {
-            await prisma.userProject.create({
-                data: {
-                    userId: userId,
-                    projectLabel: invitation.projectLabel,
-                    projectSoftwareLabel: invitation.softwareLabel,
-                    projectClientId: invitation.clientId,
-                    isAdmin: invitation.isAdministratorProject,
-                    isEditor: invitation.isEditorProject,
-                    isValidator: invitation.isValidatorProject,
-                    createdBy: invitation.createdBy,
-                    team: "client"
-                }
-            })
-        }
-        revalidatePath(`/home`)
-        redirect(`/home`)
-    }
     revalidatePath(`/setup/client/`)
     redirect(`/setup/client/`)
 
