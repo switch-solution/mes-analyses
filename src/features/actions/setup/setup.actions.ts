@@ -6,13 +6,14 @@ import { SetupProfilSchema, SetupClientSchema, SetupLegalSchema, SetupSoftwareSc
 import type { Logger } from "@/src/helpers/type";
 import { createLog } from "@/src/query/logger.query";
 import z from "zod";
-import { getMyClient } from "@/src/query/user.query";
+import { getMyClient, getUserByEmail, getUserById } from "@/src/query/user.query";
 import { generateSlug } from "@/src/helpers/generateSlug";
 import { getClientBySiren, getClientBySlug } from "@/src/query/client.query";
 import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
 import { softwareCopyData } from "@/src/query/software.query";
 import { getUserOtherData } from "@/src/query/user.query";
-
+import { getInvitation } from "@/src/query/invitation.query";
+import { userSetup } from "@/src/query/user.query";
 export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
     try {
         if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
@@ -66,11 +67,35 @@ export const createSetupProfil = authentifcationAction(SetupProfilSchema, async 
         await createLog(Log)
     } catch (err) {
         console.error(err)
-        throw new Error("Une erreur est survenue lors de la création de la configuration du profil.")
+        throw new ActionError("Une erreur est survenue lors de la création de la configuration du profil.")
     }
+    const email = (await getUserById(userId)).email
+    const invitation = await getInvitation(email)
+    console.log('invitation', invitation)
+    if (invitation) {
+        await prisma.userClient.create({
+            data: {
+                userId: userId,
+                clientId: invitation.clientId,
+                isBlocked: false,
+                isBillable: invitation.isBillable,
+                isActivated: true,
 
-    const client = await getMyClient()
-
+            }
+        })
+        await prisma.userSoftware.create({
+            data: {
+                userId: userId,
+                softwareLabel: invitation.softwareLabel,
+                isEditor: invitation.isEditorClient,
+                createdBy: invitation.createdBy,
+                softwareClientId: invitation.clientId,
+                isActivated: true,
+            }
+        })
+        revalidatePath(`/home`)
+        redirect(`/home`)
+    }
     revalidatePath(`/setup/client/`)
     redirect(`/setup/client/`)
 
@@ -114,7 +139,8 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
                 softwareLabel: label,
                 isEditor: true,
                 createdBy: userId,
-                softwareClientId: clientId.clientId
+                softwareClientId: clientId.clientId,
+                isActivated: true,
             }
         })
         const software = await prisma.software.findFirst({
@@ -126,7 +152,8 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
         if (!software) throw new ActionError("Le logiciel n'a pas été créé.")
         await softwareCopyData(software.slug)
 
-
+        //Setup user
+        await userSetup(userId)
     } catch (err: unknown) {
         console.error(err)
         throw new ActionError(err as string)

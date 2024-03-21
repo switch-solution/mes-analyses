@@ -266,6 +266,7 @@ export const UserCreateSchema = z.object({
     civility: z.enum(['M', 'Mme']),
     lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
     firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+    softwareLabel: z.string({ required_error: "Le logiciel est obligatoire." }),
 })
 
 export const UserEditSchema = z.object({

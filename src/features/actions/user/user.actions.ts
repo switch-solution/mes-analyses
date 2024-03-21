@@ -10,7 +10,7 @@ import { apiFetch } from "@/src/helpers/api";
 import { ActionError, authentifcationAction, authentificationActionUserIsAdminClient } from "@/lib/safe-actions";
 export const createUser = authentificationActionUserIsAdminClient(UserCreateSchema, async (values: z.infer<typeof UserCreateSchema>, { clientId, userId }) => {
 
-    const { email, firstname, lastname, civility, clientSlug } = UserCreateSchema.parse(values)
+    const { email, firstname, lastname, civility, clientSlug, softwareLabel } = UserCreateSchema.parse(values)
     const userInvitationExistInThisClient = await prisma.invitation.findFirst({
         where: {
             email,
@@ -26,6 +26,7 @@ export const createUser = authentificationActionUserIsAdminClient(UserCreateSche
             data: {
                 email,
                 firstname,
+                softwareLabel,
                 lastname,
                 civility,
                 clientId,

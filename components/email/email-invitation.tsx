@@ -6,6 +6,7 @@ interface EmailTemplateProps {
     lastname: string;
     clientLabel: string;
     projectLabel?: string;
+    domain: string;
 }
 
 export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
@@ -14,9 +15,11 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
     lastname,
     clientLabel,
     projectLabel,
+    domain,
 }) => (
     <div>
         <h1>Bonjour, {civility} {lastname} {firstname}!</h1>
-        <p>Vous avez été invité à rejoindre {clientLabel}.</p>
+        <span>Vous avez été invité à rejoindre {clientLabel}.</span>
+        <span><a href={domain}>Lien de connexion</a></span>
     </div>
 );

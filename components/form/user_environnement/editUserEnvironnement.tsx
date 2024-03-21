@@ -63,67 +63,63 @@ export default function EditUserEnvironnement({ clientActive, softwareActive, cl
     }
 
     return (
-        <>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-                    <FormField
-                        control={form.control}
-                        name="clientSlug"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Client</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selectionner votre client par actif" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {clients && clients.map((client) => (
-                                            <SelectItem key={client.client.slug} value={client.client.slug}>
-                                                {client.client.socialReason}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="softwareSlug"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Logiciel</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selectionner votre logiciel actif" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {softwares.map((software) => (
-                                            <SelectItem key={software.software.slug} value={software.software.slug}>
-                                                {software.software.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
 
-                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+                <FormField
+                    control={form.control}
+                    name="clientSlug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Client</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selectionner votre client par actif" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {clients && clients.map((client) => (
+                                        <SelectItem key={client.client.slug} value={client.client.slug}>
+                                            {client.client.socialReason}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="softwareSlug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Logiciel</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selectionner votre logiciel actif" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {softwares.map((software) => (
+                                        <SelectItem key={software.software.slug} value={software.software.slug}>
+                                            {software.software.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-                </form>
-            </Form>
-            <div className="flex w-full flex-row items-center justify-between">
-                <span>Choisir votre thême : </span><ThemeToggle />
+                {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 
-            </div>
-        </>
+            </form>
+        </Form>
+
 
     )
 

@@ -84,6 +84,9 @@ export const getSoftwareByClientSlug = async (clientSlug: string) => {
 
 }
 
+export type getSoftwareByClientSlug = Prisma.PromiseReturnType<typeof getSoftwareByClientSlug>;
+
+
 /**
  * This function get the software slug active of the user
  * @returns 

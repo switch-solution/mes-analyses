@@ -9,6 +9,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { getMySoftware } from "@/src/query/user.query";
 import { Slash } from "lucide-react"
 
 export default async function Page({ params }: { params: { clientSlug: string } }) {
@@ -16,6 +17,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     if (!userIsAdmin) {
         throw new Error("Vous devez etre admin pour acceder a cette page");
     }
+    const softwares = await getMySoftware();
     return (
         <Container>
             <Breadcrumb>
@@ -40,7 +42,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                     </BreadcrumbSeparator>
                 </BreadcrumbList>
             </Breadcrumb>
-            <CreateUser clientSlug={params.clientSlug} />
+            <CreateUser clientSlug={params.clientSlug} softwares={softwares} />
         </Container>
 
     )

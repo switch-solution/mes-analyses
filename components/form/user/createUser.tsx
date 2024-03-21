@@ -24,8 +24,9 @@ import {
 } from "@/components/ui/select"
 import { createUser } from "@/src/features/actions/user/user.actions"
 import { toast } from "sonner"
+import type { getMySoftware } from "@/src/query/user.query";
 
-export default function CreateUser({ clientSlug }: { clientSlug: string }) {
+export default function CreateUser({ clientSlug, softwares }: { clientSlug: string, softwares: getMySoftware }) {
     const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof UserCreateSchema>>({
         resolver: zodResolver(UserCreateSchema),
@@ -34,7 +35,8 @@ export default function CreateUser({ clientSlug }: { clientSlug: string }) {
             email: "",
             firstname: "",
             lastname: "",
-            civility: "M"
+            civility: "M",
+            softwareLabel: softwares[0].softwareLabel,
         },
     })
 
@@ -141,6 +143,32 @@ export default function CreateUser({ clientSlug }: { clientSlug: string }) {
 
                     )}
 
+                />
+                <FormField
+                    control={form.control}
+                    name="softwareLabel"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selectionner un logiciel" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {softwares.map((software) => (
+                                        <SelectItem key={software.softwareLabel} value={software.softwareLabel}>
+                                            {software.softwareLabel}
+                                        </SelectItem>
+
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
                 {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 

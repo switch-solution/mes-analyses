@@ -5,6 +5,7 @@ import { env } from '@/lib/env';
 const resend = new Resend(env.RESEND_API_KEY);
 const emaiFrom = env.EMAIL_FROM;
 const API_KEY = env.API_KEY;
+const domain = env.DOMAIN;
 export async function POST(request: NextRequest) {
     try {
         const api = request.headers.get('x-api-key');
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
             to: body.email,
             subject: body.subject,
             text: '',
-            react: EmailTemplate({ ...body }),
+            react: EmailTemplate({ ...body, domain }),
         });
 
         return Response.json(data);

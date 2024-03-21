@@ -3,7 +3,34 @@ import { userIsValid } from "./security.query"
 import { getAuthSession } from "@/lib/auth"
 import { getClientBySlug } from "./client.query"
 import { Prisma } from '@prisma/client'
-import { getMyProjects } from "./project.query"
+
+export const userSetup = async (id: string) => {
+    try {
+        const userExist = await prisma.userOtherData.findUnique({
+            where: {
+                userId: id
+            }
+        })
+        if (!userExist) {
+            throw new Error("L'utilisateur n'existe pas.")
+        }
+        const user = await prisma.userOtherData.update({
+            where: {
+                userId: id
+            },
+            data: {
+                isSetup: true
+            }
+        })
+        return
+
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la vérification de l'utilisateur.")
+
+    }
+
+}
 
 export const userIsSetup = async () => {
     try {
@@ -20,7 +47,7 @@ export const userIsSetup = async () => {
                 UserOtherData: true
             }
         })
-        if (user?.UserOtherData.at(0)?.cgv) {
+        if (user?.UserOtherData.at(0)?.isSetup === true) {
             return true
         } else {
             return false

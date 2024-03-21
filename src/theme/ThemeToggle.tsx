@@ -1,34 +1,14 @@
 "use client"
+import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import React from "react";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+import { Moon, SunMedium } from 'lucide-react'
 export const ThemeToggle = () => {
     const { setTheme, theme } = useTheme()
-    const onValueChange = (value: string) => {
-        setTheme(value)
-    }
     return (
-        <>
-            <Select onValueChange={onValueChange}>
-                <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Selectionner un thême" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectGroup>
-                        <SelectLabel>Thême</SelectLabel>
-                        <SelectItem value="light">Clair</SelectItem>
-                        <SelectItem value="dark">Sombre</SelectItem>
-                    </SelectGroup>
-                </SelectContent>
-            </Select>
-        </>
+        <Button variant='ghost' size='sm' onClick={() => setTheme(theme === 'light' ? "dark" : "light")}>
+            <SunMedium size='20' className='rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0' />
+            <Moon size='20' className='absolute rotate-90 scale-0 transition-all dark:-rotate-0 dark:scale-100' />
+        </Button>
     )
 }

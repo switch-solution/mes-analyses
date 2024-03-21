@@ -32,7 +32,6 @@ export const authOptions: AuthOptions = {
             clientId: env.GOOGLE_ID,
             clientSecret: env.GOOGLE_SECRET,
         }),
-
         EmailProvider({
             from: env.EMAIL_FROM,
             server: {
@@ -44,8 +43,6 @@ export const authOptions: AuthOptions = {
                 },
             },
         }),
-
-
     ],
     callbacks: {
         session({ session, token, user }) {
@@ -54,9 +51,16 @@ export const authOptions: AuthOptions = {
             }
             session.user.id = token.sub
             return session
-        }
+        },
 
+    },
+    theme: {
+        colorScheme: "auto", // "auto" | "dark" | "light"
+        brandColor: "", // Hex color code
+        logo: "", // Absolute URL to image
+        buttonText: "" // Hex color code
     }
+
 }
 export const getAuthSession = async () => {
     const session = await getServerSession(authOptions)

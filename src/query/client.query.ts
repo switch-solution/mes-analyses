@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { userIsValid, userIsAdminClient } from "./security.query";
 import { userIsAdminSystem } from "./security.query";
-import { getAuthSession } from "@/lib/auth";
 import { Prisma } from '@prisma/client'
-import { getMySoftware, getMySoftwareActive } from "./user.query";
+import { getMySoftwareActive } from "./user.query";
 import { getSoftwareBySlug } from "./software.query";
 
 export const getCountClientProjects = async (clientSlug: string) => {
