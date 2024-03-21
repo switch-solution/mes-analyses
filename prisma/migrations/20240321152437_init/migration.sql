@@ -57,6 +57,8 @@ CREATE TABLE "UserOtherData" (
     "isBlocked" BOOLEAN NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "isInternal" BOOLEAN NOT NULL DEFAULT false,
+    "isSetup" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "UserOtherData_pkey" PRIMARY KEY ("userId")
 );
@@ -136,7 +138,11 @@ CREATE TABLE "Invitation" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
+    "isEditorProject" BOOLEAN NOT NULL DEFAULT false,
+    "isAdministratorProject" BOOLEAN NOT NULL DEFAULT false,
+    "isValidatorProject" BOOLEAN NOT NULL DEFAULT false,
     "clientId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
     "projectLabel" TEXT,
     "projectSoftwareLabel" TEXT,
     "isAdministratorClient" BOOLEAN NOT NULL DEFAULT false,
@@ -466,12 +472,12 @@ CREATE TABLE "Project_Book_WorkFlow" (
     "softwareLabel" TEXT NOT NULL,
     "bookLabel" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
-    "response" TEXT NOT NULL,
-    "commment" TEXT,
-    "deadline" TIMESTAMP(3) NOT NULL,
+    "isValid" BOOLEAN NOT NULL DEFAULT false,
+    "comment" TEXT,
+    "deadline" TIMESTAMP(3) NOT NULL DEFAULT '4000-01-01 00:00:00 +00:00',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
 
     CONSTRAINT "Project_Book_WorkFlow_pkey" PRIMARY KEY ("userId","projectLabel","softwareLabel","clientId","bookLabel")
 );
@@ -800,21 +806,6 @@ CREATE TABLE "Idcc" (
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
     CONSTRAINT "Idcc_pkey" PRIMARY KEY ("code")
-);
-
--- CreateTable
-CREATE TABLE "Validation" (
-    "bookLabel" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "projectLabel" TEXT NOT NULL,
-    "projectSoftwareLabel" TEXT NOT NULL,
-    "response" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-
-    CONSTRAINT "Validation_pkey" PRIMARY KEY ("bookLabel","userId","clientId","projectLabel","projectSoftwareLabel")
 );
 
 -- CreateTable
@@ -1416,6 +1407,9 @@ ALTER TABLE "UserClient" ADD CONSTRAINT "UserClient_clientId_fkey" FOREIGN KEY (
 ALTER TABLE "Invitation" ADD CONSTRAINT "Invitation_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Invitation" ADD CONSTRAINT "Invitation_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Project_Invitation" ADD CONSTRAINT "Project_Invitation_clientId_projectLabel_projectSoftwareLa_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -1552,12 +1546,6 @@ ALTER TABLE "Project_Constant" ADD CONSTRAINT "Project_Constant_idccCode_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "Project_Constant" ADD CONSTRAINT "Project_Constant_clientId_projectLabel_projectSoftwareLabe_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Validation" ADD CONSTRAINT "Validation_bookLabel_clientId_projectLabel_projectSoftware_fkey" FOREIGN KEY ("bookLabel", "clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project_Book"("label", "clientId", "projectLabel", "projectSoftwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Validation" ADD CONSTRAINT "Validation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Attachment" ADD CONSTRAINT "Project_Attachment_clientId_projectLabel_projectSoftwareLa_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
