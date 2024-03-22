@@ -28,9 +28,6 @@ export const columns: ColumnDef<WorkFlow>[] = [
     {
         accessorKey: "bookLabel",
         header: "Cahier",
-        cell: ({ row }) => {
-            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/book/${row.original.bookSlug}/validation`}>{row.getValue("bookLabel")}</Link>
-        }
     },
     {
         accessorKey: "user",
@@ -47,31 +44,5 @@ export const columns: ColumnDef<WorkFlow>[] = [
         accessorKey: "comment",
         header: "Commentaire",
     },
-    {
-        id: "actions",
-        cell: ({ row }) => {
-            const user = row.original
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="size-8 p-0">
-                            <span className="sr-only">Menu</span>
-                            <MoreHorizontal className="size-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Mes options</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem><Link href={`/client/${user.clientSlug}/project/${user.projectSlug}`}>Ouvrir</Link></DropdownMenuItem>
-                        <DropdownMenuItem><Link href={`/client/${user.clientSlug}/project/${user.projectSlug}/edit`}>Editer</Link></DropdownMenuItem>
-                        <DropdownMenuItem><Link href={`/client/${user.clientSlug}/project/${user.projectSlug}/archived`}>Archiver</Link></DropdownMenuItem>
-
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
-        },
-    },
-
 ]
 

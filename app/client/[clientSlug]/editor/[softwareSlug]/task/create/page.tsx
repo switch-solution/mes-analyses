@@ -1,12 +1,35 @@
 import CreateStandardAttachment from "@/components/form/sotware_attachment/create"
 import { userIsEditorClient } from "@/src/query/security.query"
-import { getMySoftware } from "@/src/query/user.query";
+import { getMySoftwareActive } from "@/src/query/user.query";
 import Container from "@/components/layout/container";
-export default async function Page({ params }: { params: { clientSlug: string } }) {
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
     const userIsEditor = await userIsEditorClient(params.clientSlug)
     if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
-    const softwares = await getMySoftware()
+    const softwareSlug = await getMySoftwareActive()
     return (<Container>
-        <CreateStandardAttachment clientSlug={params.clientSlug} softwares={softwares} />
+        <Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem>
+                    <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                    <BreadcrumbLink href={`/client/${params.clientSlug}/editor/`}>Editeur</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                    <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/task`}>Tache</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+            </BreadcrumbList>
+        </Breadcrumb>
+        <CreateStandardAttachment clientSlug={params.clientSlug} softwareSlug={softwareSlug} />
     </Container>)
 }

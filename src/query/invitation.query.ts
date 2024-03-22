@@ -112,6 +112,33 @@ export const copyInvitation = async (invitation: getInvitation, userId: string) 
                 }
             })
         }
+        if (invitation?.projectLabel) {
+            await prisma.userProject.upsert({
+                where: {
+                    userId_projectClientId_projectLabel_projectSoftwareLabel: {
+                        userId: userId,
+                        projectLabel: invitation.projectLabel,
+                        projectClientId: invitation.clientId,
+                        projectSoftwareLabel: invitation.softwareLabel
+                    }
+                },
+                update: {
+                    userId: userId,
+                    projectLabel: invitation.projectLabel,
+                    projectClientId: invitation.clientId,
+                    projectSoftwareLabel: invitation.softwareLabel,
+
+                },
+                create: {
+                    userId: userId,
+                    projectLabel: invitation.projectLabel,
+                    team: invitation.isInternal ? "client" : "externe",
+                    projectSoftwareLabel: invitation.softwareLabel,
+                    projectClientId: invitation.clientId,
+                    createdBy: userId,
+                }
+            })
+        }
         await prisma.invitation.update({
             where: {
                 email: invitation.email,

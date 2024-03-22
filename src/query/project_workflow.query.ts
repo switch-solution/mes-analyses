@@ -17,6 +17,9 @@ export const getWorkFlowByProjectSlug = async (projectSlug: string) => {
                 },
                 Project_Book: true
             },
+            orderBy: {
+                bookLabel: 'desc'
+            }
 
         })
         return workflow

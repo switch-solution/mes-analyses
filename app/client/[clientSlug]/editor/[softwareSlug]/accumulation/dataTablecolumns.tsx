@@ -54,10 +54,6 @@ export const columns: ColumnDef<SoftwareAccumulation>[] = [
 
     },
     {
-        accessorKey: "softwareLabel",
-        header: "Logiciel",
-    },
-    {
         id: "actions",
         cell: ({ row }) => {
             const book = row.original

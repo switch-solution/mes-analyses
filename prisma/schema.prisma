@@ -81,39 +81,62 @@ model UserOtherData {
 }
 
 model Client {
-  slug               String               @unique
-  socialReason       String
-  dateStartTrial     DateTime?
-  dateEndTrial       DateTime?
-  siren              String               @id
-  ape                String?
-  address1           String?
-  address2           String?
-  address3           String?
-  address4           String?
-  city               String?
-  codeZip            String?
-  country            String?
-  invoiceAddress1    String?
-  invoiceAddress2    String?
-  invoiceAddress3    String?
-  invoiceAddress4    String?
-  invoiceCity        String?
-  invoiceCodeZip     String?
-  invoiceCountry     String?
-  isBlocked          Boolean
-  invoiceStart       DateTime?
-  invoiceEnd         DateTime?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  createdBy          String
-  UserClient         UserClient[]
-  Invitation         Invitation[]
-  Contact            Contact[]
-  Software           Software[]
-  Software_Component Software_Component[]
-  Project            Project[]
-  Logger             Logger[]
+  slug                      String                      @unique
+  socialReason              String
+  dateStartTrial            DateTime?
+  dateEndTrial              DateTime?
+  siren                     String                      @id
+  ape                       String?
+  address1                  String?
+  address2                  String?
+  address3                  String?
+  address4                  String?
+  city                      String?
+  codeZip                   String?
+  country                   String?
+  invoiceAddress1           String?
+  invoiceAddress2           String?
+  invoiceAddress3           String?
+  invoiceAddress4           String?
+  invoiceCity               String?
+  invoiceCodeZip            String?
+  invoiceCountry            String?
+  isBlocked                 Boolean
+  invoiceStart              DateTime?
+  invoiceEnd                DateTime?
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  createdBy                 String
+  UserClient                UserClient[]
+  Invitation                Invitation[]
+  Contact                   Contact[]
+  Software                  Software[]
+  Software_Component        Software_Component[]
+  Project                   Project[]
+  Logger                    Logger[]
+  Client_Classification     Client_Classification[]
+  Client_Table              Client_Table[]
+  Client_Task               Client_Task[]
+  Client_API                Client_API[]
+  Client_Book               Client_Book[]
+  Client_Constant_Legal     Client_Constant_Legal[]
+  Client_Table_Seniority    Client_Table_Seniority[]
+  Client_Table_Age          Client_Table_Age[]
+  Client_Table_Keeping_Wage Client_Table_Keeping_Wage[]
+  Client_Table_Wage         Client_Table_Wage[]
+}
+
+model Client_API {
+  clientId  String
+  label     String
+  apiKey    String
+  apiSecret String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  client    Client   @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+
+  @@id([clientId, label])
 }
 
 model Contact {
@@ -192,27 +215,33 @@ model Project_Invitation {
 }
 
 model Software {
-  label                   String
-  slug                    String                    @unique
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
-  createdBy               String
-  clientId                String
-  client                  Client                    @relation(fields: [clientId], references: [siren], onDelete: Cascade)
-  Software_Book           Software_Book[]
-  Software_Component      Software_Component[]
-  SoftwareItems           Software_Items[]
-  UserSoftware            UserSoftware[]
-  Software_Setting        Software_Setting[]
-  Project                 Project[]
-  Software_Task           Software_Task[]
-  Software_Absence        Software_Absence[]
-  Software_Constant_Legal Software_Constant_Legal[]
-  Software_Counter        Software_Counter[]
-  Software_Profile        Software_Profile[]
-  isArchived              Boolean                   @default(false)
-  Software_Accumulation   Software_Accumulation[]
-  Invitation              Invitation[]
+  label                                      String
+  slug                                       String                        @unique
+  createdAt                                  DateTime                      @default(now())
+  updatedAt                                  DateTime                      @updatedAt
+  createdBy                                  String
+  clientId                                   String
+  client                                     Client                        @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  Software_Book                              Software_Book[]
+  Software_Component                         Software_Component[]
+  SoftwareItems                              Software_Items[]
+  UserSoftware                               UserSoftware[]
+  Software_Setting                           Software_Setting[]
+  Project                                    Project[]
+  Software_Task                              Software_Task[]
+  Software_Absence                           Software_Absence[]
+  Software_Constant_Legal                    Software_Constant_Legal[]
+  Software_Counter                           Software_Counter[]
+  Software_Profile                           Software_Profile[]
+  isArchived                                 Boolean                       @default(false)
+  Software_Accumulation                      Software_Accumulation[]
+  Invitation                                 Invitation[]
+  Software_Classification                    Software_Classification[]
+  Software_Table                             Software_Table[]
+  Software_TableSoftware_Table_Seniority_Age Software_Table_Seniority[]
+  Software_Table_Age                         Software_Table_Age[]
+  Software_Table_Keeping_Wage                Software_Table_Keeping_Wage[]
+  Software_Table_Wage                        Software_Table_Wage[]
 
   @@id([label, clientId])
 }
@@ -244,12 +273,12 @@ model Software_Book {
   clientId        String
   StandardChapter Software_Chapter[]
   slug            String             @unique
-  Software_Task   Software_Task[]
 
   @@id([label, softwareLabel, clientId])
 }
 
 model Book {
+  level       String    @default("Standard")
   label       String
   description String
   status      String
@@ -261,6 +290,19 @@ model Book {
   Task        Task[]
 
   @@id([label])
+}
+
+model Client_Book {
+  level             String   @default("Client")
+  clientId          String
+  label             String
+  bookSoftwareLabel String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdBy         String
+  client            Client   @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+
+  @@id([label, clientId])
 }
 
 model Chapter {
@@ -302,6 +344,7 @@ model ChapterForm {
 }
 
 model Software_Component {
+  level                            String                             @default("Logiciel")
   id                               String?
   label                            String
   description                      String?
@@ -333,6 +376,7 @@ model Software_Component {
 }
 
 model Software_Component_Input {
+  level                            String                             @default("Logiciel")
   type                             String
   dsnType                          String?
   dsnItem                          String?
@@ -372,6 +416,7 @@ model Software_Component_Input {
 }
 
 model Software_Component_TextArea {
+  level              String             @default("Logiciel")
   value              Json               @default("{}")
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -387,6 +432,7 @@ model Software_Component_TextArea {
 }
 
 model Software_Component_Image {
+  level              String             @default("Logiciel")
   description        String
   provider           String
   slug               String             @unique
@@ -411,6 +457,7 @@ model Software_Component_Image {
 }
 
 model Software_Component_Select_Option {
+  level                    String                    @default("Logiciel")
   label                    String
   selected                 Boolean?
   createdAt                DateTime                  @default(now())
@@ -426,6 +473,7 @@ model Software_Component_Select_Option {
 }
 
 model Software_Chapter {
+  level                            String                             @default("Logiciel")
   createdAt                        DateTime                           @default(now())
   updatedAt                        DateTime                           @updatedAt
   createdBy                        String
@@ -448,6 +496,7 @@ model Software_Chapter {
 }
 
 model SoftwareChapterSoftwareComponent {
+  level              String             @default("Logiciel")
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   createdBy          String
@@ -816,13 +865,13 @@ model Project_Items {
 
 model Constant_Legal {
   id            String
-  level         String
+  level         String   @default("Standard")
   label         String
   description   String?
   idccCode      String   @default("9999")
   Idcc          Idcc?    @relation(fields: [idccCode], references: [code])
   value         String
-  dateStart     DateTime @default(now())
+  dateStart     String
   softwareLabel String?
   clientId      String?
   projectLabel  String?
@@ -830,21 +879,42 @@ model Constant_Legal {
   updatedAt     DateTime @updatedAt
   createdBy     String
   slug          String   @unique
-  isDuplicate   Boolean  @default(false)
   sourceId      String?
 
-  @@id([id, level, dateStart, isDuplicate])
+  @@id([id, level, dateStart])
+}
+
+model Client_Constant_Legal {
+  id            String
+  level         String   @default("Client")
+  label         String
+  clientId      String
+  description   String?
+  idccCode      String   @default("9999")
+  Idcc          Idcc?    @relation(fields: [idccCode], references: [code])
+  Client        Client   @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  value         String
+  dateStart     String
+  softwareLabel String?
+  projectLabel  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String
+  slug          String   @unique
+  sourceId      String?
+
+  @@id([id, level, dateStart, clientId])
 }
 
 model Software_Constant_Legal {
   id            String
-  level         String
+  level         String   @default("Logiciel")
   label         String
   description   String?
   idccCode      String   @default("9999")
   Idcc          Idcc?    @relation(fields: [idccCode], references: [code])
   value         String
-  dateStart     DateTime @default(now())
+  dateStart     String
   softwareLabel String
   clientId      String
   software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
@@ -852,20 +922,20 @@ model Software_Constant_Legal {
   updatedAt     DateTime @updatedAt
   createdBy     String
   slug          String   @unique
-  isDuplicate   Boolean  @default(false)
   isArchived    Boolean  @default(false)
 
-  @@id([id, level, dateStart, isDuplicate, clientId, softwareLabel])
+  @@id([id, level, dateStart, clientId, softwareLabel])
 }
 
 model Project_Constant {
   code                 String
+  level                String   @default("Projet")
   label                String
   description          String
   idccCode             String
   Idcc                 Idcc?    @relation(fields: [idccCode], references: [code])
   value                String
-  dateStart            DateTime
+  dateStart            String
   projectLabel         String
   projectSoftwareLabel String
   clientId             String
@@ -878,17 +948,44 @@ model Project_Constant {
 }
 
 model Idcc {
-  code                    String                    @id
-  label                   String
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
-  createdBy               String                    @default("system")
-  SoftwareItems           Software_Items[]
-  ConstantLegal           Constant_Legal[]
-  ProjectConstant         Project_Constant[]
-  Project_Items           Project_Items[]
-  Software_Constant_Legal Software_Constant_Legal[]
-  Table                   Table[]
+  code                            String                            @id
+  label                           String
+  createdAt                       DateTime                          @default(now())
+  updatedAt                       DateTime                          @updatedAt
+  createdBy                       String                            @default("system")
+  SoftwareItems                   Software_Items[]
+  ConstantLegal                   Constant_Legal[]
+  ProjectConstant                 Project_Constant[]
+  Project_Items                   Project_Items[]
+  Software_Constant_Legal         Software_Constant_Legal[]
+  Table                           Table[]
+  Classification                  Classification[]
+  Client_Classification           Client_Classification[]
+  Software_Classification         Software_Classification[]
+  Client_Constant_Legal           Client_Constant_Legal[]
+  Client_Table                    Client_Table[]
+  Software_Table                  Software_Table[]
+  Table_Seniority                 Table_Seniority[]
+  Client_Table_Seniority          Client_Table_Seniority[]
+  Software_Table_Seniority        Software_Table_Seniority[]
+  Table_Age                       Table_Age[]
+  Table_Age_Row                   Table_Age_Row[]
+  Client_Table_Age                Client_Table_Age[]
+  Client_Table_Age_Row            Client_Table_Age_Row[]
+  Software_Table_Age              Software_Table_Age[]
+  Software_Table_Age_Row          Software_Table_Age_Row[]
+  Table_Keeping_Wage              Table_Keeping_Wage[]
+  Table_Keeping_Wage_Row          Table_Keeping_Wage_Row[]
+  Client_Table_Keeping_Wage       Client_Table_Keeping_Wage[]
+  Client_Table_Keeping_Wage_Row   Client_Table_Keeping_Wage_Row[]
+  Software_Table_Keeping_Wage     Software_Table_Keeping_Wage[]
+  Software_Table_Keeping_Wage_Row Software_Table_Keeping_Wage_Row[]
+  Table_Wage                      Table_Wage[]
+  Table_Wage_Row                  Table_Wage_Row[]
+  Client_Table_Wage               Client_Table_Wage[]
+  Client_Table_Wage_Row           Client_Table_Wage_Row[]
+  Software_Table_Wage             Software_Table_Wage[]
+  Software_Table_Wage_Row         Software_Table_Wage_Row[]
 }
 
 model Project_Attachment {
@@ -1012,22 +1109,44 @@ model Task {
   Book        Book?    @relation(fields: [bookLabel], references: [label])
 }
 
+model Client_Task {
+  label       String
+  slug        String   @unique
+  level       String
+  isSwitch    Boolean  @default(false)
+  isUpload    Boolean  @default(false)
+  accept      String?
+  description String
+  clientId    String
+  status      String   @default("actif")
+  bookLabel   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String   @default("system")
+  owner       String
+  message     String?
+  dateStart   DateTime @default(now())
+  deadline    DateTime
+  Client      Client   @relation(fields: [clientId], references: [siren])
+
+  @@id([label, clientId])
+}
+
 model Software_Task {
   label         String
-  level         String
-  isSwitch      Boolean        @default(false)
-  isUpload      Boolean        @default(false)
-  accept        String?
-  slug          String         @unique
+  isSwitch      Boolean  @default(false)
+  isUpload      Boolean  @default(false)
+  isObligatory  Boolean  @default(false)
+  accept        String
+  slug          String   @unique
   softwareLabel String
   description   String
+  multiple      Boolean  @default(false)
   clientId      String
-  Software      Software       @relation(fields: [softwareLabel, clientId], references: [label, clientId])
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  createdBy     String         @default("system")
-  bookLabel     String?
-  Software_Book Software_Book? @relation(fields: [bookLabel, softwareLabel, clientId], references: [label, softwareLabel, clientId])
+  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String   @default("system")
 
   @@id([label, clientId, softwareLabel])
 }
@@ -1259,10 +1378,11 @@ model Software_Accumulation {
 }
 
 model Table {
+  level        String         @default("Standard")
   id           String         @id
   type         String
-  idcc         String?
-  Idcc         Idcc?          @relation(fields: [idcc], references: [code])
+  idcc         String
+  Idcc         Idcc           @relation(fields: [idcc], references: [code])
   label        String
   description  String?
   createdAt    DateTime       @default(now())
@@ -1273,7 +1393,44 @@ model Table {
   Table_Column Table_Column[]
 }
 
+model Client_Table {
+  level               String                @default("Client")
+  id                  String
+  idcc                String
+  Idcc                Idcc?                 @relation(fields: [idcc], references: [code])
+  clientId            String
+  label               String
+  description         String?
+  slug                String                @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  createdBy           String                @default("system")
+  Client              Client                @relation(fields: [clientId], references: [siren])
+  Client_Table_Column Client_Table_Column[]
+
+  @@id([id, idcc, clientId])
+}
+
+model Software_Table {
+  level         String   @default("Logiciel")
+  id            String
+  clientId      String
+  idcc          String
+  Idcc          Idcc?    @relation(fields: [idcc], references: [code])
+  label         String
+  softwareLabel String
+  description   String?
+  slug          String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String   @default("system")
+  Software      Software @relation(fields: [clientId, softwareLabel], references: [clientId, label])
+
+  @@id([id, idcc, clientId, softwareLabel])
+}
+
 model Table_Column {
+  level              String               @default("Standard")
   id                 String
   tableId            String
   Table              Table                @relation(fields: [tableId], references: [id])
@@ -1286,7 +1443,42 @@ model Table_Column {
   @@id([id, tableId])
 }
 
+model Client_Table_Column {
+  level                     String                      @default("Client")
+  id                        String
+  type                      String
+  tableId                   String
+  clientId                  String
+  idcc                      String
+  Client_Table              Client_Table                @relation(fields: [tableId, clientId, idcc], references: [id, clientId, idcc])
+  label                     String
+  updatedAt                 DateTime                    @updatedAt
+  createdAt                 DateTime                    @default(now())
+  createdBy                 String                      @default("system")
+  Client_Table_Column_Value Client_Table_Column_Value[]
+
+  @@id([id, tableId, clientId, idcc])
+}
+
+model Client_Table_Column_Value {
+  level               String              @default("Client")
+  id                  String
+  columnId            String
+  tableId             String
+  idcc                String
+  value               String
+  clientId            String
+  row                 Int
+  updatedAt           DateTime            @updatedAt
+  createdAt           DateTime            @default(now())
+  createdBy           String              @default("system")
+  Client_Table_Column Client_Table_Column @relation(fields: [columnId, tableId, clientId, idcc], references: [id, tableId, clientId, idcc])
+
+  @@id([id, tableId, columnId, clientId, idcc])
+}
+
 model Table_Column_Value {
+  level        String       @default("Standard")
   id           String
   columnId     String
   tableId      String
@@ -1337,4 +1529,532 @@ model Software_Table_Value {
   Software_Table_Column Software_Table_Column @relation(fields: [columnId, tableId, clientId, softwareLabel, componentLabel, componentType], references: [id, tableId, clientId, softwareLabel, componentLabel, componentType])
 
   @@id([id, tableId, columnId, clientId, softwareLabel])
+}
+
+model Classification {
+  level       String   @default("Standard")
+  id          String
+  type        String
+  label       String
+  description String?
+  idIdcc      String
+  Idcc        Idcc?    @relation(fields: [idIdcc], references: [code])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String   @default("system")
+
+  @@id([id, idIdcc, type])
+}
+
+model Client_Classification {
+  level       String   @default("Client")
+  id          String
+  slug        String   @unique
+  type        String
+  label       String
+  description String?
+  idIdcc      String
+  clientId    String
+  Idcc        Idcc?    @relation(fields: [idIdcc], references: [code])
+  Client      Client   @relation(fields: [clientId], references: [siren])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String   @default("system")
+
+  @@id([id, idIdcc, type, clientId])
+}
+
+model Software_Classification {
+  level         String   @default("Logiciel")
+  id            String
+  type          String
+  slug          String   @unique
+  label         String
+  description   String?
+  idIdcc        String
+  clientId      String
+  softwareLabel String
+  Idcc          Idcc?    @relation(fields: [idIdcc], references: [code])
+  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String   @default("system")
+
+  @@id([id, idIdcc, type, clientId, softwareLabel])
+}
+
+model Table_Seniority {
+  level               String                @default("Standard")
+  id                  String
+  label               String
+  idcc                String
+  Idcc                Idcc                  @relation(fields: [idcc], references: [code])
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  createdBy           String                @default("system")
+  slug                String                @unique
+  Table_Seniority_Row Table_Seniority_Row[]
+
+  @@id([id, idcc])
+}
+
+model Client_Table_Seniority {
+  level                      String                       @default("client")
+  id                         String
+  label                      String
+  idcc                       String
+  clientId                   String
+  Client                     Client                       @relation(fields: [clientId], references: [siren])
+  Idcc                       Idcc                         @relation(fields: [idcc], references: [code])
+  createdAt                  DateTime                     @default(now())
+  updatedAt                  DateTime                     @updatedAt
+  createdBy                  String                       @default("system")
+  slug                       String                       @unique
+  Client_Table_Seniority_Row Client_Table_Seniority_Row[]
+
+  @@id([id, idcc, clientId])
+}
+
+model Software_Table_Seniority {
+  level                        String                         @default("logiciel")
+  id                           String
+  label                        String
+  idcc                         String
+  clientId                     String
+  softwareLabel                String
+  Software                     Software                       @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  Idcc                         Idcc                           @relation(fields: [idcc], references: [code])
+  createdAt                    DateTime                       @default(now())
+  updatedAt                    DateTime                       @updatedAt
+  createdBy                    String                         @default("system")
+  slug                         String                         @unique
+  Software_Table_Seniority_Row Software_Table_Seniority_Row[]
+
+  @@id([id, idcc, clientId, softwareLabel])
+}
+
+model Software_Table_Seniority_Row {
+  level                    String                   @default("logiciel")
+  id                       String
+  label                    String
+  tableId                  String
+  idcc                     String
+  clientId                 String
+  softwareLabel            String
+  Software_Table_Seniority Software_Table_Seniority @relation(fields: [tableId, clientId, idcc, softwareLabel], references: [id, clientId, idcc, softwareLabel])
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+  createdBy                String                   @default("system")
+  slug                     String                   @unique
+  minMonth                 Int
+  maxMonth                 Int
+  pourcentage              Float
+  coefficient              String?
+  qualification            String?
+  niveau                   String?
+  echelon                  String?
+  indice                   String?
+
+  @@id([id, tableId, idcc, softwareLabel])
+}
+
+model Client_Table_Seniority_Row {
+  level                  String                 @default("client")
+  id                     String
+  label                  String
+  tableId                String
+  idcc                   String
+  clientId               String
+  Client_Table_Seniority Client_Table_Seniority @relation(fields: [tableId, clientId, idcc], references: [id, clientId, idcc])
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  createdBy              String                 @default("system")
+  slug                   String                 @unique
+  minMonth               Int
+  maxMonth               Int
+  pourcentage            Float
+  coefficient            String?
+  qualification          String?
+  niveau                 String?
+  echelon                String?
+  indice                 String?
+
+  @@id([id, tableId, idcc])
+}
+
+model Table_Seniority_Row {
+  level           String          @default("Standard")
+  order           String
+  label           String
+  tableId         String
+  idcc            String
+  Table_Seniority Table_Seniority @relation(fields: [tableId, idcc], references: [id, idcc])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String          @default("system")
+  slug            String          @unique
+  minMonth        Int
+  maxMonth        Int
+  pourcentage     Float
+  coefficient     String?
+  qualification   String?
+  niveau          String?
+  echelon         String?
+  indice          String?
+
+  @@id([order, tableId, idcc])
+}
+
+model Table_Age {
+  level         String          @default("Standard")
+  id            String
+  label         String
+  idcc          String
+  Idcc          Idcc            @relation(fields: [idcc], references: [code])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  createdBy     String          @default("system")
+  slug          String          @unique
+  Table_Age_Row Table_Age_Row[]
+
+  @@id([id, idcc])
+}
+
+model Table_Age_Row {
+  level       String     @default("Standard")
+  id          String
+  label       String
+  age         Int
+  schoolYear  Int
+  minMonth    Int
+  pourcentage Float
+  maxMonth    Int
+  idcc        String
+  Idcc        Idcc       @relation(fields: [idcc], references: [code])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  createdBy   String     @default("system")
+  slug        String     @unique
+  Table_Age   Table_Age? @relation(fields: [tableId, idcc], references: [id, idcc])
+  tableId     String
+
+  @@id([id, idcc, tableId])
+}
+
+model Client_Table_Age {
+  level                String                 @default("client")
+  id                   String
+  label                String
+  clientId             String
+  Client               Client                 @relation(fields: [clientId], references: [siren])
+  idcc                 String
+  Idcc                 Idcc                   @relation(fields: [idcc], references: [code])
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  createdBy            String                 @default("system")
+  slug                 String                 @unique
+  Client_Table_Age_Row Client_Table_Age_Row[]
+
+  @@id([id, idcc, clientId])
+}
+
+model Client_Table_Age_Row {
+  level            String           @default("client")
+  id               String
+  label            String
+  age              Int
+  schoolYear       Int
+  minMonth         Int
+  maxMonth         Int
+  pourcentage      Float
+  idcc             String
+  clientId         String
+  Idcc             Idcc             @relation(fields: [idcc], references: [code])
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  createdBy        String           @default("system")
+  slug             String           @unique
+  Client_Table_Age Client_Table_Age @relation(fields: [tableId, idcc, clientId], references: [id, idcc, clientId])
+  tableId          String
+
+  @@id([id, idcc, tableId, clientId])
+}
+
+model Software_Table_Age {
+  level                  String                   @default("logiciel")
+  id                     String
+  softwareLabel          String
+  label                  String
+  clientId               String
+  Software               Software                 @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  idcc                   String
+  Idcc                   Idcc                     @relation(fields: [idcc], references: [code])
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  createdBy              String                   @default("system")
+  slug                   String                   @unique
+  Software_Table_Age_Row Software_Table_Age_Row[]
+
+  @@id([id, idcc, clientId, softwareLabel])
+}
+
+model Software_Table_Age_Row {
+  level              String              @default("logiciel")
+  id                 String
+  label              String
+  age                Int
+  schoolYear         Int
+  minMonth           Int
+  maxMonth           Int
+  idcc               String
+  pourcentage        Float
+  softwareLabel      String
+  clientId           String
+  Idcc               Idcc                @relation(fields: [idcc], references: [code])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  createdBy          String              @default("system")
+  slug               String              @unique
+  Software_Table_Age Software_Table_Age? @relation(fields: [tableId, idcc, clientId, softwareLabel], references: [id, idcc, clientId, softwareLabel])
+  tableId            String
+
+  @@id([id, idcc, tableId, clientId, softwareLabel])
+}
+
+model Table_Keeping_Wage {
+  level                  String                   @default("Standard")
+  id                     String
+  label                  String
+  idcc                   String
+  Idcc                   Idcc                     @relation(fields: [idcc], references: [code])
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  createdBy              String                   @default("system")
+  slug                   String                   @unique
+  Table_Keeping_Wage_Row Table_Keeping_Wage_Row[]
+
+  @@id([id, idcc])
+}
+
+model Table_Keeping_Wage_Row {
+  level              String             @default("Standard")
+  id                 String
+  label              String
+  age                Int?
+  population         String?
+  deficiency         Int
+  minMonth           Int
+  maxMonth           Int
+  pourcentage        Float
+  numberOfDay        Int
+  idcc               String
+  Idcc               Idcc               @relation(fields: [idcc], references: [code])
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  createdBy          String             @default("system")
+  slug               String             @unique
+  Table_Keeping_Wage Table_Keeping_Wage @relation(fields: [tableId, idcc], references: [id, idcc])
+  tableId            String
+
+  @@id([id, idcc, tableId])
+}
+
+model Client_Table_Keeping_Wage {
+  level                         String                          @default("client")
+  id                            String
+  label                         String
+  clientId                      String
+  Client                        Client                          @relation(fields: [clientId], references: [siren])
+  idcc                          String
+  Idcc                          Idcc                            @relation(fields: [idcc], references: [code])
+  createdAt                     DateTime                        @default(now())
+  updatedAt                     DateTime                        @updatedAt
+  createdBy                     String                          @default("system")
+  slug                          String                          @unique
+  Client_Table_Keeping_Wage_Row Client_Table_Keeping_Wage_Row[]
+
+  @@id([id, idcc, clientId])
+}
+
+model Client_Table_Keeping_Wage_Row {
+  level                     String                    @default("client")
+  id                        String
+  label                     String
+  age                       Int?
+  population                String?
+  deficiency                Int
+  minMonth                  Int
+  clientId                  String
+  maxMonth                  Int
+  pourcentage               Float
+  numberOfDay               Int
+  idcc                      String
+  Idcc                      Idcc                      @relation(fields: [idcc], references: [code])
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime                  @updatedAt
+  createdBy                 String                    @default("system")
+  slug                      String                    @unique
+  Client_Table_Keeping_Wage Client_Table_Keeping_Wage @relation(fields: [tableId, idcc, clientId], references: [id, idcc, clientId])
+  tableId                   String
+
+  @@id([id, idcc, tableId, clientId])
+}
+
+model Software_Table_Keeping_Wage {
+  level                           String                            @default("client")
+  id                              String
+  label                           String
+  clientId                        String
+  softwareLabel                   String
+  Software                        Software                          @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  idcc                            String
+  Idcc                            Idcc                              @relation(fields: [idcc], references: [code])
+  createdAt                       DateTime                          @default(now())
+  updatedAt                       DateTime                          @updatedAt
+  createdBy                       String                            @default("system")
+  slug                            String                            @unique
+  Software_Table_Keeping_Wage_Row Software_Table_Keeping_Wage_Row[]
+
+  @@id([id, idcc, clientId, softwareLabel])
+}
+
+model Software_Table_Keeping_Wage_Row {
+  level                       String                      @default("client")
+  id                          String
+  label                       String
+  age                         Int?
+  population                  String?
+  deficiency                  Int
+  minMonth                    Int
+  clientId                    String
+  maxMonth                    Int
+  pourcentage                 Float
+  numberOfDay                 Int
+  sofwateLabel                String
+  idcc                        String
+  Idcc                        Idcc                        @relation(fields: [idcc], references: [code])
+  createdAt                   DateTime                    @default(now())
+  updatedAt                   DateTime                    @updatedAt
+  createdBy                   String                      @default("system")
+  slug                        String                      @unique
+  Software_Table_Keeping_Wage Software_Table_Keeping_Wage @relation(fields: [tableId, idcc, clientId, sofwateLabel], references: [id, idcc, clientId, softwareLabel])
+  tableId                     String
+
+  @@id([id, idcc, tableId, clientId, sofwateLabel])
+}
+
+model Table_Wage {
+  level          String           @default("Standard")
+  id             String
+  label          String
+  idcc           String
+  Idcc           Idcc             @relation(fields: [idcc], references: [code])
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  createdBy      String           @default("system")
+  slug           String           @unique
+  Table_Wage_Row Table_Wage_Row[]
+
+  @@id([id, idcc])
+}
+
+model Table_Wage_Row {
+  level      String     @default("Standard")
+  id         String
+  label      String
+  age        Int?
+  population String?
+  minMonth   Int
+  maxMonth   Int
+  value      String
+  idcc       String
+  Idcc       Idcc       @relation(fields: [idcc], references: [code])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  createdBy  String     @default("system")
+  slug       String     @unique
+  Table_Wage Table_Wage @relation(fields: [tableId, idcc], references: [id, idcc])
+  tableId    String
+
+  @@id([id, idcc, tableId])
+}
+
+model Client_Table_Wage {
+  level                 String                  @default("client")
+  id                    String
+  label                 String
+  clientId              String
+  Client                Client                  @relation(fields: [clientId], references: [siren])
+  idcc                  String
+  Idcc                  Idcc                    @relation(fields: [idcc], references: [code])
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  createdBy             String                  @default("system")
+  slug                  String                  @unique
+  Client_Table_Wage_Row Client_Table_Wage_Row[]
+
+  @@id([id, idcc, clientId])
+}
+
+model Client_Table_Wage_Row {
+  level             String            @default("client")
+  id                String
+  label             String
+  age               Int?
+  population        String?
+  minMonth          Int
+  clientId          String
+  maxMonth          Int
+  value             String
+  idcc              String
+  Idcc              Idcc              @relation(fields: [idcc], references: [code])
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  createdBy         String            @default("system")
+  slug              String            @unique
+  Client_Table_Wage Client_Table_Wage @relation(fields: [tableId, idcc, clientId], references: [id, idcc, clientId])
+  tableId           String
+
+  @@id([id, idcc, tableId, clientId])
+}
+
+model Software_Table_Wage {
+  level                   String                    @default("logiciel")
+  id                      String
+  clientId                String
+  label                   String
+  softwareLabel           String
+  Software                Software                  @relation(fields: [clientId, softwareLabel], references: [clientId, label])
+  idcc                    String
+  Idcc                    Idcc                      @relation(fields: [idcc], references: [code])
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  createdBy               String                    @default("system")
+  slug                    String                    @unique
+  Software_Table_Wage_Row Software_Table_Wage_Row[]
+
+  @@id([id, idcc, clientId, softwareLabel])
+}
+
+model Software_Table_Wage_Row {
+  level               String              @default("logiciel")
+  id                  String
+  label               String
+  age                 Int?
+  population          String?
+  minMonth            Int
+  clientId            String
+  tableId             String
+  softwareLabel       String
+  maxMonth            Int
+  value               String
+  idcc                String
+  Idcc                Idcc                @relation(fields: [idcc], references: [code])
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  createdBy           String              @default("system")
+  slug                String              @unique
+  Software_Table_Wage Software_Table_Wage @relation(fields: [tableId, idcc, clientId, softwareLabel], references: [id, idcc, clientId, softwareLabel])
+
+  @@id([id, idcc, tableId, clientId, softwareLabel])
 }

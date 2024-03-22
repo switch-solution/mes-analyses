@@ -12,7 +12,6 @@ import { authentificationActionUserIsAdminClient, ActionError } from "@/lib/safe
 import z from "zod";
 import { getSoftwareBySlug } from "@/src/query/software.query";
 import { getUserByEmail, getUserById } from "@/src/query/user.query";
-import { softwareCopyData } from "@/src/query/software.query";
 
 export const deleteSoftware = async (softwareSlug: string, clientSlug: string) => {
     const userId = await userIsValid()
@@ -156,7 +155,6 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
                 isActivated: true
             }
         })
-        await softwareCopyData(software.slug)
 
         const log: Logger = {
             level: "info",

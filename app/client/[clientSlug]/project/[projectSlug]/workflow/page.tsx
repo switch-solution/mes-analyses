@@ -50,7 +50,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     <BreadcrumbSeparator />
                 </BreadcrumbList>
             </Breadcrumb>
-            <DataTable columns={columns} data={workFlow} inputSearch="lastname" inputSearchPlaceholder="Chercher par nom" href={`/client/${params.clientSlug}/project/${params.projectSlug}/user/create`} buttonLabel="Inviter un utilisateur" />
+            <DataTable columns={columns} data={workFlow} inputSearch="bookLabel" inputSearchPlaceholder="Chercher par cahier" href={`/client/${params.clientSlug}/project/${params.projectSlug}/user/create`} buttonLabel="Inviter un utilisateur" />
         </Container>
     )
 }

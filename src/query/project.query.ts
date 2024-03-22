@@ -302,7 +302,7 @@ export const copyTask = async (projectSlug: string) => {
                 createdBy: project.createdBy,
                 dateStart: new Date(),
                 deadline: new Date(),
-                level: task.level,
+                level: '',
                 owner: project.createdBy,
                 clientId: project.clientId,
                 projectLabel: project.label,

@@ -4,7 +4,6 @@ import { userIsEditorClient } from "@/src/query/security.query";
 import { getComponnentByClientFilterAndSoftware } from "@/src/query/software_component.query";
 import Container from "@/components/layout/container";
 import { Slash } from "lucide-react"
-
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -29,7 +28,7 @@ export default async function Page({ params }: { params: { clientSlug: string, s
             isForm: component.isForm,
             isTextArea: component.isTextArea,
             isImage: component.isImage,
-            softwareSlug: params.softwareSlug
+            softwareSlug: params.softwareSlug,
 
         }
     })
@@ -51,7 +50,6 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                     </BreadcrumbSeparator>
                 </BreadcrumbList>
             </Breadcrumb>
-
             <DataTable columns={columns} data={component} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/editor/component/create`} buttonLabel="Créer un nouveau composant" />
         </Container>
     )

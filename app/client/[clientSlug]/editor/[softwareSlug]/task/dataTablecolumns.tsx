@@ -6,16 +6,14 @@ import { MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Attachment = {
+export type Task = {
     clientSlug: string | null
+    softwareSlug: string | null
     label: string | null
     description: string | null
     isObligatory: boolean | null
-    softwareLabel: string | null
     slug: string | null
-    multiple: boolean | null
     accept: string | null
-    deadline: number | null
 }
 import {
     DropdownMenu,
@@ -27,7 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 
-export const columns: ColumnDef<Attachment>[] = [
+export const columns: ColumnDef<Task>[] = [
 
     {
         accessorKey: "label",
@@ -37,19 +35,6 @@ export const columns: ColumnDef<Attachment>[] = [
         accessorKey: "isObligatory",
         header: "Obligatoire",
         cell: ({ row }) => <Badge>{row.getValue("isObligatory") ? "oui" : "non"}</Badge>,
-    },
-    {
-        accessorKey: "multiple",
-        header: "Multiple",
-        cell: ({ row }) => <Badge>{row.getValue("multiple") ? "oui" : "non"}</Badge>,
-    },
-    {
-        accessorKey: "deadline",
-        header: "Nombre de jours pour déposer",
-    },
-    {
-        accessorKey: "softwareLabel",
-        header: "Logiciel",
     },
     {
         accessorKey: "accept",

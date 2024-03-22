@@ -1,4 +1,4 @@
-export const generateSlug = async (str: string) => {
+export const generateSlug = (str: string) => {
     return str
         .toLowerCase() // Convertit la chaîne en minuscules
         .replace(/[àáâãäå]/g, 'a') // Remplace les caractères accentués par leur équivalent sans accent

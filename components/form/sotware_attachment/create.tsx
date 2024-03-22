@@ -1,14 +1,13 @@
 "use client";
 
-import React from 'react'
+import { useState } from "react"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { StandardAttachmentCreateSchema } from '@/src/helpers/definition';
+import { StandardTaskCreateSchema } from '@/src/helpers/definition';
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import type { getMySoftware } from "@/src/query/user.query"
 import {
     Form,
     FormControl,
@@ -25,23 +24,39 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-export default function CreateStandardAttchment({ clientSlug, softwares }: { clientSlug: string, softwares: getMySoftware }) {
+import { ButtonLoading } from "@/components/ui/button-loader";
+import { toast } from "sonner"
+import { createSoftwareTask } from "@/src/features/actions/software_task/software_task.actions"
 
-    const form = useForm<z.infer<typeof StandardAttachmentCreateSchema>>({
-        resolver: zodResolver(StandardAttachmentCreateSchema),
+export default function CreateStandardAttchment({ clientSlug, softwareSlug }: { clientSlug: string, softwareSlug: string }) {
+    const [loading, setLoading] = useState(false)
+
+    const form = useForm<z.infer<typeof StandardTaskCreateSchema>>({
+        resolver: zodResolver(StandardTaskCreateSchema),
         defaultValues: {
             clientSlug,
+            softwareSlug,
             label: "",
             description: "",
             isObligatory: false,
-            softwareLabel: softwares.at(0)?.softwareLabel,
             multiple: false,
             accept: "pdf",
-            deadline: 1
         }
     })
-    const onSubmit = async (data: z.infer<typeof StandardAttachmentCreateSchema>) => {
+    const onSubmit = async (data: z.infer<typeof StandardTaskCreateSchema>) => {
         try {
+            setLoading(true)
+            const action = await createSoftwareTask(data)
+            if (action?.serverError) {
+                setLoading(false)
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
+            }
         } catch (err) {
             console.log(err)
             throw new Error("Erreur lors de la création de la rubrique.")
@@ -65,24 +80,12 @@ export default function CreateStandardAttchment({ clientSlug, softwares }: { cli
                     />
                     <FormField
                         control={form.control}
-                        name="softwareLabel"
+                        name="softwareSlug"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Logiciel</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Sélectionner votre logiciel" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {softwares.map((software) => (
-                                            <SelectItem key={software.softwareLabel} value={software.softwareLabel}>{software.softwareLabel}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-
-                                <FormMessage />
+                                <FormControl>
+                                    <Input type="hidden"{...field} required />
+                                </FormControl>
                             </FormItem>
                         )}
                     />
@@ -93,7 +96,7 @@ export default function CreateStandardAttchment({ clientSlug, softwares }: { cli
                             <FormItem>
                                 <FormLabel>Libellé de la pièce jointe</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="KBIS" {...field} />
+                                    <Input type="text" placeholder="KBIS" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -104,28 +107,10 @@ export default function CreateStandardAttchment({ clientSlug, softwares }: { cli
                         name="description"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Description du document</FormLabel>
+                                <FormLabel>Description</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Fichier au format dsn" {...field} />
+                                    <Input type="text"{...field} required />
                                 </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="deadline"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Nombre de jours pour founir le document</FormLabel>
-                                <FormControl>
-                                    <Input type="number" min={1} placeholder="Fichier au format dsn" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                    Le nombre de jour de ce champ sera ajouté à la date de création du projet.
-                                    Par exemple si vous indiquez 15 alors pour un projet ajouté le 01/01/XXXX la date limite sera le 16/01/XXXX
-                                </FormDescription>
-                                <FormMessage />
                             </FormItem>
                         )}
                     />
@@ -148,7 +133,6 @@ export default function CreateStandardAttchment({ clientSlug, softwares }: { cli
                                         <SelectItem value="csv">CSV</SelectItem>
                                         <SelectItem value="txt">texte</SelectItem>
                                         <SelectItem value="img">image</SelectItem>
-
                                     </SelectContent>
                                 </Select>
 
@@ -196,7 +180,7 @@ export default function CreateStandardAttchment({ clientSlug, softwares }: { cli
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Ajouter</Button>
+                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
                 </form>
             </Form>
         </div>

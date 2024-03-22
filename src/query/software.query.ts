@@ -3,16 +3,7 @@ import { Prisma } from '@prisma/client'
 import { getClientBySlug } from "./client.query";
 import { getMyClientActive, getMySoftwareActive } from "./user.query";
 import { getMySoftware } from "./user.query";
-import { copyFormToSoftware } from "@/src/query/form.query";
-import { copyBook } from "@/src/query/book.query";
-import { copyTask } from "@/src/query/task.query";
-import { copyCounter } from "@/src/query/counter.query";
-import { copySetting } from "./software_setting.query";
-import type { Logger } from "@/src/helpers/type";
-import { createLog } from "./logger.query";
-import { copyAbsence } from "./absence.query";
-import { copyAccumulationToSoftware } from "./accumalation.query";
-import { copyTable } from "./table.query";
+
 export const getSoftwareBySlug = async (slug: string) => {
     const software = await prisma.software.findUniqueOrThrow({
         where: {
@@ -180,90 +171,7 @@ export const getSoftwareByClientSlug = async (clientSlug: string) => {
 export type getSoftwareByClientSlug = Prisma.PromiseReturnType<typeof getSoftwareByClientSlug>;
 
 
-/**
- * This function get the software slug active of the user
- * @returns 
- */
 
-
-export const softwareCopyData = async (softwareSlug: string) => {
-    try {
-        try {
-            await copyFormToSoftware(softwareSlug)
-
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la copie des formulaires ${softwareSlug}`)
-        }
-        //Add Settings
-        try {
-            await copySetting(softwareSlug)
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la copie des paramètres ${softwareSlug}`)
-        }
-        //Copy books and chapters
-        try {
-            await copyBook(softwareSlug)
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la copie des cahiers ${softwareSlug}`)
-        }
-        //Copy absence
-        try {
-            await copyAbsence(softwareSlug)
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la copie des absences ${softwareSlug}`)
-        }
-        //Copy Counter
-        try {
-            await copyCounter(softwareSlug)
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la copie des compteurs ${softwareSlug}`)
-        }
-        //Copy Task
-        try {
-            await copyTask(softwareSlug)
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la copie des tâches ${softwareSlug}`)
-        }
-        //Copy Accumulation
-        try {
-            await copyAccumulationToSoftware(softwareSlug)
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la copie des cumuls de paie ${softwareSlug}`)
-        }
-        //Copy Table
-        try {
-            await copyTable(softwareSlug)
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la copie des tables ${softwareSlug}`)
-        }
-        return
-    } catch (err) {
-        const software = await getSoftwareBySlug(softwareSlug)
-        await prisma.software.delete({
-            where: {
-                slug: softwareSlug
-            }
-        })
-        const log: Logger = {
-            level: "error",
-            message: `Erreur lors de la copie des données du logiciel ${softwareSlug} suppression des données`,
-            scope: "software",
-            clientId: software.clientId,
-        }
-        await createLog(log)
-        console.error(err)
-        throw new Error(`Une erreur est survenue lors de la copie des données du logiciel. Le logiciel a été supprimé`)
-    }
-
-}
 
 export const getSoftwaresItemsFilterByUserSoftware = async () => {
     try {

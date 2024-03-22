@@ -1,8 +1,7 @@
 import { env } from "./lib/env"
+import { ipAddress, next } from '@vercel/edge'
 import { Ratelimit } from '@upstash/ratelimit'
 import { kv } from '@vercel/kv'
-import { authOptions } from "@/lib/auth"
-import NextAuth from 'next-auth';
 
 export const config = {
     matcher: ["/home/:patch*", "/profile", "/client/:path*", "/editor/:path*", "/support/:path*", "/project/:path*", "/setup/:path*", "/feedback", "/about", "/profil"]
@@ -11,14 +10,17 @@ export const config = {
 
 const ratelimit = new Ratelimit({
     redis: kv,
-    // 5 requests from the same IP in 10 seconds
-    limiter: Ratelimit.slidingWindow(5, '10 s'),
+    // 10 requests from the same IP in 10 seconds
+    limiter: Ratelimit.slidingWindow(10, '10 s'),
+    timeout: 1000, // 1 second
+
+
 })
 
 import { NextRequest, NextResponse } from 'next/server'
 
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     //Application is only available in France 
     if (request.geo?.country !== "FR" && env.NODE_ENV === "production") {
         return new Response('Blocked for legal reasons', { status: 451 })
@@ -27,6 +29,17 @@ export function middleware(request: NextRequest) {
     //Application maintenance mode
     if (env.MAINTENANCE) {
         return new Response('Service Unavailable', { status: 503 })
+    }
+
+    //rate limiting only for production
+    const node_env = env.NODE_ENV
+    const mode = env.MODE
+    if (node_env === "production" && mode === "SAAS") {
+        const ip = ipAddress(request) || '127.0.0.1'
+        const { success, pending, limit, reset, remaining } = await ratelimit.limit(ip)
+        if (!success) {
+            return new Response('Blocked for rate limit', { status: 503 })
+        }
     }
 
 

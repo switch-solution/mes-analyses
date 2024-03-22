@@ -65,7 +65,7 @@ export const UserMenu = ({ clientSlug, softwareSlug }: { clientSlug: string, sof
                     <MenubarTrigger>Client</MenubarTrigger>
                     <MenubarContent>
                         <MenubarItem>
-                            <Link href={`/client/${clientSlug}`}>Ouvrir</Link>
+                            <Link href={`/client/${clientSlug}`}>Tableau de bord</Link>
                         </MenubarItem>
                         <MenubarItem>
                             <Link href={`/client/${clientSlug}/administrator/edit`}>Editer</Link>
@@ -79,7 +79,6 @@ export const UserMenu = ({ clientSlug, softwareSlug }: { clientSlug: string, sof
                         <MenubarItem><Link href={`/client/${clientSlug}/administrator/software`}>Logiciels</Link></MenubarItem>
                         <MenubarItem><Link href={`/client/${clientSlug}/administrator/user`}>Utilisateur</Link></MenubarItem>
                         <MenubarItem><Link href={`/client/${clientSlug}/administrator/invoice`}>Facture</Link></MenubarItem>
-
                         <MenubarSub>
                         </MenubarSub>
                     </MenubarContent>
@@ -87,20 +86,36 @@ export const UserMenu = ({ clientSlug, softwareSlug }: { clientSlug: string, sof
                 <MenubarMenu>
                     <MenubarTrigger>Editeur</MenubarTrigger>
                     <MenubarContent>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}`}>Ouvrir</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/form`}>Formulaire</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/textarea`}>Zone de texte</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/image`}>Image</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/table`}>Table</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/book`}>Livres</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/attachment`}>PJ</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/constant`}>Constante</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/item`}>Rubriques</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/component`}>Composant</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/table`}>Table</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/compensation`}>Maintien des salaires</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/absence`}>Absences</Link></MenubarItem>
-                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/accumulation`}>Cumul de paie</Link></MenubarItem>
+                        <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/`}>Tableau de bord</Link></MenubarItem>
+
+                        <MenubarSub>
+                            <MenubarSubTrigger>Paramétrage cahier</MenubarSubTrigger>
+                            <MenubarSubContent>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/book`}>Livres</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/form`}>Formulaire</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/textarea`}>Zone de texte</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/image`}>Image</Link></MenubarItem>
+                            </MenubarSubContent>
+                        </MenubarSub>
+                        <MenubarSub>
+                            <MenubarSubTrigger>Paramétrage Convention collective</MenubarSubTrigger>
+                            <MenubarSubContent>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/classification`}>Classification</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/constant`}>Constante</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/seniority`}>Table ancienneté</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/age`}>Table des ages</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/keepingWage`}>Table maintien des salaires</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/wage`}>Table minimum conventionnel</Link></MenubarItem>
+                            </MenubarSubContent>
+                        </MenubarSub>
+                        <MenubarSub>
+                            <MenubarSubTrigger>Paramétrage de la paie</MenubarSubTrigger>
+                            <MenubarSubContent>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/item`}>Rubriques</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/accumulation`}>Cumul de paie</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/absence`}>Absences</Link></MenubarItem>
+                            </MenubarSubContent>
+                        </MenubarSub>
                     </MenubarContent>
                 </MenubarMenu>
                 <MenubarMenu>

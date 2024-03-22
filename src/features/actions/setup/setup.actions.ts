@@ -10,7 +10,6 @@ import { getMyClient, getUserById } from "@/src/query/user.query";
 import { generateSlug } from "@/src/helpers/generateSlug";
 import { getClientBySiren } from "@/src/query/client.query";
 import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
-import { softwareCopyData } from "@/src/query/software.query";
 import { copyInvitation, getInvitation } from "@/src/query/invitation.query";
 import { userSetup } from "@/src/query/user.query";
 export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
@@ -145,8 +144,6 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
             }
         })
         if (!software) throw new ActionError("Le logiciel n'a pas été créé.")
-        await softwareCopyData(software.slug)
-
         //Setup user
         await userSetup(userId)
     } catch (err: unknown) {

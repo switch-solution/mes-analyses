@@ -5,38 +5,6 @@ import { Prisma } from '@prisma/client'
 import { getSoftwareBySlug } from './software.query'
 import { syncGenerateSlug } from '@/src/helpers/generateSlug'
 
-export const copySetting = async (softwareSlug: string) => {
-    try {
-        const softwareExist = await getSoftwareBySlug(softwareSlug)
-
-        const settings = await prisma.setting.findMany({
-            where: {
-                system: false
-            }
-        })
-        let count = await prisma.software_Setting.count()
-        const settingsSoftware = settings.map(setting => {
-            count++
-            const { system, ...settingWithoutSystem } = setting;
-            return {
-                ...settingWithoutSystem,
-                clientId: softwareExist.clientId,
-                softwareLabel: softwareExist.label,
-                slug: syncGenerateSlug(`PARAM-${count}-${setting.id}-${setting.label}`)
-
-            }
-        })
-        await prisma.software_Setting.createMany({
-            data: settingsSoftware
-        })
-        return
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la copie des paramètres du logiciel.")
-    }
-
-}
-
 export const getSoftwareSettingBySlug = async (slug: string) => {
     try {
         const setting = await prisma.software_Setting.findUnique({
