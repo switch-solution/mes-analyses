@@ -1,7 +1,6 @@
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { userIsEditorClient } from "@/src/query/security.query";
-import { getComponnentByClientFilterAndSoftware } from "@/src/query/software_component.query";
 import Container from "@/components/layout/container";
 import { Slash } from "lucide-react"
 import {

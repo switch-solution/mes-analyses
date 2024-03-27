@@ -24,14 +24,6 @@ export default function EditClient({ slug, client }: { slug: string, client: any
         defaultValues: {
             clientSlug: slug,
             socialReason: client?.socialReason,
-            ape: client?.ape ? client?.ape : "",
-            address1: client?.address1 ? client?.address1 : "",
-            address2: client?.address2 ? client?.address2 : "",
-            address3: client?.address3 ? client?.address3 : "",
-            address4: client?.address4 ? client?.address4 : "",
-            city: client?.city ? client?.city : "",
-            codeZip: client?.codeZip ? client?.codeZip : "",
-            country: client?.country ? client?.country : "",
         },
     })
 
@@ -87,95 +79,7 @@ export default function EditClient({ slug, client }: { slug: string, client: any
                         )}
 
                     />
-                    <FormField
-                        control={form.control}
-                        name="ape"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>APE</FormLabel>
-                                <FormControl>
-                                    <Input minLength={5} maxLength={5} placeholder="Code APE" required {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
 
-                        )}
-
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="address1"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Adresse 1</FormLabel>
-                                <FormControl>
-                                    <Input maxLength={50} placeholder="Rue de la victoire" required {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-
-                        )}
-
-                    />
-                    <FormField
-                        control={form.control}
-                        name="address2"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Adresse 2</FormLabel>
-                                <FormControl>
-                                    <Input maxLength={50} placeholder="Rue de la victoire" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-
-                        )}
-
-                    />
-                    <FormField
-                        control={form.control}
-                        name="address3"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Adresse 3</FormLabel>
-                                <FormControl>
-                                    <Input maxLength={50} placeholder="Rue de la victoire" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-
-                        )}
-
-                    />
-                    <FormField
-                        control={form.control}
-                        name="city"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Ville</FormLabel>
-                                <FormControl>
-                                    <Input maxLength={50} placeholder="Rue de la victoire" required {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-
-                    />
-                    <FormField
-                        control={form.control}
-                        name="codeZip"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Code postal</FormLabel>
-                                <FormControl>
-                                    <Input minLength={5} maxLength={5} placeholder="Rue de la victoire" required {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-
-                    />
                     {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
                 </form>
             </Form>

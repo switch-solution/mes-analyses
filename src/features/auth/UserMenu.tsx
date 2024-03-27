@@ -89,9 +89,9 @@ export const UserMenu = ({ clientSlug, softwareSlug }: { clientSlug: string, sof
                         <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/`}>Tableau de bord</Link></MenubarItem>
 
                         <MenubarSub>
-                            <MenubarSubTrigger>Paramétrage cahier</MenubarSubTrigger>
+                            <MenubarSubTrigger>Paramétrage des processus</MenubarSubTrigger>
                             <MenubarSubContent>
-                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/book`}>Livres</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/processus`}>Voir les processus</Link></MenubarItem>
                                 <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/form`}>Formulaire</Link></MenubarItem>
                                 <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/textarea`}>Zone de texte</Link></MenubarItem>
                                 <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/image`}>Image</Link></MenubarItem>

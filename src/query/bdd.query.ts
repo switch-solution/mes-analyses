@@ -14,10 +14,7 @@ export const getCountAllTables = async () => {
         const countLoggers = await prisma.logger.count()
         const countDsnOps = await prisma.dsn_OPS.count()
         const countDsnAbsence = await prisma.dsn_Absence.count()
-        const countSoftwareBook = await prisma.software_Book.count()
         const countSoftwareAbsence = await prisma.software_Absence.count()
-        const countProjectBook = await prisma.project_Book.count()
-        const countProjectValue = await prisma.project_Value.count()
         const datas = [
             {
                 label: 'Utilisateurs',
@@ -63,22 +60,7 @@ export const getCountAllTables = async () => {
                 label: 'DSN Absences',
                 count: countDsnAbsence
             },
-            {
-                label: 'Livres par logiciel',
-                count: countSoftwareBook
-            },
-            {
-                label: 'Absences par logiciel',
-                count: countSoftwareAbsence
-            },
-            {
-                label: 'Livres par projet',
-                count: countProjectBook
-            },
-            {
-                label: 'Valeurs par projet',
-                count: countProjectValue
-            }
+
         ]
         return datas
     } catch (err) {

@@ -27,6 +27,7 @@ export const createUser = async (data: z.infer<typeof RegisterSchema>) => {
     })
 
     const invitation = await getInvitation(email)
+    /** 
     if (invitation) {
         await prisma.userClient.create({
             data: {
@@ -37,6 +38,7 @@ export const createUser = async (data: z.infer<typeof RegisterSchema>) => {
             }
         })
     }
+    */
 
 
     redirect('/api/auth/signin?callbackUrl=%2Fhome');

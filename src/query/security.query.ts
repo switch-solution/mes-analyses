@@ -6,8 +6,6 @@ import { getClientBySlug } from "./client.query";
 import { createLog } from "./logger.query";
 import type { Logger } from "@/src/helpers/type";
 import { getMyProjects, getProjectBySlug } from "./project.query";
-import { getRecordIdExist } from "./project_value.query";
-import { getProjectBookBySlug } from "./project_book.query";
 import { getMyClientActive, getMySoftwareActive } from "./user.query";
 import { getSoftwareBySlug } from "./software.query";
 /**
@@ -343,7 +341,11 @@ export const userIsAuthorizeInThisProject = async (projectSlug: string) => {
     try {
         const userId = await userIsValid()
         if (!userId) throw new ActionError("Vous devez être connecté pour effectuer cette action.")
-        const projectsExist = await getProjectBySlug(projectSlug)
+        const projectsExist = await prisma.project.findUniqueOrThrow({
+            where: {
+                slug: projectSlug
+            }
+        })
         if (!projectsExist) {
             new ActionError("Le projet n'existe pas")
         }
@@ -382,8 +384,6 @@ export const userIsAuthorizeInThisProject = async (projectSlug: string) => {
         await banUser(await userIsValid())
         throw new ActionError("Une erreur est survenue lors de la vérification de l'utilisateur")
     }
-
-
 }
 
 
@@ -392,7 +392,7 @@ export const userIsAuthorizeInThisProject = async (projectSlug: string) => {
  * @param userId 
  */
 
-const banUser = async (userId: string) => {
+export const banUser = async (userId: string) => {
     try {
         const countIncident = await prisma.logger.count({
             where: {
@@ -458,57 +458,6 @@ export const userRole = async () => {
     }
 }
 
-/**
- * This function is used to check if this record exist on this project and book
- * @param param0 
- * @returns 
- */
-
-export const getCountValueByRecordIdForValidation = async (
-    {
-        recordId,
-        projectSlug,
-        bookSlug,
-        clientSlug
-    }:
-        {
-            recordId: string,
-            projectSlug: string,
-            bookSlug: string,
-            clientSlug: string
-        }
-
-) => {
-    try {
-        const clientExist = await getClientBySlug(clientSlug)
-        if (!clientExist) throw new Error('Client inexistant')
-        const projectExist = await getProjectBySlug(projectSlug)
-        if (!projectExist) throw new Error('Projet inexistant')
-        const bookExist = await getProjectBookBySlug(bookSlug)
-        if (!bookExist) throw new Error('Livre inexistant')
-        const recordExit = await getRecordIdExist(recordId)
-        if (!recordExit) throw new Error('Record inexistant')
-        const count = await prisma.project_Value.count({
-            where: {
-                recordId: recordId,
-                isActivated: true,
-                projectLabel: projectExist.label,
-                projectSoftwareLabel: projectExist.softwareLabel,
-                bookLabel: bookExist.label,
-                clientId: clientExist.siren
-            }
-        })
-
-        return count
-
-
-
-    } catch (err) {
-        console.error(err)
-        throw new Error("Erreur lors de la récupération des données")
-    }
-
-}
 
 /**
  * This function return the client and software active for the user

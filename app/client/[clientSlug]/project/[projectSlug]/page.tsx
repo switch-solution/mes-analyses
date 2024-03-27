@@ -30,25 +30,19 @@ import {
     IconTableColumn,
 } from "@tabler/icons-react";
 import Link from "next/link"
-import { getBookByProjectSlug } from "@/src/query/book.query";
-import { Badge } from "@/components/ui/badge";
 import { getCountProjectTaskActive } from "@/src/query/project_task.query";
 import { getUsersProject } from "@/src/query/project.query";
-import { ArrowRight } from "lucide-react";
-import { getPourcentageValidation } from "@/src/query/project_workflow.query";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
 
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
     if (!userIsAuthorized) throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
-    const books = await getBookByProjectSlug(params.projectSlug)
     const countTasks = await getCountProjectTaskActive(params.projectSlug)
     const getUsers = await getUsersProject(params.projectSlug)
-    const pourcentage = await getPourcentageValidation(params.projectSlug)
     const items = [
         {
 
             description: (
-                <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/book/`}>Consulter les cahiers</Link>
+                <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/`}>Processus d&apos;analyse</Link>
             ),
             header: (<Table>
                 <TableHeader>
@@ -58,15 +52,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         <TableHead>Ouvrir</TableHead>
                     </TableRow>
                 </TableHeader>
-                <TableBody>
-                    {books?.map(book =>
-                        <TableRow key={book.projectLabel}>
-                            <TableCell>{book.label}</TableCell>
-                            <TableCell><Badge>En cours</Badge></TableCell>
-                            <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/book/${book.slug}`}><ArrowRight /></Link></TableCell>
-                        </TableRow>)}
-                </TableBody>
-
             </Table>
 
             ),
@@ -83,7 +68,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         {
             title: "Pourcentage de réalisation",
             description: (<Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/workflow`}>Avancement de la validation des cahiers</Link>),
-            header: <span className="flex size-full flex-col items-center justify-center text-8xl">{pourcentage}%</span>,
+            header: <span className="flex size-full flex-col items-center justify-center text-8xl">5%</span>,
             className: "md:col-span-1",
             icon: <IconSignature className="size-4 text-neutral-500" />,
         },

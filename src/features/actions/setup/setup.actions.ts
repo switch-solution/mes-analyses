@@ -157,8 +157,8 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
 
 export const createSetupClient = authentifcationAction(SetupClientSchema, async (values: z.infer<typeof SetupClientSchema>, userId) => {
 
-    const { socialReason, siren } = SetupClientSchema.parse(values)
-    const slug = await generateSlug(socialReason)
+    const { socialReason, siren, defaultRole } = SetupClientSchema.parse(values)
+    const slug = generateSlug(socialReason)
     const clientSlugExist = await prisma.client.findUnique({
         where: {
             slug: slug
@@ -206,6 +206,7 @@ export const createSetupClient = authentifcationAction(SetupClientSchema, async 
                             isActivated: true,
                             isBlocked: false,
                             isEditor: true,
+                            defaultRole: defaultRole,
 
                         }
                     }

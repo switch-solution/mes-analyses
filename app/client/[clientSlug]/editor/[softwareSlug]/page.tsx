@@ -32,8 +32,6 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link"
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import TinyLineChart from "@/components/chart/tinyLineChart"
-import { getStdBookForSoftwareActive } from "@/src/query/software_book.query";
-import { getComponentFilterByUser } from "@/src/query/client.query";
 
 const first = {
     initial: {
@@ -59,9 +57,7 @@ const second = {
 export default async function Page({ params }: { params: { clientSlug: string } }) {
     const isEditor = await userIsEditorClient(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
-    const countSoftwares = await getComponentFilterByUser(params.clientSlug)
     const softwareActive = await getMySoftwareActive()
-    const books = await getStdBookForSoftwareActive()
     const items = [
         {
             title: "Cahiers",
@@ -76,13 +72,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {books?.map(book =>
-                        <TableRow key={book.slug}>
-                            <TableCell>{book.softwareLabel}</TableCell>
-                            <TableCell>{book.label}</TableCell>
-                            <TableCell>{book.description}</TableCell>
-                            <TableCell><Link href={`/client/${params.clientSlug}/editor/${softwareActive}/book/${book.slug}`}><ArrowRight /></Link></TableCell>
-                        </TableRow>)}
+
                 </TableBody>
 
             </Table>
@@ -94,7 +84,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
         {
             title: "Nombre de composants",
             description: (<Link href={`/client/${params.clientSlug}/editor/${softwareActive}/component`}>Voir les composants</Link>),
-            header: <span className="flex h-full flex-col items-center justify-center text-6xl">{countSoftwares}</span>,
+            header: <span className="flex h-full flex-col items-center justify-center text-6xl">5</span>,
             className: "md:col-span-1",
             icon: <IconFileBroken className="size-4 text-neutral-500" />,
         },

@@ -81,6 +81,7 @@ export const copyInvitation = async (invitation: getInvitation, userId: string) 
                 create: {
                     userId: userId,
                     clientId: invitation.clientId,
+                    defaultRole: "collaborateur",
                     isBlocked: false,
                     isBillable: invitation.isBillable,
                     isActivated: true,

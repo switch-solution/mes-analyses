@@ -25,7 +25,6 @@ export default async function NavBar() {
         <nav className="flex w-full flex-row items-center justify-between lg:justify-start" aria-label="navbar">
             <div className="w-full">
                 {isSetup && clientSlug && softwareSlug ? <UserMenu clientSlug={clientSlug} softwareSlug={softwareSlug} /> : undefined}
-
             </div>
             <div className="flex flex-row items-center">
                 <ThemeToggle />

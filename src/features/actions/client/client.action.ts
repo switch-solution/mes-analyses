@@ -11,7 +11,7 @@ import { Logger } from '@/src/helpers/type';
 import { createLog } from '@/src/query/logger.query';
 
 export const editClient = authentificationActionUserIsAdminClient(ClientEditFormSchema, async (values: z.infer<typeof ClientEditFormSchema>, { clientId, userId }) => {
-    const { clientSlug, ape, address1, address2, address3, address4, city, codeZip, country, socialReason } = ClientEditFormSchema.parse(values)
+    const { clientSlug, socialReason } = ClientEditFormSchema.parse(values)
     try {
         const siren = await getClientSirenBySlug(clientSlug)
         if (!siren) throw new ActionError("Le client n'existe pas.")
@@ -21,14 +21,7 @@ export const editClient = authentificationActionUserIsAdminClient(ClientEditForm
             },
             data: {
                 socialReason: socialReason,
-                ape: ape,
-                address1: address1,
-                address2: address2,
-                address3: address3,
-                address4: address4,
-                city: city,
-                codeZip: codeZip,
-                country: country,
+                siren: siren,
             }
         })
         const log: Logger = {

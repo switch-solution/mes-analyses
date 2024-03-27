@@ -11,7 +11,7 @@ import { getClientSirenBySlug } from "@/src/query/client.query";
 import { authentificationActionUserIsAdminClient, ActionError } from "@/lib/safe-actions";
 import z from "zod";
 import { getSoftwareBySlug } from "@/src/query/software.query";
-import { getUserByEmail, getUserById } from "@/src/query/user.query";
+import { getUserById } from "@/src/query/user.query";
 
 export const deleteSoftware = async (softwareSlug: string, clientSlug: string) => {
     const userId = await userIsValid()

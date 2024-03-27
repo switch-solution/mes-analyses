@@ -34,7 +34,7 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                 }
             })
         )
-    })
+    }).flat(1)
     const classicationClient = classifications.map((classification) => {
         return (
             classification.Client_Classification.map((clientClassification) => {
@@ -92,6 +92,9 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                     <BreadcrumbItem>
                         <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/classification/${params.idcc}`}>{idccExist.label}</BreadcrumbLink>
                     </BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <Slash />
+                    </BreadcrumbSeparator>
                 </BreadcrumbList>
             </Breadcrumb>
             <DataTable columns={columns} data={allClassifications as Idcc[]} inputSearch="id" inputSearchPlaceholder="Chercher par code" href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/classification/${params.idcc}/create`} buttonLabel="Créer une nouvelle classification" />

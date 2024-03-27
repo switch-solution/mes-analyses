@@ -8,10 +8,9 @@ import z from 'zod';
 import { createLog } from '@/src/query/logger.query';
 import type { Logger } from '@/src/helpers/type';
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
-import { copyBook, copyTask } from '@/src/query/project.query';
 import { getMySoftwareActive } from '@/src/query/user.query';
 import { getSoftwareBySlug } from '@/src/query/software.query';
-import { addValidator } from '@/src/query/project_book_workflow.query';
+import { initProject } from '@/src/query/project.query';
 export const createProjet = authentificationActionUserIsEditorClient(ProjectCreateSchema, async (values: z.infer<typeof ProjectCreateSchema>, { userId, clientId }) => {
     const { label, description, clientSlug, role } = ProjectCreateSchema.parse(values)
     const mySoftwareSlug = await getMySoftwareActive()
@@ -60,9 +59,7 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
                     },
                 },
             })
-            await copyBook(project.slug)
-            await copyTask(project.slug)
-            await addValidator(project.slug, userId)
+            await initProject(project.slug)
             const log: Logger = {
                 level: "info",
                 scope: "project",

@@ -24,24 +24,7 @@ export const getCountClientProjects = async (clientSlug: string) => {
 
 }
 
-export const getCountBook = async (clientSlug: string) => {
-    try {
-        const clientExist = await getClientBySlug(clientSlug)
-        if (!clientExist) {
-            throw new Error("Le client n'existe pas.")
-        }
-        const countBooks = await prisma.software_Book.count({
-            where: {
-                clientId: clientExist.siren
-            }
-        })
-        return countBooks
-    } catch (err) {
-        console.error(err)
-        throw new Error("Une erreur est survenue lors de la récupération des livres.")
-    }
 
-}
 
 export const getCountMySoftware = async (clientSlug: string) => {
     try {
@@ -62,27 +45,7 @@ export const getCountMySoftware = async (clientSlug: string) => {
 
 }
 
-export const getComponentFilterByUser = async (clientSlug: string) => {
-    try {
-        const mySoftwareSlug = await getMySoftwareActive()
-        if (!mySoftwareSlug) {
-            throw new Error("Vous n'avez pas de logiciel par default.")
-        }
-        const software = await getSoftwareBySlug(mySoftwareSlug)
-        const clientExist = await getClientBySlug(clientSlug)
-        const countComponents = await prisma.software_Component.count({
-            where: {
-                softwareLabel: software.label,
-                clientId: clientExist.siren
-            }
-        })
-        return countComponents
-    } catch (err) {
-        console.error(err)
 
-    }
-
-}
 
 
 export const getClientBySlug = async (clientSlug: string) => {

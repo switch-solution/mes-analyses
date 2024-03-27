@@ -13,8 +13,6 @@ import { Logger } from "@/src/helpers/type";
 import { createLog } from "@/src/query/logger.query";
 import { apiFetch } from "@/src/helpers/api";
 import { getUsersProject } from "@/src/query/project.query";
-import { addValidator } from "@/src/query/project_book_workflow.query";
-import { add } from "date-fns";
 
 export const createInvitationProject = authentifcationActionUserIsAuthorizeToAdminProject(InvitationProjectSchema, async (values: z.infer<typeof InvitationProjectSchema>, { clientId, userId }) => {
 
@@ -170,9 +168,7 @@ export const createInternalInvitationProject = authentifcationActionUserIsAuthor
             }
 
         })
-        if (isValidatorProject) {
-            await addValidator(projectSlug, userInternalId)
-        }
+
     } catch (err: unknown) {
         console.error(err)
         throw new ActionError(err as string)
