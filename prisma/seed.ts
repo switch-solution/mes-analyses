@@ -1,9 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 import { idccV0001Seed } from './seed/2_idcc.v0001.seed'
 import { settingV0001 } from './seed/1_setting.v0001.seed'
-import { processusV0001 } from './seed/4_processus.v0001.seed'
-import { formV0001 } from './seed/3_form.v0001.seed'
+import { processusV0001 } from './seed/3_processus.v0001.seed'
+import { formV0001 } from './seed/4_form.v0001.seed'
 import { dsnV0001 } from './seed/5_dsn.v0001.seed'
+import { rateAt0001 } from './seed/6_rateAt.v0001.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -46,15 +47,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-    await formV0001.run()
-        .then(async () => {
-            await prisma.$disconnect()
-        })
-        .catch(async (e) => {
-            console.error(e)
-            await prisma.$disconnect()
-            process.exit(1)
-        })
     await processusV0001.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -64,7 +56,26 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
+    await formV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+
     await dsnV0001.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await rateAt0001.run()
         .then(async () => {
             await prisma.$disconnect()
         })

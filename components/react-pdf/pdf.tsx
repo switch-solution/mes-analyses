@@ -70,7 +70,15 @@ const styles = StyleSheet.create({
 
 
 // Create Document Component
-export const Pdf = () => {
+export const Pdf = ({
+    title,
+    subtitle,
+    author
+}: {
+    title: string,
+    subtitle: string,
+    author: string
+}) => {
     return (
         <div className='size-full'>
             <PDFViewer width="100%" height="100%">
@@ -79,11 +87,10 @@ export const Pdf = () => {
                         <Text style={styles.header} fixed>
                             ~ Created with react-pdf ~
                         </Text>
-                        <Text style={styles.title}>Don Quijote de la Mancha</Text>
-                        <Text style={styles.author}>Miguel de Cervantes</Text>
+                        <Text style={styles.title}>{title}</Text>
+                        <Text style={styles.author}>{author}</Text>
                         <Text style={styles.subtitle}>
-                            Capítulo I: Que trata de la condición y ejercicio del famoso hidalgo D.
-                            Quijote de la Mancha
+                            {subtitle}
                         </Text>
                         <Text style={styles.text}>
                             En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha

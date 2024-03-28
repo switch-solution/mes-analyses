@@ -721,6 +721,8 @@ CREATE TABLE "Project_Society" (
     "address2" TEXT,
     "address3" TEXT,
     "address4" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "source" TEXT NOT NULL DEFAULT 'analyse',
     "postalCode" TEXT NOT NULL,
     "city" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
@@ -747,6 +749,8 @@ CREATE TABLE "Project_Establishment" (
     "address3" TEXT,
     "address4" TEXT,
     "postalCode" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "source" TEXT NOT NULL DEFAULT 'analyse',
     "city" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
@@ -765,9 +769,13 @@ CREATE TABLE "Project_Establishment" (
 CREATE TABLE "Project_Establishment_Idcc" (
     "clientId" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
+    "isFinished" BOOLEAN NOT NULL DEFAULT false,
+    "isApproved" BOOLEAN NOT NULL DEFAULT false,
+    "source" TEXT NOT NULL DEFAULT 'analyse',
     "projectLabel" TEXT NOT NULL,
     "societyId" TEXT NOT NULL,
     "establishmentNic" TEXT NOT NULL,
+    "isStandby" BOOLEAN NOT NULL DEFAULT false,
     "idcc" TEXT NOT NULL,
 
     CONSTRAINT "Project_Establishment_Idcc_pkey" PRIMARY KEY ("idcc","clientId","softwareLabel","projectLabel","societyId","establishmentNic")
@@ -777,11 +785,15 @@ CREATE TABLE "Project_Establishment_Idcc" (
 CREATE TABLE "Project_Rate_AT" (
     "id" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
+    "source" TEXT NOT NULL DEFAULT 'analyse',
+    "label" TEXT NOT NULL,
     "societyId" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
     "projectLabel" TEXT NOT NULL,
     "startDate" TIMESTAMP(3),
     "endDate" TIMESTAMP(3),
+    "isStandby" BOOLEAN NOT NULL DEFAULT false,
     "rate" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "order" INTEGER NOT NULL,
@@ -803,6 +815,8 @@ CREATE TABLE "Project_OPS" (
     "slug" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "societyId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "source" TEXT NOT NULL DEFAULT 'analyse',
     "label" TEXT NOT NULL,
     "address1" TEXT NOT NULL,
     "address2" TEXT,
@@ -825,6 +839,8 @@ CREATE TABLE "Project_Idcc" (
     "clientId" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "source" TEXT NOT NULL DEFAULT 'analyse',
     "projectLabel" TEXT NOT NULL,
     "establishmentId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -844,6 +860,8 @@ CREATE TABLE "Project_Classification" (
     "slug" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "societyId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "source" TEXT NOT NULL DEFAULT 'analyse',
     "description" TEXT,
     "idcc" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
@@ -862,6 +880,8 @@ CREATE TABLE "Project_Paid_Leave" (
     "clientId" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "societyId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "source" TEXT NOT NULL DEFAULT 'analyse',
     "projectLabel" TEXT NOT NULL,
     "rule" TEXT NOT NULL,
     "periodStartDate" TIMESTAMP(3) NOT NULL,
@@ -885,8 +905,9 @@ CREATE TABLE "Project_Job" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
     "societyId" TEXT,
-    "establishmentId" TEXT,
     "clientId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "source" TEXT NOT NULL DEFAULT 'analyse',
     "projectLabel" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
 
@@ -900,6 +921,9 @@ CREATE TABLE "Projet_OPS" (
     "clientId" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
+    "isFinished" BOOLEAN NOT NULL DEFAULT false,
+    "isApproved" BOOLEAN NOT NULL DEFAULT false,
+    "source" TEXT NOT NULL DEFAULT 'analyse',
     "label" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "address" TEXT NOT NULL,
@@ -1094,104 +1118,39 @@ CREATE TABLE "Processus" (
     "label" TEXT NOT NULL,
     "level" TEXT NOT NULL DEFAULT 'Standard',
     "description" TEXT,
-    "formId" TEXT NOT NULL,
+    "theme" TEXT NOT NULL,
+    "table" TEXT NOT NULL,
+    "clientId" TEXT,
+    "softwareLabel" TEXT,
     "slug" TEXT NOT NULL,
-    "formUrl" TEXT NOT NULL,
-    "descriptionUrl" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
     "isArchived" BOOLEAN NOT NULL DEFAULT false,
+    "isDuplicate" BOOLEAN NOT NULL DEFAULT false,
+    "idOrigin" TEXT,
 
     CONSTRAINT "Processus_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Project_Processus" (
-    "clientId" TEXT NOT NULL,
-    "projectLabel" TEXT NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
-    "theme" TEXT NOT NULL,
-    "processusId" TEXT NOT NULL,
-    "isStarted" BOOLEAN NOT NULL DEFAULT false,
-    "isFinished" BOOLEAN NOT NULL DEFAULT false,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "createdBy" TEXT NOT NULL DEFAULT 'system',
-
-    CONSTRAINT "Project_Processus_pkey" PRIMARY KEY ("clientId","projectLabel","softwareLabel","processusId")
-);
-
--- CreateTable
-CREATE TABLE "Project_Client_Processus" (
-    "clientId" TEXT NOT NULL,
-    "projectLabel" TEXT NOT NULL,
-    "theme" TEXT NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
-    "processusId" TEXT NOT NULL,
-    "isStarted" BOOLEAN NOT NULL DEFAULT false,
-    "isFinished" BOOLEAN NOT NULL DEFAULT false,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "createdBy" TEXT NOT NULL DEFAULT 'system',
-
-    CONSTRAINT "Project_Client_Processus_pkey" PRIMARY KEY ("clientId","projectLabel","softwareLabel","processusId")
-);
-
--- CreateTable
-CREATE TABLE "Client_Processus" (
     "id" TEXT NOT NULL,
-    "level" TEXT NOT NULL DEFAULT 'Client',
+    "clientId" TEXT NOT NULL,
     "label" TEXT NOT NULL,
-    "formId" TEXT NOT NULL,
-    "theme" TEXT NOT NULL,
-    "description" TEXT,
-    "formUrl" TEXT NOT NULL,
-    "descriptionUrl" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "isArchived" BOOLEAN NOT NULL DEFAULT false,
-
-    CONSTRAINT "Client_Processus_pkey" PRIMARY KEY ("id","clientId")
-);
-
--- CreateTable
-CREATE TABLE "Project_Software_Processus" (
-    "clientId" TEXT NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
+    "table" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
-    "processusId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "theme" TEXT NOT NULL,
     "isStarted" BOOLEAN NOT NULL DEFAULT false,
     "isFinished" BOOLEAN NOT NULL DEFAULT false,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
-    CONSTRAINT "Project_Software_Processus_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","processusId")
-);
-
--- CreateTable
-CREATE TABLE "Software_Processus" (
-    "id" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "formId" TEXT NOT NULL,
-    "formVersion" INTEGER NOT NULL,
-    "level" TEXT NOT NULL DEFAULT 'Logiciel',
-    "description" TEXT,
-    "formUrl" TEXT NOT NULL,
-    "descriptionUrl" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
-    "isArchived" BOOLEAN NOT NULL DEFAULT false,
-    "clientId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-
-    CONSTRAINT "Software_Processus_pkey" PRIMARY KEY ("id","softwareLabel","clientId")
+    CONSTRAINT "Project_Processus_pkey" PRIMARY KEY ("clientId","projectLabel","softwareLabel","id")
 );
 
 -- CreateTable
@@ -1202,173 +1161,93 @@ CREATE TABLE "Form" (
     "description" TEXT,
     "isArchived" BOOLEAN NOT NULL DEFAULT false,
     "slug" TEXT NOT NULL,
-    "buttonLabel" TEXT NOT NULL DEFAULT 'Ajouter',
-    "version" INTEGER NOT NULL,
+    "clientId" TEXT,
+    "softwareLabel" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
+    "processusId" TEXT NOT NULL,
+    "isDuplicate" BOOLEAN NOT NULL DEFAULT false,
+    "idOrigin" TEXT,
 
-    CONSTRAINT "Form_pkey" PRIMARY KEY ("id","version")
+    CONSTRAINT "Form_pkey" PRIMARY KEY ("id","level")
 );
 
 -- CreateTable
 CREATE TABLE "Project_Form" (
     "clientId" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
-    "projectLabel" TEXT NOT NULL,
-    "formId" TEXT NOT NULL,
-    "formVersion" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL DEFAULT 'system',
-
-    CONSTRAINT "Project_Form_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","formId","formVersion")
-);
-
--- CreateTable
-CREATE TABLE "Project_Client_Form" (
-    "clientId" TEXT NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
-    "projectLabel" TEXT NOT NULL,
-    "formId" TEXT NOT NULL,
-    "formVersion" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL DEFAULT 'system',
-
-    CONSTRAINT "Project_Client_Form_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","formId","formVersion")
-);
-
--- CreateTable
-CREATE TABLE "Client_Form" (
-    "id" TEXT NOT NULL,
-    "level" TEXT NOT NULL DEFAULT 'Client',
     "label" TEXT NOT NULL,
-    "description" TEXT,
-    "isArchived" BOOLEAN NOT NULL DEFAULT false,
-    "slug" TEXT NOT NULL,
-    "buttonLabel" TEXT NOT NULL DEFAULT 'Ajouter',
-    "version" INTEGER NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-
-    CONSTRAINT "Client_Form_pkey" PRIMARY KEY ("id","version","clientId")
-);
-
--- CreateTable
-CREATE TABLE "Software_Form" (
-    "id" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "level" TEXT NOT NULL DEFAULT 'Logiciel',
-    "description" TEXT,
-    "isArchived" BOOLEAN NOT NULL DEFAULT false,
-    "slug" TEXT NOT NULL,
-    "buttonLabel" TEXT NOT NULL DEFAULT 'Ajouter',
-    "version" INTEGER NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-
-    CONSTRAINT "Software_Form_pkey" PRIMARY KEY ("id","version","softwareLabel","clientId")
-);
-
--- CreateTable
-CREATE TABLE "Project_Software_Form" (
-    "clientId" TEXT NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
-    "formId" TEXT NOT NULL,
-    "formVersion" INTEGER NOT NULL,
+    "slug" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "processusId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
-    CONSTRAINT "Project_Software_Form_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","formId","formVersion")
+    CONSTRAINT "Project_Form_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","id")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Form_Input" (
+    "id" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "formId" TEXT NOT NULL,
+    "zodLabel" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "selectTableSource" TEXT,
+    "selectFieldSource" TEXT,
+    "selectOption" TEXT,
+    "placeholder" TEXT,
+    "minLenght" INTEGER,
+    "defaultValue" TEXT,
+    "maxLenght" INTEGER,
+    "min" INTEGER,
+    "max" INTEGER,
+    "required" BOOLEAN NOT NULL DEFAULT false,
+    "readOnly" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+    "order" INTEGER NOT NULL,
+
+    CONSTRAINT "Project_Form_Input_pkey" PRIMARY KEY ("id","formId","label","clientId","softwareLabel","projectLabel")
 );
 
 -- CreateTable
 CREATE TABLE "Form_Input" (
     "id" TEXT NOT NULL,
     "type" TEXT NOT NULL,
+    "level" TEXT NOT NULL DEFAULT 'Standard',
     "label" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "formId" TEXT NOT NULL,
     "zodLabel" TEXT NOT NULL,
+    "clientId" TEXT,
+    "softwareLabel" TEXT,
     "placeholder" TEXT,
     "minLenght" INTEGER,
     "defaultValue" TEXT,
     "maxLenght" INTEGER,
     "min" INTEGER,
     "max" INTEGER,
-    "selectSource" TEXT,
+    "selectTableSource" TEXT,
+    "selectFieldSource" TEXT,
+    "selectOption" TEXT,
     "required" BOOLEAN NOT NULL DEFAULT false,
     "readOnly" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
-    "formVersion" INTEGER NOT NULL,
     "order" INTEGER NOT NULL,
 
-    CONSTRAINT "Form_Input_pkey" PRIMARY KEY ("id","formId","formVersion","label")
-);
-
--- CreateTable
-CREATE TABLE "Client_Form_Input" (
-    "id" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "zodLabel" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "minLenght" INTEGER,
-    "maxLenght" INTEGER,
-    "min" INTEGER,
-    "defaultValue" TEXT,
-    "max" INTEGER,
-    "selectSource" TEXT,
-    "required" BOOLEAN NOT NULL DEFAULT false,
-    "readOnly" BOOLEAN NOT NULL DEFAULT false,
-    "slug" TEXT NOT NULL,
-    "formId" TEXT NOT NULL,
-    "placeholder" TEXT,
-    "order" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "formVersion" INTEGER NOT NULL,
-    "clientId" TEXT NOT NULL,
-
-    CONSTRAINT "Client_Form_Input_pkey" PRIMARY KEY ("id","formId","formVersion","label","clientId")
-);
-
--- CreateTable
-CREATE TABLE "Software_Form_Input" (
-    "id" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "minLenght" INTEGER,
-    "maxLenght" INTEGER,
-    "min" INTEGER,
-    "max" INTEGER,
-    "required" BOOLEAN NOT NULL DEFAULT false,
-    "readOnly" BOOLEAN NOT NULL DEFAULT false,
-    "zodLabel" TEXT NOT NULL,
-    "selectSource" TEXT,
-    "defaultValue" TEXT,
-    "slug" TEXT NOT NULL,
-    "formId" TEXT NOT NULL,
-    "placeholder" TEXT,
-    "order" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "formVersion" INTEGER NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-
-    CONSTRAINT "Software_Form_Input_pkey" PRIMARY KEY ("id","formId","formVersion","label","softwareLabel","clientId")
+    CONSTRAINT "Form_Input_pkey" PRIMARY KEY ("id","level","formId","label")
 );
 
 -- CreateTable
@@ -1621,12 +1500,11 @@ CREATE TABLE "Dsn_Absence" (
 -- CreateTable
 CREATE TABLE "TextArea" (
     "label" TEXT NOT NULL,
-    "value" JSONB NOT NULL DEFAULT '{}',
+    "blockNote" JSONB NOT NULL,
     "description" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
-    "package" TEXT NOT NULL,
 
     CONSTRAINT "TextArea_pkey" PRIMARY KEY ("label")
 );
@@ -1767,6 +1645,39 @@ CREATE TABLE "Dsn_Structure" (
     "type" TEXT NOT NULL,
 
     CONSTRAINT "Dsn_Structure_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Approve" (
+    "clientId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "rowSlug" TEXT NOT NULL,
+    "table" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "processusLabel" TEXT NOT NULL,
+    "valueId" TEXT NOT NULL,
+    "valueLabel" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "response" TEXT NOT NULL DEFAULT 'En attente',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Approve_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","rowSlug","table")
+);
+
+-- CreateTable
+CREATE TABLE "Rate_At" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "startDate" TEXT NOT NULL,
+    "endDate" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Rate_At_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -1920,55 +1831,19 @@ CREATE UNIQUE INDEX "Project_Attachment_slug_key" ON "Project_Attachment"("slug"
 CREATE UNIQUE INDEX "Processus_slug_key" ON "Processus"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Processus_formUrl_key" ON "Processus"("formUrl");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Processus_descriptionUrl_key" ON "Processus"("descriptionUrl");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Client_Processus_formUrl_key" ON "Client_Processus"("formUrl");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Client_Processus_descriptionUrl_key" ON "Client_Processus"("descriptionUrl");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Client_Processus_slug_key" ON "Client_Processus"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Software_Processus_formUrl_key" ON "Software_Processus"("formUrl");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Software_Processus_descriptionUrl_key" ON "Software_Processus"("descriptionUrl");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Software_Processus_slug_key" ON "Software_Processus"("slug");
+CREATE UNIQUE INDEX "Project_Processus_slug_key" ON "Project_Processus"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Form_slug_key" ON "Form"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Client_Form_slug_key" ON "Client_Form"("slug");
+CREATE UNIQUE INDEX "Project_Form_slug_key" ON "Project_Form"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Software_Form_slug_key" ON "Software_Form"("slug");
+CREATE UNIQUE INDEX "Project_Form_Input_slug_key" ON "Project_Form_Input"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Form_Input_slug_key" ON "Form_Input"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Form_Input_formId_formVersion_id_order_key" ON "Form_Input"("formId", "formVersion", "id", "order");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Client_Form_Input_slug_key" ON "Client_Form_Input"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Client_Form_Input_clientId_formId_formVersion_id_order_key" ON "Client_Form_Input"("clientId", "formId", "formVersion", "id", "order");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Software_Form_Input_slug_key" ON "Software_Form_Input"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Software_Form_Input_clientId_softwareLabel_formId_formVersi_key" ON "Software_Form_Input"("clientId", "softwareLabel", "formId", "formVersion", "id", "order");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Client_Task_slug_key" ON "Client_Task"("slug");
@@ -1993,6 +1868,9 @@ CREATE UNIQUE INDEX "Client_Classification_slug_key" ON "Client_Classification"(
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Software_Classification_slug_key" ON "Software_Classification"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Approve_slug_key" ON "Project_Approve"("slug");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2202,6 +2080,9 @@ ALTER TABLE "Project_Classification" ADD CONSTRAINT "Project_Classification_idcc
 ALTER TABLE "Project_Paid_Leave" ADD CONSTRAINT "Project_Paid_Leave_establishmentNic_clientId_softwareLabel_fkey" FOREIGN KEY ("establishmentNic", "clientId", "softwareLabel", "societyId", "projectLabel") REFERENCES "Project_Establishment"("nic", "clientId", "softwareLabel", "societyId", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Project_Job" ADD CONSTRAINT "Project_Job_clientId_projectLabel_softwareLabel_societyId_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel", "societyId") REFERENCES "Project_Society"("clientId", "projectLabel", "softwareLabel", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Project_Job" ADD CONSTRAINT "Project_Job_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -2244,58 +2125,40 @@ ALTER TABLE "Project_Constant" ADD CONSTRAINT "Project_Constant_clientId_project
 ALTER TABLE "Project_Attachment" ADD CONSTRAINT "Project_Attachment_clientId_projectLabel_projectSoftwareLa_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Processus" ADD CONSTRAINT "Processus_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Processus" ADD CONSTRAINT "Processus_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Project_Processus" ADD CONSTRAINT "Project_Processus_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Processus" ADD CONSTRAINT "Project_Processus_processusId_fkey" FOREIGN KEY ("processusId") REFERENCES "Processus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Form" ADD CONSTRAINT "Form_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Client_Processus" ADD CONSTRAINT "Project_Client_Processus_clientId_projectLabel_softwareLab_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Form" ADD CONSTRAINT "Form_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Client_Processus" ADD CONSTRAINT "Project_Client_Processus_processusId_clientId_fkey" FOREIGN KEY ("processusId", "clientId") REFERENCES "Client_Processus"("id", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Form" ADD CONSTRAINT "Form_processusId_fkey" FOREIGN KEY ("processusId") REFERENCES "Processus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Client_Processus" ADD CONSTRAINT "Client_Processus_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Project_Software_Processus" ADD CONSTRAINT "Project_Software_Processus_clientId_projectLabel_softwareL_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Project_Software_Processus" ADD CONSTRAINT "Project_Software_Processus_processusId_softwareLabel_clien_fkey" FOREIGN KEY ("processusId", "softwareLabel", "clientId") REFERENCES "Software_Processus"("id", "softwareLabel", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Project_Form" ADD CONSTRAINT "Project_Form_formId_formVersion_fkey" FOREIGN KEY ("formId", "formVersion") REFERENCES "Form"("id", "version") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Project_Form" ADD CONSTRAINT "Project_Form_clientId_projectLabel_softwareLabel_processus_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel", "processusId") REFERENCES "Project_Processus"("clientId", "projectLabel", "softwareLabel", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Form" ADD CONSTRAINT "Project_Form_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Client_Form" ADD CONSTRAINT "Project_Client_Form_formId_formVersion_clientId_fkey" FOREIGN KEY ("formId", "formVersion", "clientId") REFERENCES "Client_Form"("id", "version", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Project_Form_Input" ADD CONSTRAINT "Project_Form_Input_clientId_softwareLabel_projectLabel_for_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "formId") REFERENCES "Project_Form"("clientId", "softwareLabel", "projectLabel", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Client_Form" ADD CONSTRAINT "Project_Client_Form_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Form_Input" ADD CONSTRAINT "Form_Input_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Client_Form" ADD CONSTRAINT "Client_Form_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Form_Input" ADD CONSTRAINT "Form_Input_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Software_Form" ADD CONSTRAINT "Software_Form_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Project_Software_Form" ADD CONSTRAINT "Project_Software_Form_formId_formVersion_softwareLabel_cli_fkey" FOREIGN KEY ("formId", "formVersion", "softwareLabel", "clientId") REFERENCES "Software_Form"("id", "version", "softwareLabel", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Project_Software_Form" ADD CONSTRAINT "Project_Software_Form_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Form_Input" ADD CONSTRAINT "Form_Input_formId_formVersion_fkey" FOREIGN KEY ("formId", "formVersion") REFERENCES "Form"("id", "version") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Client_Form_Input" ADD CONSTRAINT "Client_Form_Input_formId_formVersion_clientId_fkey" FOREIGN KEY ("formId", "formVersion", "clientId") REFERENCES "Client_Form"("id", "version", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Software_Form_Input" ADD CONSTRAINT "Software_Form_Input_formId_formVersion_softwareLabel_clien_fkey" FOREIGN KEY ("formId", "formVersion", "softwareLabel", "clientId") REFERENCES "Software_Form"("id", "version", "softwareLabel", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Form_Input" ADD CONSTRAINT "Form_Input_formId_level_fkey" FOREIGN KEY ("formId", "level") REFERENCES "Form"("id", "level") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Client_Task" ADD CONSTRAINT "Client_Task_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2341,3 +2204,9 @@ ALTER TABLE "Software_Classification" ADD CONSTRAINT "Software_Classification_id
 
 -- AddForeignKey
 ALTER TABLE "Software_Classification" ADD CONSTRAINT "Software_Classification_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Approve" ADD CONSTRAINT "Project_Approve_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Approve" ADD CONSTRAINT "Project_Approve_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;

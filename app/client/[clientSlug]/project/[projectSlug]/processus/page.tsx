@@ -9,53 +9,26 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
-    BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const projectExist = await getProjectBySlug(params.projectSlug)
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
     if (!userIsAuthorized) throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
-    const { standardProcessus, clientProcessus, softwareProcessus } = await getProcessusProject(params.projectSlug)
-    const processus = []
-    processus.push(standardProcessus.map((processus) => {
-        return {
-            ...processus,
-            label: processus.Processus.label,
-            formUrl: processus.Processus.formUrl,
-            description: processus.Processus.description,
-            descriptionUrl: processus.Processus.descriptionUrl,
-            slug: processus.Processus.slug,
-            clientSlug: params.clientSlug,
-            projectSlug: params.projectSlug
-        }
+    const processusList = await getProcessusProject(params.projectSlug)
+    processusList.at
+    const processus = processusList.map((processus) => {
+        return (
+            {
+                clientSlug: params.clientSlug,
+                projectSlug: params.projectSlug,
+                slug: processus.slug,
+                label: processus.label,
+                description: processus.description,
+                theme: processus.theme
+            })
 
-    }))
-    processus.push(clientProcessus.map((processus) => {
-        return {
-            ...processus,
-            label: processus.Client_Processus.label,
-            formUrl: processus.Client_Processus.formUrl,
-            description: processus.Client_Processus.description,
-            descriptionUrl: processus.Client_Processus.descriptionUrl,
-            slug: processus.Client_Processus.slug,
-            clientSlug: params.clientSlug,
-            projectSlug: params.projectSlug
-        }
-    }))
-    processus.push(softwareProcessus.map((processus) => {
-        return {
-            ...processus,
-            label: processus.Software_Processus.label,
-            formUrl: processus.Software_Processus.formUrl,
-            description: processus.Software_Processus.description,
-            descriptionUrl: processus.Software_Processus.descriptionUrl,
-            slug: processus.Software_Processus.slug,
-            clientSlug: params.clientSlug,
-            projectSlug: params.projectSlug
-        }
-    }))
-
+    })
     return (
         <Container>
             <Breadcrumb>
@@ -83,7 +56,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-            <DataTable columns={columns} data={processus.flat(1)} inputSearch="value" inputSearchPlaceholder="Chercher par valeur" />
+            <DataTable columns={columns} data={processus.flat(1)} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" />
         </Container>
     )
 

@@ -65,3 +65,31 @@ export type TypeInput = {
     inputSource?: string,
     recordId?: string
 }
+
+
+export type TypeDynamicInput = {
+    id: string
+    type: string
+    label: string
+    slug: string
+    zodLabel: string
+    clientId: string
+    softwareLabel: string
+    projectLabel: string
+    placeholder: string | null
+    defaultValue: string | null
+    minLenght: number | null
+    maxLenght: number | null
+    min: number | null
+    max: number | null
+    selectTableSource: string | null
+    selectFieldSource: string | null
+    required: boolean
+    readOnly: boolean
+    formId: string
+    createdAt: Date
+    updatedAt: Date
+    createdBy: string
+    order: number
+
+}[]

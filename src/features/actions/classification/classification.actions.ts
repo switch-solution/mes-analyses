@@ -12,7 +12,9 @@ import { generateSlug } from "@/src/helpers/generateSlug";
 export const createClassification = authentificationActionUserIsEditorClient(ClassificationCreateSchema, async (values: z.infer<typeof ClassificationCreateSchema>, { userId, softwareLabel, clientSlug, clientId, softwareSlug }) => {
     const { type, label, id, level, idcc } = await ClassificationCreateSchema.parseAsync(values)
     const idccExist = await getIdccByCode(idcc)
-    if (!idccExist) throw new ActionError("L'IDCC n'existe pas.")
+    if (!idccExist) {
+        throw new ActionError("L'IDCC n'existe pas.")
+    }
     try {
         if (level === "client") {
             const classificationExist = await prisma.client_Classification.findFirst({
@@ -23,8 +25,10 @@ export const createClassification = authentificationActionUserIsEditorClient(Cla
                     id: id
                 }
             })
-            if (classificationExist) throw new ActionError("La classification existe déjà.")
-            let count = await prisma.client_Classification.count()
+            if (classificationExist) {
+                throw new ActionError("La classification existe déjà.")
+            }
+            const count = await prisma.client_Classification.count()
             await prisma.client_Classification.create({
                 data: {
                     clientId: clientId,
@@ -48,8 +52,10 @@ export const createClassification = authentificationActionUserIsEditorClient(Cla
                     id: id
                 }
             })
-            if (classificationExist) throw new ActionError("La classification existe déjà.")
-            let count = await prisma.software_Classification.count()
+            if (classificationExist) {
+                throw new ActionError("La classification existe déjà.")
+            }
+            const count = await prisma.software_Classification.count()
             await prisma.software_Classification.create({
                 data: {
                     clientId: clientId,

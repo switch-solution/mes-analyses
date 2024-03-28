@@ -2,5 +2,17 @@
   "extends": [
     "plugin:tailwindcss/recommended",
     "next/core-web-vitals"
-  ]
+  ],
+  "rules": {
+    "no-unused-vars": "off",
+    "eqeqeq": "error",
+    "no-console": "off",
+    "curly": "off",
+    "no-eval": "off",
+    "prefer-const": "off",
+    "no-var": "off",
+    "camelcase": "off",
+    "no-underscore-dangle": "off",
+    "id-length": "off"
+  }
 }

@@ -16,13 +16,10 @@ import Link from "next/link"
 export type Processus = {
     projectSlug: string | null
     clientSlug: string | null
-    isStarted: boolean | null
-    isFinished: boolean | null
-    formUrl: string | null
-    descriptionUrl: string | null
     slug: string | null
     label: string | null
     description: string | null
+    theme: string | null
 
 }
 
@@ -31,32 +28,35 @@ export const columns: ColumnDef<Processus>[] = [
         accessorKey: "label",
         header: "label",
         cell: ({ row }) => {
-            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.slug}/data`}>{row.original.label}</Link>
+            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.slug}/`}>{row.original.label}</Link>
+        }
+    },
+    {
+        accessorKey: "theme",
+        header: "theme",
+        cell: ({ row }) => {
+            return <Badge>{row.original.theme}</Badge>
         }
     },
     {
         accessorKey: "description",
         header: "description",
-    },
-    {
-        accessorKey: "isStarted",
-        header: "Commencé",
         cell: ({ row }) => {
-            return row.original.isStarted ? <Badge>Oui</Badge> : <Badge variant="secondary">Non</Badge>
+            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.slug}/description`}>Lire la description</Link>
         }
     },
     {
-        accessorKey: "isFinished",
-        header: "Finalisé",
+        accessorKey: "slug",
+        header: "Consulter",
         cell: ({ row }) => {
-            return row.original.isFinished ? <Badge>Oui</Badge> : <Badge variant="secondary">Non</Badge>
+            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.slug}/data`}>Ouvrir</Link>
         }
     },
+
     {
         id: "actions",
         cell: ({ row }) => {
             const project = row.original
-
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -68,9 +68,7 @@ export const columns: ColumnDef<Processus>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Mes options</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}`}>Ouvrir</Link></DropdownMenuItem>
-                        <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}/edit`}>Editer</Link></DropdownMenuItem>
-                        <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}/archived`}>Archiver</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/`}>Validé</Link></DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )

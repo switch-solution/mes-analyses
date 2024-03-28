@@ -11,11 +11,11 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { getIdcc } from "@/src/query/idcc.query";
+import { getRateAt } from "@/src/query/rateAt.query";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
     const isEditor = await userIsEditorClient(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
-
+    const rateAt = await getRateAt()
 
     return (
         <Container>
@@ -34,11 +34,11 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                         <Slash />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/processus`}>Processus</BreadcrumbLink>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/rateAt`}>Taux AT</BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-            <DataTable columns={columns} data={[]} inputSearch="id" inputSearchPlaceholder="Chercher par code processus" href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/processus/create`} buttonLabel="Créer un nouveau processus" />
+            <DataTable columns={columns} data={rateAt} inputSearch="id" inputSearchPlaceholder="Chercher par code AT" />
         </Container>
     )
 }

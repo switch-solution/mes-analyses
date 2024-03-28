@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { userIsAuthorizeInThisProject, userIsValid } from "./security.query";
 import { Prisma } from '@prisma/client'
 import { getClientActiveAndSoftwareActive } from "./security.query";
-import { banUser } from "./security.query";
+import { generateSlug } from "../helpers/generateSlug";
+import { b } from "vitest/dist/suite-a18diDsI.js";
 export const getMyProjects = async () => {
     try {
         const userId = await userIsValid()
@@ -26,7 +27,7 @@ export const getMyProjects = async () => {
         })
         return myProjects
     } catch (err) {
-        console.log(err)
+        console.error(err)
     }
 
 }
@@ -101,6 +102,11 @@ export const getUserIsInvited = async (projectSlug: string) => {
 }
 
 
+/**
+ * Test if the user is authorized in this project and project exist
+ * @param projectSlug 
+ * @returns 
+ */
 
 export const getProjectBySlug = async (projectSlug: string) => {
     try {
@@ -169,20 +175,161 @@ export const initProject = async (projectSlug: string) => {
 
     try {
         const projectExist = await getProjectBySlug(projectSlug)
-
         if (!projectExist) {
             throw new Error('Le projet n\'existe pas')
         }
-        await associateProjectProcessus({
-            projectLabel: projectExist.label,
-            softwareLabel: projectExist.softwareLabel,
-            clientId: projectExist.clientId
+
+        const processusStdList = await prisma.processus.groupBy({
+            by: ['id'],
+            where: {
+                level: "Standard"
+            }
         })
-        await associateFormProject({
-            projectLabel: projectExist.label,
-            softwareLabel: projectExist.softwareLabel,
-            clientId: projectExist.clientId
-        })
+
+        if (processusStdList.length === 0) {
+            throw new Error('Aucun processus standard trouvé')
+        }
+
+        for (let processus of processusStdList) {
+            //Processus is duplicated ?
+            let processusToCopy = null
+            let processsusSoftware = await prisma.processus.findFirst({
+                where: {
+                    softwareLabel: projectExist.softwareLabel,
+                    clientId: projectExist.clientId,
+                    isDuplicate: true,
+                    idOrigin: processus.id,
+                    level: "Logiciel"
+                },
+                include: {
+                    Form: {
+                        include: {
+                            Form_Input: true
+                        }
+                    }
+                }
+            })
+            let processsusClient = await prisma.processus.findFirst({
+                where: {
+                    clientId: projectExist.clientId,
+                    isDuplicate: true,
+                    idOrigin: processus.id,
+                    level: "Client"
+                },
+                include: {
+                    Form: {
+                        include: {
+                            Form_Input: true
+                        }
+                    }
+                }
+            })
+            let processsus = await prisma.processus.findFirst({
+                where: {
+                    isDuplicate: false,
+                    level: "Standard",
+                    id: processus.id
+                },
+                include: {
+                    Form: {
+                        include: {
+                            Form_Input: true
+                        }
+                    }
+                }
+            })
+            if (processsusSoftware) {
+                processusToCopy = processsusSoftware
+            }
+
+            if (processsusClient && !processsusSoftware) {
+                processusToCopy = processsusClient
+            }
+
+            if (!processsusClient && !processsusSoftware) {
+                processusToCopy = processsus
+            }
+
+            if (processusToCopy) {
+                let countProjectProcessus = await prisma.project_Processus.count()
+                const processus = await prisma.project_Processus.create({
+                    data: {
+                        projectLabel: projectExist.label,
+                        label: processusToCopy.label,
+                        description: processusToCopy.description ? processusToCopy.description : "",
+                        softwareLabel: projectExist.softwareLabel,
+                        clientId: projectExist.clientId,
+                        table: processusToCopy.table,
+                        theme: processusToCopy.theme,
+                        slug: generateSlug(`Processus-${countProjectProcessus + 1}`),
+                        id: processusToCopy.id
+                    }
+                })
+                let countProjectForm = await prisma.project_Form.count()
+                let countProjectInput = await prisma.project_Form_Input.count()
+
+                const forms = processusToCopy.Form.map((form) => {
+                    countProjectForm = countProjectForm + 1
+                    return {
+                        processusId: processus.id,
+                        clientId: projectExist.clientId,
+                        softwareLabel: projectExist.softwareLabel,
+                        projectLabel: projectExist.label,
+                        label: form.label,
+                        description: form?.description ? form.description : "",
+                        slug: generateSlug(`Form-${countProjectForm}`),
+                        id: form.id,
+                        Project_Form_Input: form.Form_Input.map((input) => {
+                            countProjectInput = countProjectInput + 1
+                            return {
+                                label: input.label,
+                                id: input.id,
+                                type: input.type,
+                                zodLabel: input.zodLabel,
+                                minLenght: input.minLenght,
+                                maxLenght: input.maxLenght,
+                                min: input.min,
+                                max: input.max,
+                                required: input.required,
+                                readOnly: input.readOnly,
+                                selectTableSource: input.selectTableSource,
+                                selectFieldSource: input.selectFieldSource,
+                                selectOption: input.selectOption,
+                                order: input.order,
+                                slug: generateSlug(`FormInput-${countProjectInput}`)
+                            }
+                        })
+                    }
+                })
+                for (let form of forms) {
+                    await prisma.project_Form.create({
+                        data: {
+                            processusId: processus.id,
+                            clientId: projectExist.clientId,
+                            softwareLabel: projectExist.softwareLabel,
+                            projectLabel: projectExist.label,
+                            label: form.label,
+                            description: form.description,
+                            slug: form.slug,
+                            id: form.id,
+                            Project_Form_Input: {
+                                create: form.Project_Form_Input
+                            }
+                        }
+                    })
+
+
+
+
+                }
+
+
+            }
+
+
+        }
+
+
     } catch (err) {
         console.error(err)
 
@@ -204,151 +351,8 @@ export const initProject = async (projectSlug: string) => {
 
 }
 
-export const associateProjectProcessus = async ({
-    projectLabel,
-    softwareLabel,
-    clientId
 
-}: {
-    projectLabel: string,
-    softwareLabel: string,
-    clientId: string
-}) => {
-    try {
-        const softwareProcessus = await prisma.software_Processus.findMany({
-            where: {
-                softwareLabel: softwareLabel,
-                clientId: clientId
-            },
-        })
-        await prisma.project_Software_Processus.createMany({
-            data: softwareProcessus.map((processus) => {
-                return {
-                    projectLabel: projectLabel,
-                    softwareLabel: processus.softwareLabel,
-                    clientId: processus.clientId,
-                    processusId: processus.id,
-                }
-            })
-        })
-        const clientProcessus = await prisma.client_Processus.findMany({
-            where: {
-                clientId: clientId,
-                id: {
-                    notIn: softwareProcessus.map((processus) => processus.id)
-                }
-            },
-        })
-        await prisma.project_Client_Processus.createMany({
-            data: clientProcessus.map((processus) => {
-                return {
-                    projectLabel: projectLabel,
-                    theme: processus.theme,
-                    clientId: processus.clientId,
-                    processusId: processus.id,
-                    softwareLabel: softwareLabel
-                }
-            })
-        })
-        const standardProcessus = await prisma.processus.findMany({
-            where: {
-                id: {
-                    notIn: clientProcessus.map((processus) => processus.id)
-                }
-            },
-        })
-        await prisma.project_Processus.createMany({
-            data: standardProcessus.map((processus) => {
-                return {
-                    projectLabel: projectLabel,
-                    theme: processus.theme,
-                    processusId: processus.id,
-                    softwareLabel: softwareLabel,
-                    clientId: clientId
-                }
-            })
-        })
-        return
-    } catch (err) {
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de l\'association des processus')
-    }
-}
 
-export const associateFormProject = async ({
-    projectLabel,
-    softwareLabel,
-    clientId
-
-}: {
-    projectLabel: string,
-    softwareLabel: string,
-    clientId: string
-}) => {
-    try {
-
-        const softwareForm = await prisma.software_Form.findMany({
-            where: {
-                softwareLabel: softwareLabel,
-                clientId: clientId
-            },
-        })
-        await prisma.project_Software_Form.createMany({
-            data: softwareForm.map((form) => {
-                return {
-                    projectLabel: projectLabel,
-                    softwareLabel: form.softwareLabel,
-                    clientId: form.clientId,
-                    formId: form.id,
-                    formVersion: form.version
-                }
-            })
-        })
-        const clientForm = await prisma.client_Form.findMany({
-            where: {
-                clientId: clientId,
-                id: {
-                    notIn: softwareForm.map((form) => form.id)
-                }
-            },
-        })
-        await prisma.project_Client_Form.createMany({
-            data: clientForm.map((form) => {
-                return {
-                    projectLabel: projectLabel,
-                    clientId: form.clientId,
-                    formId: form.id,
-                    formVersion: form.version,
-                    softwareLabel: softwareLabel
-                }
-            })
-        })
-        const standardForm = await prisma.form.findMany({
-            where: {
-                id: {
-                    notIn: softwareForm.map((form) => form.id)
-                }
-            },
-        })
-        await prisma.project_Form.createMany({
-            data: standardForm.map((form) => {
-                return {
-                    projectLabel: projectLabel,
-                    formId: form.id,
-                    formVersion: form.version,
-                    softwareLabel: softwareLabel,
-                    clientId: clientId
-                }
-            })
-        })
-        return
-    } catch (err) {
-
-        console.error(err)
-        throw new Error('Une erreur est survenue lors de la copie du projet')
-    }
-
-}
 
 export const getProcessusProject = async (projectSlug: string) => {
     try {
@@ -356,42 +360,16 @@ export const getProcessusProject = async (projectSlug: string) => {
         if (!projectExist) {
             throw new Error('Le projet n\'existe pas')
         }
-        const standardProcessus = await prisma.project_Processus.findMany({
+        const projectProcessus = await prisma.project_Processus.findMany({
             where: {
                 projectLabel: projectExist.label,
                 softwareLabel: projectExist.softwareLabel,
                 clientId: projectExist.clientId
             },
-            include: {
-                Processus: true
-            }
-        })
-        const clientProcessus = await prisma.project_Client_Processus.findMany({
-            where: {
-                projectLabel: projectExist.label,
-                softwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId
-            },
-            include: {
-                Client_Processus: true
-            }
-        })
-        const softwareProcessus = await prisma.project_Software_Processus.findMany({
-            where: {
-                projectLabel: projectExist.label,
-                softwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId
-            },
-            include: {
-                Software_Processus: true
-            }
-        })
-        return {
-            standardProcessus,
-            clientProcessus,
-            softwareProcessus
 
-        }
+        })
+
+        return projectProcessus
     } catch (err) {
         console.error(err)
         throw new Error('Une erreur est survenue lors de la récupération des processus')
@@ -405,53 +383,12 @@ export const getProjectProcessusExist = async (projectSlug: string, processusSlu
         if (!projectExist) {
             throw new Error('Le projet n\'existe pas')
         }
-        const standardProcessus = await prisma.project_Processus.findFirst({
+        const processusExist = await prisma.project_Processus.findFirst({
             where: {
-                projectLabel: projectExist.label,
-                softwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId,
-                Processus: {
-                    slug: processusSlug
-                }
-            },
-            include: {
-                Processus: true
+                slug: processusSlug
             }
-
         })
-        const clientProcessus = await prisma.project_Client_Processus.findFirst({
-            where: {
-                projectLabel: projectExist.label,
-                softwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId,
-                Client_Processus: {
-                    slug: processusSlug
-                }
-            },
-            include: {
-                Client_Processus: true
-            }
-
-        })
-        const softwareProcessus = await prisma.project_Software_Processus.findFirst({
-            where: {
-                projectLabel: projectExist.label,
-                softwareLabel: projectExist.softwareLabel,
-                clientId: projectExist.clientId,
-                Software_Processus: {
-                    slug: processusSlug
-                }
-            },
-            include: {
-                Software_Processus: true
-            }
-
-        })
-        if (!standardProcessus && !clientProcessus && !softwareProcessus) {
-            throw new Error('Le processus n\'existe pas')
-        }
-        const processus = standardProcessus?.Processus || clientProcessus?.Client_Processus || softwareProcessus?.Software_Processus
-        return processus
+        return processusExist
     } catch (err) {
         console.error(err)
         throw new Error('Une erreur est survenue lors de la récupération des processus')
@@ -477,6 +414,96 @@ export const getProjectSociety = async (projectSlug: string) => {
     } catch (err) {
         console.error(err)
         throw new Error('Une erreur est survenue lors de la récupération des processus')
+    }
+
+}
+
+export const getDatasForDataTable = async (projectSlug: string, processusSlug: string) => {
+    try {
+        const processusExist = await getProjectProcessusExist(projectSlug, processusSlug)
+        if (!processusExist) {
+            throw new Error('Le processus n\'existe pas')
+        }
+        switch (processusExist.table) {
+            case "Project_Society":
+                const societyList = await prisma.project_Society.findMany({
+                    where: {
+                        projectLabel: processusExist.projectLabel,
+                        softwareLabel: processusExist.softwareLabel,
+                        clientId: processusExist.clientId
+                    }
+                })
+                const society = societyList.map((society) => {
+                    return {
+                        id: society.siren,
+                        label: society.socialReason,
+                        slug: society.slug,
+                        status: society.status
+                    }
+                })
+                return society
+                break
+            case "Project_Establisment":
+                const establishmentList = await prisma.project_Establishment.findMany({
+                    where: {
+                        projectLabel: processusExist.projectLabel,
+                        softwareLabel: processusExist.softwareLabel,
+                        clientId: processusExist.clientId
+                    }
+                })
+                const establishment = establishmentList.map((establishment) => {
+                    return {
+                        id: establishment.nic,
+                        label: establishment.socialReason,
+                        slug: establishment.slug,
+                        status: establishment.status
+                    }
+                })
+                return establishment
+                break
+            case "Project_Job":
+                const jobList = await prisma.project_Job.findMany({
+                    where: {
+                        projectLabel: processusExist.projectLabel,
+                        softwareLabel: processusExist.softwareLabel,
+                        clientId: processusExist.clientId
+                    }
+                })
+                const job = jobList.map((job) => {
+                    return {
+                        id: job.id,
+                        label: job.label,
+                        slug: job.slug,
+                        status: job.status
+                    }
+                })
+                return job
+                break
+            case "Project_RateAt":
+                const rateAtList = await prisma.project_Rate_AT.findMany({
+                    where: {
+                        projectLabel: processusExist.projectLabel,
+                        softwareLabel: processusExist.softwareLabel,
+                        clientId: processusExist.clientId
+                    }
+                })
+                const rateAt = rateAtList.map((rateAt) => {
+                    return {
+                        id: rateAt.id,
+                        label: rateAt.label,
+                        slug: rateAt.slug,
+                        status: rateAt.status
+                    }
+                })
+                return rateAt
+                break
+            default:
+                throw new Error(`La table ${processusExist.table} n'est pas gérée`)
+        }
+
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la récupération des données')
     }
 
 }

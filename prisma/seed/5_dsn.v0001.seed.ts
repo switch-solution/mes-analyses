@@ -214,7 +214,9 @@ class DsnV0001 extends Seed {
                         },
 
 
-                    ]
+                    ],
+                    skipDuplicates: true, // Note skipDuplicates is not supported when using MongoDB or SQLServer.
+
                 })
                 await this.seedUpdateStatus("completed")
             }
@@ -232,5 +234,5 @@ class DsnV0001 extends Seed {
 
 }
 
-export const dsnV0001 = new DsnV0001("DSN_V0001", "Création des structures DSN", 5, "PROCESUS_V0001")
+export const dsnV0001 = new DsnV0001("DSN_V0001", "Création des structures DSN", 5, "FORM_V0001")
 

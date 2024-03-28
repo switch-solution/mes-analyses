@@ -15,8 +15,15 @@ import { getIdcc } from "@/src/query/idcc.query";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
     const isEditor = await userIsEditorClient(params.clientSlug);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
-
-
+    const idccList = await getIdcc()
+    const idcc = idccList.map((idcc) => {
+        return {
+            id: idcc.code,
+            label: idcc.label,
+            softwareSlug: params.softwareSlug,
+            clientSlug: params.clientSlug
+        }
+    })
     return (
         <Container>
             <Breadcrumb>
@@ -34,11 +41,11 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                         <Slash />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/processus`}>Processus</BreadcrumbLink>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/idcc`}>Idcc</BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-            <DataTable columns={columns} data={[]} inputSearch="id" inputSearchPlaceholder="Chercher par code processus" href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/processus/create`} buttonLabel="Créer un nouveau processus" />
+            <DataTable columns={columns} data={idcc} inputSearch="id" inputSearchPlaceholder="Chercher par code idcc" />
         </Container>
     )
 }

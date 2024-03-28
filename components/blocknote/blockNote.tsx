@@ -8,12 +8,13 @@ import "@blocknote/react/style.css";
 import "@blocknote/core/fonts/inter.css";
 import { Block } from "@blocknote/core";
 import * as z from "zod"
-import { Button } from "@/components/ui/button";
 import { createBlockNote } from "@/src/features/actions/blockNote/blockNote.actions";
 import { createBlockNoteSchema } from '@/src/helpers/definition';
+import { useDebouncedCallback } from 'use-debounce';
+import { toast } from "sonner"
 
 // Our <Editor> component we can reuse later
-export default function Editor({ clientSlug, componentSlug, values }: { clientSlug: string, componentSlug: string, values?: string }) {
+export default function Editor({ clientSlug, values }: { clientSlug: string, values?: string }) {
     // Stores the document JSON.
     const [blocks, setBlocks] = useState<Block[]>([]);
     // Creates a new editor instance.
@@ -23,21 +24,35 @@ export default function Editor({ clientSlug, componentSlug, values }: { clientSl
             content: "Créer votre texte !",
         },]
     });
-    const handleClick = async () => {
+    const handleChange = useDebouncedCallback(async (blocks: string) => {
         try {
-            const data: z.infer<typeof createBlockNoteSchema> = {
-                clientSlug,
-                componentSlug,
-                value: JSON.stringify(blocks),
+            const datas: z.infer<typeof createBlockNoteSchema> = {
+                blocks,
+                clientSlug
             }
-            const action = await createBlockNote(data)
+            const action = await createBlockNote(datas)
             if (action?.serverError) {
                 console.error(action.serverError)
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
+            } else {
+                toast(`Sauvegarde effectué`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
             }
         } catch (err) {
             console.error(err)
         }
-    }
+    }, 300)
     // Renders the editor instance and its document JSON.
     return (
         // eslint-disable-next-line tailwindcss/no-custom-classname
@@ -47,12 +62,10 @@ export default function Editor({ clientSlug, componentSlug, values }: { clientSl
                 <BlockNoteView
                     editor={editor}
                     onChange={() => {
-                        // Saves the document JSON to state.
-                        setBlocks(editor.document);
+                        handleChange(JSON.stringify(editor.document))
                     }}
                 />
             </div>
-            <Button onClick={handleClick}>Sauvegarder</Button>
         </div>
     );
 }

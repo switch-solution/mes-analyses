@@ -4,11 +4,11 @@ import { userIsAdminClient, userIsAuthorizeInThisProject, userIsEditorProject, u
 export class ActionError extends Error { }
 
 export const action = createSafeActionClient({
-    handleReturnedServerError(e) {
+    handleReturnedServerError(error) {
         // In this case, we can use the 'MyCustomError` class to unmask errors
         // and return them with their actual messages to the client.
-        if (e instanceof ActionError) {
-            return e.message;
+        if (error instanceof ActionError) {
+            return error.message;
         }
         // Every other error that occurs will be masked with the default message.
         return "Oups! Une erreur est survenue. Veuillez réessayer plus tard.";
@@ -21,11 +21,11 @@ export const action = createSafeActionClient({
 });
 
 export const authentifcationAction = createSafeActionClient({
-    handleReturnedServerError(e) {
+    handleReturnedServerError(error) {
         // In this case, we can use the 'MyCustomError` class to unmask errors
         // and return them with their actual messages to the client.
-        if (e instanceof ActionError) {
-            return e.message;
+        if (error instanceof ActionError) {
+            return error.message;
         }
 
         // Every other error that occurs will be masked with the default message.
@@ -41,12 +41,13 @@ export const authentifcationAction = createSafeActionClient({
 })
 
 
+
 export const authentifcationActionUserIValidatorProject = createSafeActionClient({
-    handleReturnedServerError(e) {
+    handleReturnedServerError(error) {
         // In this case, we can use the 'MyCustomError` class to unmask errors
         // and return them with their actual messages to the client.
-        if (e instanceof ActionError) {
-            return e.message;
+        if (error instanceof ActionError) {
+            return error.message;
         }
 
         // Every other error that occurs will be masked with the default message.
@@ -64,11 +65,11 @@ export const authentifcationActionUserIValidatorProject = createSafeActionClient
 
 
 export const authentifcationActionUserIsAuthorizeToEditProject = createSafeActionClient({
-    handleReturnedServerError(e) {
+    handleReturnedServerError(error) {
         // In this case, we can use the 'MyCustomError` class to unmask errors
         // and return them with their actual messages to the client.
-        if (e instanceof ActionError) {
-            return e.message;
+        if (error instanceof ActionError) {
+            return error.message;
         }
 
         // Every other error that occurs will be masked with the default message.
@@ -84,11 +85,11 @@ export const authentifcationActionUserIsAuthorizeToEditProject = createSafeActio
     }
 })
 export const authentifcationActionUserIsAuthorizeToAdminProject = createSafeActionClient({
-    handleReturnedServerError(e) {
+    handleReturnedServerError(error) {
         // In this case, we can use the 'MyCustomError` class to unmask errors
         // and return them with their actual messages to the client.
-        if (e instanceof ActionError) {
-            return e.message;
+        if (error instanceof ActionError) {
+            return error.message;
         }
 
         // Every other error that occurs will be masked with the default message.
@@ -105,11 +106,11 @@ export const authentifcationActionUserIsAuthorizeToAdminProject = createSafeActi
 })
 
 export const authentifcationActionUserIsAuthorizeToProject = createSafeActionClient({
-    handleReturnedServerError(e) {
+    handleReturnedServerError(error) {
         // In this case, we can use the 'MyCustomError` class to unmask errors
         // and return them with their actual messages to the client.
-        if (e instanceof ActionError) {
-            return e.message;
+        if (error instanceof ActionError) {
+            return error.message;
         }
 
         // Every other error that occurs will be masked with the default message.
@@ -126,11 +127,11 @@ export const authentifcationActionUserIsAuthorizeToProject = createSafeActionCli
 })
 
 export const authentificationActionUserIsAdminClient = createSafeActionClient({
-    handleReturnedServerError(e) {
+    handleReturnedServerError(error) {
         // In this case, we can use the 'MyCustomError` class to unmask errors
         // and return them with their actual messages to the client.
-        if (e instanceof ActionError) {
-            return e.message;
+        if (error instanceof ActionError) {
+            return error.message;
         }
 
         // Every other error that occurs will be masked with the default message.
@@ -147,11 +148,11 @@ export const authentificationActionUserIsAdminClient = createSafeActionClient({
 })
 
 export const authentificationActionUserIsEditorClient = createSafeActionClient({
-    handleReturnedServerError(e) {
+    handleReturnedServerError(error) {
         // In this case, we can use the 'MyCustomError` class to unmask errors
         // and return them with their actual messages to the client.
-        if (e instanceof ActionError) {
-            return e.message;
+        if (error instanceof ActionError) {
+            return error.message;
         }
 
         // Every other error that occurs will be masked with the default message.
@@ -169,11 +170,11 @@ export const authentificationActionUserIsEditorClient = createSafeActionClient({
 
 export const authentificationActionUserIsEditorClientFormData = createSafeActionClient({
 
-    handleReturnedServerError(e) {
+    handleReturnedServerError(error) {
         // In this case, we can use the 'MyCustomError` class to unmask errors
         // and return them with their actual messages to the client.
-        if (e instanceof ActionError) {
-            return e.message;
+        if (error instanceof ActionError) {
+            return error.message;
         }
 
         // Every other error that occurs will be masked with the default message.

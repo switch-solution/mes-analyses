@@ -87,7 +87,6 @@ export const UserMenu = ({ clientSlug, softwareSlug }: { clientSlug: string, sof
                     <MenubarTrigger>Editeur</MenubarTrigger>
                     <MenubarContent>
                         <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/`}>Tableau de bord</Link></MenubarItem>
-
                         <MenubarSub>
                             <MenubarSubTrigger>Paramétrage des processus</MenubarSubTrigger>
                             <MenubarSubContent>
@@ -114,6 +113,13 @@ export const UserMenu = ({ clientSlug, softwareSlug }: { clientSlug: string, sof
                                 <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/item`}>Rubriques</Link></MenubarItem>
                                 <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/accumulation`}>Cumul de paie</Link></MenubarItem>
                                 <MenubarItem><Link href={`/client/${clientSlug}/editor/${softwareSlug}/absence`}>Absences</Link></MenubarItem>
+                            </MenubarSubContent>
+                        </MenubarSub>
+                        <MenubarSub>
+                            <MenubarSubTrigger>Référentiel standard</MenubarSubTrigger>
+                            <MenubarSubContent>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/idcc`}>Idcc</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/rateAt`}>Taux AT</Link></MenubarItem>
                             </MenubarSubContent>
                         </MenubarSub>
                     </MenubarContent>

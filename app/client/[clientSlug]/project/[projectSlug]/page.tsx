@@ -20,6 +20,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Slash } from "lucide-react"
 import {
     IconArrowWaveRightUp,
     IconBoxAlignRightFilled,
@@ -30,14 +31,14 @@ import {
     IconTableColumn,
 } from "@tabler/icons-react";
 import Link from "next/link"
-import { getCountProjectTaskActive } from "@/src/query/project_task.query";
+import { getCountMyRowAwaitingApproval } from "@/src/query/user.query";
 import { getUsersProject } from "@/src/query/project.query";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
 
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
     if (!userIsAuthorized) throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
-    const countTasks = await getCountProjectTaskActive(params.projectSlug)
     const getUsers = await getUsersProject(params.projectSlug)
+    const countAwaitingApprove = await getCountMyRowAwaitingApproval(params.projectSlug, userIsAuthorized.userId)
     const items = [
         {
 
@@ -59,9 +60,9 @@ export default async function Page({ params }: { params: { clientSlug: string, p
             icon: <IconClipboardCopy className="size-4 text-neutral-500" />,
         },
         {
-            title: "Taches en cours",
-            description: (<Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/task`}>Consulter les taches</Link>),
-            header: <span className="flex h-full flex-col items-center justify-center text-6xl">{countTasks}</span>,
+            title: "Lignes en attente de validation",
+            description: (<Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/approve`}>Consulter les demandes</Link>),
+            header: <span className="flex h-full flex-col items-center justify-center text-6xl">{countAwaitingApprove}</span>,
             className: "md:col-span-1",
             icon: <IconFileBroken className="size-4 text-neutral-500" />,
         },
@@ -88,11 +89,15 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     <BreadcrumbItem>
                         <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator />
+                    <BreadcrumbSeparator>
+                        <Slash />
+                    </BreadcrumbSeparator>
                     <BreadcrumbItem>
                         <BreadcrumbLink href={`/client/${params.clientSlug}/project/`}>Projets</BreadcrumbLink>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator />
+                    <BreadcrumbSeparator>
+                        <Slash />
+                    </BreadcrumbSeparator>
                 </BreadcrumbList>
             </Breadcrumb>
             <BentoGrid className="mx-auto max-w-4xl md:auto-rows-[20rem]">

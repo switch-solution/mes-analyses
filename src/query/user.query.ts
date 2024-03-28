@@ -3,7 +3,7 @@ import { userIsValid } from "./security.query"
 import { getAuthSession } from "@/lib/auth"
 import { getClientBySlug } from "./client.query"
 import { Prisma } from '@prisma/client'
-
+import { getProjectBySlug } from "./project.query"
 export const userSetup = async (id: string) => {
     try {
         const userExist = await prisma.userOtherData.findUnique({
@@ -294,5 +294,57 @@ export const getUserOtherData = async (userId: string) => {
 }
 
 export type getUserOtherData = Prisma.PromiseReturnType<typeof getUserOtherData>;
+
+
+export const getCountMyRowAwaitingApproval = async (projectSlug: string, userId: string) => {
+
+    try {
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) {
+            throw new Error('Le projet n\'existe pas')
+        }
+        const countSociety = await prisma.project_Approve.count({
+            where: {
+                clientId: projectExist.clientId,
+                projectLabel: projectExist.label,
+                softwareLabel: projectExist.softwareLabel,
+                response: 'En attente',
+                userId: userId
+
+            }
+        })
+        const count = countSociety
+        return count
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur de récupération des lignes en attente de validation')
+    }
+
+}
+export const getMyRowAwaitingApproval = async (projectSlug: string, userId: string) => {
+
+    try {
+        const projectExist = await getProjectBySlug(projectSlug)
+        if (!projectExist) {
+            throw new Error('Le projet n\'existe pas')
+        }
+        const rows = await prisma.project_Approve.findMany({
+            where: {
+                clientId: projectExist.clientId,
+                projectLabel: projectExist.label,
+                softwareLabel: projectExist.softwareLabel,
+                response: 'En attente',
+                userId: userId
+
+            }
+        })
+        return rows
+    } catch (err) {
+        console.error(err)
+        throw new Error('Erreur de récupération des lignes en attente de validation')
+    }
+
+}
+
 
 
