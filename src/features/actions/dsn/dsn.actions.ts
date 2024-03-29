@@ -12,7 +12,7 @@ export type Row = {
 
 }
 
-export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row[]) => {
+export const dsnData = async (projectSlug: string, clientSlug: string, processsusSlug: string, rows: Row[]) => {
     const userIsAuthorize = await userIsAuthorizeInThisProject(projectSlug)
     if (!userIsAuthorize) {
         throw new Error('Vous n\'êtes pas autorisé à effectuer cette action')
@@ -100,8 +100,8 @@ export const dsnData = async (projectSlug: string, clientSlug: string, rows: Row
 
     }
 
-    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/Standard_Processus_DSN/data`)
-    redirect(`/client/${clientSlug}/project/${projectSlug}/processus/Standard_Processus_DSN/data`)
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/${processsusSlug}/data`)
+    redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processsusSlug}/data`)
 
 }
 

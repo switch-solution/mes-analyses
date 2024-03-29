@@ -9,7 +9,6 @@ import {
     IconSignature,
     IconTableColumn,
 } from "@tabler/icons-react";
-import { Slash } from "lucide-react"
 
 import {
     Table,

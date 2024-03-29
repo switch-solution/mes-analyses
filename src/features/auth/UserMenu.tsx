@@ -2,34 +2,18 @@
 "use client";
 import {
     Menubar,
-    MenubarCheckboxItem,
     MenubarContent,
     MenubarItem,
     MenubarMenu,
-    MenubarRadioGroup,
-    MenubarRadioItem,
-    MenubarSeparator,
-    MenubarShortcut,
     MenubarSub,
     MenubarSubContent,
     MenubarSubTrigger,
     MenubarTrigger,
 } from "@/components/ui/menubar"
 import {
-    Cloud,
-    CreditCard,
-    Github,
-    Keyboard,
-    LifeBuoy,
-    LogOut,
-    Mail,
+
     MessageSquare,
-    Plus,
-    PlusCircle,
-    Settings,
-    User,
     UserPlus,
-    Users,
     Rows4,
     Kanban
 } from "lucide-react"
@@ -79,7 +63,14 @@ export const UserMenu = ({ clientSlug, softwareSlug }: { clientSlug: string, sof
                         <MenubarItem><Link href={`/client/${clientSlug}/administrator/software`}>Logiciels</Link></MenubarItem>
                         <MenubarItem><Link href={`/client/${clientSlug}/administrator/user`}>Utilisateur</Link></MenubarItem>
                         <MenubarItem><Link href={`/client/${clientSlug}/administrator/invoice`}>Facture</Link></MenubarItem>
+                        <MenubarItem><Link href={`/client/${clientSlug}/administrator/api`}>API</Link></MenubarItem>
+                        <MenubarItem><Link href={`/client/${clientSlug}/administrator/api/create`}>Créer une api</Link></MenubarItem>
                         <MenubarSub>
+                            <MenubarSubTrigger>API</MenubarSubTrigger>
+                            <MenubarSubContent>
+                                <MenubarItem><Link href={`/client/${clientSlug}/administrator/api`}>API</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/administrator/api/create`}>Créer une api</Link></MenubarItem>
+                            </MenubarSubContent>
                         </MenubarSub>
                     </MenubarContent>
                 </MenubarMenu>

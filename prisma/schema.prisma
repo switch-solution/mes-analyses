@@ -110,17 +110,32 @@ model Client {
 }
 
 model Client_API {
-  clientId  String
-  label     String
-  apiKey    String
-  apiSecret String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy String
-  client    Client   @relation(fields: [clientId], references: [siren], onDelete: Cascade)
-  slug      String   @unique
+  clientId            String
+  label               String
+  limit               Int
+  apiKey              String                @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  createdBy           String                @default("system")
+  client              Client                @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  slug                String                @unique
+  Client_API_Activity Client_API_Activity[]
+  revoked             Boolean               @default(false)
+  uuid                String                @default(cuid())
 
-  @@id([clientId, label])
+  @@id([clientId, uuid])
+}
+
+model Client_API_Activity {
+  clientId   String
+  uuidApi    String
+  pathname   String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  createdBy  String     @default("system")
+  Client_API Client_API @relation(fields: [clientId, uuidApi], references: [clientId, uuid], onDelete: Cascade)
+
+  @@id([clientId, uuidApi, pathname, createdAt])
 }
 
 model UserClient {

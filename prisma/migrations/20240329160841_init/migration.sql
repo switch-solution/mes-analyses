@@ -84,14 +84,28 @@ CREATE TABLE "Client" (
 CREATE TABLE "Client_API" (
     "clientId" TEXT NOT NULL,
     "label" TEXT NOT NULL,
+    "limit" INTEGER NOT NULL,
     "apiKey" TEXT NOT NULL,
-    "apiSecret" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
     "slug" TEXT NOT NULL,
+    "revoked" BOOLEAN NOT NULL DEFAULT false,
+    "uuid" TEXT NOT NULL,
 
-    CONSTRAINT "Client_API_pkey" PRIMARY KEY ("clientId","label")
+    CONSTRAINT "Client_API_pkey" PRIMARY KEY ("clientId","uuid")
+);
+
+-- CreateTable
+CREATE TABLE "Client_API_Activity" (
+    "clientId" TEXT NOT NULL,
+    "uuidApi" TEXT NOT NULL,
+    "pathname" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Client_API_Activity_pkey" PRIMARY KEY ("clientId","uuidApi","pathname","createdAt")
 );
 
 -- CreateTable
@@ -1699,6 +1713,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Client_slug_key" ON "Client"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Client_API_apiKey_key" ON "Client_API"("apiKey");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Client_API_slug_key" ON "Client_API"("slug");
 
 -- CreateIndex
@@ -1883,6 +1900,9 @@ ALTER TABLE "UserOtherData" ADD CONSTRAINT "UserOtherData_userId_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "Client_API" ADD CONSTRAINT "Client_API_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Client_API_Activity" ADD CONSTRAINT "Client_API_Activity_clientId_uuidApi_fkey" FOREIGN KEY ("clientId", "uuidApi") REFERENCES "Client_API"("clientId", "uuid") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserClient" ADD CONSTRAINT "UserClient_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

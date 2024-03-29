@@ -110,7 +110,6 @@ export const getUserIsInvited = async (projectSlug: string) => {
 
 export const getProjectBySlug = async (projectSlug: string) => {
     try {
-        await userIsAuthorizeInThisProject(projectSlug)
         const project = await prisma.project.findUniqueOrThrow({
             where: {
                 slug: projectSlug
@@ -425,6 +424,9 @@ export const getDatasForDataTable = async (projectSlug: string, processusSlug: s
             throw new Error('Le processus n\'existe pas')
         }
         switch (processusExist.table) {
+            case "Project_DSN":
+
+                break
             case "Project_Society":
                 const societyList = await prisma.project_Society.findMany({
                     where: {
@@ -507,5 +509,28 @@ export const getDatasForDataTable = async (projectSlug: string, processusSlug: s
     }
 
 }
+
+export const getProcessusActiveByProjectSlug = async ({ projectLabel, softwareLabel }: { projectLabel: string, softwareLabel: string }) => {
+    try {
+        const processus = await prisma.project_Processus.findFirst({
+            where: {
+                projectLabel,
+                softwareLabel,
+                isStarted: true,
+                isFinished: false
+            },
+            orderBy: {
+                id: 'asc'
+            }
+        })
+        return processus
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la récupération des processus')
+    }
+
+}
+
+
 
 

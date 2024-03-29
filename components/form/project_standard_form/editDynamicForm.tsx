@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { SocietyEditSchema, EstablishmentEditSchema } from "@/src/helpers/definition";
 import { ButtonLoading } from "@/components/ui/button-loader";
-import { updateSociety, updateEstablishement } from "@/src/features/actions/project_standard/project_standard.actions";
+import { updateSociety, updateEstablishement } from "@/src/features/actions/project_data/project_standard.actions";
 import { toast } from "sonner"
 import DynamicField from "@/components/ui/dynamic-field"
 import type { TypeDynamicInput } from "@/src/helpers/type"

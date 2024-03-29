@@ -3,6 +3,8 @@ import { getProjectBySlug, getProjectProcessusExist } from "@/src/query/project.
 import { getFormAndInput } from "@/src/query/form.query";
 import CreateDynamicForm from "@/components/form/project_standard_form/createDynamicForm";
 import { Slash } from "lucide-react"
+import UploadFileDsn from "@/components/form/dsn/upload";
+import { getDsnStructure } from "@/src/query/dsn.query";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -25,7 +27,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         throw new Error("Le formulaire n'existe pas")
     }
     const inputs = form.at(0)?.Project_Form_Input
-    if (!inputs) {
+    if (!inputs && processusExist.table !== "Project_DSN") {
         throw new Error("Les inputs n'existent pas")
     }
     const options = await getSelectOptions(params.projectSlug, params.processusSlug)
@@ -68,7 +70,9 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-            <CreateDynamicForm
+
+            {processusExist.table === "Project_DSN" && <UploadFileDsn clientSlug={params.clientSlug} projectSlug={params.projectSlug} dsnStructure={await getDsnStructure()} processusSlug={params.processusSlug} />}
+            {processusExist.table !== "Project_DSN" && inputs && <CreateDynamicForm
                 inputs={inputs.map((input) => ({
                     ...input,
                 }))}
@@ -77,7 +81,9 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 processusSlug={processusExist.slug}
                 table={processusExist.table}
                 options={options}
-            />
+            />}
+
+
         </Container>
     )
 }

@@ -4,9 +4,6 @@ import { userIsAdminClient } from "@/src/query/security.query";
 import TinyLineChart from "@/components/chart/tinyLineChart"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-    IconArrowWaveRightUp,
-    IconBoxAlignRightFilled,
-    IconBoxAlignTopLeft,
     IconClipboardCopy,
     IconFileBroken,
     IconSignature,

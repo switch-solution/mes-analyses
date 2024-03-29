@@ -6,8 +6,8 @@ export async function GET(request: Request) {
         if (!api) return Response.json({ message: "Unauthorized" }, { status: 401 })
         const clientId = await getClientIdByApiKey(api, request.url)
         if (!clientId) return Response.json({ message: "Client not found" }, { status: 404 })
-        const softwares = await getUsersIsBillableDetail(clientId)
-        return Response.json({ softwares })
+        const users = await getUsersIsBillableDetail(clientId)
+        return Response.json({ users })
     } catch (err) {
         return Response.json({ error: "Erreur interne" })
 

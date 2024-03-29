@@ -15,9 +15,9 @@ const getRandomInt = (min: number, max: number) => {
 }
 
 
-export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure }: { clientSlug: string, projectSlug: string, dsnStructure: getDsnStructure }) {
+export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, processusSlug }: { clientSlug: string, projectSlug: string, dsnStructure: getDsnStructure, processusSlug: string }) {
     const [loading, setLoading] = useState(false)
-    const dsnDataWithOption = dsnData.bind(null, projectSlug, clientSlug)
+    const dsnDataWithOption = dsnData.bind(null, projectSlug, clientSlug, processusSlug)
 
     const parseFile = async (file: File, random: string) => {
         return new Promise((resolve, reject) => {

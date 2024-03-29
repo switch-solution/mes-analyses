@@ -8,7 +8,7 @@ const API_KEY = env.API_KEY;
 const domain = env.DOMAIN;
 export async function POST(request: NextRequest) {
     try {
-        const api = request.headers.get('x-api-key');
+        const api = request.headers.get('authorization');
         if (api !== API_KEY) {
             return new Response(`error: API  `, {
                 status: 401,

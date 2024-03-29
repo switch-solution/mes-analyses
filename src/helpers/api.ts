@@ -7,7 +7,7 @@ export const apiFetch = async (url: string, options: RequestInit = {}) => {
     const response = await fetch(fetchUrl, {
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': api
+            'Authorization': api
         },
         ...options,
     });
@@ -17,3 +17,4 @@ export const apiFetch = async (url: string, options: RequestInit = {}) => {
     return response.json();
 
 }
+

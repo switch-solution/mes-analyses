@@ -2,6 +2,7 @@ import { userIsAuthorizeInThisProject } from "@/src/query/security.query"
 import Container from "@/components/layout/container"
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { ProjectUsersList } from "@/components/layout/projectUsersList";
+import { getProcessusActiveByProjectSlug } from "@/src/query/project.query";
 import {
     Table,
     TableBody,
@@ -32,30 +33,24 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link"
 import { getCountMyRowAwaitingApproval } from "@/src/query/user.query";
-import { getUsersProject } from "@/src/query/project.query";
+import { getProjectBySlug, getUsersProject } from "@/src/query/project.query";
+import { notFound } from "next/navigation";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
-
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
     if (!userIsAuthorized) throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
     const getUsers = await getUsersProject(params.projectSlug)
+    const projectExist = await getProjectBySlug(params.projectSlug)
+    if (!projectExist) {
+        notFound()
+    }
+    const processusActive = await getProcessusActiveByProjectSlug({ softwareLabel: projectExist.softwareLabel, projectLabel: projectExist.label })
     const countAwaitingApprove = await getCountMyRowAwaitingApproval(params.projectSlug, userIsAuthorized.userId)
     const items = [
         {
-
             description: (
                 <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/`}>Processus d&apos;analyse</Link>
             ),
-            header: (<Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[100px]">Libelle</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Ouvrir</TableHead>
-                    </TableRow>
-                </TableHeader>
-            </Table>
-
-            ),
+            header: <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/`} className="flex size-full flex-col items-center justify-center text-2xl">Processus en cours {processusActive?.label}</Link>,
             className: "md:col-span-2",
             icon: <IconClipboardCopy className="size-4 text-neutral-500" />,
         },
@@ -98,6 +93,9 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     <BreadcrumbSeparator>
                         <Slash />
                     </BreadcrumbSeparator>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectExist.label}</BreadcrumbLink>
+                    </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
             <BentoGrid className="mx-auto max-w-4xl md:auto-rows-[20rem]">

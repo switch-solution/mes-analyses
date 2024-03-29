@@ -20,9 +20,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     if (!projectExist) throw new Error("Projet introuvable")
     const processusExist = await getProjectProcessusExist(params.projectSlug, params.processusSlug)
     if (!processusExist) throw new Error("Processus introuvable")
-    console.log(processusExist)
     const datasList = await getDatasForDataTable(params.projectSlug, params.processusSlug)
-
     const datas = datasList?.map((data) => {
         return {
             ...data,

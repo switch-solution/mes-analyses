@@ -604,15 +604,15 @@ export const RateAtCreateSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
     processusSlug: z.string({ required_error: "Le processus est obligatoire." }),
-    establishementSlug: z.string({ required_error: "L'établissement est obligatoire." }),
+    nic: z.string({ required_error: "L'établissement est obligatoire." }),
     table: z.string().refine(value => value === 'Project_RateAt', {
         message: "La table doit être 'Project_RateAt'.",
         path: ['table'],
     }),
     id: z.string({ required_error: "L'id est obligatoire." }).min(1, { message: "Le code doit contenir au moins 1 caractères." }),
     label: z.string({ required_error: "Le libellé est obligatoire." }).min(1, { message: "Le libellé doit contenir au moins 1 caractère." }),
-    order: z.number().positive(),
-    office: z.boolean(),
+    order: z.coerce.number().int().positive(),
+    office: z.coerce.boolean(),
     rate: z.string({ required_error: "Le taux est obligatoire." }).min(1, { message: "Le taux doit contenir au moins 1 caractère." }),
 })
 
@@ -655,5 +655,11 @@ export const CreateApprovRowShema = z.object({
     projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
     approveSlug: z.string({ required_error: "L'approbation est obligatoire." }),
     response: z.enum(['Accepté', 'Refusé']),
+})
+
+export const CreateApiKeysSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(1, { message: "Le libellé doit contenir au moins 1 caractère." }),
+    limit: z.coerce.number().int().positive(),
 })
 

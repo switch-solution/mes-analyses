@@ -37,7 +37,6 @@ export const getSelectOptions = async (projectSlug: string, processusSlug: strin
     try {
         const processusExist = await getProjectProcessusExist(projectSlug, processusSlug)
         if (!processusExist) throw new Error("Processus introuvable")
-        console.log(processusExist)
         const optionsList = {
             sirenList: await prisma.project_Society.findMany({
                 where: {
@@ -50,6 +49,17 @@ export const getSelectOptions = async (projectSlug: string, processusSlug: strin
                     socialReason: true
                 }
             }),
+            establishementList: await prisma.project_Establishment.findMany({
+                where: {
+                    projectLabel: processusExist.projectLabel,
+                    softwareLabel: processusExist.softwareLabel,
+                    clientId: processusExist.clientId,
+                },
+                select: {
+                    nic: true,
+                    socialReason: true
+                }
+            })
         }
 
         return optionsList

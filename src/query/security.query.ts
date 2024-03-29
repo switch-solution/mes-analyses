@@ -506,4 +506,36 @@ export const getClientActiveAndSoftwareActive = async () => {
 
 }
 
+export const getClientIdByApiKey = async (apiKey: string, pathname: string) => {
+    try {
+        const parts = apiKey.split(" ");
+        if (parts.length !== 2 || parts[0] !== 'Bearer') {
+            throw new Error("Invalid auth header");
+        }
+        const apiExist = await prisma.client_API.findFirst({
+            where: {
+                apiKey: parts[1]
+            },
+            select: {
+                clientId: true,
+                uuid: true
+            }
+        })
+        if (!apiExist) throw new Error("API non trouvé")
+        await prisma.client_API_Activity.create({
+            data: {
+                clientId: apiExist.clientId,
+                uuidApi: apiExist.uuid,
+                pathname,
+            }
+
+        })
+        return apiExist?.clientId
+    } catch (err) {
+        console.error(err)
+        throw new Error("Erreur lors de la récupération des données")
+    }
+
+}
+
 

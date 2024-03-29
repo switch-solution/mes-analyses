@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { SocietyCreateSchema, EstablishmentCreateSchema, JobCreateSchema, RateAtCreateSchema } from "@/src/helpers/definition";
 import { ButtonLoading } from "@/components/ui/button-loader";
-import { createEstablishement, createSociety, createJob } from "@/src/features/actions/project_standard/project_standard.actions";
+import { createEstablishement, createSociety, createJob } from "@/src/features/actions/project_data/project_standard.actions";
 import { toast } from "sonner"
 import DynamicField from "@/components/ui/dynamic-field"
 import type { TypeDynamicInput } from "@/src/helpers/type"
@@ -14,6 +14,7 @@ import {
     Form,
 } from "@/components/ui/form"
 import type { getSelectOptions } from "@/src/query/form.query";
+import { createRateAt } from "@/src/features/actions/project_data/project_rateAt.actions";
 export default function CreateDynamicForm({ clientSlug, projectSlug, processusSlug, table, inputs, options }: {
     clientSlug: string, projectSlug: string, processusSlug: string, table: string, inputs: TypeDynamicInput, options: getSelectOptions
 }) {
@@ -74,6 +75,9 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
                     break;
                 case "Project_Job":
                     action = await createJob(data as z.infer<typeof JobCreateSchema>)
+                    break;
+                case "Project_RateAt":
+                    action = await createRateAt(data as z.infer<typeof RateAtCreateSchema>)
                     break;
                 default: {
                     throw new Error("La table n'existe pas")
