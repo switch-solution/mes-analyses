@@ -25,8 +25,6 @@ export default async function Page({ params }: { params: { clientSlug: string, s
             softwareLabel: setting.softwareLabel,
             slug: setting.slug,
             description: setting.description,
-            dateStart: setting.dateStart.toLocaleDateString(),
-            dateEnd: setting.dateEnd.toLocaleDateString(),
         }
     })
 

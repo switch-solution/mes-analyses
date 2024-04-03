@@ -19,7 +19,7 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
         const countProjects = await prisma.project.count()
         const projectNumber = `00000000000000000000${countProjects ? countProjects + 1 : 1}`
         const projectSlug = `${projectNumber.slice(-10)}`
-        const slug = await generateSlug(`${projectSlug}-${label}`)
+        const slug = generateSlug(`${projectSlug}-${label}`)
         const projectIsUnique = await prisma.project.findFirst({
             where: {
                 label,
@@ -59,7 +59,27 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
                     },
                 },
             })
-            await initProject(project.slug)
+            try {
+                await initProject({
+                    clientId: clientId,
+                    projectLabel: project.label,
+                    softwareLabel: project.softwareLabel
+
+                })
+            } catch (err) {
+                await prisma.project.delete({
+                    where: {
+                        clientId_softwareLabel_label: {
+                            clientId: clientId,
+                            softwareLabel: project.softwareLabel,
+                            label: project.label
+
+                        }
+                    }
+                })
+                throw new ActionError('Erreur lors de l\'initialisation du projet')
+            }
+
             const log: Logger = {
                 level: "info",
                 scope: "project",

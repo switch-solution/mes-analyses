@@ -16,7 +16,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
     if (!userIsAuthorized) throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
     const processusList = await getProcessusProject(params.projectSlug)
-    processusList.at
     const processus = processusList.map((processus) => {
         return (
             {
@@ -25,7 +24,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 slug: processus.slug,
                 label: processus.label,
                 description: processus.description,
-                theme: processus.theme
+                status: processus.status
             })
 
     })

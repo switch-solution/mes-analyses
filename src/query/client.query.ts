@@ -119,6 +119,9 @@ export const getSoftwareByClientId = async (clientId: string) => {
         const softwares = await prisma.software.findMany({
             where: {
                 clientId
+            },
+            include: {
+                Software_Setting: true
             }
         })
         return softwares

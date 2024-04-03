@@ -228,8 +228,6 @@ CREATE TABLE "Software_Setting" (
     "label" TEXT NOT NULL,
     "description" TEXT,
     "value" TEXT NOT NULL,
-    "dateStart" TIMESTAMP(3) NOT NULL,
-    "dateEnd" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
@@ -238,7 +236,7 @@ CREATE TABLE "Software_Setting" (
     "slug" TEXT NOT NULL,
     "comment" TEXT,
 
-    CONSTRAINT "Software_Setting_pkey" PRIMARY KEY ("id","label","value","dateStart","clientId","softwareLabel")
+    CONSTRAINT "Software_Setting_pkey" PRIMARY KEY ("id","label","value","clientId","softwareLabel")
 );
 
 -- CreateTable
@@ -728,13 +726,12 @@ CREATE TABLE "Project_Society" (
     "slug" TEXT NOT NULL,
     "id" TEXT NOT NULL DEFAULT 'En attente',
     "siren" TEXT NOT NULL,
-    "nic" TEXT NOT NULL,
     "ape" TEXT NOT NULL,
     "socialReason" TEXT NOT NULL DEFAULT 'En attente',
     "address1" TEXT NOT NULL,
-    "address2" TEXT,
-    "address3" TEXT,
-    "address4" TEXT,
+    "address2" TEXT DEFAULT '',
+    "address3" TEXT DEFAULT '',
+    "address4" TEXT DEFAULT '',
     "status" TEXT NOT NULL DEFAULT 'En cours',
     "source" TEXT NOT NULL DEFAULT 'analyse',
     "postalCode" TEXT NOT NULL,
@@ -752,16 +749,79 @@ CREATE TABLE "Project_Society" (
 );
 
 -- CreateTable
+CREATE TABLE "Project_Payrool_Item" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "population" TEXT,
+    "idcc" TEXT,
+    "example1" TEXT,
+    "example2" TEXT,
+    "example3" TEXT,
+    "example4" TEXT,
+    "example5" TEXT,
+    "clientId" TEXT NOT NULL,
+    "societyId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "base" TEXT,
+    "baseDetail" TEXT,
+    "rate" TEXT,
+    "rateDetail" TEXT,
+    "coefficient" TEXT,
+    "coefficientDetail" TEXT,
+    "amount" TEXT,
+    "amountDetail" TEXT,
+    "contributionBase" TEXT,
+    "contributionBaseDetail" TEXT,
+    "contributionRateEmployee" TEXT,
+    "contributionRateEmployeeDetail" TEXT,
+    "contributionRateEmployerDetail" TEXT,
+    "contributionRateEmployer" TEXT,
+    "projectLabel" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Payrool_Item_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Absence" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "dsnId" TEXT,
+    "method" TEXT NOT NULL,
+    "population" TEXT,
+    "description" TEXT,
+    "clientId" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "settlement" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "isSocialSecurity" BOOLEAN NOT NULL DEFAULT false,
+    "softwareLabel" TEXT NOT NULL,
+    "source" TEXT NOT NULL DEFAULT 'analyse',
+    "societyId" TEXT,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Absence_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+);
+
+-- CreateTable
 CREATE TABLE "Project_Establishment" (
     "slug" TEXT NOT NULL,
     "id" TEXT NOT NULL DEFAULT 'En attente',
     "nic" TEXT NOT NULL,
     "ape" TEXT NOT NULL,
+    "legalStatus" TEXT NOT NULL,
     "address1" TEXT NOT NULL,
     "socialReason" TEXT NOT NULL DEFAULT 'En attente',
-    "address2" TEXT,
-    "address3" TEXT,
-    "address4" TEXT,
+    "address2" TEXT DEFAULT '',
+    "address3" TEXT DEFAULT '',
+    "address4" TEXT DEFAULT '',
     "postalCode" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'En cours',
     "source" TEXT NOT NULL DEFAULT 'analyse',
@@ -769,7 +829,7 @@ CREATE TABLE "Project_Establishment" (
     "clientId" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "country" TEXT NOT NULL DEFAULT 'France',
-    "description" TEXT,
+    "description" TEXT DEFAULT '',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
@@ -810,14 +870,14 @@ CREATE TABLE "Project_Rate_AT" (
     "isStandby" BOOLEAN NOT NULL DEFAULT false,
     "rate" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
-    "order" INTEGER NOT NULL,
+    "order" INTEGER,
     "office" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
     "establishmentNic" TEXT NOT NULL,
 
-    CONSTRAINT "Project_Rate_AT_pkey" PRIMARY KEY ("id","clientId","societyId","establishmentNic","softwareLabel","projectLabel","order")
+    CONSTRAINT "Project_Rate_AT_pkey" PRIMARY KEY ("id","clientId","societyId","establishmentNic","softwareLabel","projectLabel")
 );
 
 -- CreateTable
@@ -825,6 +885,7 @@ CREATE TABLE "Project_OPS" (
     "clientId" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
+    "id" TEXT,
     "establishmentNic" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "type" TEXT NOT NULL,
@@ -856,7 +917,6 @@ CREATE TABLE "Project_Idcc" (
     "status" TEXT NOT NULL DEFAULT 'En cours',
     "source" TEXT NOT NULL DEFAULT 'analyse',
     "projectLabel" TEXT NOT NULL,
-    "establishmentId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
@@ -897,16 +957,18 @@ CREATE TABLE "Project_Paid_Leave" (
     "status" TEXT NOT NULL DEFAULT 'En cours',
     "source" TEXT NOT NULL DEFAULT 'analyse',
     "projectLabel" TEXT NOT NULL,
-    "rule" TEXT NOT NULL,
-    "periodStartDate" TIMESTAMP(3) NOT NULL,
-    "periodEndDate" TIMESTAMP(3) NOT NULL,
+    "periodEndDate" TEXT NOT NULL,
     "method" TEXT NOT NULL,
+    "valuationLeave" TEXT NOT NULL,
+    "roudingMethod" TEXT NOT NULL,
+    "roudingMethodLeave" TEXT NOT NULL,
     "valuation" TEXT NOT NULL,
+    "tableSeniority" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
 
-    CONSTRAINT "Project_Paid_Leave_pkey" PRIMARY KEY ("establishmentNic","societyId","clientId","softwareLabel","projectLabel","rule")
+    CONSTRAINT "Project_Paid_Leave_pkey" PRIMARY KEY ("establishmentNic","societyId","clientId","softwareLabel","projectLabel")
 );
 
 -- CreateTable
@@ -954,22 +1016,6 @@ CREATE TABLE "Projet_OPS" (
     "createdBy" TEXT NOT NULL,
 
     CONSTRAINT "Projet_OPS_pkey" PRIMARY KEY ("id","clientId","societyId","softwareLabel","establishmentNic","projectLabel")
-);
-
--- CreateTable
-CREATE TABLE "Setting" (
-    "id" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "description" TEXT,
-    "value" TEXT NOT NULL,
-    "dateStart" TIMESTAMP(3) NOT NULL,
-    "dateEnd" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
-    "system" BOOLEAN NOT NULL DEFAULT false,
-
-    CONSTRAINT "Setting_pkey" PRIMARY KEY ("id","label","dateStart","dateEnd")
 );
 
 -- CreateTable
@@ -1143,6 +1189,7 @@ CREATE TABLE "Processus" (
     "isArchived" BOOLEAN NOT NULL DEFAULT false,
     "isDuplicate" BOOLEAN NOT NULL DEFAULT false,
     "idOrigin" TEXT,
+    "orderId" TEXT NOT NULL,
 
     CONSTRAINT "Processus_pkey" PRIMARY KEY ("id")
 );
@@ -1153,16 +1200,15 @@ CREATE TABLE "Project_Processus" (
     "clientId" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "table" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT,
     "projectLabel" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
-    "theme" TEXT NOT NULL,
-    "isStarted" BOOLEAN NOT NULL DEFAULT false,
-    "isFinished" BOOLEAN NOT NULL DEFAULT false,
+    "status" TEXT NOT NULL DEFAULT 'Non démarré',
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
+    "orderId" TEXT NOT NULL,
 
     CONSTRAINT "Project_Processus_pkey" PRIMARY KEY ("clientId","projectLabel","softwareLabel","id")
 );
@@ -1192,7 +1238,7 @@ CREATE TABLE "Project_Form" (
     "clientId" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "label" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT,
     "projectLabel" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "id" TEXT NOT NULL,
@@ -1363,22 +1409,6 @@ CREATE TABLE "Project_Task" (
 );
 
 -- CreateTable
-CREATE TABLE "Absence" (
-    "label" TEXT NOT NULL,
-    "id" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "isPrintable" BOOLEAN NOT NULL DEFAULT false,
-    "dsnCode" TEXT,
-    "dsnLabel" TEXT,
-    "isSocialSecurity" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL DEFAULT 'system',
-
-    CONSTRAINT "Absence_pkey" PRIMARY KEY ("label")
-);
-
--- CreateTable
 CREATE TABLE "Item" (
     "id" TEXT NOT NULL,
     "nature" TEXT NOT NULL,
@@ -1480,19 +1510,21 @@ CREATE TABLE "Software_Absence" (
 CREATE TABLE "Default_Setting" (
     "id" TEXT NOT NULL,
     "label" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT,
     "value" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
 
-    CONSTRAINT "Default_Setting_pkey" PRIMARY KEY ("id","label")
+    CONSTRAINT "Default_Setting_pkey" PRIMARY KEY ("id","label","value")
 );
 
 -- CreateTable
 CREATE TABLE "Dsn_OPS" (
+    "type" TEXT NOT NULL,
     "id" TEXT NOT NULL,
     "label" TEXT NOT NULL,
+    "dsnId" TEXT,
     "address1" TEXT,
     "codeZip" TEXT,
     "city" TEXT,
@@ -1694,6 +1726,35 @@ CREATE TABLE "Rate_At" (
     CONSTRAINT "Rate_At_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Processus_Order" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "order" INTEGER NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Processus_Order_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Processus_Order" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "order" INTEGER NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "inProgress" BOOLEAN NOT NULL DEFAULT false,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Processus_Order_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "Account"("provider", "providerAccountId");
 
@@ -1809,6 +1870,9 @@ CREATE UNIQUE INDEX "Project_slug_key" ON "Project"("slug");
 CREATE UNIQUE INDEX "Project_Society_slug_key" ON "Project_Society"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Project_Absence_slug_key" ON "Project_Absence"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Project_Establishment_slug_key" ON "Project_Establishment"("slug");
 
 -- CreateIndex
@@ -1872,9 +1936,6 @@ CREATE UNIQUE INDEX "Software_Task_slug_key" ON "Software_Task"("slug");
 CREATE UNIQUE INDEX "Project_Task_slug_key" ON "Project_Task"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Absence_id_key" ON "Absence"("id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Software_Absence_slug_key" ON "Software_Absence"("slug");
 
 -- CreateIndex
@@ -1888,6 +1949,9 @@ CREATE UNIQUE INDEX "Software_Classification_slug_key" ON "Software_Classificati
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Approve_slug_key" ON "Project_Approve"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Processus_Order_slug_key" ON "Project_Processus_Order"("slug");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2076,6 +2140,18 @@ ALTER TABLE "Project" ADD CONSTRAINT "Project_softwareLabel_clientId_fkey" FOREI
 ALTER TABLE "Project_Society" ADD CONSTRAINT "Project_Society_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "softwareLabel", "label") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Project_Payrool_Item" ADD CONSTRAINT "Project_Payrool_Item_projectLabel_softwareLabel_clientId_s_fkey" FOREIGN KEY ("projectLabel", "softwareLabel", "clientId", "societyId") REFERENCES "Project_Society"("projectLabel", "softwareLabel", "clientId", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Payrool_Item" ADD CONSTRAINT "Project_Payrool_Item_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Absence" ADD CONSTRAINT "Project_Absence_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Absence" ADD CONSTRAINT "Project_Absence_projectLabel_softwareLabel_clientId_societ_fkey" FOREIGN KEY ("projectLabel", "softwareLabel", "clientId", "societyId") REFERENCES "Project_Society"("projectLabel", "softwareLabel", "clientId", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Project_Establishment" ADD CONSTRAINT "Project_Establishment_clientId_softwareLabel_societyId_pro_fkey" FOREIGN KEY ("clientId", "softwareLabel", "societyId", "projectLabel") REFERENCES "Project_Society"("clientId", "softwareLabel", "siren", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -2103,7 +2179,7 @@ ALTER TABLE "Project_Paid_Leave" ADD CONSTRAINT "Project_Paid_Leave_establishmen
 ALTER TABLE "Project_Job" ADD CONSTRAINT "Project_Job_clientId_projectLabel_softwareLabel_societyId_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel", "societyId") REFERENCES "Project_Society"("clientId", "projectLabel", "softwareLabel", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Job" ADD CONSTRAINT "Project_Job_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Project_Job" ADD CONSTRAINT "Project_Job_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Projet_OPS" ADD CONSTRAINT "Projet_OPS_clientId_softwareLabel_projectLabel_establishme_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "establishmentNic", "societyId") REFERENCES "Project_Establishment"("clientId", "softwareLabel", "projectLabel", "nic", "societyId") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2151,7 +2227,10 @@ ALTER TABLE "Processus" ADD CONSTRAINT "Processus_clientId_fkey" FOREIGN KEY ("c
 ALTER TABLE "Processus" ADD CONSTRAINT "Processus_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Processus" ADD CONSTRAINT "Project_Processus_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Processus" ADD CONSTRAINT "Processus_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Processus_Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Processus" ADD CONSTRAINT "Project_Processus_orderId_clientId_projectLabel_softwareLa_fkey" FOREIGN KEY ("orderId", "clientId", "projectLabel", "softwareLabel") REFERENCES "Project_Processus_Order"("id", "clientId", "projectLabel", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Form" ADD CONSTRAINT "Form_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("siren") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -2229,4 +2308,7 @@ ALTER TABLE "Software_Classification" ADD CONSTRAINT "Software_Classification_so
 ALTER TABLE "Project_Approve" ADD CONSTRAINT "Project_Approve_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Approve" ADD CONSTRAINT "Project_Approve_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Project_Approve" ADD CONSTRAINT "Project_Approve_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "softwareLabel", "label") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Processus_Order" ADD CONSTRAINT "Project_Processus_Order_clientId_projectLabel_softwareLabe_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;

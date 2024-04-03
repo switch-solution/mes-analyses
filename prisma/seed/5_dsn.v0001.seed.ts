@@ -210,7 +210,21 @@ class DsnV0001 extends Seed {
                             id: 'S21.G00.40.007',
                             label: `Nature du contrat`,
                             type: 'Contract'
-
+                        },
+                        {
+                            id: 'S21.G00.40.040',
+                            label: `Code risque accident du travail`,
+                            type: 'RateAt'
+                        },
+                        {
+                            id: 'S21.G00.40.043',
+                            label: `Taux de cotisation accident du travail`,
+                            type: 'RateAt'
+                        },
+                        {
+                            id: 'S21.G00.81.002',
+                            label: `Identifiant Organisme de Protection Sociale`,
+                            type: 'OPS'
                         },
 
 

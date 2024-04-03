@@ -29,6 +29,53 @@ export const dataByTable = async ({ projectSlug, table, slug }: { projectSlug: s
                 return establishment
 
                 break
+            case "Project_Job":
+                const job = await prisma.project_Job.findUniqueOrThrow({
+                    where: {
+                        clientId: projectExist.clientId,
+                        projectLabel: projectExist.label,
+                        softwareLabel: projectExist.softwareLabel,
+                        slug
+                    }
+                })
+                return job
+
+                break
+            case "Project_Idcc":
+                const idcc = await prisma.project_Idcc.findUniqueOrThrow({
+                    where: {
+                        clientId: projectExist.clientId,
+                        projectLabel: projectExist.label,
+                        softwareLabel: projectExist.softwareLabel,
+                        slug
+                    }
+                })
+                return idcc
+
+                break
+            case "Project_Classification":
+                const classification = await prisma.project_Classification.findUniqueOrThrow({
+                    where: {
+                        clientId: projectExist.clientId,
+                        projectLabel: projectExist.label,
+                        softwareLabel: projectExist.softwareLabel,
+                        slug
+                    }
+                })
+                return classification
+
+                break
+            case "Project_OPS":
+                const ops = await prisma.project_OPS.findUniqueOrThrow({
+                    where: {
+                        clientId: projectExist.clientId,
+                        projectLabel: projectExist.label,
+                        softwareLabel: projectExist.softwareLabel,
+                        slug
+                    }
+                })
+                return ops
+                break
             default:
                 throw new Error("Table inconnue.")
 

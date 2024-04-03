@@ -59,7 +59,32 @@ export const getSelectOptions = async (projectSlug: string, processusSlug: strin
                     nic: true,
                     socialReason: true
                 }
+            }),
+            urssafList: await prisma.dsn_OPS.findMany({
+                where: {
+                    type: "URSSAF",
+                }
+            }),
+            idccList: await prisma.idcc.findMany({
+                orderBy: {
+                    label: 'asc'
+                }
+            }),
+            projectIdccList: await prisma.project_Idcc.findMany({
+                where: {
+                    projectLabel: processusExist.projectLabel,
+                    softwareLabel: processusExist.softwareLabel,
+                    clientId: processusExist.clientId,
+                },
+            }),
+            dsnAbsenceList: await prisma.dsn_Absence.findMany(),
+            softwareSetting: await prisma.software_Setting.findMany({
+                where: {
+                    softwareLabel: processusExist.softwareLabel,
+                    clientId: processusExist.clientId,
+                }
             })
+
         }
 
         return optionsList

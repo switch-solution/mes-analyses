@@ -49,8 +49,6 @@ export default function EditSoftwareSetting({ clientSlug, setting }: { clientSlu
             id: setting?.id,
             value: setting?.value,
             description: setting?.description ?? '',
-            dateStart: setting?.dateStart,
-            dateEnd: setting?.dateEnd,
 
         },
     })

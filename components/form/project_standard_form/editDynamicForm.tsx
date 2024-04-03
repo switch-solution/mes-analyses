@@ -6,13 +6,12 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { SocietyEditSchema, EstablishmentEditSchema } from "@/src/helpers/definition";
 import { ButtonLoading } from "@/components/ui/button-loader";
-import { updateSociety, updateEstablishement } from "@/src/features/actions/project_data/project_standard.actions";
+import { updateSociety } from "@/src/features/actions/project_data/project_society.actions";
+import { updateEstablishement } from "@/src/features/actions/project_data/project_establishment.actions";
 import { toast } from "sonner"
 import DynamicField from "@/components/ui/dynamic-field"
 import type { TypeDynamicInput } from "@/src/helpers/type"
-import {
-    Form,
-} from "@/components/ui/form"
+import { Form } from "@/components/ui/form"
 import type { getSelectOptions } from "@/src/query/form.query";
 export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug, table, inputs, options, datas }: {
     clientSlug: string, projectSlug: string, processusSlug: string, table: string, inputs: TypeDynamicInput, options: getSelectOptions, datas: {}

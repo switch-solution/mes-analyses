@@ -1,12 +1,14 @@
 import { env } from "./lib/env"
-import { ipAddress, next } from '@vercel/edge'
+import { ipAddress } from '@vercel/edge'
 import { Ratelimit } from '@upstash/ratelimit'
 import { kv } from '@vercel/kv'
 export const config = {
     //matcher: ["/home/:patch*", "/profile", "/client/:path*", "/editor/:path*", "/support/:path*", "/project/:path*", "/setup/:path*", "/feedback", "/about", "/profil"]
 }
-
-
+const domain = env.DOMAIN
+const api = env.API_KEY
+const node_env = env.NODE_ENV
+const mode = env.MODE
 const ratelimit = new Ratelimit({
     redis: kv,
     // 10 requests from the same IP in 10 seconds
@@ -27,28 +29,46 @@ export async function middleware(request: NextRequest) {
     if (env.MAINTENANCE) {
         return new Response('Service Unavailable', { status: 503 })
     }
-    const ip = ipAddress(request)
-    //rate limiting only for production
-    const node_env = env.NODE_ENV
-    const mode = env.MODE
-    if (node_env === "production" && mode === "SAAS") {
-        const ip = ipAddress(request) || '127.0.0.1'
-        const { success, pending, limit, reset, remaining } = await ratelimit.limit(ip)
-        console.log({ success, pending, limit, reset, remaining })
-        if (!success) {
-            return new Response('Blocked for rate limit', { status: 503 })
-        }
-    }
-
 
     //API route
-
     if (request.nextUrl.pathname.startsWith('/api/v1')) {
-        //Test API Key exist
-        const api = request.headers.get('Authorization')
-        if (!api) {
-            return new Response('Unauthorized', { status: 401 })
+        //rate limiting only for production
+
+        if (node_env === "production" && mode === "SAAS") {
+            const ip = ipAddress(request) || '127.0.0.1'
+            const { success, pending, limit, reset, remaining } = await ratelimit.limit(ip)
+            if (!success) {
+                return new Response('Blocked for rate limit', { status: 503 })
+            }
         }
+
+        //Test API Key is present
+        const clientApi = request.headers.get('Authorization')
+        if (!clientApi) {
+            return new Response('API token is required', { status: 400 })
+        }
+        //Test API Key is valid
+
+        const fetchUrl = `${domain}/api/security/`
+        try {
+            const response = await fetch(fetchUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': api,
+                },
+                body: JSON.stringify({ clientApi }),
+            })
+            if (!response.ok) {
+                return new Response('API is not valid', { status: 401 })
+            }
+        } catch (err: unknown) {
+            return new Response(err as string, { status: 401 })
+        }
+
+
+
+
     }
 
     //Cookie

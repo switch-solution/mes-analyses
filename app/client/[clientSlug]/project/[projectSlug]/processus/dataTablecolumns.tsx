@@ -1,7 +1,8 @@
 "use client"
-
+import { validProjectProcessus } from "@/src/features/actions/project_processus/project_processus.actions";
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -10,32 +11,24 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 export type Processus = {
-    projectSlug: string | null
-    clientSlug: string | null
-    slug: string | null
+    projectSlug: string
+    clientSlug: string
+    slug: string
     label: string | null
     description: string | null
-    theme: string | null
+    status: string | null
 
 }
-
+import { Badge } from "@/components/ui/badge";
 export const columns: ColumnDef<Processus>[] = [
     {
         accessorKey: "label",
         header: "label",
         cell: ({ row }) => {
             return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.slug}/`}>{row.original.label}</Link>
-        }
-    },
-    {
-        accessorKey: "theme",
-        header: "theme",
-        cell: ({ row }) => {
-            return <Badge>{row.original.theme}</Badge>
         }
     },
     {
@@ -46,13 +39,12 @@ export const columns: ColumnDef<Processus>[] = [
         }
     },
     {
-        accessorKey: "slug",
-        header: "Consulter",
+        accessorKey: "status",
+        header: "Statut",
         cell: ({ row }) => {
-            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.slug}/data`}>Ouvrir</Link>
+            return <Badge>{row.original.status}</Badge>
         }
     },
-
     {
         id: "actions",
         cell: ({ row }) => {
@@ -68,9 +60,28 @@ export const columns: ColumnDef<Processus>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Mes options</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem><Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/`}>Validé</Link></DropdownMenuItem>
+                        {project.status !== "En attente de validation" ? <DropdownMenuItem onClick={async () => {
+                            const action = await validProjectProcessus({
+                                clientSlug: project.clientSlug,
+                                projectSlug: project.projectSlug,
+                                processusSlug: project.slug
+
+                            })
+                            if (action?.serverError) {
+                                toast(`${action.serverError}`, {
+                                    description: new Date().toLocaleDateString(),
+                                    action: {
+                                        label: "fermer",
+                                        onClick: () => console.log("fermeture"),
+                                    },
+                                })
+                            }
+                        }}><Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/`}>Valider</Link></DropdownMenuItem> : undefined}
+                        <DropdownMenuItem><Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/`}>WorkFlow de validation</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}/`}>Pdf</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}/archived`}>Excel</Link></DropdownMenuItem>
                     </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu >
             )
         },
     },

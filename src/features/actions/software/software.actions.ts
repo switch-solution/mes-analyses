@@ -63,6 +63,7 @@ export const editSoftware = authentificationActionUserIsAdminClient(SoftwaresSch
     })
 
 
+
     const log: Logger = {
         level: "info",
         message: `Le logiciel ${software.label} a été édité`,
@@ -119,7 +120,7 @@ export const createUserSoftware = authentificationActionUserIsAdminClient(Create
 export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresSchema, async (values: z.infer<typeof SoftwaresSchema>, { clientId, userId }) => {
 
     const { label, clientSlug } = SoftwaresSchema.parse(values)
-    const slug = await generateSlug(`${clientSlug}-${label}`)
+    const slug = generateSlug(`${clientSlug}-${label}`)
     try {
         const softwareExist = await prisma.software.findUnique({
             where: {
@@ -154,6 +155,26 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
                 createdBy: userId,
                 isActivated: true
             }
+        })
+
+        const defaultSetting = await prisma.default_Setting.findMany()
+        let countSetting = await prisma.software_Setting.count()
+        const softwareSetting = defaultSetting.map(setting => {
+            countSetting = countSetting + 1
+            return {
+                id: setting.id,
+                label: setting.label,
+                description: setting.description,
+                value: setting.value,
+                softwareLabel: label,
+                clientId: clientId,
+                createdBy: userId,
+                slug: generateSlug(`setting-${countSetting}`)
+            }
+
+        })
+        await prisma.software_Setting.createMany({
+            data: softwareSetting
         })
 
         const log: Logger = {

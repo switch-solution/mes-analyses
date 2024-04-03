@@ -39,71 +39,57 @@ class SettingV0001 extends Seed {
         try {
             if (previousStatus && !seedExist) {
                 await this.seedUpdateStatus("pending")
-                await prisma.setting.upsert({
-                    where: {
-                        id_label_dateStart_dateEnd: {
-                            id: "MODE",
-                            label: "Environnement",
-                            dateStart: new Date("2024-01-01"),
-                            dateEnd: new Date("4000-01-01")
-                        }
+                const defaultSetting = [
+                    {
+                        id: 'ABS_Décompte',
+                        label: 'Décompte des absences',
+                        value: 'Heures ouvrés'
                     },
-                    update: {
-                        id: "MODE",
-                        label: "Environnement",
-                        dateStart: new Date("2024-01-01"),
-                        dateEnd: new Date("4000-01-01"),
-                        description: "Environnement de l'application",
-                        value: process.env.MODE ? process.env.MODE : "development",
-                        createdBy: "system",
-                        system: true
+                    {
+                        id: 'ABS_Décompte',
+                        label: 'Décompte des absences',
+                        value: 'Heures ouvrables'
                     },
-                    create: {
-                        id: "MODE",
-                        label: "Environnement",
-                        dateStart: new Date("2024-01-01"),
-                        dateEnd: new Date("4000-01-01"),
-                        description: "Environnement de l'application",
-                        value: process.env.MODE ? process.env.MODE : "development",
-                        createdBy: "system",
-                        system: true
+                    {
+                        id: 'CP_Méthode',
+                        label: 'Méthode de calcul des CP',
+                        value: 'Jour ouvré'
+                    },
+                    {
+                        id: 'CP_Méthode',
+                        label: 'Méthode de calcul des CP',
+                        value: 'Jour ouvrable'
+                    },
+                    {
+                        id: 'CP_Valorisation',
+                        label: 'Valorisation des CP',
+                        value: 'Maintien de salaire'
+                    },
+                    {
+                        id: 'CP_Valorisation',
+                        label: 'Valorisation des CP',
+                        value: '10ème'
+                    },
+                    {
+                        id: 'CP_arrondi',
+                        label: 'Méthode d\'arrondi des CP',
+                        value: 'Entier supérieur'
+                    },
+                    {
+                        id: 'CP_arrondi',
+                        label: 'Méthode d\'arrondi des CP',
+                        value: 'Entier inférieur'
+                    },
+                    {
+                        id: 'ABS_Méthode',
+                        label: 'Méthode valorisation des absences',
+                        value: 'Base*Taux'
+                    },
 
-                    }
+                ]
+                await prisma.default_Setting.createMany({
+                    data: defaultSetting
                 })
-
-                await prisma.setting.upsert({
-                    where: {
-                        id_label_dateStart_dateEnd: {
-                            id: "PRICING",
-                            label: "Prix",
-                            dateStart: new Date("2024-01-01"),
-                            dateEnd: new Date("4000-01-01")
-                        }
-                    },
-                    update: {
-                        id: "PRICING",
-                        label: "Prix",
-                        dateStart: new Date("2024-01-01"),
-                        dateEnd: new Date("4000-01-01"),
-                        description: "Prix par default pour un utilisateur par mois",
-                        value: "10",
-                        createdBy: "system",
-                        system: true
-                    },
-                    create: {
-                        id: "PRICING",
-                        label: "Prix",
-                        dateStart: new Date("2024-01-01"),
-                        dateEnd: new Date("4000-01-01"),
-                        description: "Prix par default pour un utilisateur par mois",
-                        value: "10",
-                        createdBy: "system",
-                        system: true
-                    }
-
-
-                })
-
                 await this.seedUpdateStatus("completed")
             }
 

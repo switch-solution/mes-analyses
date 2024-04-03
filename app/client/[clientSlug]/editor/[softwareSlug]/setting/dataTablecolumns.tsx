@@ -10,8 +10,6 @@ export type Setting = {
     code: string | null,
     label: string | null
     value: string | null
-    dateStart: string | null
-    dateEnd: string | null
     softwareLabel: string | null
     slug: string | null
 }

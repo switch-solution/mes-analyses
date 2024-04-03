@@ -22,8 +22,6 @@ export const createSoftwareSetting = authentificationActionUserIsEditorClient(Se
                 id,
                 label,
                 value,
-                dateStart,
-                dateEnd: dateEnd ? dateEnd : new Date('01/01/4000'),
                 description,
                 clientId,
                 createdBy: userId,
@@ -57,11 +55,10 @@ export const editSoftwareSetting = authentificationActionUserIsEditorClient(Sett
     try {
         await prisma.software_Setting.update({
             where: {
-                id_label_value_dateStart_clientId_softwareLabel: {
+                id_label_value_clientId_softwareLabel: {
                     id: settingExist.id,
                     label: settingExist.label,
                     value: settingExist.value,
-                    dateStart: settingExist.dateStart,
                     clientId: settingExist.clientId,
                     softwareLabel: settingExist.softwareLabel
 
@@ -70,8 +67,6 @@ export const editSoftwareSetting = authentificationActionUserIsEditorClient(Sett
             data: {
                 label,
                 value,
-                dateStart,
-                dateEnd: dateEnd ? dateEnd : new Date('01/01/4000'),
                 description,
                 clientId,
                 createdBy: userId,

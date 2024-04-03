@@ -111,6 +111,9 @@ export const UserMenu = ({ clientSlug, softwareSlug }: { clientSlug: string, sof
                             <MenubarSubContent>
                                 <MenubarItem><Link href={`/client/${clientSlug}/editor/idcc`}>Idcc</Link></MenubarItem>
                                 <MenubarItem><Link href={`/client/${clientSlug}/editor/rateAt`}>Taux AT</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/ops`}>Annuaire des organismes</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/absence`}>Code absence DSN</Link></MenubarItem>
+                                <MenubarItem><Link href={`/client/${clientSlug}/editor/dsn`}>Structure DSN exporté</Link></MenubarItem>
                             </MenubarSubContent>
                         </MenubarSub>
                     </MenubarContent>

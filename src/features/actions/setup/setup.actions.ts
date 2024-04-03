@@ -20,7 +20,6 @@ export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<
         }
     })
     if (!email) throw new ActionError("L'utilisateur n'existe pas.")
-    console.log(email.email)
     const invitation = await getInvitation(email.email)
     try {
         if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
@@ -144,6 +143,25 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
             }
         })
         if (!software) throw new ActionError("Le logiciel n'a pas été créé.")
+        const defaultSetting = await prisma.default_Setting.findMany()
+        let countSetting = await prisma.software_Setting.count()
+        const softwareSetting = defaultSetting.map(setting => {
+            countSetting = countSetting + 1
+            return {
+                id: setting.id,
+                label: setting.label,
+                description: setting.description,
+                value: setting.value,
+                softwareLabel: label,
+                clientId: clientId.clientId,
+                createdBy: userId,
+                slug: generateSlug(`setting-${countSetting}`)
+            }
+
+        })
+        await prisma.software_Setting.createMany({
+            data: softwareSetting
+        })
         //Setup user
         await userSetup(userId)
     } catch (err: unknown) {
@@ -207,7 +225,6 @@ export const createSetupClient = authentifcationAction(SetupClientSchema, async 
                             isBlocked: false,
                             isEditor: true,
                             defaultRole: defaultRole,
-
                         }
                     }
                 }

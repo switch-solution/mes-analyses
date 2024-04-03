@@ -38,7 +38,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const options = await getSelectOptions(params.projectSlug, params.processusSlug)
 
     const datas = await dataByTable({ projectSlug: params.projectSlug, table: processusExist.table, slug: params.dataSlug })
-
     return (
         <Container>
             <Breadcrumb>

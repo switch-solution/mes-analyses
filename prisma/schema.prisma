@@ -282,8 +282,6 @@ model Software_Setting {
   label         String
   description   String?
   value         String
-  dateStart     DateTime
-  dateEnd       DateTime
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   createdBy     String
@@ -293,7 +291,7 @@ model Software_Setting {
   comment       String?
   Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
 
-  @@id([id, label, value, dateStart, clientId, softwareLabel])
+  @@id([id, label, value, clientId, softwareLabel])
 }
 
 model Table_Seniority {
@@ -795,31 +793,33 @@ model UserProject {
 }
 
 model Project {
-  clientId           String
-  client             Client               @relation(fields: [clientId], references: [siren], onDelete: Cascade)
-  logo               String?
-  label              String
-  description        String
-  status             String               @default("actif")
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  createdBy          String
-  Software           Software             @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
-  softwareLabel      String
-  UserProject        UserProject[]
-  Logger             Logger[]
-  Project_Attachment Project_Attachment[]
-  slug               String               @unique
-  Project_Constant   Project_Constant[]
-  Project_Items      Project_Items[]
-  Project_Task       Project_Task[]
-  Project_Invitation Project_Invitation[]
-  Project_Society    Project_Society[]
-  Project_Job        Project_Job[]
-  Project_Processus  Project_Processus[]
-  Project_Form       Project_Form[]
-  Project_DSN        Project_DSN[]
-  Project_Approve    Project_Approve[]
+  clientId                String
+  client                  Client                    @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  logo                    String?
+  label                   String
+  description             String
+  status                  String                    @default("actif")
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  createdBy               String
+  Software                Software                  @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+  softwareLabel           String
+  UserProject             UserProject[]
+  Logger                  Logger[]
+  Project_Attachment      Project_Attachment[]
+  slug                    String                    @unique
+  Project_Constant        Project_Constant[]
+  Project_Items           Project_Items[]
+  Project_Task            Project_Task[]
+  Project_Invitation      Project_Invitation[]
+  Project_Society         Project_Society[]
+  Project_Job             Project_Job[]
+  Project_Form            Project_Form[]
+  Project_DSN             Project_DSN[]
+  Project_Approve         Project_Approve[]
+  Project_Processus_Order Project_Processus_Order[]
+  Project_Absence         Project_Absence[]
+  Project_Payrool_Item    Project_Payrool_Item[]
 
   @@id([clientId, softwareLabel, label])
 }
@@ -828,13 +828,12 @@ model Project_Society {
   slug                  String                  @unique
   id                    String                  @default("En attente")
   siren                 String
-  nic                   String
   ape                   String
   socialReason          String                  @default("En attente")
   address1              String
-  address2              String?
-  address3              String?
-  address4              String?
+  address2              String?                 @default("")
+  address3              String?                 @default("")
+  address4              String?                 @default("")
   status                String                  @default("En cours")
   source                String                  @default("analyse")
   postalCode            String
@@ -851,8 +850,74 @@ model Project_Society {
   Project_Establishment Project_Establishment[]
   Project_Idcc          Project_Idcc[]
   Project_Job           Project_Job[]
+  Project_Absence       Project_Absence[]
+  Project_Payrool_Item  Project_Payrool_Item[]
 
   @@id([clientId, softwareLabel, projectLabel, siren])
+}
+
+model Project_Payrool_Item {
+  id                             String
+  label                          String
+  type                           String
+  description                    String
+  population                     String?
+  idcc                           String?
+  example1                       String?
+  example2                       String?
+  example3                       String?
+  example4                       String?
+  example5                       String?
+  clientId                       String
+  societyId                      String
+  Project_Society                Project_Society? @relation(fields: [projectLabel, softwareLabel, clientId, societyId], references: [projectLabel, softwareLabel, clientId, siren])
+  softwareLabel                  String
+  base                           String?
+  baseDetail                     String?
+  rate                           String?
+  rateDetail                     String?
+  coefficient                    String?
+  coefficientDetail              String?
+  amount                         String?
+  amountDetail                   String?
+  contributionBase               String?
+  contributionBaseDetail         String?
+  contributionRateEmployee       String?
+  contributionRateEmployeeDetail String?
+  contributionRateEmployerDetail String?
+  contributionRateEmployer       String?
+  projectLabel                   String
+  Project                        Project          @relation(fields: [clientId, softwareLabel, projectLabel], references: [clientId, label, softwareLabel])
+  createdAt                      DateTime         @default(now())
+  updatedAt                      DateTime         @updatedAt
+  createdBy                      String           @default("system")
+
+  @@id([id, clientId, softwareLabel, projectLabel])
+}
+
+model Project_Absence {
+  id               String
+  label            String
+  dsnId            String?
+  method           String
+  population       String?
+  description      String?
+  clientId         String
+  slug             String           @unique
+  status           String           @default("En cours")
+  settlement       String
+  projectLabel     String
+  isSocialSecurity Boolean          @default(false)
+  softwareLabel    String
+  Project          Project          @relation(fields: [clientId, softwareLabel, projectLabel], references: [clientId, label, softwareLabel])
+  source           String           @default("analyse")
+  societyId        String?
+  Project_Society  Project_Society? @relation(fields: [projectLabel, softwareLabel, clientId, societyId], references: [projectLabel, softwareLabel, clientId, siren])
+  updatedAt        DateTime         @updatedAt
+  createdAt        DateTime         @default(now())
+  createdBy        String           @default("system")
+
+  @@id([id, clientId, softwareLabel, projectLabel])
 }
 
 model Project_Establishment {
@@ -860,11 +925,12 @@ model Project_Establishment {
   id                         String                       @default("En attente")
   nic                        String
   ape                        String
+  legalStatus                String
   address1                   String
   socialReason               String                       @default("En attente")
-  address2                   String?
-  address3                   String?
-  address4                   String?
+  address2                   String?                      @default("")
+  address3                   String?                      @default("")
+  address4                   String?                      @default("")
   postalCode                 String
   status                     String                       @default("En cours")
   source                     String                       @default("analyse")
@@ -872,7 +938,7 @@ model Project_Establishment {
   clientId                   String
   softwareLabel              String
   country                    String                       @default("France")
-  description                String?
+  description                String?                      @default("")
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
   createdBy                  String                       @default("system")
@@ -919,7 +985,7 @@ model Project_Rate_AT {
   isStandby             Boolean               @default(false)
   rate                  String
   slug                  String                @unique
-  order                 Int
+  order                 Int?
   office                Boolean               @default(false)
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
@@ -927,13 +993,14 @@ model Project_Rate_AT {
   establishmentNic      String
   Project_Establishment Project_Establishment @relation(fields: [establishmentNic, clientId, softwareLabel, projectLabel, societyId], references: [nic, clientId, softwareLabel, projectLabel, societyId])
 
-  @@id([id, clientId, societyId, establishmentNic, softwareLabel, projectLabel, order])
+  @@id([id, clientId, societyId, establishmentNic, softwareLabel, projectLabel])
 }
 
 model Project_OPS {
   clientId              String
   softwareLabel         String
   projectLabel          String
+  id                    String?
   establishmentNic      String
   slug                  String                @unique
   type                  String
@@ -965,7 +1032,6 @@ model Project_Idcc {
   status                     String                       @default("En cours")
   source                     String                       @default("analyse")
   projectLabel               String
-  establishmentId            String
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
   createdBy                  String                       @default("system")
@@ -1008,17 +1074,19 @@ model Project_Paid_Leave {
   status                String                @default("En cours")
   source                String                @default("analyse")
   projectLabel          String
-  rule                  String
-  periodStartDate       DateTime
-  periodEndDate         DateTime
+  periodEndDate         String
   method                String
+  valuationLeave        String
+  roudingMethod         String
+  roudingMethodLeave    String
   valuation             String
+  tableSeniority        String?
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
   createdBy             String
   Project_Establishment Project_Establishment @relation(fields: [establishmentNic, clientId, softwareLabel, societyId, projectLabel], references: [nic, clientId, softwareLabel, societyId, projectLabel])
 
-  @@id([establishmentNic, societyId, clientId, softwareLabel, projectLabel, rule])
+  @@id([establishmentNic, societyId, clientId, softwareLabel, projectLabel])
 }
 
 model Project_Job {
@@ -1036,7 +1104,7 @@ model Project_Job {
   source          String           @default("analyse")
   projectLabel    String
   softwareLabel   String
-  Project         Project          @relation(fields: [clientId, softwareLabel, projectLabel], references: [clientId, label, softwareLabel])
+  Project         Project          @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
 
   @@id([clientId, softwareLabel, projectLabel, label])
 }
@@ -1067,21 +1135,6 @@ model Projet_OPS {
   Project_Establishment Project_Establishment @relation(fields: [clientId, softwareLabel, projectLabel, establishmentNic, societyId], references: [clientId, softwareLabel, projectLabel, nic, societyId])
 
   @@id([id, clientId, societyId, softwareLabel, establishmentNic, projectLabel])
-}
-
-model Setting {
-  id          String
-  label       String
-  description String?
-  value       String
-  dateStart   DateTime
-  dateEnd     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String
-  system      Boolean  @default(false)
-
-  @@id([id, label, dateStart, dateEnd])
 }
 
 model Logger {
@@ -1269,43 +1322,44 @@ model Project_Attachment {
 }
 
 model Processus {
-  id            String    @id
-  label         String
-  level         String    @default("Standard")
-  description   String?
-  theme         String
-  table         String
-  clientId      String?
-  softwareLabel String?
-  Client        Client?   @relation(fields: [clientId], references: [siren])
-  Software      Software? @relation(fields: [softwareLabel, clientId], references: [label, clientId])
-  slug          String    @unique
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  createdBy     String    @default("system")
-  isArchived    Boolean   @default(false)
-  isDuplicate   Boolean   @default(false)
-  idOrigin      String?
-  Form          Form[]
+  id              String          @id
+  label           String
+  level           String          @default("Standard")
+  description     String?
+  theme           String
+  table           String
+  clientId        String?
+  softwareLabel   String?
+  Client          Client?         @relation(fields: [clientId], references: [siren])
+  Software        Software?       @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  slug            String          @unique
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       String          @default("system")
+  isArchived      Boolean         @default(false)
+  isDuplicate     Boolean         @default(false)
+  idOrigin        String?
+  Form            Form[]
+  Processus_Order Processus_Order @relation(fields: [orderId], references: [id])
+  orderId         String
 }
 
 model Project_Processus {
-  id            String
-  clientId      String
-  label         String
-  table         String
-  description   String
-  projectLabel  String
-  softwareLabel String
-  slug          String         @unique
-  theme         String
-  isStarted     Boolean        @default(false)
-  isFinished    Boolean        @default(false)
-  Project       Project        @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
-  updatedAt     DateTime       @updatedAt
-  createdAt     DateTime       @default(now())
-  createdBy     String         @default("system")
-  Project_Form  Project_Form[]
+  id                      String
+  clientId                String
+  label                   String
+  table                   String
+  description             String?
+  projectLabel            String
+  softwareLabel           String
+  slug                    String                  @unique
+  status                  String                  @default("Non démarré")
+  updatedAt               DateTime                @updatedAt
+  createdAt               DateTime                @default(now())
+  createdBy               String                  @default("system")
+  Project_Form            Project_Form[]
+  Project_Processus_Order Project_Processus_Order @relation(fields: [orderId, clientId, projectLabel, softwareLabel], references: [id, clientId, projectLabel, softwareLabel])
+  orderId                 String
 
   @@id([clientId, projectLabel, softwareLabel, id])
 }
@@ -1337,7 +1391,7 @@ model Project_Form {
   clientId           String
   softwareLabel      String
   label              String
-  description        String
+  description        String?
   projectLabel       String
   slug               String               @unique
   id                 String
@@ -1507,19 +1561,6 @@ model Project_Task {
   @@id([label, clientId, projectLabel, softwareLabel, owner])
 }
 
-model Absence {
-  label            String   @id
-  id               String   @unique
-  description      String
-  isPrintable      Boolean  @default(false)
-  dsnCode          String?
-  dsnLabel         String?
-  isSocialSecurity Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  createdBy        String   @default("system")
-}
-
 model Item {
   id                       String
   nature                   String
@@ -1617,18 +1658,20 @@ model Software_Absence {
 model Default_Setting {
   id          String
   label       String
-  description String
+  description String?
   value       String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  createdBy   String
+  createdBy   String   @default("system")
 
-  @@id([id, label])
+  @@id([id, label, value])
 }
 
 model Dsn_OPS {
+  type     String
   id       String  @id
   label    String
+  dsnId    String?
   address1 String?
   codeZip  String?
   city     String?
@@ -1799,7 +1842,7 @@ model Project_Approve {
   updatedAt      DateTime @updatedAt
   createdBy      String   @default("system")
   User           User     @relation(fields: [userId], references: [id])
-  Project        Project  @relation(fields: [clientId, softwareLabel, projectLabel], references: [clientId, label, softwareLabel])
+  Project        Project  @relation(fields: [clientId, softwareLabel, projectLabel], references: [clientId, softwareLabel, label])
 
   @@id([clientId, softwareLabel, projectLabel, rowSlug, table])
 }
@@ -1812,4 +1855,32 @@ model Rate_At {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   createdBy String   @default("system")
+}
+
+model Processus_Order {
+  id        String      @id
+  label     String
+  order     Int
+  updatedAt DateTime    @updatedAt
+  createdAt DateTime    @default(now())
+  createdBy String      @default("system")
+  Processus Processus[]
+}
+
+model Project_Processus_Order {
+  id                String
+  label             String
+  order             Int
+  clientId          String
+  slug              String              @unique
+  softwareLabel     String
+  projectLabel      String
+  inProgress        Boolean             @default(false)
+  updatedAt         DateTime            @updatedAt
+  createdAt         DateTime            @default(now())
+  createdBy         String              @default("system")
+  Project_Processus Project_Processus[]
+  Project           Project             @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
+
+  @@id([id, clientId, softwareLabel, projectLabel])
 }

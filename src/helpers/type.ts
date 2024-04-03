@@ -91,5 +91,6 @@ export type TypeDynamicInput = {
     updatedAt: Date
     createdBy: string
     order: number
+    selectOption: string | null
 
 }[]

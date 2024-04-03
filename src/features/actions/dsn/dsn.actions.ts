@@ -6,10 +6,9 @@ import { getClientBySlug } from '@/src/query/client.query';
 import { getProjectBySlug } from '@/src/query/project.query';
 import { userIsAuthorizeInThisProject } from '@/src/query/security.query'
 import { generateSlug } from '@/src/helpers/generateSlug';
-import { getRandomFieldDsnByProjectSlug, getDsnByProjectSlugAndRandomFilterByType } from '@/src/query/project_dsn.query';
+import { getRandomFieldDsnByProject, getDsnByProjectAndRandomFilterByType } from '@/src/query/project_dsn.query';
 export type Row = {
     id: string, value: string, label: string, random: string
-
 }
 
 export const dsnData = async (projectSlug: string, clientSlug: string, processsusSlug: string, rows: Row[]) => {
@@ -17,7 +16,6 @@ export const dsnData = async (projectSlug: string, clientSlug: string, processsu
     if (!userIsAuthorize) {
         throw new Error('Vous n\'êtes pas autorisé à effectuer cette action')
     }
-
     const clientExist = await getClientBySlug(clientSlug)
     const projectExist = await getProjectBySlug(projectSlug)
     const keyListSet = new Set<string>()
@@ -75,7 +73,6 @@ export const dsnData = async (projectSlug: string, clientSlug: string, processsu
                                 Project_DSN_Data: {
                                     create: rows
                                 }
-
                             }
                         })
                     }
@@ -85,35 +82,49 @@ export const dsnData = async (projectSlug: string, clientSlug: string, processsu
                     fraction = null
                     siren = null
 
+
                 }
 
             }
 
         }
-        await Promise.all([
-            createSociety({ projectSlug, projectLabel: projectExist.label, clientId: clientExist.siren, softwareLabel: projectExist.softwareLabel }),
-            createJob({ projectSlug, projectLabel: projectExist.label, clientId: clientExist.siren, softwareLabel: projectExist.softwareLabel })
-        ])
+
+        await createSociety({ projectLabel: projectExist.label, clientId: clientExist.siren, softwareLabel: projectExist.softwareLabel })
+        await createJob({ projectLabel: projectExist.label, clientId: clientExist.siren, softwareLabel: projectExist.softwareLabel })
+        await createEstablishment({ projectLabel: projectExist.label, clientId: clientExist.siren, softwareLabel: projectExist.softwareLabel })
+        await createRateAt({ projectLabel: projectExist.label, clientId: clientExist.siren, softwareLabel: projectExist.softwareLabel })
     } catch (err: unknown) {
         console.error(err)
         throw new Error('Une erreur est survenue')
 
     }
 
-    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/${processsusSlug}/data`)
-    redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processsusSlug}/data`)
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/${processsusSlug}`)
+    redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processsusSlug}`)
 
 }
 
 
-const createJob = async ({ projectSlug, projectLabel, clientId, softwareLabel }: { projectSlug: string, projectLabel: string, clientId: string, softwareLabel: string }) => {
+
+
+const createJob = async ({ projectLabel, clientId, softwareLabel }: { projectLabel: string, clientId: string, softwareLabel: string }) => {
     try {
-        const randomKey = await getRandomFieldDsnByProjectSlug(projectSlug)
+        const randomKey = await getRandomFieldDsnByProject({
+            clientId,
+            projectLabel,
+            softwareLabel
+        })
         if (!randomKey) {
             throw new Error('Aucun emploi trouvé')
         }
         for (const key of randomKey) {
-            const dsnRow = await getDsnByProjectSlugAndRandomFilterByType(projectSlug, key.random, 'Job')
+            const dsnRow = await getDsnByProjectAndRandomFilterByType({
+                clientId,
+                projectLabel,
+                softwareLabel,
+                random: key.random,
+                type: 'Job'
+            })
             if (!dsnRow) {
                 throw new Error('Aucune Dsn trouvé')
             }
@@ -155,38 +166,246 @@ const createJob = async ({ projectSlug, projectLabel, clientId, softwareLabel }:
     }
 }
 
-
-const createSociety = async ({ projectSlug, projectLabel, clientId, softwareLabel }: { projectSlug: string, projectLabel: string, clientId: string, softwareLabel: string }) => {
+const createRateAt = async ({ projectLabel, clientId, softwareLabel }: { projectLabel: string, clientId: string, softwareLabel: string }) => {
     try {
-        const randomKey = await getRandomFieldDsnByProjectSlug(projectSlug)
-        if (!randomKey) {
+        const dsnList = await getRandomFieldDsnByProject({
+            clientId,
+            projectLabel,
+            softwareLabel
+        })
+
+        for (const dsn of dsnList) {
+            const dsnRowRateAt = await getDsnByProjectAndRandomFilterByType({
+                clientId,
+                projectLabel,
+                softwareLabel,
+                random: dsn.random,
+                type: 'RateAt'
+            })
+            if (!dsnRowRateAt) {
+                throw new Error('Aucune société trouvé')
+            }
+            const dsnRowEstablishment = await getDsnByProjectAndRandomFilterByType({
+                clientId,
+                projectLabel,
+                softwareLabel,
+                random: dsn.random,
+                type: 'Establishment'
+            })
+            if (!dsnRowEstablishment) {
+                throw new Error('Aucun établissement trouvé')
+            }
+            //Test Establishment exist
+            let nic = dsnRowEstablishment.Project_DSN_Data.find((row) => row.id === 'S21.G00.11.001')?.value
+            const establishmentExist = await prisma.project_Establishment.findFirst({
+                where: {
+                    clientId,
+                    softwareLabel,
+                    projectLabel,
+                    nic
+                }
+            })
+            if (!establishmentExist) {
+                throw new Error('Aucun établissement trouvé dans la base de données')
+            }
+            let atId = null
+            let rateAt = null
+            for (const row of dsnRowRateAt.Project_DSN_Data) {
+                if (row.id === 'S21.G00.40.040') {
+                    atId = row.value
+                }
+                if (row.id === 'S21.G00.40.043') {
+                    rateAt = row.value
+                }
+                if (atId && rateAt) {
+                    const count = await prisma.project_Rate_AT.count()
+                    await prisma.project_Rate_AT.upsert({
+                        where: {
+                            id_clientId_societyId_establishmentNic_softwareLabel_projectLabel: {
+                                id: atId,
+                                clientId,
+                                societyId: establishmentExist.societyId,
+                                establishmentNic: establishmentExist.nic,
+                                softwareLabel,
+                                projectLabel,
+                            }
+                        },
+                        update: {},
+                        create: {
+                            clientId,
+                            softwareLabel,
+                            projectLabel,
+                            id: atId,
+                            rate: rateAt,
+                            societyId: establishmentExist.societyId,
+                            label: 'En attente',
+                            establishmentNic: establishmentExist.nic,
+                            slug: generateSlug(`taux-${count + 1}`)
+                        }
+                    })
+                    rateAt = null
+                    atId = null
+                }
+            }
+
+
+
+        }
+
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la copie des données taux')
+    }
+
+
+}
+
+const createEstablishment = async ({ projectLabel, clientId, softwareLabel }: { projectLabel: string, clientId: string, softwareLabel: string }) => {
+    try {
+        const dsnList = await getRandomFieldDsnByProject({
+            clientId,
+            projectLabel,
+            softwareLabel
+        })
+
+        for (const dsn of dsnList) {
+            const dsnRowSociety = await getDsnByProjectAndRandomFilterByType({
+                clientId,
+                projectLabel,
+                softwareLabel,
+                random: dsn.random,
+                type: 'Society'
+            })
+            if (!dsnRowSociety) {
+                throw new Error('Aucune société trouvé')
+            }
+            const dsnRowEstablishment = await getDsnByProjectAndRandomFilterByType({
+                clientId,
+                projectLabel,
+                softwareLabel,
+                random: dsn.random,
+                type: 'Establishment'
+            })
+            if (!dsnRowEstablishment) {
+                throw new Error('Aucun établissement trouvé')
+            }
+            //Test Society exist
+            let siren = dsnRowSociety.Project_DSN_Data.find((row) => row.id === 'S21.G00.06.001')?.value
+            const societyExist = await prisma.project_Society.findFirst({
+                where: {
+                    clientId,
+                    softwareLabel,
+                    projectLabel,
+                    siren
+                }
+            })
+            if (!societyExist) {
+                throw new Error('Aucune société trouvé dans la base de données')
+            }
+            let nic = ''
+            let ape = ''
+            let address1 = ''
+            let address2 = ''
+            let address3 = ''
+            let postalCode = ''
+            let city = ''
+            let legalStatus = ''
+            for (const row of dsnRowEstablishment.Project_DSN_Data) {
+                if (row.id === 'S21.G00.11.001') {
+                    nic = row.value
+                }
+                if (row.id === 'S21.G00.11.002') {
+                    ape = row.value
+                }
+                if (row.id === 'S21.G00.11.003') {
+                    address1 = row.value
+                }
+                if (row.id === 'S21.G00.11.004') {
+                    postalCode = row.value
+                }
+                if (row.id === 'S21.G00.11.005') {
+                    city = row.value
+                }
+                if (row.id === 'S21.G00.11.017') {
+                    legalStatus = row.value
+                }
+                if (nic && siren) {
+                    const count = await prisma.project_Establishment.count()
+                    await prisma.project_Establishment.upsert({
+                        where: {
+                            clientId_softwareLabel_societyId_projectLabel_nic: {
+                                clientId,
+                                softwareLabel,
+                                societyId: societyExist.siren,
+                                projectLabel,
+                                nic
+                            }
+                        },
+                        update: {},
+                        create: {
+                            clientId,
+                            softwareLabel,
+                            projectLabel,
+                            nic,
+                            societyId: societyExist.siren,
+                            ape: ape ? ape : '',
+                            address1: address1 ? address1 : '',
+                            address2,
+                            address3,
+                            postalCode: postalCode ? postalCode : '',
+                            city: city ? city : '',
+                            legalStatus: legalStatus ? legalStatus : '',
+                            slug: generateSlug(`etablissement-${count + 1}`)
+                        }
+                    })
+                    nic = ''
+                }
+            }
+
+
+
+        }
+
+    } catch (err) {
+        console.error(err)
+        throw new Error('Une erreur est survenue lors de la copie des données établissement')
+    }
+}
+
+
+const createSociety = async ({ projectLabel, clientId, softwareLabel }: { projectLabel: string, clientId: string, softwareLabel: string }) => {
+    try {
+        const dsnList = await getRandomFieldDsnByProject({
+            clientId,
+            projectLabel,
+            softwareLabel
+        })
+        if (!dsnList) {
             throw new Error('Aucune société trouvé')
         }
-        for (const key of randomKey) {
-            const dsnRowSociety = await getDsnByProjectSlugAndRandomFilterByType(projectSlug, key.random, 'Society')
+        for (const dsn of dsnList) {
+            const dsnRowSociety = await getDsnByProjectAndRandomFilterByType({
+                clientId,
+                projectLabel,
+                softwareLabel,
+                random: dsn.random,
+                type: 'Society'
+            }
+            )
             if (!dsnRowSociety) {
                 throw new Error('Aucune société trouvé')
             }
             if (dsnRowSociety?.Project_DSN_Data.length === 0) {
                 throw new Error('Aucune société trouvé')
             }
-            const dsnRowEstablishment = await getDsnByProjectSlugAndRandomFilterByType(projectSlug, key.random, 'Establishment')
-            if (!dsnRowEstablishment) throw new Error('Aucun établissement trouvé')
-            if (dsnRowEstablishment?.Project_DSN_Data.length === 0) {
-                throw new Error('Aucun établissement trouvé')
-            }
-            let siren = null
-            let nic = null
-            let ape = null
-            let address1 = null
-            let postalCode = null
-            let city = null
+            let siren = ''
+            let ape = ''
+            let address1 = ''
+            let postalCode = ''
+            let city = ''
             for (const row of dsnRowSociety.Project_DSN_Data) {
                 if (row.id === 'S21.G00.06.001') {
                     siren = row.value
-                }
-                if (row.id === 'S21.G00.06.002') {
-                    nic = row.value
                 }
                 if (row.id === 'S21.G00.06.003') {
                     ape = row.value
@@ -200,8 +419,8 @@ const createSociety = async ({ projectSlug, projectLabel, clientId, softwareLabe
                 if (row.id === 'S21.G00.06.006') {
                     city = row.value
                 }
-                if (siren && nic && ape && address1 && postalCode && city) {
-                    let count = await prisma.project_Society.count()
+                if (siren && ape && address1 && postalCode && city) {
+                    const countSociety = await prisma.project_Society.count()
                     await prisma.project_Society.upsert({
                         where: {
                             clientId_softwareLabel_projectLabel_siren: {
@@ -217,63 +436,18 @@ const createSociety = async ({ projectSlug, projectLabel, clientId, softwareLabe
                             softwareLabel,
                             projectLabel,
                             siren,
-                            nic,
                             ape,
                             address1,
                             postalCode,
                             city,
-                            slug: generateSlug(`societe-${count + 1}`)
+                            slug: generateSlug(`societe-${countSociety + 1}`)
                         }
                     })
-                    let establichmentNic = null
-                    let establichmentaddress1 = null
-                    let establishmentPostalCode = null
-                    let establichmentCity = null
-                    let establishmentApe = null
-                    for (let rowEstablishment of dsnRowEstablishment.Project_DSN_Data) {
-
-                        if (rowEstablishment.id === 'S21.G00.11.001') establichmentNic = rowEstablishment.value
-                        if (rowEstablishment.id === 'S21.G00.11.002') establichmentaddress1 = rowEstablishment.value
-                        if (rowEstablishment.id === 'S21.G00.11.003') establishmentPostalCode = rowEstablishment.value
-                        if (rowEstablishment.id === 'S21.G00.11.004') establichmentCity = rowEstablishment.value
-                        if (rowEstablishment.id === 'S21.G00.11.005') establishmentApe = rowEstablishment.value
-                        if (establichmentNic && establichmentaddress1 && establishmentPostalCode && establichmentCity && establishmentApe) {
-                            let count = await prisma.project_Establishment.count()
-                            await prisma.project_Establishment.upsert({
-                                where: {
-                                    clientId_softwareLabel_societyId_projectLabel_nic: {
-                                        clientId,
-                                        softwareLabel,
-                                        societyId: siren,
-                                        projectLabel,
-                                        nic: establichmentNic
-
-                                    }
-                                },
-                                update: {},
-                                create: {
-                                    clientId,
-                                    softwareLabel,
-                                    projectLabel,
-                                    societyId: siren,
-                                    nic: establichmentNic,
-                                    ape: establishmentApe,
-                                    address1: establichmentaddress1,
-                                    postalCode: establishmentPostalCode,
-                                    city: establichmentCity,
-                                    slug: generateSlug(`etablissement-${count + 1}`)
-                                }
-                            })
-                        }
-                        //Raz
-                        nic = null
-                        address1 = null
-                        postalCode = null
-                        city = null
-                        ape
-                        //Fin analyse établissement
-                    }
-
+                    siren = ''
+                    ape = ''
+                    address1 = ''
+                    postalCode = ''
+                    city = ''
                 }//Création de la société
 
             }//Fin analyse société
@@ -283,6 +457,7 @@ const createSociety = async ({ projectSlug, projectLabel, clientId, softwareLabe
 
     } catch (err) {
         console.error(err)
+        throw new Error('Une erreur est survenue lors de la copie des données société')
     }
 
 

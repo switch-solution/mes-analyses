@@ -13,6 +13,7 @@
     "no-var": "off",
     "camelcase": "off",
     "no-underscore-dangle": "off",
-    "id-length": "off"
+    "id-length": "off",
+    "prefer-arrow-callback": "off"
   }
 }

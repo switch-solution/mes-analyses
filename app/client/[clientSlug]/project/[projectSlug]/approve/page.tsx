@@ -31,7 +31,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
             valueLabel: row.valueLabel
         }
     })
-    console.log(rows)
     return (
         <Container>
             <Breadcrumb>
@@ -56,7 +55,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     </BreadcrumbSeparator>
                 </BreadcrumbList>
             </Breadcrumb>
-            <DataTable columns={columns} data={rows} inputSearch="label" inputSearchPlaceholder="Chercher par valeur" />
+            <DataTable columns={columns} data={rows} inputSearch="processusLabel" inputSearchPlaceholder="Chercher par processus" />
         </Container>
     )
 }

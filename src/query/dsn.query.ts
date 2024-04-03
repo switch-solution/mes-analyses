@@ -29,4 +29,15 @@ export const getDsnStructure = async () => {
 
 export type getDsnStructure = Prisma.PromiseReturnType<typeof getDsnStructure>;
 
+export const getDsnOps = async () => {
+    try {
+        const ops = await prisma.dsn_OPS.findMany()
+        return ops
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des ops.")
+    }
+
+}
+
 

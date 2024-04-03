@@ -4,7 +4,6 @@ import { userIsAuthorizeInThisProject } from "@/src/query/security.query";
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { Slash } from "lucide-react"
-import type { ProjectData } from "./dataTablecolumns";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -26,7 +25,9 @@ export default async function Page({ params }: { params: { clientSlug: string, p
             ...data,
             projectSlug: params.projectSlug,
             processusSlug: params.processusSlug,
-            clientSlug: params.clientSlug
+            status: data.status,
+            clientSlug: params.clientSlug,
+            table: data.table
         }
     })
     return (

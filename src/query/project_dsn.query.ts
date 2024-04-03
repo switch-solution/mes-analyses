@@ -29,15 +29,27 @@ export const getDsnByProjectSlug = async (projectSlug: string) => {
 
 }
 
-export const getRandomFieldDsnByProjectSlug = async (projectSlug: string) => {
+/**
+ * This function is used to get a random field DSN by project
+ * @param param0 
+ * @returns 
+ */
+
+export const getRandomFieldDsnByProject = async ({
+    clientId,
+    projectLabel,
+    softwareLabel
+}: {
+    clientId: string,
+    projectLabel: string,
+    softwareLabel: string
+}) => {
     try {
-        const projectExist = await getProjectBySlug(projectSlug)
-        if (!projectExist) throw new Error("Projet non trouvé")
         const dsn = await prisma.project_DSN.findMany({
             where: {
-                projectLabel: projectExist.label,
-                clientId: projectExist.clientId,
-                softwareLabel: projectExist.softwareLabel
+                projectLabel,
+                clientId,
+                softwareLabel
             },
             select: {
                 random: true
@@ -50,9 +62,26 @@ export const getRandomFieldDsnByProjectSlug = async (projectSlug: string) => {
     }
 }
 
-export const getDsnByProjectSlugAndRandomFilterByType = async (projectSlug: string, random: string, type: 'DSN' | 'Society' | 'Establishment' | 'Mutual' | 'Job' | 'Contract') => {
+/**
+ * This function return this data by type DSN
+ * @param param0 
+ * @returns 
+ */
+
+export const getDsnByProjectAndRandomFilterByType = async ({
+    clientId,
+    projectLabel,
+    softwareLabel,
+    random,
+    type
+}: {
+    clientId: string,
+    projectLabel: string,
+    softwareLabel: string,
+    random: string,
+    type: 'DSN' | 'Society' | 'Establishment' | 'Mutual' | 'Job' | 'Contract' | 'RateAt' | 'OPS'
+}) => {
     try {
-        const projectExist = await getProjectBySlug(projectSlug)
         const dsnStructure = await prisma.dsn_Structure.findMany({
             where: {
                 type: type
@@ -60,10 +89,10 @@ export const getDsnByProjectSlugAndRandomFilterByType = async (projectSlug: stri
         })
         const dsn = await prisma.project_DSN.findFirst({
             where: {
-                projectLabel: projectExist.label,
-                clientId: projectExist.clientId,
-                softwareLabel: projectExist.softwareLabel,
-                random: random,
+                projectLabel,
+                clientId,
+                softwareLabel,
+                random,
             },
             include: {
                 Project_DSN_Data: {
