@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { userIsAdminClient } from "./security.query";
 import { Prisma } from '@prisma/client'
 
 

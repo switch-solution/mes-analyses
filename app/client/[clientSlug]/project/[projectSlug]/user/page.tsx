@@ -1,8 +1,7 @@
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import { userIsAdminProject } from "@/src/query/security.query";
-import { getUsersProject } from "@/src/query/project.query";
-import { getProjectBySlug } from "@/src/query/project.query";
+import { Project } from "@/src/classes/project";
+import { Security } from "@/src/classes/security";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -11,16 +10,19 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import Container from "@/components/layout/container";
-import { getUserIsInvited } from "@/src/query/project.query";
+import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
-    const projectExist = await getProjectBySlug(params.projectSlug)
-    if (!projectExist) throw new Error("Projet non trouvé")
-    const userIsAdmin = await userIsAdminProject(params.projectSlug)
+    const project = new Project(params.projectSlug)
+    const projectExist = await project.projectExist()
+    if (!projectExist) {
+        throw new Error("Le projet n'existe pas.")
+    }
+    const security = new Security()
+    const userIsAdmin = await security.isAdministratorInThisProject(params.projectSlug)
     if (!userIsAdmin) {
         throw new Error("L'utilisateur n'est pas connecté.")
     }
-    const usersList = await getUsersProject(params.projectSlug)
+    const usersList = await project.getUsers()
     const users = usersList.map((user) => {
         return (
             user.user.UserOtherData.map(userData => {
@@ -38,21 +40,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
             }))
 
     }).flat(1)
-    const invitedUsers = await getUserIsInvited(params.projectSlug)
-    invitedUsers.map((user) => {
-        users.push({
-            image: "",
-            clientSlug: params.clientSlug,
-            projectSlug: params.projectSlug,
-            firstname: user.firstname,
-            lastname: user.lastname,
-            isAdmin: false,
-            isEditor: false,
-            isValidator: false,
-            isActivated: false
 
-        })
-    })
     return (
         <Container>
             <Breadcrumb>
@@ -66,7 +54,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectExist.label}</BreadcrumbLink>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectExist.slug}</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                 </BreadcrumbList>

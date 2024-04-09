@@ -7,12 +7,12 @@ import { Logger } from "@/src/helpers/type";
 import { createLog } from "@/src/query/logger.query";
 import { authentifcationAction, ActionError } from "@/lib/safe-actions";
 import { EnvironnementUserEditSchema } from "@/src/helpers/definition";
-import { getClientBySlug } from "@/src/query/client.query";
-import { getSoftwareBySlug } from "@/src/query/software.query";
-
+import { Client } from "@/src/classes/client";
+import { Software } from "@/src/classes/software";
 export const editEnvironnementUser = authentifcationAction(EnvironnementUserEditSchema, async (values: z.infer<typeof EnvironnementUserEditSchema>, userId) => {
     const { clientSlug, softwareSlug } = EnvironnementUserEditSchema.parse(values);
-    const clientExist = await getClientBySlug(clientSlug);
+    const client = new Client(clientSlug);
+    const clientExist = await client.clientExist();
     if (!clientExist) {
         const log: Logger = {
             scope: "user",
@@ -22,7 +22,8 @@ export const editEnvironnementUser = authentifcationAction(EnvironnementUserEdit
         await createLog(log);
         throw new ActionError("Ce client n'existe pas.");
     }
-    const softwareExist = await getSoftwareBySlug(softwareSlug);
+    const software = new Software(softwareSlug);
+    const softwareExist = await software.softwareExist();
     if (!softwareExist) {
         const log: Logger = {
             scope: "user",
@@ -32,18 +33,9 @@ export const editEnvironnementUser = authentifcationAction(EnvironnementUserEdit
         await createLog(log);
         throw new ActionError("Ce logiciel n'existe pas.");
     }
-    const SoftwareAndClientIsCompatible = await prisma.client.findFirst({
-        where: {
-            siren: clientExist.siren,
-        },
-        include: {
-            Software: {
-                where: {
-                    label: softwareExist.label
-                }
-            }
-        }
-    })
+    if (clientExist.siren !== softwareExist.clientId) {
+        throw new ActionError("Le logiciel n'existe pas sur ce client.");
+    }
 
     try {
         await prisma.userSoftware.updateMany({

@@ -1,8 +1,6 @@
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import { userIsEditorClient } from "@/src/query/security.query";
-import Container from "@/components/layout/container";
-import { Slash } from "lucide-react"
+import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
 import { getTableSeniorityByLevelAndIdccAndSlug } from "@/src/query/table_seniority.query";
 import {
     Breadcrumb,
@@ -13,9 +11,17 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { getIdccByCode } from "@/src/query/idcc.query";
+import { Client } from "@/src/classes/client";
+import { Security } from "@/src/classes/security";
 import { getTableClientSeniorityRowsByIdccAndSlug, getTableSoftwareSeniorityRowsByIdccAndSlug, getTableStandardRowsSeniorityByIdccAndSlug } from "@/src/query/table_seniority_row.query";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string, idcc: string, level: 'logiciel' | 'client', tableSenioritySlug: string } }) {
-    const isEditor = await userIsEditorClient(params.clientSlug);
+    const client = new Client(params.clientSlug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Ce client n'existe pas.")
+    }
+    const security = new Security()
+    const isEditor = await security.isEditorClient(clientExist.siren);
     if (!isEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const idccExist = await getIdccByCode(params.idcc)
     if (!idccExist) throw new Error("IDCC non trouvé")
@@ -104,27 +110,20 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                     <BreadcrumbItem>
                         <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
+                    <BreadcrumbSeparator />
                     <BreadcrumbItem>
                         <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</BreadcrumbLink>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
+                    <BreadcrumbSeparator />
                     <BreadcrumbItem>
                         <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/seniority/`}>Table d&apos;ancienneté</BreadcrumbLink>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
+                    <BreadcrumbSeparator />
+
                     <BreadcrumbItem>
                         <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/seniority/${params.idcc}`}>{idccExist.label}</BreadcrumbLink>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
+                    <BreadcrumbSeparator />
                     <BreadcrumbItem>
                         <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/seniority/${params.idcc}`}>{tableExist.label}</BreadcrumbLink>
                     </BreadcrumbItem>

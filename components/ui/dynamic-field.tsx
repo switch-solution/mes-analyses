@@ -37,72 +37,7 @@ export default function DynamicField({ inputs, form, options, disabled = false }
 }) {
     return (
         <>
-            <FormField
-                control={form.control}
-                name="clientSlug"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormControl>
-                            <Input type="hidden" readOnly {...field} required />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
 
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="table"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormControl>
-                            <Input type="hidden" readOnly {...field} required />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="processusSlug"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormControl>
-                            <Input type="hidden" readOnly {...field} required />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-
-                )}
-            />
-
-            <FormField
-                control={form.control}
-                name="projectSlug"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormControl>
-                            <Input type="hidden" readOnly {...field} required />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormControl>
-                            <Input type="hidden" readOnly {...field} required />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-
-                )}
-            />
             {
                 inputs.map(input => {
                     return (
@@ -115,7 +50,7 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                     <FormItem>
                                         <FormLabel>{input.label}</FormLabel>
                                         <FormControl>
-                                            <Input type="text" minLength={input.minLenght ? input.minLenght : 0} maxLength={input.maxLenght ? input.maxLenght : 999} required={input.required} readOnly={input.readOnly} disabled={disabled} placeholder={input.placeholder ? input.placeholder : ""} {...field} />
+                                            <Input type="text" minLength={input.minLenght ? input.minLenght : 0} maxLength={input.maxLenght ? input.maxLenght : 999} required={input.required} readOnly={input.readOnly} disabled={disabled || input.disabled} placeholder={input.placeholder ? input.placeholder : ""} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -152,7 +87,7 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                 <div className="flex w-full max-w-sm items-center space-x-2">
                                                     <FormLabel>{input.label}</FormLabel>
                                                     <FormControl>
-                                                        <Input type="number" min={input.min ? input.min : 0} max={input.max ? input.max : 999} required={input.required} readOnly={input.readOnly} disabled={disabled} placeholder={input.placeholder ? input.placeholder : ""} {...field} />
+                                                        <Input type="number" min={input.min ? input.min : 0} max={input.max ? input.max : 999} required={input.required} readOnly={input.readOnly} disabled={disabled || input.disabled} placeholder={input.placeholder ? input.placeholder : ""} {...field} />
                                                     </FormControl>
                                                     <FormDescription>
                                                         {input.label}
@@ -213,6 +148,7 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                             < FormField
                                                 key={input.zodLabel}
                                                 control={form.control}
+                                                disabled={disabled || input.disabled}
                                                 name={input.zodLabel as any}
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -240,10 +176,11 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                     </FormItem>
                                                 )}
                                             /> :
-                                            input.type === "select" && input.selectTableSource === 'Software_Setting' && input.selectFieldSource === 'ABS_Méthode' ?
+                                            input.type === "select" && input.selectTableSource === 'DSN_OPS' && input.selectFieldSource === 'URSSAF' ?
                                                 < FormField
                                                     key={input.zodLabel}
                                                     control={form.control}
+                                                    disabled={disabled || input.disabled}
                                                     name={input.zodLabel as any}
                                                     render={({ field }) => (
                                                         <FormItem>
@@ -251,13 +188,11 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
                                                                 <FormControl>
                                                                     <SelectTrigger>
-                                                                        <SelectValue placeholder="Selectioner votre méthode de calcul" />
+                                                                        <SelectValue placeholder="Selectioner votre URSSAF" />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>
-                                                                    {options.softwareSetting.filter((setting) => {
-                                                                        setting.id === "ABS_Méthode"
-                                                                    }).map((option) => {
+                                                                    {options.urssafList.map((option) => {
                                                                         return (
                                                                             <SelectItem key={option.id} value={option.id}>
                                                                                 {option.label}
@@ -269,11 +204,14 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                             <FormMessage />
                                                         </FormItem>
                                                     )}
-                                                /> :
-                                                input.type === "select" && input.selectTableSource === 'Idcc' && input.selectFieldSource === 'idcc' ?
+                                                />
+
+                                                :
+                                                input.type === "select" && input.selectTableSource === 'DSN_OPS' && input.selectFieldSource === 'AGIRC_ARRCO' ?
                                                     < FormField
                                                         key={input.zodLabel}
                                                         control={form.control}
+                                                        disabled={disabled || input.disabled}
                                                         name={input.zodLabel as any}
                                                         render={({ field }) => (
                                                             <FormItem>
@@ -281,13 +219,13 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                 <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
                                                                     <FormControl>
                                                                         <SelectTrigger>
-                                                                            <SelectValue placeholder="Selectioner votre convention collective" />
+                                                                            <SelectValue placeholder="Selectioner votre caisse de retraite" />
                                                                         </SelectTrigger>
                                                                     </FormControl>
                                                                     <SelectContent>
-                                                                        {options.idccList.map((option) => {
+                                                                        {options.agircArrcoList.map((option) => {
                                                                             return (
-                                                                                <SelectItem key={option.code} value={option.code}>
+                                                                                <SelectItem key={option.id} value={option.id}>
                                                                                     {option.label}
                                                                                 </SelectItem>
                                                                             )
@@ -297,8 +235,9 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                 <FormMessage />
                                                             </FormItem>
                                                         )}
-                                                    /> :
-                                                    input.type === "select" && input.selectTableSource === 'Project_Idcc' && input.selectFieldSource === 'idcc' ?
+                                                    />
+                                                    :
+                                                    input.type === "select" && input.selectTableSource === 'DSN_OPS' && input.selectFieldSource === 'Mutuelle' ?
                                                         < FormField
                                                             key={input.zodLabel}
                                                             control={form.control}
@@ -309,13 +248,13 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                     <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
                                                                         <FormControl>
                                                                             <SelectTrigger>
-                                                                                <SelectValue placeholder="Selectioner votre convention collective" />
+                                                                                <SelectValue placeholder="Selectioner votre caisse de mutuelle" />
                                                                             </SelectTrigger>
                                                                         </FormControl>
                                                                         <SelectContent>
-                                                                            {options.projectIdccList.map((option) => {
+                                                                            {options.mutualList.map((option) => {
                                                                                 return (
-                                                                                    <SelectItem key={option.idcc} value={option.idcc}>
+                                                                                    <SelectItem key={option.id} value={option.id}>
                                                                                         {option.label}
                                                                                     </SelectItem>
                                                                                 )
@@ -326,10 +265,11 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                 </FormItem>
                                                             )}
                                                         /> :
-                                                        input.type === "select" && input.selectTableSource === 'Project_Society' && input.selectFieldSource === 'siren' ?
+                                                        input.type === "select" && input.selectTableSource === 'DSN_OPS' && input.selectFieldSource === 'Prévoyance' ?
                                                             < FormField
                                                                 key={input.zodLabel}
                                                                 control={form.control}
+                                                                disabled={disabled || input.disabled}
                                                                 name={input.zodLabel as any}
                                                                 render={({ field }) => (
                                                                     <FormItem>
@@ -337,14 +277,14 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                         <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
                                                                             <FormControl>
                                                                                 <SelectTrigger>
-                                                                                    <SelectValue placeholder="Selectioner votre société" />
+                                                                                    <SelectValue placeholder="Selectioner votre caisse de prévoyance" />
                                                                                 </SelectTrigger>
                                                                             </FormControl>
                                                                             <SelectContent>
-                                                                                {options.sirenList.map((option) => {
+                                                                                {options.prevList.map((option) => {
                                                                                     return (
-                                                                                        <SelectItem key={option.siren} value={option.siren}>
-                                                                                            {option.socialReason}
+                                                                                        <SelectItem key={option.id} value={option.id}>
+                                                                                            {option.label}
                                                                                         </SelectItem>
                                                                                     )
                                                                                 })}
@@ -354,22 +294,23 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                     </FormItem>
                                                                 )}
                                                             /> :
-                                                            input.type === "select" && input.selectTableSource === 'Dsn_Absence' && input.selectFieldSource === 'id' ?
+                                                            input.type === "select" && input.selectTableSource === 'Software_Setting' && input.selectFieldSource === 'ABS_Méthode' ?
                                                                 < FormField
                                                                     key={input.zodLabel}
                                                                     control={form.control}
+                                                                    disabled={disabled || input.disabled}
                                                                     name={input.zodLabel as any}
                                                                     render={({ field }) => (
                                                                         <FormItem>
                                                                             <FormLabel>{input.label}</FormLabel>
-                                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
                                                                                 <FormControl>
                                                                                     <SelectTrigger>
-                                                                                        <SelectValue placeholder="Selectioner un code absence DSN" />
+                                                                                        <SelectValue placeholder="Selectioner votre méthode de calcul" />
                                                                                     </SelectTrigger>
                                                                                 </FormControl>
                                                                                 <SelectContent>
-                                                                                    {options.dsnAbsenceList.map((option) => {
+                                                                                    {options.serviceList.map((option) => {
                                                                                         return (
                                                                                             <SelectItem key={option.id} value={option.id}>
                                                                                                 {option.label}
@@ -382,28 +323,28 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                         </FormItem>
                                                                     )}
                                                                 /> :
-                                                                input.type === "select" && input.selectTableSource === 'Project_Establishment' && input.selectFieldSource === 'nic' ?
+                                                                input.type === "select" && input.selectTableSource === 'Idcc' && input.selectFieldSource === 'idcc' ?
                                                                     < FormField
                                                                         key={input.zodLabel}
                                                                         control={form.control}
+                                                                        disabled={disabled || input.disabled}
                                                                         name={input.zodLabel as any}
                                                                         render={({ field }) => (
                                                                             <FormItem>
                                                                                 <FormLabel>{input.label}</FormLabel>
-                                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
                                                                                     <FormControl>
                                                                                         <SelectTrigger>
-                                                                                            <SelectValue placeholder="Selectioner votre établissement" />
+                                                                                            <SelectValue placeholder="Selectioner votre convention collective" />
                                                                                         </SelectTrigger>
                                                                                     </FormControl>
                                                                                     <SelectContent>
-                                                                                        {options.establishementList.map((option) => {
+                                                                                        {options.idccList.map((option) => {
                                                                                             return (
-                                                                                                <SelectItem key={option.nic} value={option.nic}>
-                                                                                                    {option.socialReason}
+                                                                                                <SelectItem key={option.code} value={option.code}>
+                                                                                                    {option.label}
                                                                                                 </SelectItem>
                                                                                             )
-
                                                                                         })}
                                                                                     </SelectContent>
                                                                                 </Select>
@@ -411,36 +352,234 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                             </FormItem>
                                                                         )}
                                                                     /> :
-                                                                    input.type === "switch" ?
-                                                                        <FormField
+                                                                    input.type === "select" && input.selectTableSource === 'Project_Service' && input.selectFieldSource === 'id' ?
+                                                                        < FormField
                                                                             key={input.zodLabel}
+                                                                            disabled={disabled || input.disabled}
                                                                             control={form.control}
                                                                             name={input.zodLabel as any}
                                                                             render={({ field }) => (
-                                                                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                                                                    <div className="space-y-0.5">
-                                                                                        <FormLabel className="text-base">
-                                                                                            {input.label}
-                                                                                        </FormLabel>
-
-                                                                                    </div>
-                                                                                    <FormControl>
-                                                                                        <Switch
-                                                                                            checked={field.value}
-                                                                                            onCheckedChange={field.onChange}
-                                                                                        />
-                                                                                    </FormControl>
+                                                                                <FormItem>
+                                                                                    <FormLabel>{input.label}</FormLabel>
+                                                                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
+                                                                                        <FormControl>
+                                                                                            <SelectTrigger>
+                                                                                                <SelectValue placeholder="Selectioner un service supérieur" />
+                                                                                            </SelectTrigger>
+                                                                                        </FormControl>
+                                                                                        <SelectContent>
+                                                                                            {options.serviceList.map((option) => {
+                                                                                                return (
+                                                                                                    <SelectItem key={option.id} value={option.id}>
+                                                                                                        {option.label}
+                                                                                                    </SelectItem>
+                                                                                                )
+                                                                                            })}
+                                                                                        </SelectContent>
+                                                                                    </Select>
+                                                                                    <FormMessage />
                                                                                 </FormItem>
                                                                             )}
-                                                                        />
+                                                                        /> :
+                                                                        input.type === "select" && input.selectTableSource === 'Project_Idcc' && input.selectFieldSource === 'idcc' ?
+                                                                            < FormField
+                                                                                key={input.zodLabel}
+                                                                                control={form.control}
+                                                                                disabled={disabled || input.disabled}
+                                                                                name={input.zodLabel as any}
+                                                                                render={({ field }) => (
+                                                                                    <FormItem>
+                                                                                        <FormLabel>{input.label}</FormLabel>
+                                                                                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
+                                                                                            <FormControl>
+                                                                                                <SelectTrigger>
+                                                                                                    <SelectValue placeholder="Selectioner votre convention collective" />
+                                                                                                </SelectTrigger>
+                                                                                            </FormControl>
+                                                                                            <SelectContent>
+                                                                                                {options.projectIdccList.map((option) => {
+                                                                                                    return (
+                                                                                                        <SelectItem key={option.idcc} value={option.idcc}>
+                                                                                                            {option.label}
+                                                                                                        </SelectItem>
+                                                                                                    )
+                                                                                                })}
+                                                                                            </SelectContent>
+                                                                                        </Select>
+                                                                                        <FormMessage />
+                                                                                    </FormItem>
+                                                                                )}
+                                                                            /> :
+                                                                            input.type === "select" && input.selectTableSource === 'Project_Society' && input.selectFieldSource === 'siren' ?
+                                                                                < FormField
+                                                                                    key={input.zodLabel}
+                                                                                    control={form.control}
+                                                                                    name={input.zodLabel as any}
+                                                                                    render={({ field }) => (
+                                                                                        <FormItem>
+                                                                                            <FormLabel>{input.label}</FormLabel>
+                                                                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
+                                                                                                <FormControl>
+                                                                                                    <SelectTrigger>
+                                                                                                        <SelectValue placeholder="Selectioner votre société" />
+                                                                                                    </SelectTrigger>
+                                                                                                </FormControl>
+                                                                                                <SelectContent>
+                                                                                                    {options.sirenList.map((option) => {
+                                                                                                        return (
+                                                                                                            <SelectItem key={option.siren} value={option.siren}>
+                                                                                                                {option.socialReason}
+                                                                                                            </SelectItem>
+                                                                                                        )
+                                                                                                    })}
+                                                                                                </SelectContent>
+                                                                                            </Select>
+                                                                                            <FormMessage />
+                                                                                        </FormItem>
+                                                                                    )}
+                                                                                /> :
+                                                                                input.type === "select" && input.selectTableSource === 'Dsn_Absence' && input.selectFieldSource === 'id' ?
+                                                                                    < FormField
+                                                                                        key={input.zodLabel}
+                                                                                        control={form.control}
+                                                                                        name={input.zodLabel as any}
+                                                                                        render={({ field }) => (
+                                                                                            <FormItem>
+                                                                                                <FormLabel>{input.label}</FormLabel>
+                                                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                                                    <FormControl>
+                                                                                                        <SelectTrigger>
+                                                                                                            <SelectValue placeholder="Selectioner un code absence DSN" />
+                                                                                                        </SelectTrigger>
+                                                                                                    </FormControl>
+                                                                                                    <SelectContent>
+                                                                                                        {options.dsnAbsenceList.map((option) => {
+                                                                                                            return (
+                                                                                                                <SelectItem key={option.id} value={option.id}>
+                                                                                                                    {option.label}
+                                                                                                                </SelectItem>
+                                                                                                            )
+                                                                                                        })}
+                                                                                                    </SelectContent>
+                                                                                                </Select>
+                                                                                                <FormMessage />
+                                                                                            </FormItem>
+                                                                                        )}
+                                                                                    /> :
+                                                                                    input.type === "select" && input.selectTableSource === 'Project_Establishment' && input.selectFieldSource === 'nic' ?
+                                                                                        < FormField
+                                                                                            key={input.zodLabel}
+                                                                                            control={form.control}
+                                                                                            disabled={disabled || input.disabled}
+                                                                                            name={input.zodLabel as any}
+                                                                                            render={({ field }) => (
+                                                                                                <FormItem>
+                                                                                                    <FormLabel>{input.label}</FormLabel>
+                                                                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                                                        <FormControl>
+                                                                                                            <SelectTrigger>
+                                                                                                                <SelectValue placeholder="Selectioner votre établissement" />
+                                                                                                            </SelectTrigger>
+                                                                                                        </FormControl>
+                                                                                                        <SelectContent>
+                                                                                                            {options.establishementList.map((option) => {
+                                                                                                                return (
+                                                                                                                    <SelectItem key={option.nic} value={option.nic}>
+                                                                                                                        {option.socialReason}
+                                                                                                                    </SelectItem>
+                                                                                                                )
+
+                                                                                                            })}
+                                                                                                        </SelectContent>
+                                                                                                    </Select>
+                                                                                                    <FormMessage />
+                                                                                                </FormItem>
+                                                                                            )}
+                                                                                        /> :
+                                                                                        input.type === "switch" ?
+                                                                                            <FormField
+                                                                                                key={input.zodLabel}
+                                                                                                control={form.control}
+                                                                                                disabled={disabled || input.disabled}
+                                                                                                name={input.zodLabel as any}
+                                                                                                render={({ field }) => (
+                                                                                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                                                                                        <div className="space-y-0.5">
+                                                                                                            <FormLabel className="text-base">
+                                                                                                                {input.label}
+                                                                                                            </FormLabel>
+
+                                                                                                        </div>
+                                                                                                        <FormControl>
+                                                                                                            <Switch
+                                                                                                                checked={field.value}
+                                                                                                                onCheckedChange={field.onChange}
+                                                                                                            />
+                                                                                                        </FormControl>
+                                                                                                    </FormItem>
+                                                                                                )}
+                                                                                            />
 
 
-                                                                        : undefined
+                                                                                            : undefined
 
                     )
                 })
 
             }
+            <FormField
+                control={form.control}
+                name="clientSlug"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormControl>
+                            <Input type="hidden" readOnly {...field} required />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="processusSlug"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormControl>
+                            <Input type="hidden" readOnly {...field} required />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+
+                )}
+            />
+
+            <FormField
+                control={form.control}
+                name="projectSlug"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormControl>
+                            <Input type="hidden" readOnly {...field} required />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormControl>
+                            <Input type="hidden" readOnly {...field} required />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+
+                )}
+            />
         </>
 
     )

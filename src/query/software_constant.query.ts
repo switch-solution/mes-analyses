@@ -2,19 +2,20 @@ import { prisma } from "@/lib/prisma";
 import { getClientBySlug } from "./client.query";
 import { Prisma } from '@prisma/client'
 import { getSoftwareBySlug } from "./software.query";
-import { getMyClientActive, getMySoftwareActive } from "./user.query";
-export const getConstantInMyActiveClientAndSoftware = async () => {
+export const getConstantInMyActiveClientAndSoftware = async ({
+    clientId,
+    softwareLabel
+}: {
+    clientId: string,
+    softwareLabel: string
+}) => {
     try {
-        const clientActive = await getMyClientActive()
-        if (!clientActive) throw new Error('Aucun client actif')
-        const softwareActive = await getMySoftwareActive()
-        if (!softwareActive) throw new Error('Aucun logiciel actif')
-        const clientExist = await getClientBySlug(clientActive)
-        const software = await getSoftwareBySlug(softwareActive)
+
+
         const constants = await prisma.software_Constant_Legal.findMany({
             where: {
-                clientId: clientExist.siren,
-                softwareLabel: software.label
+                clientId,
+                softwareLabel
             },
             orderBy: [
                 {

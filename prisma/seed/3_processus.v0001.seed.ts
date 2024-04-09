@@ -39,36 +39,7 @@ class ProcessusV0001 extends Seed {
         try {
             if (previousStatus && !seedExist) {
                 await this.seedUpdateStatus("pending")
-                await prisma.processus_Order.createMany({
-                    data: [
-                        {
-                            id: 'Processus_0001',
-                            label: 'Import de fichier',
-                            order: 1,
-                        },
-                        {
-                            id: 'Processus_0002',
-                            label: 'Structure juridique',
-                            order: 2,
-                        },
-                        {
-                            id: 'Processus_0003',
-                            label: 'Classification',
-                            order: 3,
-                        },
-                        {
-                            id: 'Processus_0004',
-                            label: 'Absences',
-                            order: 4,
-                        },
-                        {
-                            id: 'Processus_0005',
-                            label: 'Paie',
-                            order: 5,
-                        },
-                    ]
 
-                })
                 await prisma.processus.createMany({
                     data: [
                         {
@@ -76,49 +47,48 @@ class ProcessusV0001 extends Seed {
                             label: 'DSN',
                             slug: 'Standard_Processus_DSN',
                             theme: 'Import de fichier',
-                            table: 'Project_DSN',
-                            orderId: 'Processus_0001'
+                            version: 1,
+                            order: 1
                         },
                         {
                             id: 'Standard_0002',
                             label: 'Société',
                             slug: 'Standard_Processus_Society',
                             theme: 'Structure juridique',
-                            table: 'Project_Society',
-                            orderId: 'Processus_0002'
+                            version: 1,
+                            order: 2
                         },
                         {
                             id: 'Standard_0003',
                             label: 'Etablissement',
-                            slug: 'Standard_Processus_Establisment',
+                            slug: 'Standard_Processus_Establishment',
                             theme: 'Structure juridique',
-                            table: 'Project_Establisment',
-                            orderId: 'Processus_0002'
+                            version: 1,
+                            order: 3
                         },
                         {
                             id: 'Standard_0004',
-                            label: 'Organisme de protection sociale',
-                            slug: 'Standard_Processus_ops',
+                            label: 'Organisme de protection sociale URSSAF',
+                            slug: 'Standard_Processus_URSSAF',
                             theme: 'Structure juridique',
-                            table: 'Project_OPS',
-                            orderId: 'Processus_0002'
-
+                            version: 1,
+                            order: 4
                         },
                         {
                             id: 'Standard_0005',
                             label: 'Taux AT',
                             slug: 'Standard_Processus_RateAt',
                             theme: 'Structure juridique',
-                            table: 'Project_RateAt',
-                            orderId: 'Processus_0002'
+                            version: 1,
+                            order: 5
                         },
                         {
                             id: 'Standard_0006',
                             label: 'Emploi',
                             slug: 'Standard_Processus_job',
                             theme: 'Classification',
-                            table: 'Project_Job',
-                            orderId: 'Processus_0003'
+                            version: 1,
+                            order: 6
 
                         },
                         {
@@ -126,48 +96,72 @@ class ProcessusV0001 extends Seed {
                             label: 'Convention collective',
                             slug: 'Standard_Processus_ccn',
                             theme: 'Classification',
-                            table: 'Project_Idcc',
-                            orderId: 'Processus_0003'
+                            version: 1,
+                            order: 7
                         },
                         {
                             id: 'Standard_0008',
                             label: 'Coefficient',
                             slug: 'Standard_Processus_coefficient',
                             theme: 'Classification',
-                            table: 'Project_Classification',
-                            orderId: 'Processus_0003'
+                            version: 1,
+                            order: 8
                         },
                         {
                             id: 'Standard_0009',
                             label: 'Niveau',
                             slug: 'Standard_Processus_niveau',
                             theme: 'Classification',
-                            table: 'Project_Classification',
-                            orderId: 'Processus_0003'
+                            version: 1,
+                            order: 9
                         },
                         {
                             id: 'Standard_0010',
                             label: 'Echelon',
                             theme: 'Classification',
                             slug: 'Standard_Processus_echelon',
-                            table: 'Project_Classification',
-                            orderId: 'Processus_0003'
+                            version: 1,
+                            order: 10
                         },
                         {
                             id: 'Standard_0011',
                             label: 'Indice',
                             theme: 'Classification',
                             slug: 'Standard_Processus_indice',
-                            table: 'Project_Classification',
-                            orderId: 'Processus_0003'
+                            version: 1,
+                            order: 11
                         },
                         {
                             id: 'Standard_0012',
                             label: 'Qualification',
                             theme: 'Classification',
                             slug: 'Standard_Processus_qualification',
-                            table: 'Project_Classification',
-                            orderId: 'Processus_0003'
+                            version: 1,
+                            order: 12
+                        },
+                        {
+                            id: 'Standard_0013',
+                            label: 'Organisme de protection sociale AGIRC-ARRCO',
+                            slug: 'Standard_Processus_AGIRC-ARRCO',
+                            theme: 'Structure juridique',
+                            version: 1,
+                            order: 13
+                        },
+                        {
+                            id: 'Standard_0014',
+                            label: 'Organisme de protection sociale Prévoyance',
+                            slug: 'Standard_Processus_Prevoyance',
+                            theme: 'Structure juridique',
+                            version: 1,
+                            order: 14
+                        },
+                        {
+                            id: 'Standard_0015',
+                            label: 'Organisme de protection sociale mutuelle',
+                            slug: 'Standard_Processus_Mutuelle',
+                            theme: 'Structure juridique',
+                            version: 1,
+                            order: 15
                         },
                     ]
                 })

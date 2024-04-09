@@ -1,8 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { getClientActiveAndSoftwareActive } from "./security.query";
-
-
-
 
 export const getStandardProcessusBySlug = async (slug: string) => {
     try {

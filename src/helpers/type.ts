@@ -86,6 +86,7 @@ export type TypeDynamicInput = {
     selectFieldSource: string | null
     required: boolean
     readOnly: boolean
+    disabled: boolean
     formId: string
     createdAt: Date
     updatedAt: Date

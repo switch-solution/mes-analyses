@@ -18,7 +18,6 @@ const getRandomInt = (min: number, max: number) => {
 export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, processusSlug }: { clientSlug: string, projectSlug: string, dsnStructure: getDsnStructure, processusSlug: string }) {
     const [loading, setLoading] = useState(false)
     const dsnDataWithOption = dsnData.bind(null, projectSlug, clientSlug, processusSlug)
-
     const parseFile = async (file: File, random: string) => {
         return new Promise((resolve, reject) => {
             const dsnRows: any = []
@@ -53,7 +52,7 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
                         dsnRowsObject.push(object)
                         setRow.add(value)
                     }
-                }//Fin boucle du fiichier
+                }//Fin boucle du fichier
                 resolve(dsnRowsObject);
 
             }//Fin boucle lecture

@@ -1,7 +1,4 @@
-import Container from "@/components/layout/container";
-import { userIsAuthorizeInThisProject } from "@/src/query/security.query";
-import { dataByTable } from "@/src/query/extraction.query";
-import { getProjectProcessusExist } from "@/src/query/project.query";
+import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
 import { Slash } from "lucide-react"
 import ViewDynamicForm from "@/components/form/project_standard_form/viewDynamicForm";
 import {
@@ -11,33 +8,55 @@ import {
     BreadcrumbList,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { getFormAndInput } from "@/src/query/form.query";
-import { getProjectBySlug } from "@/src/query/project.query";
+import { Processus } from "@/src/classes/processus";
+
 import { getSelectOptions } from "@/src/query/form.query";
+import { Project } from "@/src/classes/project";
+import { ProcessusFactory } from "@/src/classes/processusFactory";
+import { Security } from "@/src/classes/security";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string, processusSlug: string, dataSlug: string } }) {
-    const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
+
+    const project = new Project(params.projectSlug)
+    const projectExist = await project.projectExist()
+    if (!projectExist) {
+        throw new Error("Le projet n'existe pas")
+    }
+    const security = new Security()
+    const userIsAuthorized = await security.isAuthorizedInThisProject(params.projectSlug)
     if (!userIsAuthorized) {
         throw new Error("Vous n'êtes pas autorisé à accéder à cette page.");
     }
-    const projectExist = await getProjectBySlug(params.projectSlug)
-    if (!projectExist) {
-        throw new Error("Le projet n'existe pas.")
-    }
-    const processusExist = await getProjectProcessusExist(params.projectSlug, params.processusSlug)
+    const processus = new Processus(params.processusSlug)
+    const processusExist = await processus.processusExist()
     if (!processusExist) {
-        throw new Error("Le processus n'existe pas.")
+        throw new Error("Le processus n'existe pas")
     }
-    const form = await getFormAndInput(params.projectSlug, params.processusSlug)
+    const form = await processus.editFormAndInput()
     if (!form) {
         throw new Error("Le formulaire n'existe pas")
     }
-    const inputs = form.at(0)?.Project_Form_Input
-    if (!inputs) {
+    const inputs = form.at(0)?.Form.at(0)?.Form_Input
+    if (!inputs && processusExist.slug !== "Standard_Processus_DSN") {
         throw new Error("Les inputs n'existent pas")
     }
-    const options = await getSelectOptions(params.projectSlug, params.processusSlug)
+    const projectDetail = await project.projectDetails()
+    if (!projectDetail) {
+        throw new Error("Projet introuvable")
+    }
+    const options = await getSelectOptions({
+        projectLabel: projectDetail.label,
+        softwareLabel: projectDetail.softwareLabel,
+        clientId: projectDetail.clientId
 
-    const datas = await dataByTable({ projectSlug: params.projectSlug, table: processusExist.table, slug: params.dataSlug })
+    })
+    const processusFactory = ProcessusFactory.create({
+        processusSlug: processusExist.slug,
+        clientId: projectDetail.clientId,
+        projectLabel: projectDetail.label,
+        sofwareLabel: projectDetail.softwareLabel
+    })
+    const datas = await processusFactory.read(params.dataSlug)
+
 
     return (
         <Container>
@@ -56,7 +75,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         <Slash />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectExist.label}</BreadcrumbLink>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectDetail.label}</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
                         <Slash />
@@ -79,14 +98,16 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 </BreadcrumbList>
             </Breadcrumb>
             <ViewDynamicForm
-                inputs={inputs.map((input) => ({
+                inputs={inputs?.map((input) => ({
                     ...input,
-                }))}
+                    clientId: projectDetail.clientId,
+                    softwareLabel: processusExist.label,
+                    projectLabel: projectDetail.label,
+                })) || []}
                 datas={datas}
                 clientSlug={params.clientSlug}
                 projectSlug={params.projectSlug}
                 processusSlug={processusExist.slug}
-                table={processusExist.table}
                 options={options}
             />
         </Container>

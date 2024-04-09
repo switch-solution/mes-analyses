@@ -23,7 +23,7 @@ export const validProjectProcessus = authentifcationActionUserIsAuthorizeToEditP
         })
         const finish = await prisma.project_Processus.count({
             where: {
-                orderId: projectProcessusrExist.orderId,
+
                 clientId,
                 projectLabel,
                 softwareLabel,
@@ -35,61 +35,9 @@ export const validProjectProcessus = authentifcationActionUserIsAuthorizeToEditP
                 clientId,
                 projectLabel,
                 softwareLabel,
-                orderId: projectProcessusrExist.orderId
             }
         })
 
-        if (finish === total) {
-            await prisma.project_Processus_Order.update({
-                where: {
-                    id_clientId_softwareLabel_projectLabel: {
-                        clientId,
-                        softwareLabel,
-                        projectLabel,
-                        id: projectProcessusrExist.orderId
-                    }
-                },
-                data: {
-                    inProgress: false
-                }
-            })
-            const projectProcessusOrder = await prisma.project_Processus_Order.findFirst({
-                where: {
-                    id: projectProcessusrExist.orderId,
-                    clientId,
-                    projectLabel,
-                    softwareLabel
-                }
-            })
-            if (!projectProcessusOrder) {
-                throw new ActionError("L'ordre n'existe pas")
-            }
-            const nextOrder = projectProcessusOrder?.order + 1
-            const processusOrderId = await prisma.processus_Order.findFirst({
-                where: {
-                    order: nextOrder
-                }
-            })
-            if (!processusOrderId) {
-                throw new ActionError("L'ordre n'existe pas")
-            }
-            await prisma.project_Processus_Order.update({
-                where: {
-                    id_clientId_softwareLabel_projectLabel: {
-                        clientId,
-                        softwareLabel,
-                        projectLabel,
-                        id: processusOrderId.id
-
-                    },
-                    order: nextOrder
-                },
-                data: {
-                    inProgress: true
-                }
-            }
-            )
-        }
 
 
     } catch (err: unknown) {

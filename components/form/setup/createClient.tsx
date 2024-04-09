@@ -23,7 +23,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Input } from '@/components/ui/input'
-import Container from "@/components/layout/container";
+import { Container } from "@/components/layout/container";
 import { createSetupClient } from "@/src/features/actions/setup/setup.actions";
 import { toast } from "sonner"
 

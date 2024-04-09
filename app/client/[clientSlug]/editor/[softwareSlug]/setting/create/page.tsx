@@ -1,7 +1,5 @@
 import CreateSoftwareSetting from "@/components/form/software_setting/createSoftwareSetting";
-import Container from "@/components/layout/container";
-import { userIsEditorClient } from "@/src/query/security.query";
-import { getMySoftware } from "@/src/query/user.query";
+import { Container, ContainerBreadCrumb, ContainerForm } from "@/components/layout/container";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -9,30 +7,43 @@ import {
     BreadcrumbList,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-
+import { Client } from "@/src/classes/client";
+import { Security } from "@/src/classes/security";
+import { User } from "@/src/classes/user";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
-    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    const client = new Client(params.clientSlug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Ce client n'existe pas.")
+    }
+    const security = new Security()
+    const userIsEditor = await security.isEditorClient(clientExist.siren)
     if (!userIsEditor) {
         throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
     }
-    const mySoftwares = await getMySoftware()
+    const user = new User(security.userId)
+    const mySoftwares = await user.getMyClientActive()
     return (<Container>
-        <Breadcrumb>
-            <BreadcrumbList>
-                <BreadcrumbItem>
-                    <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                    <BreadcrumbLink href={`/client/${params.clientSlug}/editor/`}>Editeur</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                    <BreadcrumbLink href={`/client/${params.clientSlug}/editor/setting`}>Paramètres</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-            </BreadcrumbList>
-        </Breadcrumb>
-        <CreateSoftwareSetting clientSlug={params.clientSlug} softwares={mySoftwares} />
+        <ContainerBreadCrumb>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/`}>Editeur</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/setting`}>Paramètres</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                </BreadcrumbList>
+            </Breadcrumb>
+        </ContainerBreadCrumb>
+        <ContainerForm>
+            <CreateSoftwareSetting clientSlug={params.clientSlug} softwares={mySoftwares} />
+        </ContainerForm>
     </Container>)
 }

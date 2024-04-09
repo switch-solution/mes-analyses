@@ -33,7 +33,7 @@ export const createPaidLeave = authentifcationActionUserIsAuthorizeToEditProject
                 projectLabel,
                 softwareLabel,
                 population,
-                method,
+                method: method ? method : "Heures ouvrés",
                 description,
                 settlement,
                 societyId,

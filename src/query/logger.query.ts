@@ -1,10 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import z from "zod";
 import { EventSchema } from "../helpers/definition";
-import { userIsValid } from "./security.query";
+import { Security } from "../classes/security";
 export const createLog = async (data: z.infer<typeof EventSchema>) => {
     try {
-        const userId = await userIsValid()
+        const security = new Security()
+        const userId = await security.userIsValid()
+        if (!userId) {
+            throw new Error("Vous devez etre connecté pour effectuer cette action.")
+        }
         const { level, message, scope, clientId, projectLabel } = EventSchema.parse(data)
         await prisma.logger.create({
             data: {
@@ -13,8 +17,8 @@ export const createLog = async (data: z.infer<typeof EventSchema>) => {
                 scope: scope,
                 clientId: clientId,
                 projectLabel: projectLabel,
-                createdBy: userId,
-                userId
+                createdBy: userId?.id,
+                userId: userId.id
             }
         })
     } catch (err) {

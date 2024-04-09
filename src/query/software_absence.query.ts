@@ -1,17 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from '@prisma/client'
-import { getClientActiveAndSoftwareActive } from "./security.query";
-
-export const getSofwareAbsenceForMyActiveSoftware = async () => {
+export const getSofwareAbsenceForMyActiveSoftware = async ({
+    clientId,
+    softwareLabel
+}: {
+    clientId: string,
+    softwareLabel: string
+}) => {
     try {
-        const validation = await getClientActiveAndSoftwareActive()
-        if (!validation) {
-            throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
-        }
+
         const softwareAbsence = await prisma.software_Absence.findMany({
             where: {
-                softwareLabel: validation.softwareLabel,
-                clientId: validation.clientId,
+                softwareLabel: softwareLabel,
+                clientId: clientId,
             }
         })
         return softwareAbsence

@@ -41,12 +41,12 @@ class FORM_V0005 extends Seed {
                 await this.seedUpdateStatus("pending")
                 await prisma.processus.create({
                     data: {
-                        id: 'Standard_0014',
+                        id: 'Standard_0017',
                         label: 'Absences',
                         theme: 'Absence',
                         slug: 'Standard_Processus_Absences',
-                        table: 'Project_Absence',
-                        orderId: 'Processus_0004'
+                        order: 17,
+                        version: 1
                     }
                 })
 
@@ -54,74 +54,67 @@ class FORM_V0005 extends Seed {
                     data: {
                         id: 'Standard_Formulaire_Absence',
                         label: 'Création de formulaire absence',
+                        isCreate: true,
+                        isEdit: false,
                         slug: 'Standard_Formulaire_0013',
                         description: 'Création des absences',
-                        processusId: 'Standard_0014',
+                        processusId: 'Standard_0017',
+                        processusVersion: 1,
                         Form_Input: {
                             create: [
                                 {
                                     id: 'Standard_Champ_0001',
-                                    type: 'select',
-                                    selectTableSource: 'Project_Society',
-                                    selectFieldSource: 'siren',
-                                    label: 'Société',
-                                    zodLabel: 'siren',
-                                    order: 1,
-                                    slug: 'Standard_Champ_0080',
-                                },
-                                {
-                                    id: 'Standard_Champ_0002',
                                     type: 'text',
                                     label: 'Code absence',
                                     zodLabel: 'id',
                                     required: true,
-                                    order: 2,
+                                    order: 1,
                                     slug: 'Standard_Champ_0081',
                                 },
                                 {
-                                    id: 'Standard_Champ_0003',
+                                    id: 'Standard_Champ_0002',
                                     type: 'text',
                                     label: 'Description',
                                     zodLabel: 'description',
-                                    order: 3,
+                                    order: 2,
                                     slug: 'Standard_Champ_0082',
                                 },
                                 {
-                                    id: 'Standard_Champ_0004',
+                                    id: 'Standard_Champ_0003',
                                     type: 'switch',
                                     label: 'Absence sécurité sociale',
                                     zodLabel: 'isSocialSecurity',
-                                    order: 4,
+                                    order: 3,
                                     slug: 'Standard_Champ_0083',
                                 },
                                 {
-                                    id: 'Standard_Champ_0005',
+                                    id: 'Standard_Champ_0004',
                                     type: 'select',
                                     label: 'Méthode de calcul',
                                     zodLabel: 'method',
                                     selectTableSource: 'Software_Setting',
                                     selectFieldSource: 'ABS_Méthode',
-                                    order: 5,
+                                    order: 4,
                                     slug: 'Standard_Champ_0084',
                                 },
                                 {
-                                    id: 'Standard_Champ_0006',
+                                    id: 'Standard_Champ_0005',
                                     type: 'select',
                                     label: 'Décompte',
                                     zodLabel: 'settlement',
                                     selectTableSource: 'Software_Setting',
                                     selectFieldSource: 'ABS_Décompte',
-                                    order: 6,
+                                    order: 5,
                                     slug: 'Standard_Champ_0085',
                                 },
                                 {
-                                    id: 'Standard_Champ_0007',
+                                    id: 'Standard_Champ_0006',
                                     type: 'select',
                                     label: 'Code absence DSN',
                                     zodLabel: 'dsnId',
                                     selectTableSource: 'Dsn_Absence',
                                     selectFieldSource: 'id',
-                                    order: 7,
+                                    order: 6,
                                     slug: 'Standard_Champ_0091',
                                 },
 

@@ -13,8 +13,8 @@ import DynamicField from "@/components/ui/dynamic-field"
 import type { TypeDynamicInput } from "@/src/helpers/type"
 import { Form } from "@/components/ui/form"
 import type { getSelectOptions } from "@/src/query/form.query";
-export default function ViewDynamicForm({ clientSlug, projectSlug, processusSlug, table, inputs, options, datas }: {
-    clientSlug: string, projectSlug: string, processusSlug: string, table: string, inputs: TypeDynamicInput, options: getSelectOptions, datas: {}
+export default function ViewDynamicForm({ clientSlug, projectSlug, processusSlug, inputs, options, datas }: {
+    clientSlug: string, projectSlug: string, processusSlug: string, inputs: TypeDynamicInput, options: getSelectOptions, datas: {}
 }) {
     const [loading, setLoading] = useState(false)
     type FormInputs = z.infer<typeof SocietyEditSchema>
@@ -22,8 +22,8 @@ export default function ViewDynamicForm({ clientSlug, projectSlug, processusSlug
 
     let formSchema = null
 
-    switch (table) {
-        case "Project_Society":
+    switch (processusSlug) {
+        case "Standard_Processus_Society":
             formSchema = SocietyEditSchema
             break;
         case "Project_Establisment":
@@ -39,7 +39,6 @@ export default function ViewDynamicForm({ clientSlug, projectSlug, processusSlug
             clientSlug: clientSlug,
             processusSlug: processusSlug,
             projectSlug: projectSlug,
-            table: table as 'Project_Society',
             ...datas
 
         },
@@ -48,8 +47,8 @@ export default function ViewDynamicForm({ clientSlug, projectSlug, processusSlug
         try {
             setLoading(true)
             let action: unknown
-            switch (table) {
-                case "Project_Society":
+            switch (processusSlug) {
+                case "Standard_Processus_Society":
                     action = await updateSociety(data as z.infer<typeof SocietyEditSchema>)
                     break;
                 case "Project_Establisment":

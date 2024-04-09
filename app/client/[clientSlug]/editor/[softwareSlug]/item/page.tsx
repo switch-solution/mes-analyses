@@ -1,29 +1,22 @@
-import { userIsEditorClient } from "@/src/query/security.query"
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import { getSoftwaresItemsFilterByUserSoftware } from "@/src/query/software.query";
+import { Client } from "@/src/classes/client";
+import { Security } from "@/src/classes/security";
 export default async function Page({ params }: { params: { clientSlug: string } }) {
-    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    const client = new Client(params.clientSlug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Ce client n'existe pas.")
+    }
+    const security = new Security()
+    const userIsEditor = await security.isEditorClient(clientExist.siren)
     if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
 
-    const itemsList = await getSoftwaresItemsFilterByUserSoftware()
-    const items = itemsList.map((item) => {
-        return {
-            clientSlug: params.clientSlug,
-            code: item.id,
-            type: item.type,
-            label: item.label,
-            softwareLabel: item.softwareLabel,
-            slug: item.slug,
-            description: item.description,
-            idccCode: item.idccCode,
 
-        }
-    })
 
     return (
         <div className="container mx-auto py-10">
-            <DataTable columns={columns} data={items} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/editor/item/create`} buttonLabel="Ajouter une rubrique" />
+            <DataTable columns={columns} data={[]} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/editor/item/create`} buttonLabel="Ajouter une rubrique" />
         </div>
     )
 }

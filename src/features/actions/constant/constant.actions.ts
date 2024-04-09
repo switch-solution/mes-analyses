@@ -5,15 +5,9 @@ import { redirect } from 'next/navigation';
 import { ConstantCreateSchema, ConstantEditSchema } from "@/src/helpers/definition";
 import { createLog } from "@/src/query/logger.query";
 import type { Logger } from "@/src/helpers/type";
-import { getSoftwareConstantBySoftwareLabelAndId } from "@/src/query/software_constant.query";
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
 import z from "zod";
-import { getClientBySlug } from "@/src/query/client.query";
-import { getSoftwareConstantBySlug } from "@/src/query/software_constant.query";
-import { getConstantById } from "@/src/query/constantLegal.query";
-import { getSoftwareBySlug } from "@/src/query/software.query";
-import { countAllSoftwareConstant } from "@/src/query/software_constant.query";
-import { getIdcc, getIdccByCode } from "@/src/query/idcc.query";
+import { getIdccByCode } from "@/src/query/idcc.query";
 export const createConstant = authentificationActionUserIsEditorClient(ConstantCreateSchema, async (values: z.infer<typeof ConstantCreateSchema>, { clientId, userId, softwareLabel }) => {
     const { label, description, level, dateStart, idcc, value, softwareSlug, clientSlug, id } = ConstantCreateSchema.parse(values)
     const idccExist = await getIdccByCode(idcc)

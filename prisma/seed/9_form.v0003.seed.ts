@@ -44,8 +44,11 @@ class FormV0003 extends Seed {
                         id: 'Standard_Formulaire_IDCC',
                         label: 'Création de formulaire IDCC',
                         slug: 'Standard_Formulaire_0005',
+                        isCreate: true,
+                        isEdit: false,
                         description: 'Création IDCC',
                         processusId: 'Standard_0007',
+                        processusVersion: 1,
                         Form_Input: {
                             create: [
                                 {
@@ -59,20 +62,7 @@ class FormV0003 extends Seed {
                                     required: true,
                                     order: 1,
                                     slug: 'Standard_Champ_0069',
-                                },
-                                {
-                                    id: 'Standard_Champ_0002',
-                                    type: 'select',
-                                    selectTableSource: 'Project_Establishment',
-                                    selectFieldSource: 'nic',
-                                    label: 'Etablissement',
-                                    zodLabel: 'nic',
-                                    placeholder: '0001',
-                                    required: true,
-                                    order: 2,
-                                    slug: 'Standard_Champ_0070',
-                                },
-
+                                }
                             ]
                         }
 

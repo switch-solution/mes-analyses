@@ -4,25 +4,33 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { SocietyCreateSchema, EstablishmentCreateSchema, CreateProjectAbsenceSchema, JobCreateSchema, CreatePaidLeaveSchema, RateAtCreateSchema, OpsCreateSchema, CreateIdccSchema, CreateClassificationSchema } from "@/src/helpers/definition";
-import { createOps } from "@/src/features/actions/project_data/project_ops.actions";
+import { SocietyCreateSchema, EstablishmentCreateSchema, CreateProjectAbsenceSchema, CreateServiceSchema, JobCreateSchema, CreatePaidLeaveSchema, RateAtCreateSchema, OpsCreateSchema, CreateIdccSchema, CreateClassificationSchema } from "@/src/helpers/definition";
+import { createUrssaf } from "@/src/features/actions/project_data/project_urssaf.actions";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { createJob } from "@/src/features/actions/project_data/project_job.actions";
 import { createSociety } from "@/src/features/actions/project_data/project_society.actions";
+import { createService } from "@/src/features/actions/project_data/project_service.actions";
 import { createEstablishement } from "@/src/features/actions/project_data/project_establishment.actions";
 import { toast } from "sonner"
 import { createIdcc } from "@/src/features/actions/project_data/project_idcc.actions"
 import DynamicField from "@/components/ui/dynamic-field"
+import { createMutual } from "@/src/features/actions/project_data/project_mutual.actions";
+import { createPrevoyance } from "@/src/features/actions/project_data/project_prevoyance.actions";
+import { createAgircArcco } from "@/src/features/actions/project_data/project_agirc_arrco.actions";
 import type { TypeDynamicInput } from "@/src/helpers/type"
 import { createPaidLeave } from "@/src/features/actions/project_data/project_paidLeave.actions";
-import { createClassification } from "@/src/features/actions/project_data/project_classification.actions"
+import { createNiveau } from "@/src/features/actions/project_data/project_niveau.actions";
+import { createCoefficient } from "@/src/features/actions/project_data/project_coefficient.actions";
+import { createQualification } from "@/src/features/actions/project_data/project_qualification.actions";
+import { createIndice } from "@/src/features/actions/project_data/project_indice.actions";
+import { createEchelon } from "@/src/features/actions/project_data/project_echelon.actions";
 import {
     Form,
 } from "@/components/ui/form"
 import type { getSelectOptions } from "@/src/query/form.query";
 import { createRateAt } from "@/src/features/actions/project_data/project_rateAt.actions";
-export default function CreateDynamicForm({ clientSlug, projectSlug, processusSlug, table, inputs, options }: {
-    clientSlug: string, projectSlug: string, processusSlug: string, table: string, inputs: TypeDynamicInput, options: getSelectOptions
+export default function CreateDynamicForm({ clientSlug, projectSlug, processusSlug, inputs, options }: {
+    clientSlug: string, projectSlug: string, processusSlug: string, inputs: TypeDynamicInput, options: getSelectOptions
 }) {
     const [loading, setLoading] = useState(false)
     type FormInputs = z.infer<typeof SocietyCreateSchema>
@@ -40,33 +48,57 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
 
     let formSchema = null
 
-    switch (table) {
-        case "Project_Society":
+    switch (processusSlug) {
+        case "Standard_Processus_Society":
             formSchema = SocietyCreateSchema
             break;
-        case "Project_Establisment":
+        case "Standard_Processus_Establishment":
             formSchema = EstablishmentCreateSchema
             break;
-        case "Project_Job":
+        case "Standard_Processus_job":
             formSchema = JobCreateSchema
             break;
-        case "Project_RateAt":
+        case "Standard_Processus_RateAt":
             formSchema = RateAtCreateSchema
             break;
-        case "Project_OPS":
+        case "Standard_Processus_URSSAF":
             formSchema = OpsCreateSchema
             break;
-        case "Project_Idcc":
+        case "Standard_Processus_AGIRC-ARRCO":
+            formSchema = OpsCreateSchema
+            break;
+        case "Standard_Processus_Prevoyance":
+            formSchema = OpsCreateSchema
+            break;
+        case "Standard_Processus_Mutuelle":
+            formSchema = OpsCreateSchema
+            break;
+        case "Standard_Processus_ccn":
             formSchema = CreateIdccSchema
             break
-        case "Project_Classification":
+        case "Standard_Processus_niveau":
             formSchema = CreateClassificationSchema
             break
-        case "Project_Paid_Leave":
+        case "Standard_Processus_coefficient":
+            formSchema = CreateClassificationSchema
+            break
+        case "Standard_Processus_qualification":
+            formSchema = CreateClassificationSchema
+            break
+        case "Standard_Processus_echelon":
+            formSchema = CreateClassificationSchema
+            break
+        case "Standard_Processus_indice":
+            formSchema = CreateClassificationSchema
+            break
+        case "Standard_Processus_CP":
             formSchema = CreatePaidLeaveSchema
             break
-        case "Project_Absence":
+        case "Standard_Processus_Absences":
             formSchema = CreateProjectAbsenceSchema
+            break
+        case "Standard_Processus_services":
+            formSchema = CreateServiceSchema
             break
         default: {
             throw new Error("La table n'existe pas")
@@ -78,7 +110,6 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
             clientSlug: clientSlug,
             processusSlug: processusSlug,
             projectSlug: projectSlug,
-            table: table as 'Project_Society',
             ...inputsObject
 
         },
@@ -87,30 +118,54 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
         try {
             setLoading(true)
             let action: unknown
-            switch (table) {
-                case "Project_Society":
+            switch (processusSlug) {
+                case "Standard_Processus_Society":
                     action = await createSociety(data as z.infer<typeof SocietyCreateSchema>)
                     break;
-                case "Project_Establisment":
+                case "Standard_Processus_Establishment":
                     action = await createEstablishement(data as z.infer<typeof EstablishmentCreateSchema>)
                     break;
-                case "Project_Job":
+                case "Standard_Processus_job":
                     action = await createJob(data as z.infer<typeof JobCreateSchema>)
                     break;
-                case "Project_RateAt":
+                case "Standard_Processus_RateAt":
                     action = await createRateAt(data as z.infer<typeof RateAtCreateSchema>)
                     break;
-                case "Project_OPS":
-                    action = await createOps(data as z.infer<typeof OpsCreateSchema>)
+                case "Standard_Processus_URSSAF":
+                    action = await createUrssaf(data as z.infer<typeof OpsCreateSchema>)
                     break;
-                case "Project_Idcc":
+                case "Standard_Processus_AGIRC-ARRCO":
+                    action = await createAgircArcco(data as z.infer<typeof OpsCreateSchema>)
+                    break;
+                case "Standard_Processus_Prevoyance":
+                    action = await createPrevoyance(data as z.infer<typeof OpsCreateSchema>)
+                    break;
+                case "Standard_Processus_Mutuelle":
+                    action = await createMutual(data as z.infer<typeof OpsCreateSchema>)
+                    break;
+                case "Standard_Processus_ccn":
                     action = await createIdcc(data as z.infer<typeof CreateIdccSchema>)
                     break
-                case "Project_Classification":
-                    action = await createClassification(data as z.infer<typeof CreateClassificationSchema>)
+                case "Standard_Processus_niveau":
+                    action = await createNiveau(data as z.infer<typeof CreateClassificationSchema>)
                     break
-                case "Project_Paid_Leave":
+                case "Standard_Processus_coefficient":
+                    action = await createCoefficient(data as z.infer<typeof CreateClassificationSchema>)
+                    break
+                case "Standard_Processus_echelon":
+                    action = await createEchelon(data as z.infer<typeof CreateClassificationSchema>)
+                    break
+                case "Standard_Processus_indice":
+                    action = await createIndice(data as z.infer<typeof CreateClassificationSchema>)
+                    break
+                case "Standard_Processus_qualification":
+                    action = await createQualification(data as z.infer<typeof CreateClassificationSchema>)
+                    break
+                case "Standard_Processus_CP":
                     action = await createPaidLeave(data as z.infer<typeof CreatePaidLeaveSchema>)
+                    break
+                case "Standard_Processus_services":
+                    action = await createService(data as z.infer<typeof CreateServiceSchema>)
                     break
                 default: {
                     throw new Error("La table n'existe pas")
@@ -135,12 +190,13 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
     }
 
     return (
-        < Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='gap-4 space-y-8 p-4'>
                 <DynamicField inputs={inputs} form={form} options={options} />
                 {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
             </form>
         </Form >
+
     )
 
 }

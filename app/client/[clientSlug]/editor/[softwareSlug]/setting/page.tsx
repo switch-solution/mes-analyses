@@ -1,9 +1,9 @@
-import { userIsEditorClient } from "@/src/query/security.query";
 import { getSoftwareSettingFilterByUserSoftware } from "@/src/query/software_setting.query";
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import Container from "@/components/layout/container";
-
+import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
+import { Client } from "@/src/classes/client";
+import { Security } from "@/src/classes/security";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -11,11 +11,23 @@ import {
     BreadcrumbList,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-
+import { User } from "@/src/classes/user";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
-    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    const client = new Client(params.clientSlug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Ce client n'existe pas.")
+    }
+    const security = new Security()
+    const userIsEditor = await security.isEditorClient(clientExist.siren)
     if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
-    const settingList = await getSoftwareSettingFilterByUserSoftware(params.clientSlug)
+    const user = new User(security.userId)
+    const softwareActive = await user.getMySoftwareActive()
+    const clientActive = await user.getMyClientActive()
+    const settingList = await getSoftwareSettingFilterByUserSoftware({
+        clientId: clientActive.clientId,
+        softwareLabel: softwareActive.softwareLabel
+    })
     const settings = settingList.map((setting) => {
         return {
             clientSlug: params.clientSlug,

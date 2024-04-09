@@ -1,7 +1,6 @@
-import { userIsEditorClient } from "@/src/query/security.query"
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import Container from "@/components/layout/container";
+import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -11,8 +10,16 @@ import {
 } from "@/components/ui/breadcrumb"
 import { getSoftwareBySlug } from "@/src/query/software.query";
 import { getIdccByCode, getConstantByIdcc } from "@/src/query/idcc.query";
+import { Client } from "@/src/classes/client";
+import { Security } from "@/src/classes/security";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string, idcc: string } }) {
-    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    const client = new Client(params.clientSlug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Le client n'existe pas")
+    }
+    const security = new Security()
+    const userIsEditor = await security.isEditorClient(clientExist.siren)
     if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const idccExist = await getIdccByCode(params.idcc)
     if (!idccExist) throw new Error("L'IDCC n'existe pas.")
@@ -78,27 +85,31 @@ export default async function Page({ params }: { params: { clientSlug: string, s
     const allConstants = [...constansLegal, ...constantClient, ...constansSoftware]
     return (
         <Container>
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/constant`}>Convention collective</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/constant/${params.idcc}`}>{idccExist.label}</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                </BreadcrumbList>
-            </Breadcrumb>
-            <DataTable columns={columns} data={allConstants} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/constant/${params.idcc}/create`} buttonLabel="Ajouter une constante" />
+            <ContainerBreadCrumb>
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/constant`}>Convention collective</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/constant/${params.idcc}`}>{idccExist.label}</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                    </BreadcrumbList>
+                </Breadcrumb>
+            </ContainerBreadCrumb>
+            <ContainerDataTable>
+                <DataTable columns={columns} data={allConstants} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/constant/${params.idcc}/create`} buttonLabel="Ajouter une constante" />
+            </ContainerDataTable>
         </Container >
     )
 }

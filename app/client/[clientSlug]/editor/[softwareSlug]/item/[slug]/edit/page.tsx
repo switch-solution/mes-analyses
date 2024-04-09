@@ -1,8 +1,15 @@
 import { getIdcc } from "@/src/query/idcc.query"
 import { getSoftwareItemsBySlug } from "@/src/query/software_Items.query"
-import { userIsValid } from "@/src/query/security.query"
+import { Client } from "@/src/classes/client"
+import { Security } from "@/src/classes/security"
 export default async function Page({ params }: { params: { slug: string } }) {
-    const userId = await userIsValid()
+    const client = new Client(params.slug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Ce client n'existe pas.")
+    }
+    const security = new Security()
+    const userId = await security.isEditorClient(clientExist.siren)
     if (!userId) {
         throw new Error('not authorized')
     }

@@ -1,122 +1,270 @@
-import { redirect } from "next/navigation"
-import { userIsComplete } from "@/src/query/user.query"
-import TinyLineChart from "@/components/chart/tinyLineChart"
-import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
-import Container from "@/components/layout/container";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Link from "next/link"
 import {
-    IconArrowWaveRightUp,
-    IconBoxAlignRightFilled,
-    IconBoxAlignTopLeft,
-    IconClipboardCopy,
-    IconFileBroken,
-    IconSignature,
-    IconTableColumn,
-} from "@tabler/icons-react";
+    ChevronLeft,
+    ChevronRight,
+    File,
+    ArrowRight,
+} from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Button } from "@/components/ui/button"
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+} from "@/components/ui/pagination"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { ArrowRight } from "lucide-react";
-import Link from "next/link"
-import { getMyProjects } from "@/src/query/project.query";
-import { getMyClientActive } from "@/src/query/user.query";
-import { WhatIsNew } from "@/components/layout/whatIsNew";
-import { countMyTaskActive } from "@/src/query/project_task.query";
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs"
+import { User } from "@/src/classes/user"
+import { getAuthSession } from "@/lib/auth"
 export default async function Page() {
-
-
-    const userIsSetup = await userIsComplete()
-
-    const clientSlug = await getMyClientActive()
-    if (!userIsSetup) {
-        return redirect("/setup/cgv")
-
+    const today = new Date().toLocaleDateString()
+    const session = await getAuthSession()
+    if (!session) {
+        throw new Error("Vous devez etre connecté")
     }
-    const projects = await getMyProjects()
-    const countTask = await countMyTaskActive()
-
-
-    const items = [
-        {
-            title: "Mes projets en cours",
-            description: (<Link href={`/client/${clientSlug}/project/`}>Consulter vos projects</Link>),
-            header: (<Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[100px]">Logo</TableHead>
-                        <TableHead>Libellé</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Ouvrir</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {projects?.map(project =>
-                        <TableRow key={project.projectLabel}>
-                            <TableCell>
-                                <Avatar>
-                                    <AvatarImage src={project.project.logo ? project.project.logo : undefined} />
-                                    <AvatarFallback> {project.project.label?.slice(0, 2)}</AvatarFallback>
-                                </Avatar>
-                            </TableCell>
-                            <TableCell>{project.project.label}</TableCell>
-                            <TableCell>{project.project.description}</TableCell>
-                            <TableCell><Link href={`/client/${clientSlug}/project/${project.project.slug}`}><ArrowRight /></Link></TableCell>
-                        </TableRow>)}
-                </TableBody>
-
-            </Table>
-
-            ),
-            className: "md:col-span-2",
-            icon: <IconClipboardCopy className="size-4 text-neutral-500" />,
-        },
-        {
-            title: "Mes taches",
-            description: (<Link href={`/home/task`}>Consulter vos taches</Link>),
-            header: <span className="flex h-full flex-col items-center justify-center text-6xl">{countTask}</span>,
-            className: "md:col-span-1",
-            icon: <IconFileBroken className="size-4 text-neutral-500" />,
-        },
-        {
-            title: "Mon tableau de bord",
-            description: (<Link href={`/home/dashboard`}>Consulter mes indicateurs</Link>),
-            header: <TinyLineChart />,
-            className: "md:col-span-1",
-            icon: <IconSignature className="size-4 text-neutral-500" />,
-        },
-        {
-            title: "Quoi de neuf ?",
-            description: (<Link href={`/home/new`}>Consulter les dernières mises à jour de vos projets.</Link>),
-            header: <WhatIsNew />,
-            className: "md:col-span-2",
-            icon: <IconTableColumn className="size-4 text-neutral-500" />,
-        },
-    ];
+    const userId = session.user.id
+    if (!userId) {
+        throw new Error("ID utilisateur manquant")
+    }
+    const user = new User(userId)
+    const client = await user.getMyClientActive()
+    if (!client) {
+        throw new Error("Client manquant")
+    }
+    const activity = await user.myActivity()
+    const projects = await user.myProject()
+    const projectsEnable = projects.filter((project) => project.project.status === "actif")
+    const projectsDisable = projects.filter((project) => project.project.status !== "actif")
 
     return (
-        <Container>
-            <BentoGrid className="mx-auto max-w-4xl md:auto-rows-[20rem]">
-                {items.map((item, i) => (
-                    <BentoGridItem
-                        key={i}
-                        title={item.title}
-                        description={item.description}
-                        header={item.header}
-                        className={item.className}
-                        icon={item.icon}
-                    />
-                ))}
-            </BentoGrid>
+        <div className="flex min-h-screen w-full flex-col bg-muted/40">
+            <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+                <div className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+                    <Breadcrumb className="hidden md:flex">
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href="/home">Accueil</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                </div>
+                <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+                    <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
+                        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+                            <Card
+                                className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
+                            >
+                                <CardHeader className="pb-3">
+                                    <CardTitle>Projet</CardTitle>
+                                    <CardDescription className="max-w-lg text-balance leading-relaxed">
+                                        Commencer un nouveau projet.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardFooter>
+                                    <Link href={`/client/${client.clientSlug}/project/create`}><Button>Créer un projet</Button></Link>
+                                </CardFooter>
+                            </Card>
+                            <Card x-chunk="dashboard-05-chunk-1">
+                                <CardHeader className="pb-2">
+                                    <CardDescription>Mes actions en attente</CardDescription>
+                                    <CardTitle className="flex justify-center text-4xl">5</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-xs text-muted-foreground">
+                                        +25% depuis la semaine dernière
+                                    </div>
+                                </CardContent>
+                                <CardFooter>
+                                    <Progress value={25} aria-label="25% increase" />
+                                </CardFooter>
+                            </Card>
+                            <Card x-chunk="dashboard-05-chunk-2">
+                                <CardHeader className="pb-2">
+                                    <CardDescription>Mes messages en attente</CardDescription>
+                                    <CardTitle className="flex justify-center text-4xl">50</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-xs text-muted-foreground">
+                                        +10% depuis la semaine dernière
+                                    </div>
+                                </CardContent>
+                                <CardFooter>
+                                    <Progress value={12} aria-label="12% increase" />
+                                </CardFooter>
+                            </Card>
+                        </div>
+                        <Tabs defaultValue="enable">
+                            <div className="flex items-center">
+                                <TabsList>
+                                    <TabsTrigger value="enable">Actif</TabsTrigger>
+                                    <TabsTrigger value="archived">Archivé</TabsTrigger>
+                                    <TabsTrigger value="disable">En attente</TabsTrigger>
+                                </TabsList>
+                                <div className="ml-auto flex items-center gap-2">
 
-        </Container>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 gap-1 text-sm"
+                                    >
+                                        <File className="size-3.5" />
+                                        <span className="sr-only sm:not-sr-only">Export</span>
+                                    </Button>
+                                </div>
+                            </div>
+                            <TabsContent value="enable">
+                                <Card x-chunk="dashboard-05-chunk-3">
+                                    <CardHeader className="px-7">
+                                        <CardTitle>Projets</CardTitle>
+                                        <CardDescription>
+                                            Mes projets
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Titre</TableHead>
+                                                    <TableHead className="hidden sm:table-cell">
+                                                        Status
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Date de création
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Ouvrir
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {
+                                                    projectsEnable.map((project) => (
+                                                        <TableRow key={project.project.slug} className="bg-accent">
+                                                            <TableCell>
+                                                                <div className="font-medium">{project.project.label}</div>
+                                                            </TableCell>
+                                                            <TableCell className="hidden sm:table-cell">
+                                                                <Badge className="text-xs" variant="secondary">
+                                                                    {project.project.status}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                {project.project.createdAt.toLocaleDateString()}
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                <Link href={`/client/${client.clientSlug}/project/${project.project.slug}`}>
+                                                                    <ArrowRight />
+                                                                </Link>
+                                                            </TableCell>
+                                                        </TableRow>
 
-    );
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                        </Tabs>
 
+                    </div>
+                    <div>
+                        <Card
+                            className="overflow-hidden" x-chunk="dashboard-05-chunk-4"
+                        >
+                            <CardHeader className="flex flex-row items-start bg-muted/50">
+                                <div className="grid gap-0.5">
+                                    <CardTitle className="group flex items-center gap-2 text-lg">
+                                        Nouveautés
+                                    </CardTitle>
+                                    <CardDescription>{today}</CardDescription>
+                                </div>
+                            </CardHeader>
+                            {activity.map((activity) => {
+                                return (
+                                    <>
+                                        <CardContent key={activity.id}>
+                                            <div className="grid gap-3">
+                                                <div className="font-semibold"></div>
+                                                <ul className="grid gap-3">
+                                                    <li className="flex items-center justify-between">
+                                                        <span className="text-muted-foreground">
+                                                            {activity.message}
+                                                        </span>
+                                                    </li>
+                                                    <li className="flex items-center justify-between">
+                                                        <span className="text-muted-foreground">
+                                                            <Badge>{activity.level}</Badge>
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </CardContent>
+                                        <Separator className="my-2" />
+
+                                    </>
+                                )
+                            })}
+                            <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
+                                <div className="text-xs text-muted-foreground">
+                                    Updated <time dateTime="2023-11-23">November 23, 2023</time>
+                                </div>
+                                <Pagination className="ml-auto mr-0 w-auto">
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <Button size="icon" variant="outline" className="size-6">
+                                                <ChevronLeft className="size-3.5" />
+                                                <span className="sr-only">Previous Order</span>
+                                            </Button>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <Button size="icon" variant="outline" className="size-6">
+                                                <ChevronRight className="size-3.5" />
+                                                <span className="sr-only">Next Order</span>
+                                            </Button>
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </CardFooter>
+                        </Card>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
 }

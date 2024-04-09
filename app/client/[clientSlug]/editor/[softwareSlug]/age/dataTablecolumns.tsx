@@ -7,9 +7,12 @@ import Link from "next/link"
 export type Idcc = {
     clientSlug: string | null
     softwareSlug: string | null
+    open: string | null
     code: string | null
     label: string | null
 }
+
+import { ArrowRight } from "lucide-react"
 
 export const columns: ColumnDef<Idcc>[] = [
 
@@ -22,8 +25,19 @@ export const columns: ColumnDef<Idcc>[] = [
     },
     {
         accessorKey: "label",
-        header: "label",
+        header: "Libellé",
     },
+    {
+        id: "open",
+        header: "Ouvrir",
+        cell: ({ row }) => {
+            return (
+                <Link href={`/client/${row.original.clientSlug}/editor/${row.original.softwareSlug}/age/${row.original.code}`}>
+                    <ArrowRight size={24} />
+                </Link>
+            )
+        }
+    }
 
 ]
 

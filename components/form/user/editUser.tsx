@@ -24,8 +24,7 @@ import {
 } from "@/components/ui/select"
 import { editUser } from "@/src/features/actions/user/user.actions"
 import { toast } from "sonner"
-import type { getUserOtherData } from "@/src/query/user.query"
-export default function EditUser({ user }: { user: getUserOtherData }) {
+export default function EditUser({ user }: { user: any }) {
     const [loading, setLoading] = useState(false)
 
     const form = useForm<z.infer<typeof UserEditSchema>>({

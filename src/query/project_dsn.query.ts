@@ -1,15 +1,16 @@
 import { prisma } from "@/lib/prisma";
-import { getProjectBySlug } from "./project.query";
-
+import { Project } from "../classes/project";
 export const getDsnByProjectSlug = async (projectSlug: string) => {
     try {
-        const projectExist = await getProjectBySlug(projectSlug)
-        if (!projectExist) throw new Error("Projet non trouvé")
+        const projet = new Project(projectSlug)
+        const projectExist = await projet.projectExist()
+        const projetDetail = await projet.projetDetail()
+        if (!projetDetail) throw new Error("Projet non trouvé")
         const dsn = await prisma.project_DSN.findMany({
             where: {
-                projectLabel: projectExist.label,
-                clientId: projectExist.clientId,
-                softwareLabel: projectExist.softwareLabel
+                projectLabel: projetDetail.label,
+                clientId: projetDetail.clientId,
+                softwareLabel: projetDetail.softwareLabel
 
             },
             include: {

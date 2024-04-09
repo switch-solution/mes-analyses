@@ -1,7 +1,6 @@
-import Container from '@/components/layout/container'
+import { Container } from '@/components/layout/container'
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import { getProjectBySlug } from "@/src/query/project.query";
 import { Slash } from "lucide-react"
 import {
     Breadcrumb,
@@ -11,26 +10,21 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { userIsValidatorProject } from '@/src/query/security.query';
-import { getMyRowAwaitingApproval } from '@/src/query/user.query';
+import { Client } from '@/src/classes/client';
+import { Security } from '@/src/classes/security';
+import { Project } from '@/src/classes/project';
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
-    const userIsValidator = await userIsValidatorProject(params.projectSlug)
+    const projet = new Project(params.projectSlug)
+    const projectExist = await projet.projectExist()
+    const client = new Client(params.clientSlug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Ce client n'existe pas.")
+    }
+    const security = new Security()
+    const userIsValidator = await security.isValidatorInThisProject(params.projectSlug)
     if (!userIsValidator) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
-    const projectExist = await getProjectBySlug(params.projectSlug)
-    const rowsList = await getMyRowAwaitingApproval(params.projectSlug, userIsValidator.userId)
-    const rows = rowsList.map(row => {
-        return {
-            projectSlug: params.projectSlug,
-            clientSlug: params.clientSlug,
-            table: row.table,
-            response: row.response,
-            processusLabel: row.processusLabel,
-            rowSlug: row.rowSlug,
-            slug: row.slug,
-            valueId: row.valueId,
-            valueLabel: row.valueLabel
-        }
-    })
+
     return (
         <Container>
             <Breadcrumb>
@@ -48,14 +42,14 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         <Slash />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectExist.label}</BreadcrumbLink>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectExist?.slug}</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
                         <Slash />
                     </BreadcrumbSeparator>
                 </BreadcrumbList>
             </Breadcrumb>
-            <DataTable columns={columns} data={rows} inputSearch="processusLabel" inputSearchPlaceholder="Chercher par processus" />
+            <DataTable columns={columns} data={[]} inputSearch="processusLabel" inputSearchPlaceholder="Chercher par processus" />
         </Container>
     )
 }

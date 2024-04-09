@@ -1,10 +1,7 @@
 import { prisma } from '@/lib/prisma'
-import { getMySoftware, getMySoftwareActive } from './user.query'
 import { getClientBySlug } from './client.query'
 import { Prisma } from '@prisma/client'
 import { getSoftwareBySlug } from './software.query'
-import { syncGenerateSlug } from '@/src/helpers/generateSlug'
-
 export const getSoftwareSettingBySlug = async (slug: string) => {
     try {
         const setting = await prisma.software_Setting.findUnique({
@@ -24,16 +21,18 @@ export type getSoftwareSettingBySlug = Prisma.PromiseReturnType<typeof getSoftwa
 
 
 
-export const getSoftwareSettingFilterByUserSoftware = async (clientSlug: string) => {
+export const getSoftwareSettingFilterByUserSoftware = async ({
+    clientId,
+    softwareLabel,
+}: {
+    clientId: string,
+    softwareLabel: string
+}) => {
     try {
-        const softwares = await getMySoftware()
-        const clientId = await getClientBySlug(clientSlug)
         const softwareSetting = await prisma.software_Setting.findMany({
             where: {
-                softwareLabel: {
-                    in: softwares.map(software => software.softwareLabel)
-                },
-                clientId: clientId.siren
+                softwareLabel: softwareLabel,
+                clientId: clientId
             },
             orderBy: [
                 {
@@ -70,20 +69,24 @@ export const getTypeRubrique = async (clientSlug: string) => {
 
 export type getTypeRubrique = Prisma.PromiseReturnType<typeof getTypeRubrique>;
 
-export const getParamByIdAndSoftwareActive = async (id: string) => {
+export const getParamByIdAndSoftwareActive = async ({
+    id,
+    softwareLabel,
+    clientId
+}: {
+    id: string,
+    softwareLabel: string,
+    clientId: string
+
+}) => {
     try {
 
-        const sofwareActive = await getMySoftwareActive()
-        if (!sofwareActive) {
-            throw new Error("Vous devez être connecté pour accéder à cette page.")
-        }
-        const software = await getSoftwareBySlug(sofwareActive)
 
         const settings = await prisma.software_Setting.findMany({
             where: {
                 id: id,
-                clientId: software.clientId,
-                softwareLabel: software.label
+                clientId: clientId,
+                softwareLabel: softwareLabel
             }
         })
         if (settings.length === 0) {

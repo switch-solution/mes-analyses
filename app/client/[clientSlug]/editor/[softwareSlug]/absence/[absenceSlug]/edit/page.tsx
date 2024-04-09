@@ -1,13 +1,11 @@
-import { userIsEditorClient } from "@/src/query/security.query";
-import Container from "@/components/layout/container";
+import { Container, ContainerBreadCrumb, ContainerDataTable, ContainerForm } from "@/components/layout/container";
 import EditSoftwareAbsence from "@/components/form/software_absence/editSoftwareAbsence";
 import { getParamByIdAndSoftwareActive } from "@/src/query/software_setting.query";
 import { getDsnAbsence } from "@/src/query/dsn.query";
 import { getCounterForMyActiveSoftware } from "@/src/query/software_counter.query";
 import { getSoftwareBySlug } from "@/src/query/software.query";
 import { getSoftwareAbsenceBySlug } from "@/src/query/software_absence.query";
-import { Slash } from "lucide-react"
-
+import { User } from "@/src/classes/user";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -16,46 +14,59 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Client } from "@/src/classes/client";
+import { Security } from "@/src/classes/security";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string, absenceSlug: string } }) {
-    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    const client = new Client(params.clientSlug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Ce client n'existe pas.")
+    }
+    const security = new Security()
+
+    const userIsEditor = await security.isEditorClient(params.clientSlug)
     if (!userIsEditor) {
         throw new Error("Vous n'êtes pas autorisé à accéder à cette page")
     }
-    const software = await getSoftwareBySlug(params.softwareSlug)
-    if (!software) {
-        throw new Error("Le logiciel n'existe pas")
-    }
 
+    const user = new User(security.userId)
+    const softwaActive = await user.getMySoftwareActive()
+    const clientActive = await user.getMyClientActive()
     const absence = await getSoftwareAbsenceBySlug(params.absenceSlug)
 
     const dsn = await getDsnAbsence();
-    const counter = await getCounterForMyActiveSoftware();
-    const methodOfCalcul = await getParamByIdAndSoftwareActive("METHODE_CALCUL_ABSENCE");
+    const counter = await getCounterForMyActiveSoftware({
+        clientId: clientActive.clientId,
+        softwareLabel: softwaActive.softwareLabel
+    });
+    const methodOfCalcul = await getParamByIdAndSoftwareActive({
+        clientId: clientActive.clientId,
+        softwareLabel: softwaActive.softwareLabel,
+        id: 'test'
+    });
     return (
         <Container>
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/absence`}>Absences</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                </BreadcrumbList>
-            </Breadcrumb>
-            <EditSoftwareAbsence clientSlug={params.clientSlug} absenceSlug={params.absenceSlug} softwareSlug={params.softwareSlug} absence={absence} dsnCode={dsn} counter={counter} methodOfCalcul={methodOfCalcul} />
+            <ContainerBreadCrumb>
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/absence`}>Absences</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                    </BreadcrumbList>
+                </Breadcrumb>
+            </ContainerBreadCrumb>
+            <ContainerForm>
+                <EditSoftwareAbsence clientSlug={params.clientSlug} absenceSlug={params.absenceSlug} softwareSlug={params.softwareSlug} absence={absence} dsnCode={dsn} counter={counter} methodOfCalcul={methodOfCalcul} />
+            </ContainerForm>
         </Container>
     )
 

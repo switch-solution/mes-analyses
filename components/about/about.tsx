@@ -11,7 +11,6 @@ import {
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { getLastSeedOrder } from "@/src/query/prisma.query"
-import { userIsValid } from "@/src/query/security.query"
 
 export default async function About() {
 

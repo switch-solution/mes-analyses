@@ -2,12 +2,12 @@
 import { useState } from "react"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { SetupSoftwareSchema } from '@/src/helpers/definition'
+import { SoftwareCreateSchema } from '@/src/helpers/definition'
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { ButtonLoading } from "@/components/ui/button-loader";
-import { createSetupSoftware } from "@/src/features/actions/setup/setup.actions"
+import { createSoftware } from "@/src/features/actions/software/software.actions"
 import {
     Form,
     FormControl,
@@ -18,18 +18,19 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from '@/components/ui/input'
-export default function CreateSoftware() {
+export default function CreateSoftware({ clientSlug }: { clientSlug: string }) {
     const [loading, setLoading] = useState(false)
-    const form = useForm<z.infer<typeof SetupSoftwareSchema>>({
-        resolver: zodResolver(SetupSoftwareSchema),
+    const form = useForm<z.infer<typeof SoftwareCreateSchema>>({
+        resolver: zodResolver(SoftwareCreateSchema),
         defaultValues: {
             label: "",
+            clientSlug: clientSlug
         },
     })
-    const onSubmit = async (data: z.infer<typeof SetupSoftwareSchema>) => {
+    const onSubmit = async (data: z.infer<typeof SoftwareCreateSchema>) => {
         try {
             setLoading(true)
-            const action = await createSetupSoftware(data)
+            const action = await createSoftware(data)
             if (action?.serverError) {
                 setLoading(false)
                 toast(`${action.serverError}`, {
@@ -40,6 +41,13 @@ export default function CreateSoftware() {
                     },
                 })
             }
+            toast(`Vous venez de changer de logiciel`, {
+                description: new Date().toLocaleDateString(),
+                action: {
+                    label: "fermer",
+                    onClick: () => console.log("fermeture"),
+                },
+            })
         } catch (err) {
             setLoading(false)
             console.error(err)
@@ -50,6 +58,18 @@ export default function CreateSoftware() {
         <div className="flex w-full flex-col items-center">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+                    <FormField
+                        control={form.control}
+                        name="clientSlug"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <Input type="hidden" {...field} required />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <FormField
                         control={form.control}
                         name="label"

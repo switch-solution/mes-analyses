@@ -10,7 +10,6 @@ import { createSoftwareItem } from "@/src/features/actions/softwareItems/softwar
 import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-import type { getMySoftware } from "@/src/query/user.query"
 import type { getIdcc } from "@/src/query/idcc.query"
 import {
     Form,
@@ -41,7 +40,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import type { getTypeRubrique } from "@/src/query/software_setting.query"
-export default function CreateSoftwareItem({ softwares, idccList, typeRubrique }: { softwares: getMySoftware, idccList: getIdcc, typeRubrique: getTypeRubrique }) {
+export default function CreateSoftwareItem({ softwares, idccList, typeRubrique }: { softwares: any, idccList: getIdcc, typeRubrique: getTypeRubrique }) {
 
     const form = useForm<z.infer<typeof SoftwareItemCreateSchema>>({
         resolver: zodResolver(SoftwareItemCreateSchema),
@@ -145,7 +144,7 @@ export default function CreateSoftwareItem({ softwares, idccList, typeRubrique }
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {softwares.map((software) => (
+                                        {softwares.map((software: any) => (
                                             <SelectItem key={software.softwareLabel} value={software.softwareLabel}>{software.softwareLabel}</SelectItem>
                                         ))}
                                     </SelectContent>

@@ -22,8 +22,6 @@ export type ProjectData = {
     label: string | null
     slug: string | null
     status: string | null
-    table: string
-
 }
 
 import { toast } from "sonner"
@@ -65,6 +63,7 @@ export const columns: ColumnDef<ProjectData>[] = [
                         <DropdownMenuSeparator />
                         <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}`}>Ouvrir</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.processusSlug}/data/${row.original.slug}/edit`}>Editer</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.processusSlug}/data/${row.original.slug}/delete`}>Supprimer</Link></DropdownMenuItem>
                         <DropdownMenuItem onClick={
                             async () => {
                                 const data = {
@@ -72,7 +71,6 @@ export const columns: ColumnDef<ProjectData>[] = [
                                     projectSlug: row.original.projectSlug!,
                                     slug: row.original.slug!,
                                     processusSlug: row.original.processusSlug!,
-                                    table: row.original.table as 'Project_Society' | 'Project_Job',
                                     valueId: row.original.slug!,
                                     valueLabel: row.original.label!,
                                 }
@@ -99,6 +97,7 @@ export const columns: ColumnDef<ProjectData>[] = [
                         }><Link href={`/client/${project.clientSlug}/project/${project.projectSlug}/processus/${project.processusSlug}`}>Valider</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}/`}>Pdf</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}/archived`}>Excel</Link></DropdownMenuItem>
+
                     </DropdownMenuContent>
                 </DropdownMenu>
             )

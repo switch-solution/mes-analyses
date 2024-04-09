@@ -1,52 +1,207 @@
-import { UserMenu } from "@/src/features/auth/UserMenu";
-import { userIsSetup } from "@/src/query/user.query";
-import { getMyClientActive } from "@/src/query/user.query";
-import { getMySoftwareActive } from "@/src/query/user.query";
 import { ThemeToggle } from "@/src/theme/ThemeToggle";
-import { Bell } from "lucide-react";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import Link from "next/link";
 import { LogoutButton } from "@/src/features/auth/LogoutButton";
-
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
+import {
+    Home,
+    LineChart,
+    CircleUserRound,
+    Settings,
+    Users2,
+    PanelLeft,
+    Package2,
+    ShoppingCart,
+    Package,
+    MessageCircle,
+    Pencil
+} from "lucide-react"
+import { User } from "@/src/classes/user"
+import { getAuthSession } from "@/lib/auth";
 export default async function NavBar() {
-    const isSetup = await userIsSetup()
-    let clientSlug = null
-    let softwareSlug = null
-    if (isSetup) {
-        clientSlug = await getMyClientActive()
-        softwareSlug = await getMySoftwareActive()
+    const session = await getAuthSession()
+    if (!session) {
+        throw new Error("Vous devez etre connecté")
+    }
+    const userId = session.user.id
+    if (!userId) {
+        throw new Error("ID utilisateur manquant")
+    }
+    const user = new User(userId)
+    const userIsSetup = await user.userIsSetup()
+
+    const client = await user.getMyClientActive()
+    if (!client) {
+        throw new Error("Client manquant")
     }
 
     return (
-        <nav className="flex w-full flex-row items-center justify-between lg:justify-start" aria-label="navbar">
-            <div className="w-full">
-                {isSetup && clientSlug && softwareSlug ? <UserMenu clientSlug={clientSlug} softwareSlug={softwareSlug} /> : undefined}
-            </div>
-            <div className="flex flex-row items-center">
-                <ThemeToggle />
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="outline"><Bell /></Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                        <div className="grid gap-4">
-                            <div className="space-y-2">
-                                <h4 className="font-medium leading-none">Notification</h4>
-                                <p className="text-sm text-muted-foreground">
-                                    Set the dimensions for the layer.
-                                </p>
-                            </div>
-                        </div>
-                    </PopoverContent>
-                </Popover>
-                <LogoutButton />
-            </div>
+        <>
+            <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
+                <TooltipProvider>
+                    <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href="/home"
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <Home className="size-5" />
+                                    <span className="sr-only">Accueil</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Accueil</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href={`/client/${client.clientSlug}/administration`}
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <Users2 className="size-5" />
+                                    <span className="sr-only">Client</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Client</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href={`/client/${client.clientSlug}/editor`}
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <Pencil className="size-5" />
+                                    <span className="sr-only">Editeur</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Editeur</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href={`/client/${client.clientSlug}/`}
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <LineChart className="size-5" />
+                                    <span className="sr-only">Requetes</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Requetes</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href="/profile"
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <CircleUserRound className="size-5" />
+                                    <span className="sr-only">Profil</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Profil</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    scroll={false}
+                                    href="/feedback"
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <MessageCircle className="size-5" />
+                                    <span className="sr-only">Demande amélioration</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Demande amélioration</TooltipContent>
+                        </Tooltip>
+                    </nav>
+                    <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+                        <Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <span>
+                                        <ThemeToggle />
+                                        <span className="sr-only">Thême</span>
+                                    </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="right">Thême</TooltipContent>
+                            </Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href="/profile/default"
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <Settings className="size-5" />
+                                    <span className="sr-only">Paramétre</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Paramétre</TooltipContent>
+                        </Tooltip>
+                        <LogoutButton />
 
-        </nav>
+                    </nav>
+                </TooltipProvider>
+            </aside>
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button size="icon" variant="outline" className="sm:hidden">
+                        <PanelLeft className="size-5" />
+                        <span className="sr-only">Toggle Menu</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="sm:max-w-xs">
+                    <nav className="grid gap-6 text-lg font-medium">
+                        <Link
+                            href="#"
+                            className="group flex size-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
+                        >
+                            <Package2 className="size-5 transition-all group-hover:scale-110" />
+                            <span className="sr-only">Acme Inc</span>
+                        </Link>
+                        <Link
+                            href="#"
+                            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                        >
+                            <Home className="size-5" />
+                            Dashboard
+                        </Link>
+                        <Link
+                            href="#"
+                            className="flex items-center gap-4 px-2.5 text-foreground"
+                        >
+                            <ShoppingCart className="size-5" />
+                            Orders
+                        </Link>
+                        <Link
+                            href="#"
+                            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                        >
+                            <Package className="size-5" />
+                            Products
+                        </Link>
+                        <Link
+                            href="#"
+                            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                        >
+                            <Users2 className="size-5" />
+                            Customers
+                        </Link>
+                        <Link
+                            href="#"
+                            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                        >
+                            <LineChart className="size-5" />
+                            Settings
+                        </Link>
+                    </nav>
+                </SheetContent>
+            </Sheet>
+        </>
     )
 
 }

@@ -8,23 +8,11 @@ import z from "zod";
 import { generateSlug } from "@/src/helpers/generateSlug";
 
 export const createPaidLeave = authentifcationActionUserIsAuthorizeToEditProject(CreatePaidLeaveSchema, async (values: z.infer<typeof CreatePaidLeaveSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
-    const { clientSlug, processusSlug, projectSlug, periodEndDate, nic, valuation, valuationLeave, method, roudingMethod, roudingMethodLeave } = CreatePaidLeaveSchema.parse(values)
-
-    const establishmentExist = await prisma.project_Establishment.findFirst({
-        where: {
-            nic,
-            projectLabel,
-            softwareLabel,
-            clientId
-        }
-    })
-    if (!establishmentExist) {
-        throw new ActionError("L'établissement n'existe pas")
-    }
+    const { clientSlug, processusSlug, projectSlug, periodEndDate, valuation, valuationLeave, method, roudingMethod, roudingMethodLeave } = CreatePaidLeaveSchema.parse(values)
 
     const paidLeaveExist = await prisma.project_Paid_Leave.findFirst({
         where: {
-            establishmentNic: nic,
+
             projectLabel,
             softwareLabel,
             clientId
@@ -35,25 +23,7 @@ export const createPaidLeave = authentifcationActionUserIsAuthorizeToEditProject
         throw new ActionError("La fiche de paie existe déjà")
     }
     try {
-        const count = await prisma.project_Paid_Leave.count()
-        await prisma.project_Paid_Leave.create({
-            data: {
-                establishmentNic: nic,
-                societyId: establishmentExist.societyId,
-                clientId,
-                projectLabel,
-                periodEndDate,
-                softwareLabel,
-                valuation,
-                valuationLeave,
-                method,
-                roudingMethod,
 
-                roudingMethodLeave,
-                createdBy: userId,
-                slug: generateSlug(`cp_${count + 1}`),
-            }
-        })
 
     } catch (err: unknown) {
         console.error(err)

@@ -1,50 +1,35 @@
 "use server";
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { SocietyCreateSchema, SocietyEditSchema } from "@/src/helpers/definition";
-import { generateSlug } from "@/src/helpers/generateSlug"
+import { SocietyCreateSchema, SocietyEditSchema, SocietyDeleteSchema } from "@/src/helpers/definition";
 import { authentifcationActionUserIsAuthorizeToEditProject, ActionError } from "@/lib/safe-actions";
+import { ProcessusFactory } from "@/src/classes/processusFactory";
 import z from "zod";
-import { getProjectProcessusExist } from "@/src/query/project.query";
 export const createSociety = authentifcationActionUserIsAuthorizeToEditProject(SocietyCreateSchema, async (values: z.infer<typeof SocietyCreateSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
-    const { id, siren, address1, socialReason, address2, city, address3, address4, clientSlug, projectSlug, processusSlug, country, postalCode, ape } = SocietyCreateSchema.parse(values)
-    const processusExist = await getProjectProcessusExist(projectSlug, processusSlug)
-    if (!processusExist) {
-        throw new ActionError("Le processus n'existe pas")
-    }
-    const societyExist = await prisma.project_Society.findFirst({
-        where: {
-            siren: siren,
-            clientId,
-            projectLabel,
-            softwareLabel,
-        }
+    const { siren, clientSlug, projectSlug, processusSlug } = SocietyCreateSchema.parse(values)
+    const processus = ProcessusFactory.create({
+        processusSlug,
+        clientId,
+        projectLabel,
+        sofwareLabel: softwareLabel
+    })
+
+    const societyExist = await processus.valueExist({
+        value: siren,
+        clientId,
+        projectLabel,
+        softwareLabel
     })
     if (societyExist) {
         throw new ActionError("Le siren existe déjà")
     }
     try {
-        const count = await prisma.project_Society.count()
-        await prisma.project_Society.create({
-            data: {
-                id,
-                siren,
-                address1,
-                address2,
-                clientId,
-                address3,
-                socialReason,
-                createdBy: userId,
-                city,
-                address4,
-                country,
-                postalCode,
-                ape,
-                projectLabel: projectLabel,
-                softwareLabel: softwareLabel,
-                slug: generateSlug(`Societe-${count + 1}`)
-            }
+        await processus.insert({
+            values,
+            userId,
+            projectLabel,
+            softwareLabel,
+            clientId
 
         })
     } catch (err: unknown) {
@@ -57,74 +42,50 @@ export const createSociety = authentifcationActionUserIsAuthorizeToEditProject(S
     redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
 })
 
-export const updateSociety = authentifcationActionUserIsAuthorizeToEditProject(SocietyEditSchema, async (values: z.infer<typeof SocietyEditSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
-    const { id, siren, address1, socialReason, address2, slug, city, address3, address4, clientSlug, projectSlug, processusSlug, country, postalCode, ape } = SocietyEditSchema.parse(values)
-    const processusExist = await getProjectProcessusExist(projectSlug, processusSlug)
-    if (!processusExist) {
-        throw new ActionError("Le processus n'existe pas")
-    }
-    const societyBySlug = await prisma.project_Society.findUnique({
-        where: {
-            slug
-        }
+export const deleteSociety = authentifcationActionUserIsAuthorizeToEditProject(SocietyDeleteSchema, async (values: z.infer<typeof SocietyDeleteSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
+    const { slug, clientSlug, projectSlug, processusSlug } = SocietyDeleteSchema.parse(values)
+    const processus = ProcessusFactory.create({
+        processusSlug,
+        clientId,
+        projectLabel,
+        sofwareLabel: softwareLabel
     })
-
-    if (!societyBySlug) {
-        throw new ActionError("La société n'existe pas")
+    try {
+        await processus.delete(slug)
+    } catch (err: unknown) {
+        console.error(err)
+        throw new ActionError(err as string)
     }
-    if (siren !== societyBySlug.siren) {
-        const sirenExist = await prisma.project_Society.findFirst({
-            where: {
-                siren: siren,
-                clientId,
-                projectLabel,
-                softwareLabel,
-            }
-        })
-        if (sirenExist) {
-            throw new ActionError("Le siren existe déjà")
-        }
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
+    redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
+})
 
-        const establishment = await prisma.project_Establishment.findFirst({
-            where: {
-                societyId: societyBySlug.siren,
-                clientId,
-                projectLabel,
-                softwareLabel,
-            },
-            select: {
-                socialReason: true
-            }
-        })
-        if (establishment) {
-            throw new ActionError(`La société est liée à un établissement.Supprimer d'abord établissement : ${establishment.socialReason}`)
-        }
+export const updateSociety = authentifcationActionUserIsAuthorizeToEditProject(SocietyEditSchema, async (values: z.infer<typeof SocietyEditSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
+    const { siren, clientSlug, projectSlug, processusSlug } = SocietyEditSchema.parse(values)
+    const processus = ProcessusFactory.create({
+        processusSlug,
+        clientId,
+        projectLabel,
+        sofwareLabel: softwareLabel
+    })
+    const societyExist = await processus.valueExist({
+        value: siren,
+        clientId,
+        projectLabel,
+        softwareLabel
+    })
+    if (!societyExist) {
+        throw new ActionError("Le siren existe déjà")
     }
     try {
-        await prisma.project_Society.update({
-            where: {
-                slug
-            },
-            data: {
-                id,
-                siren,
-                address1,
-                address2,
-                clientId,
-                address3,
-                socialReason,
-                createdBy: userId,
-                city,
-                address4,
-                country,
-                postalCode,
-                ape,
-                projectLabel: projectLabel,
-                softwareLabel: softwareLabel,
-            }
-
+        await processus.update({
+            values,
+            userId,
+            projectLabel,
+            softwareLabel,
+            clientId
         })
-    } catch (err: unknown) {
+    } catch (err) {
         console.error(err)
         throw new ActionError(err as string)
     }

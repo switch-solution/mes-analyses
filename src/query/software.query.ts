@@ -1,8 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from '@prisma/client'
 import { getClientBySlug } from "./client.query";
-import { getMyClientActive, getMySoftwareActive } from "./user.query";
-import { getMySoftware } from "./user.query";
 
 export const getSoftwareBySlug = async (slug: string) => {
     const software = await prisma.software.findUniqueOrThrow({
@@ -23,17 +21,19 @@ export type getSoftwareBySlug = Prisma.PromiseReturnType<typeof getSoftwareBySlu
  * @returns 
  */
 
-export const getSoftwareUsers = async () => {
+export const getSoftwareUsers = async ({
+    clientId,
+    softwareLabel
+}: {
+    clientId: string,
+    softwareLabel: string
+}) => {
     try {
-        const mySoftwareSlug = await getMySoftwareActive()
-        const software = await getSoftwareBySlug(mySoftwareSlug)
-        if (!software) {
-            throw new Error(`Le logiciel ${mySoftwareSlug} n'existe pas.`)
-        }
+
         const usersSoftware = await prisma.userSoftware.findMany({
             where: {
-                softwareLabel: software.label,
-                softwareClientId: software.clientId
+                softwareLabel,
+                softwareClientId: clientId
             },
             include: {
                 user: {
@@ -173,26 +173,6 @@ export type getSoftwareByClientSlug = Prisma.PromiseReturnType<typeof getSoftwar
 
 
 
-export const getSoftwaresItemsFilterByUserSoftware = async () => {
-    try {
-        const softwares = await getMySoftware()
-        const clientId = await getMyClientActive()
-
-        const items = await prisma.software_Items.findMany({
-            where: {
-                softwareLabel: {
-                    in: softwares.map((software) => software.softwareLabel)
-                },
-                clientId: clientId
-            }
-        })
-        return items
-    } catch (err) {
-        console.error(err)
-        throw new Error(`Une erreur est survenue lors de la récupération des logiciels du client.`)
-    }
-
-}
 
 
 

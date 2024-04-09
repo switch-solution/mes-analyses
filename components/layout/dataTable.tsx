@@ -84,7 +84,7 @@ export function DataTable<TData, TValue>({
 
     return (
         <div>
-            <div className="flex  flex-row items-center py-4">
+            <div className="flex flex-row items-center py-4 ">
                 <Input
                     placeholder={inputSearchPlaceholder}
                     value={(table.getColumn(inputSearch)?.getFilterValue() as string) ?? ""}
@@ -124,7 +124,7 @@ export function DataTable<TData, TValue>({
                 {href ? <Button className="ml-2" type="button"><Link href={href}>{buttonLabel}</Link></Button> : undefined}
 
             </div>
-            <div className="rounded-md border">
+            <div className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (

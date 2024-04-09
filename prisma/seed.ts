@@ -12,6 +12,12 @@ import { formV0004 } from './seed/10_form.v0004.seed'
 import { formV0005 } from './seed/11_form.v0005.seed'
 import { formV0006 } from './seed/12_form.v0006.seed'
 import { dsnAbsenceV0001 } from './seed/13_dsnAbsence.v0001.seed'
+import { formV0007 } from './seed/14_form.v0007.seed'
+import { formV0008 } from './seed/15_form.v0008.seed'
+import { formV0009 } from './seed/16_form.v0009.seed'
+import { formV0010 } from './seed/17_form.v0010.seed'
+import { formV0011 } from './seed/18_form.v0011.seed'
+import { legalV0001Seed } from './seed/19_legal.v0001.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -154,6 +160,61 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
+    await formV0007.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0008.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0009.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0010.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0011.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await legalV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+
 
 
 }

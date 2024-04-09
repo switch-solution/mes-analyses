@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from '@prisma/client'
+import { ca } from "date-fns/locale";
 
 export const getDsnAbsence = async () => {
     try {
@@ -36,6 +37,22 @@ export const getDsnOps = async () => {
     } catch (err) {
         console.error(err)
         throw new Error("Une erreur est survenue lors de la récupération des ops.")
+    }
+}
+
+export const getDsnOpsById = async (id: string) => {
+    try {
+        const ops = await prisma.dsn_OPS.findFirst({
+            where: {
+                id
+            }
+
+        })
+        return ops
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue lors de la récupération des ops.")
+
     }
 
 }

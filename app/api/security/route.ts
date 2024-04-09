@@ -1,5 +1,4 @@
 import { type NextRequest } from 'next/server'
-import { getClientIdByApiKey } from "@/src/query/security.query";
 import { env } from 'process';
 const API_KEY = env.API_KEY
 export async function POST(request: NextRequest) {
@@ -8,9 +7,8 @@ export async function POST(request: NextRequest) {
         if (apiKey !== API_KEY) {
             return new Response('API root is not valid', { status: 400 })
         }
-
         const json = await request.json()
-        const apiIsValid = await getClientIdByApiKey(json.clientApi, '/api/security')
+        const apiIsValid = json.api === 'valid'
         if (!apiIsValid) {
             return Response.json({ error: "API is not valid" })
         }

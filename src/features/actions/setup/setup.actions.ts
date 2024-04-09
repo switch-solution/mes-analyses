@@ -6,12 +6,12 @@ import { SetupProfilSchema, SetupClientSchema, SetupLegalSchema, SetupSoftwareSc
 import type { Logger } from "@/src/helpers/type";
 import { createLog } from "@/src/query/logger.query";
 import z from "zod";
-import { getMyClient, getUserById } from "@/src/query/user.query";
 import { generateSlug } from "@/src/helpers/generateSlug";
-import { getClientBySiren } from "@/src/query/client.query";
+import { User } from "@/src/classes/user";
 import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
 import { copyInvitation, getInvitation } from "@/src/query/invitation.query";
-import { userSetup } from "@/src/query/user.query";
+import { Client } from "@/src/classes/client";
+import { Software } from "@/src/classes/software";
 export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
     if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
     const email = await prisma.user.findFirst({
@@ -60,11 +60,6 @@ export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<
 })
 export const createSetupProfil = authentifcationAction(SetupProfilSchema, async (values: z.infer<typeof SetupProfilSchema>, userId) => {
     try {
-
-        const client = await getMyClient()
-        if (client?.length !== 0) {
-            throw new ActionError("Vous avez déjà une configuration.")
-        }
         const { firstname, lastname, civility } = SetupProfilSchema.parse(values)
         await prisma.userOtherData.update({
             where: {
@@ -96,147 +91,57 @@ export const createSetupProfil = authentifcationAction(SetupProfilSchema, async 
 
 export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, async (values: z.infer<typeof SetupSoftwareSchema>, userId) => {
 
-    const clientId = await prisma.userClient.findFirst({
-        where: {
-            userId: userId
-        },
-    })
+    const user = new User(userId)
+    const { clientId, clientSlug } = await user.getMyClientActive()
     if (!clientId) throw new ActionError("Vous n'avez pas de client.")
     const { label } = SetupSoftwareSchema.parse(values)
-    const clientSlug = await prisma.client.findUnique({
-        where: {
-            siren: clientId.clientId
-        }
-    })
     if (!clientSlug) throw new ActionError("Le client n'existe pas.")
+    const software = new Software('')
+    const softwareExist = await software.softwareLabelExistForThisClient(label, clientId)
+    if (softwareExist) throw new ActionError("Le logiciel existe déjà.")
     try {
-        const slug = await generateSlug(`${clientSlug.slug}-${label}`)
-        const softwareSlugExist = await prisma.software.findFirst({
-            where: {
-                slug: slug
-            }
+        await software.create({
+            clientId,
+            label,
+            userId
         })
-        if (softwareSlugExist) throw new ActionError("Le logiciel existe déjà.")
-        await prisma.software.create({
-            data: {
-                label,
-                createdBy: userId,
-                slug,
-                updatedAt: new Date(),
-                clientId: clientId.clientId,
-            }
-        })
-        await prisma.userSoftware.create({
-            data: {
-                userId: userId,
-                softwareLabel: label,
-                isEditor: true,
-                createdBy: userId,
-                softwareClientId: clientId.clientId,
-                isActivated: true,
-            }
-        })
-        const software = await prisma.software.findFirst({
-            where: {
-                label: label,
-                clientId: clientId.clientId
-            }
-        })
-        if (!software) throw new ActionError("Le logiciel n'a pas été créé.")
-        const defaultSetting = await prisma.default_Setting.findMany()
-        let countSetting = await prisma.software_Setting.count()
-        const softwareSetting = defaultSetting.map(setting => {
-            countSetting = countSetting + 1
-            return {
-                id: setting.id,
-                label: setting.label,
-                description: setting.description,
-                value: setting.value,
-                softwareLabel: label,
-                clientId: clientId.clientId,
-                createdBy: userId,
-                slug: generateSlug(`setting-${countSetting}`)
-            }
 
-        })
-        await prisma.software_Setting.createMany({
-            data: softwareSetting
-        })
-        //Setup user
-        await userSetup(userId)
+        await user.userIsSetup()
     } catch (err: unknown) {
         console.error(err)
         throw new ActionError(err as string)
     }
 
-    revalidatePath(`/client/${clientSlug.slug}`)
-    redirect(`/client/${clientSlug.slug}`)
+    revalidatePath(`/client/${clientSlug}`)
+    redirect(`/client/${clientSlug}`)
 })
 
 export const createSetupClient = authentifcationAction(SetupClientSchema, async (values: z.infer<typeof SetupClientSchema>, userId) => {
 
     const { socialReason, siren, defaultRole } = SetupClientSchema.parse(values)
+    const client = new Client('')
     const slug = generateSlug(socialReason)
-    const clientSlugExist = await prisma.client.findUnique({
-        where: {
-            slug: slug
-        }
-
-    })
-    if (clientSlugExist) {
+    const clientExist = await client.sirenExist(siren)
+    if (clientExist) {
         const log: Logger = {
             level: "error",
-            message: `Le slug ${slug} est déjà utilisé.`,
+            message: `Le siren est déjà utilisé.`,
             scope: "client",
         }
         await createLog(log)
-        throw new ActionError("Ce nom de client existe déjà.")
+        throw new ActionError("Ce siren existe déjà.")
     }
-    const sirenExist = await getClientBySiren(siren)
-    if (sirenExist) {
-        const log: Logger = {
-            level: "error",
-            message: `Le siren ${siren} est déjà utilisé.`,
-            scope: "client",
-        }
-        await createLog(log)
-        throw new ActionError("Ce siren est déjà utilisé.")
+    const socialaReasonExist = await client.socialReasonExist(socialReason)
+    if (socialaReasonExist) {
+        throw new ActionError("La raison sociale existe déjà.")
     }
-
     try {
-        const currentDate = new Date();
-        const add90Days = new Date(currentDate.setDate(currentDate.getDate() + 90))
-        if (!sirenExist) {
-            await prisma.client.create({
-                data: {
-                    socialReason: socialReason,
-                    siren: siren,
-                    slug: slug,
-                    createdBy: userId,
-                    isBlocked: false,
-                    dateStartTrial: new Date(),
-                    dateEndTrial: add90Days,
-                    UserClient: {
-                        create: {
-                            userId: userId,
-                            isBillable: true,
-                            isAdministrator: true,
-                            isActivated: true,
-                            isBlocked: false,
-                            isEditor: true,
-                            defaultRole: defaultRole,
-                        }
-                    }
-                }
-            })
-        }
-
-        const Log: Logger = {
-            level: "warning",
-            message: `Création de l'utilisateur`,
-            scope: "client",
-        }
-        await createLog(Log)
+        await client.create({
+            socialReason,
+            siren,
+            userId,
+            defaultRole,
+        })
     } catch (err: unknown) {
         console.error(err)
         throw new ActionError(err as string)

@@ -38,8 +38,8 @@ export const editClient = authentificationActionUserIsAdminClient(ClientEditForm
     }
 
 
-    revalidatePath(`/client/${clientSlug}/administrator/`);
-    redirect(`/client/${clientSlug}/administrator/`);
+    revalidatePath(`/client/${clientSlug}/administration/`);
+    redirect(`/client/${clientSlug}/administration/`);
 
 })
 
@@ -69,8 +69,8 @@ export const createApiKey = authentificationActionUserIsAdminClient(CreateApiKey
     }
 
 
-    revalidatePath(`/client/${clientSlug}/administrator/api`);
-    redirect(`/client/${clientSlug}/administrator/api`);
+    revalidatePath(`/client/${clientSlug}/administration/api`);
+    redirect(`/client/${clientSlug}/administration/api`);
 
 
 

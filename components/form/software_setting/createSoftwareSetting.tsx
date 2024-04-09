@@ -32,12 +32,11 @@ import {
 } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
-import type { getMySoftware } from "@/src/query/user.query"
 import { createSoftwareSetting } from "@/src/features/actions/software_setting/software_setting.actions"
 import { Input } from '@/components/ui/input'
 import { toast } from "sonner"
 
-export default function CreateSoftwareSetting({ clientSlug, softwares }: { clientSlug: string, softwares: getMySoftware }) {
+export default function CreateSoftwareSetting({ clientSlug, softwares }: { clientSlug: string, softwares: any }) {
     const [loading, setLoading] = useState(false)
 
     const form = useForm<z.infer<typeof SettingCreateSchema>>({
@@ -49,7 +48,7 @@ export default function CreateSoftwareSetting({ clientSlug, softwares }: { clien
             value: "",
             description: "",
             dateStart: new Date(),
-            softwareSlug: softwares.at(0)?.software.slug,
+            softwareSlug: softwares.at(0)?.software.slug as string,
             dateEnd: new Date('01/01/4000'),
 
         },
@@ -113,7 +112,7 @@ export default function CreateSoftwareSetting({ clientSlug, softwares }: { clien
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    {softwares.map((software) => (
+                                    {softwares.map((software: any) => (
                                         <SelectItem key={software.software.slug} value={software.software.slug}>{software.softwareLabel}</SelectItem>))}
                                 </SelectContent>
                             </Select>

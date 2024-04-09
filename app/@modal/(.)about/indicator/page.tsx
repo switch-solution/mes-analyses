@@ -1,8 +1,9 @@
-import { userIsValid } from "@/src/query/security.query"
 import Modal from "./indicatorModal"
 import { getCountAllTables } from "@/src/query/bdd.query"
+import { Security } from "@/src/classes/security"
 export default async function Page() {
-    const user = await userIsValid()
+    const security = new Security()
+    const user = await security.userIsValid()
     if (!user) {
         throw new Error("Not found")
     }

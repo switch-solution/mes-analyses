@@ -41,9 +41,9 @@ export default function EditClient({ slug, client }: { slug: string, client: any
                     },
                 })
             }
-            setLoading(true)
+            setLoading(false)
         } catch (err) {
-            setLoading(true)
+            setLoading(false)
             console.error(err)
         }
 

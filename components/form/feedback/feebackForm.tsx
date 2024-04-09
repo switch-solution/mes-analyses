@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { zodResolver } from "@hookform/resolvers/zod"
-import Container from "@/components/layout/container";
+import { Container } from "@/components/layout/container";
 import { FeedbackCreateSchema } from '@/src/helpers/definition'
 import {
     Form,
@@ -57,99 +57,96 @@ export default function FeedBackForm() {
 
     }
     return (
-        <Container>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-                    <FormField
-                        control={form.control}
-                        name="feature"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Fonctionnalité</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selectionner une fonctionnalité" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Projet">Projet</SelectItem>
-                                        <SelectItem value="Client">Client</SelectItem>
-                                        <SelectItem value="Editeur">Editeur</SelectItem>
-                                        <SelectItem value="DSN">DSN</SelectItem>
-                                        <SelectItem value="Taches">Taches</SelectItem>
-                                        <SelectItem value="Autre élément">Autre élément</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="level"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Type</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a verified email to display" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Suggestion">Suggestion</SelectItem>
-                                        <SelectItem value="Anomalie">Anomalie</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="message"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Message</FormLabel>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+                <FormField
+                    control={form.control}
+                    name="feature"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Fonctionnalité</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                    <Input {...field} />
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selectionner une fonctionnalité" />
+                                    </SelectTrigger>
                                 </FormControl>
-                                <FormDescription>
-                                    Votre message
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="isBlocked"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                    <FormLabel className="text-base">
-                                        Point bloquant
-                                    </FormLabel>
+                                <SelectContent>
+                                    <SelectItem value="Projet">Projet</SelectItem>
+                                    <SelectItem value="Client">Client</SelectItem>
+                                    <SelectItem value="Editeur">Editeur</SelectItem>
+                                    <SelectItem value="DSN">DSN</SelectItem>
+                                    <SelectItem value="Taches">Taches</SelectItem>
+                                    <SelectItem value="Autre élément">Autre élément</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                                </div>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="level"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a verified email to display" />
+                                    </SelectTrigger>
                                 </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <Button type="submit">Envoyer</Button>
+                                <SelectContent>
+                                    <SelectItem value="Suggestion">Suggestion</SelectItem>
+                                    <SelectItem value="Anomalie">Anomalie</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                </form>
-            </Form>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Message</FormLabel>
+                            <FormControl>
+                                <Input {...field} />
+                            </FormControl>
+                            <FormDescription>
+                                Votre message
+                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="isBlocked"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                                <FormLabel className="text-base">
+                                    Point bloquant
+                                </FormLabel>
 
-        </Container>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <Button type="submit">Envoyer</Button>
+
+            </form>
+        </Form>
 
     )
 

@@ -1,17 +1,19 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from '@prisma/client'
 
-import { getClientActiveAndSoftwareActive } from "./security.query";
-export const getAccumulationForSoftwareActive = async () => {
+export const getAccumulationForSoftwareActive = async ({
+    softwareLabel,
+    clientId
+}: {
+    softwareLabel: string,
+    clientId: string
+}) => {
     try {
-        const validation = await getClientActiveAndSoftwareActive()
-        if (!validation) {
-            throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
-        }
+
         const accumulation = await prisma.software_Accumulation.findMany({
             where: {
-                softwareLabel: validation.softwareLabel,
-                clientId: validation.clientId
+                softwareLabel: softwareLabel,
+                clientId: clientId
             }
         })
         return accumulation
@@ -23,10 +25,7 @@ export const getAccumulationForSoftwareActive = async () => {
 
 export const getAccumulationBySlug = async (slug: string) => {
     try {
-        const validation = await getClientActiveAndSoftwareActive()
-        if (!validation) {
-            throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
-        }
+
         const accumulation = await prisma.software_Accumulation.findUnique({
             where: {
                 slug: slug

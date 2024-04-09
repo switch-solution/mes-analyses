@@ -27,10 +27,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import type { getMySoftware, getMySoftwareActive, getMyClientActive, getMyClient, } from "@/src/query/user.query"
 import { editEnvironnementUser } from "@/src/features/actions/environoment_user/environement_user.actions";
 
-export default function EditUserEnvironnement({ clientActive, softwareActive, clients, softwares }: { softwareActive: getMySoftwareActive, clientActive: getMyClientActive, softwares: getMySoftware, clients: getMyClient }) {
+export default function EditUserEnvironnement({ clientActive, softwareActive, clients, softwares }: {
+    softwareActive: string, clientActive: string,
+    softwares: { slug: string, label: string }[],
+    clients: { slug: string, socialReason: string, siren: string }[]
+}) {
 
     const [loading, setLoading] = useState(false)
 
@@ -80,8 +83,8 @@ export default function EditUserEnvironnement({ clientActive, softwareActive, cl
                                 </FormControl>
                                 <SelectContent>
                                     {clients && clients.map((client) => (
-                                        <SelectItem key={client.client.slug} value={client.client.slug}>
-                                            {client.client.socialReason}
+                                        <SelectItem key={client.slug} value={client.slug}>
+                                            {client.socialReason}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -104,8 +107,8 @@ export default function EditUserEnvironnement({ clientActive, softwareActive, cl
                                 </FormControl>
                                 <SelectContent>
                                     {softwares.map((software) => (
-                                        <SelectItem key={software.software.slug} value={software.software.slug}>
-                                            {software.software.label}
+                                        <SelectItem key={software.slug} value={software.slug}>
+                                            {software.label}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

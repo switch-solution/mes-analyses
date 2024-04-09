@@ -1,8 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
-import { MoreHorizontal } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -11,6 +10,7 @@ export type Idcc = {
     softwareSlug: string | null
     code: string | null
     label: string | null
+    open: string | null
 }
 
 export const columns: ColumnDef<Idcc>[] = [
@@ -26,6 +26,17 @@ export const columns: ColumnDef<Idcc>[] = [
         accessorKey: "label",
         header: "label",
     },
+    {
+        id: "open",
+        header: "Ouvrir",
+        cell: ({ row }) => {
+            return (
+                <Link href={`/client/${row.original.clientSlug}/editor/${row.original.softwareSlug}/constant/${row.original.code}`}>
+                    <ArrowRight size={24} />
+                </Link>
+            )
+        }
+    }
 
 ]
 

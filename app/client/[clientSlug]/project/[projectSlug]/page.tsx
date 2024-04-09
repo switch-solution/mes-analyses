@@ -1,18 +1,11 @@
-import { userIsAuthorizeInThisProject } from "@/src/query/security.query"
-import Container from "@/components/layout/container"
-import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
-import { ProjectUsersList } from "@/components/layout/projectUsersList";
-import { getProcessusActiveByProjectSlug } from "@/src/query/project.query";
+import Link from "next/link"
 import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+    ChevronLeft,
+    ChevronRight,
+    File,
+    ArrowRight,
+} from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -21,96 +14,290 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Slash } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
-    IconArrowWaveRightUp,
-    IconBoxAlignRightFilled,
-    IconBoxAlignTopLeft,
-    IconClipboardCopy,
-    IconFileBroken,
-    IconSignature,
-    IconTableColumn,
-} from "@tabler/icons-react";
-import Link from "next/link"
-import { getCountMyRowAwaitingApproval } from "@/src/query/user.query";
-import { getProjectBySlug, getUsersProject } from "@/src/query/project.query";
-import { notFound } from "next/navigation";
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
+import { Project } from "@/src/classes/project"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+} from "@/components/ui/pagination"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs"
+import { User } from "@/src/classes/user"
+import { Security } from "@/src/classes/security"
+import { notFound } from "next/navigation"
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
-    const userIsAuthorized = await userIsAuthorizeInThisProject(params.projectSlug)
-    if (!userIsAuthorized) throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
-    const getUsers = await getUsersProject(params.projectSlug)
-    const projectExist = await getProjectBySlug(params.projectSlug)
+    const project = new Project(params.projectSlug)
+    const projectExist = await project.projectExist()
     if (!projectExist) {
         notFound()
     }
-    const processusActive = await getProcessusActiveByProjectSlug({ softwareLabel: projectExist.softwareLabel, projectLabel: projectExist.label })
-    const countAwaitingApprove = await getCountMyRowAwaitingApproval(params.projectSlug, userIsAuthorized.userId)
-    const items = [
-        {
-            description: (
-                <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/`}>Processus d&apos;analyse</Link>
-            ),
-            header: <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/`} className="flex size-full flex-col items-center justify-center text-2xl">Processus en cours {processusActive?.label}</Link>,
-            className: "md:col-span-2",
-            icon: <IconClipboardCopy className="size-4 text-neutral-500" />,
-        },
-        {
-            title: "Lignes en attente de validation",
-            description: (<Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/approve`}>Consulter les demandes</Link>),
-            header: <span className="flex h-full flex-col items-center justify-center text-6xl">{countAwaitingApprove}</span>,
-            className: "md:col-span-1",
-            icon: <IconFileBroken className="size-4 text-neutral-500" />,
-        },
-        {
-            title: "Pourcentage de réalisation",
-            description: (<Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/workflow`}>Avancement de la validation des cahiers</Link>),
-            header: <span className="flex size-full flex-col items-center justify-center text-8xl">5%</span>,
-            className: "md:col-span-1",
-            icon: <IconSignature className="size-4 text-neutral-500" />,
-        },
-        {
-            title: "L'équipe du projet",
-            description: (<Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/user`}>Consulter l&apos;équipe projet</Link>),
-            header: <ProjectUsersList users={getUsers} />,
-            className: "md:col-span-2",
-            icon: <IconTableColumn className="size-4 text-neutral-500" />,
-        },
-    ];
-
+    const security = new Security()
+    await security.isAuthorizedInThisProject(params.projectSlug)
+    const user = new User(security.userId)
+    const client = await user.getMyClientActive()
+    const projectDetails = await project.projectDetails()
+    const processus = await project.processus()
+    const processusEnable = processus.filter((processus) => processus.status === 'Actif')
+    const processusDisable = processus.filter((processus) => processus.status !== 'Actif')
+    console.log(processusDisable)
     return (
-        <Container>
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/`}>Projets</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectExist.label}</BreadcrumbLink>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-            <BentoGrid className="mx-auto max-w-4xl md:auto-rows-[20rem]">
-                {items.map((item, i) => (
-                    <BentoGridItem
-                        key={i}
-                        title={item.title}
-                        description={item.description}
-                        header={item.header}
-                        className={item.className}
-                        icon={item.icon}
-                    />
-                ))}
-            </BentoGrid>
-        </Container>
+        <div className="flex min-h-screen w-full flex-col bg-muted/40">
+            <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+                <div className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+                    <Breadcrumb className="hidden md:flex">
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href="/home">Accueil</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href={`/client/${client.clientSlug}/project`}>Projets</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href={`/client/${client.clientSlug}/project/Mon projet`}>Mon projet</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                </div>
+                <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+                    <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
+                        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+                            <Card
+                                className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
+                            >
+                                <CardHeader className="pb-3">
+                                    <CardTitle>Projet : <span>{projectDetails?.label}</span></CardTitle>
+                                    <CardDescription className="max-w-lg text-balance leading-relaxed">
+                                        {projectDetails?.description}
+                                    </CardDescription>
+                                </CardHeader>
+                            </Card>
+                            <Card x-chunk="dashboard-05-chunk-1">
+                                <CardHeader className="pb-2">
+                                    <CardDescription>Mes actions en attente</CardDescription>
+                                    <CardTitle className="flex justify-center text-4xl">5</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-xs text-muted-foreground">
+                                        +25% depuis la semaine dernière
+                                    </div>
+                                </CardContent>
+                                <CardFooter>
+                                    <Progress value={25} aria-label="25% increase" />
+                                </CardFooter>
+                            </Card>
+                            <Card x-chunk="dashboard-05-chunk-2">
+                                <CardHeader className="pb-2">
+                                    <CardDescription>Validation des données</CardDescription>
+                                    <CardTitle className="flex justify-center text-4xl">50</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-xs text-muted-foreground">
+                                        +10% depuis la semaine dernière
+                                    </div>
+                                </CardContent>
+                                <CardFooter>
+                                    <Progress value={12} aria-label="12% increase" />
+                                </CardFooter>
+                            </Card>
+                        </div>
+                        <Tabs defaultValue="enable">
+                            <div className="flex items-center">
+                                <TabsList>
+                                    <TabsTrigger value="enable">Actif</TabsTrigger>
+                                    <TabsTrigger value="archived">Archivé</TabsTrigger>
+                                    <TabsTrigger value="notStarted">En attente</TabsTrigger>
+                                </TabsList>
+                                <div className="ml-auto flex items-center gap-2">
 
-    );
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 gap-1 text-sm"
+                                    >
+                                        <File className="size-3.5" />
+                                        <span className="sr-only sm:not-sr-only">Export</span>
+                                    </Button>
+                                </div>
+                            </div>
+                            <TabsContent value="enable">
+                                <Card x-chunk="dashboard-05-chunk-3">
+                                    <CardHeader className="px-7">
+                                        <CardTitle>Etape</CardTitle>
+                                        <CardDescription>
+                                            Liste des étapes à réaliser
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Titre</TableHead>
+                                                    <TableHead className="hidden sm:table-cell">
+                                                        Status
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Date de création
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Ouvrir
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {
+                                                    processusEnable.map((processus) => (
+                                                        <TableRow key={processus.id} className="bg-accent">
+                                                            <TableCell>
+                                                                <div className="font-medium">{processus.label}</div>
+                                                            </TableCell>
+                                                            <TableCell className="hidden sm:table-cell">
+                                                                <Badge className="text-xs" variant="secondary">
+                                                                    {processus.status}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                {processus.createdAt.toLocaleDateString()}
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                <Link href={`/client/${client.clientSlug}/project/${params.projectSlug}/processus/${processus.processusSlug}`}>
+                                                                    <ArrowRight />
+                                                                </Link>
+                                                            </TableCell>
+                                                        </TableRow>
+
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                            <TabsContent value="notStarted">
+                                <Card x-chunk="dashboard-05-chunk-3">
+                                    <CardHeader className="px-7">
+                                        <CardTitle>Etape</CardTitle>
+                                        <CardDescription>
+                                            Liste des étapes en attente
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Titre</TableHead>
+                                                    <TableHead className="hidden sm:table-cell">
+                                                        Status
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Date de création
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Ouvrir
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {
+                                                    processusDisable.map((processus) => (
+                                                        <TableRow key={processus.id} className="bg-accent">
+                                                            <TableCell>
+                                                                <div className="font-medium">{processus.label}</div>
+                                                            </TableCell>
+                                                            <TableCell className="hidden sm:table-cell">
+                                                                <Badge className="text-xs" variant="secondary">
+                                                                    {processus.status}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                {processus.createdAt.toLocaleDateString()}
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                <Link href={`/client/${client.clientSlug}/project/${params.projectSlug}/processus/${processus.processusSlug}`}>
+                                                                    <ArrowRight />
+                                                                </Link>
+                                                            </TableCell>
+                                                        </TableRow>
+
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                        </Tabs>
+
+                    </div>
+                    <div>
+                        <Card
+                            className="overflow-hidden" x-chunk="dashboard-05-chunk-4"
+                        >
+                            <CardHeader className="flex flex-row items-start bg-muted/50">
+                                <div className="grid gap-0.5">
+                                    <CardTitle className="group flex items-center gap-2 text-lg">
+                                        Nouveautés
+                                    </CardTitle>
+                                    <CardDescription></CardDescription>
+                                </div>
+                            </CardHeader>
+
+                            <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
+                                <div className="text-xs text-muted-foreground">
+                                    Updated <time dateTime="2023-11-23">November 23, 2023</time>
+                                </div>
+                                <Pagination className="ml-auto mr-0 w-auto">
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <Button size="icon" variant="outline" className="size-6">
+                                                <ChevronLeft className="size-3.5" />
+                                                <span className="sr-only">Previous Order</span>
+                                            </Button>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <Button size="icon" variant="outline" className="size-6">
+                                                <ChevronRight className="size-3.5" />
+                                                <span className="sr-only">Next Order</span>
+                                            </Button>
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </CardFooter>
+                        </Card>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
 }

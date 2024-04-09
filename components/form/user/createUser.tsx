@@ -24,9 +24,8 @@ import {
 } from "@/components/ui/select"
 import { createUser } from "@/src/features/actions/user/user.actions"
 import { toast } from "sonner"
-import type { getMySoftware } from "@/src/query/user.query";
 
-export default function CreateUser({ clientSlug, softwares }: { clientSlug: string, softwares: getMySoftware }) {
+export default function CreateUser({ clientSlug, softwares }: { clientSlug: string, softwares: any }) {
     const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof UserCreateSchema>>({
         resolver: zodResolver(UserCreateSchema),
@@ -157,7 +156,7 @@ export default function CreateUser({ clientSlug, softwares }: { clientSlug: stri
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    {softwares.map((software) => (
+                                    {softwares.map((software: any) => (
                                         <SelectItem key={software.softwareLabel} value={software.softwareLabel}>
                                             {software.softwareLabel}
                                         </SelectItem>

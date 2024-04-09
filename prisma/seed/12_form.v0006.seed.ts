@@ -41,12 +41,12 @@ class FORM_V0006 extends Seed {
                 await this.seedUpdateStatus("pending")
                 await prisma.processus.create({
                     data: {
-                        id: 'Standard_0016',
+                        id: 'Standard_0018',
                         label: 'Rubriques de paie',
                         theme: 'Paie',
                         slug: 'Standard_Processus_Rubriques',
-                        table: 'Project_Payrool_Item',
-                        orderId: 'Processus_0005'
+                        order: 18,
+                        version: 1
                     }
                 })
 
@@ -56,7 +56,10 @@ class FORM_V0006 extends Seed {
                         label: 'Création de formulaire rubrique',
                         slug: 'Standard_Formulaire_0014',
                         description: 'Création des rubriques',
-                        processusId: 'Standard_0014',
+                        isCreate: true,
+                        isEdit: false,
+                        processusId: 'Standard_0018',
+                        processusVersion: 1,
                         Form_Input: {
                             create: [
                                 {

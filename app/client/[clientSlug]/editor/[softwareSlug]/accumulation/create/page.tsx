@@ -1,6 +1,5 @@
-import { userIsEditorClient } from "@/src/query/security.query"
 import { getSoftwareBySlug } from "@/src/query/software.query"
-import Container from "@/components/layout/container"
+import { Container, ContainerBreadCrumb, ContainerForm } from "@/components/layout/container"
 import CreateSoftwareAccumulation from "@/components/form/software_accumulation/createSoftwareAccumulation"
 import {
     Breadcrumb,
@@ -10,10 +9,16 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Slash } from "lucide-react"
-
+import { Client } from "@/src/classes/client"
+import { Security } from "@/src/classes/security"
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
-    const userIsEditor = await userIsEditorClient(params.clientSlug)
+    const client = new Client(params.clientSlug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Ce client n'existe pas.")
+    }
+    const security = new Security()
+    const userIsEditor = await security.isEditorClient(params.clientSlug)
     if (!userIsEditor) {
         throw new Error("Vous n'avez pas les droits pour accéder à cette page.")
     }
@@ -28,15 +33,11 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                     <BreadcrumbItem>
                         <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
+                    <BreadcrumbSeparator />
                     <BreadcrumbItem>
                         <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</BreadcrumbLink>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
+                    <BreadcrumbSeparator />
                     <BreadcrumbItem>
                         <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/accumulation`}>Cumul de paie</BreadcrumbLink>
                     </BreadcrumbItem>

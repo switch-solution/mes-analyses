@@ -1,6 +1,5 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { userIsAdminClient, userIsValid } from "@/src/query/security.query";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { SoftwaresSchema, CreateUserSoftwareSchema } from "@/src/helpers/definition";
@@ -11,14 +10,15 @@ import { getClientSirenBySlug } from "@/src/query/client.query";
 import { authentificationActionUserIsAdminClient, ActionError } from "@/lib/safe-actions";
 import z from "zod";
 import { getSoftwareBySlug } from "@/src/query/software.query";
-import { getUserById } from "@/src/query/user.query";
-
+import { Security } from "@/src/classes/security";
+import { Software } from "@/src/classes/software";
 export const deleteSoftware = async (softwareSlug: string, clientSlug: string) => {
-    const userId = await userIsValid()
+    const security = new Security()
+    const userId = await security.userIsValid()
     if (!userId) throw new Error("Vous devez être connecté pour effectuer cette action.")
     const clientId = await getClientSirenBySlug(clientSlug)
     if (!clientId) throw new Error("Le client n'existe pas.")
-    const isAdmin = await userIsAdminClient(clientId)
+    const isAdmin = await security.isAdministratorClient(clientId)
     const software = await prisma.software.findUnique({
         where: {
             clientId,
@@ -79,11 +79,11 @@ export const editSoftware = authentificationActionUserIsAdminClient(SoftwaresSch
 
 export const createUserSoftware = authentificationActionUserIsAdminClient(CreateUserSoftwareSchema, async (values: z.infer<typeof CreateUserSoftwareSchema>, { clientId, userId }) => {
     const { isEditor, softwareSlug, userInternalId, clientSlug } = CreateUserSoftwareSchema.parse(values)
-    console.log(values)
     try {
+        const security = new Security()
         const software = await getSoftwareBySlug(softwareSlug)
         if (!software) throw new ActionError("Ce logiciel n'existe pas.")
-        const user = await getUserById(userInternalId)
+        const user = await security.userIsValid()
         if (!user) throw new ActionError("Cet utilisateur n'existe pas.")
         const userExistForSoftware = await prisma.userSoftware.findFirst({
             where: {
@@ -122,9 +122,10 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
     const { label, clientSlug } = SoftwaresSchema.parse(values)
     const slug = generateSlug(`${clientSlug}-${label}`)
     try {
-        const softwareExist = await prisma.software.findUnique({
+        const softwareExist = await prisma.software.findFirst({
             where: {
-                slug
+                label,
+                clientId
             }
         })
         if (softwareExist) {
@@ -134,28 +135,35 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
                 scope: "software",
                 clientId: clientId,
             }
-
             await createLog(log)
             throw new ActionError("Ce logiciel existe déjà.")
         }
-        const software = await prisma.software.create({
+        await prisma.userSoftware.updateMany({
+            where: {
+                userId: userId
+            },
+            data: {
+                isActivated: false
+            }
+        })
+        await prisma.software.create({
             data: {
                 label,
                 slug,
                 clientId: clientId,
                 createdBy: userId,
+                UserSoftware: {
+                    create: {
+                        userId,
+                        isEditor: true,
+                        isActivated: true
+                    }
+
+                }
             }
         })
-        await prisma.userSoftware.create({
-            data: {
-                userId,
-                isEditor: true,
-                softwareLabel: label,
-                softwareClientId: clientId,
-                createdBy: userId,
-                isActivated: true
-            }
-        })
+        //Move to new default software
+
 
         const defaultSetting = await prisma.default_Setting.findMany()
         let countSetting = await prisma.software_Setting.count()
@@ -191,6 +199,6 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
         throw new ActionError(err as string)
     }
 
-    revalidatePath(`/client/${clientSlug}/administrator/software/`)
-    redirect(`/client/${clientSlug}/administrator/software/`)
+    revalidatePath(`/client/${clientSlug}/editor/`)
+    redirect(`/client/${clientSlug}/editor/`)
 })
