@@ -38,8 +38,8 @@
     "jest.setup.js",
     "jest.config.ts",
     "__tests__/page.test.jsx",
-    "app/@modal/default.tsx",
-    "app/loading.tsx"
+    "app/(app)/@modal/default.tsx",
+    "app/(app)/loading.tsx"
   ],
   "exclude": [
     "node_modules"

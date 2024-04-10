@@ -48,17 +48,27 @@ import {
 } from "@/components/ui/tabs"
 import { User } from "@/src/classes/user"
 import { getAuthSession } from "@/lib/auth"
+import { redirect } from 'next/navigation';
+
 export default async function Page() {
     const today = new Date().toLocaleDateString()
     const session = await getAuthSession()
     if (!session) {
-        throw new Error("Vous devez etre connecté")
+        redirect("/api/auth/signin")
     }
     const userId = session.user.id
     if (!userId) {
         throw new Error("ID utilisateur manquant")
     }
+    console.log(session)
     const user = new User(userId)
+    const userIsSetup = await user.userIsSetup()
+    console.log(userIsSetup)
+    if (!userIsSetup) {
+        console.log("redirect")
+        redirect("/setup/cgv")
+        return
+    }
     const client = await user.getMyClientActive()
     if (!client) {
         throw new Error("Client manquant")

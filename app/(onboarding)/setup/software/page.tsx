@@ -14,7 +14,7 @@ export default async function Page() {
     return (
         <Container>
             <SetupSteep step={4} />
-            <CreateSoftware clientSlug={clientActive.clientSlug} />
+            <CreateSoftware clientSlug={clientActive.clientSlug} setup={true} />
         </Container>
     )
 }

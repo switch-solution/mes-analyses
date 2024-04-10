@@ -52,8 +52,8 @@ export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<
         revalidatePath(`/home`)
         redirect(`/home`)
     } else {
-        revalidatePath(`/setup/profil/`)
-        redirect(`/setup/profil/`)
+        revalidatePath(`/setup/profile/`)
+        redirect(`/setup/profile/`)
     }
 
 
@@ -100,20 +100,30 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
     const softwareExist = await software.softwareLabelExistForThisClient(label, clientId)
     if (softwareExist) throw new ActionError("Le logiciel existe déjà.")
     try {
-        await software.create({
+        const soft = await software.create({
             clientId,
             label,
             userId
         })
+        if (!soft) {
+            throw new ActionError("Une erreur est survenue lors de la création du logiciel.")
+        }
+        await prisma.userOtherData.update({
+            where: {
+                userId: userId
+            },
+            data: {
+                isSetup: true
+            }
+        })
 
-        await user.userIsSetup()
     } catch (err: unknown) {
         console.error(err)
         throw new ActionError(err as string)
     }
+    revalidatePath(`/home`)
+    redirect(`/home`)
 
-    revalidatePath(`/client/${clientSlug}`)
-    redirect(`/client/${clientSlug}`)
 })
 
 export const createSetupClient = authentifcationAction(SetupClientSchema, async (values: z.infer<typeof SetupClientSchema>, userId) => {

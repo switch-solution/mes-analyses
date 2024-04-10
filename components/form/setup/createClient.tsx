@@ -23,10 +23,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Input } from '@/components/ui/input'
-import { Container } from "@/components/layout/container";
 import { createSetupClient } from "@/src/features/actions/setup/setup.actions";
 import { toast } from "sonner"
-
 
 export default function CreateClient() {
     const [loading, setLoading] = useState(false)
@@ -63,66 +61,64 @@ export default function CreateClient() {
     }
 
     return (
-        <Container>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
 
-                    <FormField
-                        control={form.control}
-                        name="siren"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>SIREN</FormLabel>
+                <FormField
+                    control={form.control}
+                    name="siren"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>SIREN</FormLabel>
+                            <FormControl>
+                                <Input placeholder="123456789" type="text" maxLength={9} min={1} required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+
+                    )}
+
+                />
+                <FormField
+                    control={form.control}
+                    name="socialReason"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Raison sociale</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Ma société" type="text" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="defaultRole"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Votre role</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                    <Input placeholder="123456789" type="text" maxLength={9} min={1} required {...field} />
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selectionner un role" />
+                                    </SelectTrigger>
                                 </FormControl>
-                                <FormMessage />
-                            </FormItem>
+                                <SelectContent>
+                                    <SelectItem value="Directeur de projet">Directeur de projet</SelectItem>
+                                    <SelectItem value="Chef de projet">Chef de projet</SelectItem>
+                                    <SelectItem value="Consulant déploiement">Consultant déploiement</SelectItem>
+                                    <SelectItem value="Autres">Autres</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
+            </form>
+        </Form>
 
-                        )}
-
-                    />
-                    <FormField
-                        control={form.control}
-                        name="socialReason"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Raison sociale</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Ma société" type="text" required {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="defaultRole"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Votre role</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selectionner un role" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Directeur de projet">Directeur de projet</SelectItem>
-                                        <SelectItem value="Chef de projet">Chef de projet</SelectItem>
-                                        <SelectItem value="Consulant déploiement">Consultant déploiement</SelectItem>
-                                        <SelectItem value="Autres">Autres</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
-                </form>
-            </Form>
-
-        </Container >
     )
 }

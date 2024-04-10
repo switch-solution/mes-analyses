@@ -25,6 +25,15 @@ export class Client {
             const currentDate = new Date();
 
             const add90Days = new Date(currentDate.setDate(currentDate.getDate() + 90))
+            await prisma.userClient.updateMany({
+                where: {
+                    userId: userId
+                },
+                data: {
+                    isActivated: false
+                }
+
+            })
 
             const client = await prisma.client.create({
                 data: {

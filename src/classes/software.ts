@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma'
 import { generateSlug } from '../helpers/generateSlug'
-import { ca } from 'date-fns/locale'
 export class Software {
     softwareSlug?: string
     constructor(softwareSlug: string) {
@@ -54,12 +53,12 @@ export class Software {
                             createdBy: userId
                         }
                     })
-                }
+                },
             }
         })
-
         return software
     }
+
 
     private async processus() {
         try {

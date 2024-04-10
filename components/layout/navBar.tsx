@@ -24,10 +24,12 @@ import {
 } from "lucide-react"
 import { User } from "@/src/classes/user"
 import { getAuthSession } from "@/lib/auth";
+import { redirect } from 'next/navigation';
+
 export default async function NavBar() {
     const session = await getAuthSession()
     if (!session) {
-        throw new Error("Vous devez etre connecté")
+        redirect("/api/auth/signin")
     }
     const userId = session.user.id
     if (!userId) {

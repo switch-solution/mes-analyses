@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { createSoftware } from "@/src/features/actions/software/software.actions"
+import { createSetupSoftware } from "@/src/features/actions/setup/setup.actions"
 import {
     Form,
     FormControl,
@@ -18,7 +19,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from '@/components/ui/input'
-export default function CreateSoftware({ clientSlug }: { clientSlug: string }) {
+export default function CreateSoftware({ clientSlug, setup = false }: { clientSlug: string, setup?: boolean }) {
     const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof SoftwareCreateSchema>>({
         resolver: zodResolver(SoftwareCreateSchema),
@@ -30,10 +31,31 @@ export default function CreateSoftware({ clientSlug }: { clientSlug: string }) {
     const onSubmit = async (data: z.infer<typeof SoftwareCreateSchema>) => {
         try {
             setLoading(true)
-            const action = await createSoftware(data)
-            if (action?.serverError) {
-                setLoading(false)
-                toast(`${action.serverError}`, {
+            if (setup) {
+                const action = await createSetupSoftware(data)
+                if (action?.serverError) {
+                    setLoading(false)
+                    toast(`${action.serverError}`, {
+                        description: new Date().toLocaleDateString(),
+                        action: {
+                            label: "fermer",
+                            onClick: () => console.log("fermeture"),
+                        },
+                    })
+                }
+            } else {
+                const action = await createSoftware(data)
+                if (action?.serverError) {
+                    setLoading(false)
+                    toast(`${action.serverError}`, {
+                        description: new Date().toLocaleDateString(),
+                        action: {
+                            label: "fermer",
+                            onClick: () => console.log("fermeture"),
+                        },
+                    })
+                }
+                toast(`Vous venez de changer de logiciel`, {
                     description: new Date().toLocaleDateString(),
                     action: {
                         label: "fermer",
@@ -41,13 +63,9 @@ export default function CreateSoftware({ clientSlug }: { clientSlug: string }) {
                     },
                 })
             }
-            toast(`Vous venez de changer de logiciel`, {
-                description: new Date().toLocaleDateString(),
-                action: {
-                    label: "fermer",
-                    onClick: () => console.log("fermeture"),
-                },
-            })
+
+            setLoading(false)
+
         } catch (err) {
             setLoading(false)
             console.error(err)

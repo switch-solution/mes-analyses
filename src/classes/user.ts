@@ -118,6 +118,7 @@ export class User {
 
     }
 
+
     async userIsSetup() {
         try {
             const isSetup = await prisma.userOtherData.findFirst({
