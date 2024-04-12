@@ -11,7 +11,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { updateFinishRow } from "@/src/features/actions/approve/approve.actions"
+
 import { MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 export type ProjectData = {
@@ -64,37 +64,6 @@ export const columns: ColumnDef<ProjectData>[] = [
                         <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}`}>Ouvrir</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.processusSlug}/data/${row.original.slug}/edit`}>Editer</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.processusSlug}/data/${row.original.slug}/delete`}>Supprimer</Link></DropdownMenuItem>
-                        <DropdownMenuItem onClick={
-                            async () => {
-                                const data = {
-                                    clientSlug: row.original.clientSlug!,
-                                    projectSlug: row.original.projectSlug!,
-                                    slug: row.original.slug!,
-                                    processusSlug: row.original.processusSlug!,
-                                    valueId: row.original.slug!,
-                                    valueLabel: row.original.label!,
-                                }
-                                const action = await updateFinishRow(data)
-                                if (action?.serverError) {
-                                    toast(`${action.serverError}`, {
-                                        description: new Date().toLocaleDateString(),
-                                        action: {
-                                            label: "fermer",
-                                            onClick: () => console.log("fermeture"),
-                                        },
-                                    })
-                                } else {
-                                    toast(`Mise à jour avec succès`, {
-                                        description: new Date().toLocaleDateString(),
-                                        action: {
-                                            label: "fermer",
-                                            onClick: () => console.log("fermeture"),
-                                        },
-                                    })
-                                }
-
-                            }
-                        }><Link href={`/client/${project.clientSlug}/project/${project.projectSlug}/processus/${project.processusSlug}`}>Valider</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}/`}>Pdf</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={`/client/${project.clientSlug}/project/${project.slug}/archived`}>Excel</Link></DropdownMenuItem>
 

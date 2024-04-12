@@ -46,6 +46,32 @@ export class Security {
             throw new Error('L\'utilisateur n\'est pas valide')
         }
     }
+    /**
+     * Test if the API is valid and return the client slug
+     * @param apiKey 
+     * @returns 
+     */
+    async apiIsValid(apiKey: string) {
+        try {
+            const splitApi = apiKey.split('Bearer ')
+            const apiExist = await prisma.client_API.findFirstOrThrow({
+                where: {
+                    apiKey: splitApi[1]
+                },
+                include: {
+                    client: {
+                        select: {
+                            slug: true
+                        }
+                    }
+                }
+            })
+            return apiExist.client.slug
+        } catch (err) {
+            console.error(err)
+            throw new Error('L\'API n\'est pas valide')
+        }
+    }
     async userIsValid() {
         try {
             await this.isActive()

@@ -15,6 +15,12 @@ import { StandardProcessusPrevoyance } from "./standardProcessusPrevoyance"
 import { StandardProcessusMutual } from "./standardProcessusMutuelle"
 import { StandardProcessusPaidLeave } from "./standardProcessusCP"
 import { StandardProcessusService } from "./standardProcessusService"
+import { StandardProcessusBank } from "./standardProcessusBank"
+import { StandardProcessusEstablishmentBank } from "./standardProcessusEstablishmentBank"
+import { StandardProcessusFreeZone } from "./standardProcessusFreeZone"
+import { StandardProcessusSocietyFreeZone } from "./standardProcessusSocietyFreeZone"
+import { StandardProcessusAbsence } from "./standardProcessusAbsences"
+import { StandardProcessusSalary } from "./standardProcessusSalary"
 export class ProcessusFactory {
 
     static create({
@@ -81,6 +87,24 @@ export class ProcessusFactory {
                 break
             case 'Standard_Processus_services':
                 return new StandardProcessusService(projectLabel, sofwareLabel, clientId)
+                break
+            case 'Standard_Processus_Bank':
+                return new StandardProcessusBank(projectLabel, sofwareLabel, clientId)
+                break
+            case 'Standard_Processus_Establisment_Bank':
+                return new StandardProcessusEstablishmentBank(projectLabel, sofwareLabel, clientId)
+                break
+            case 'Standard_Processus_Free_Zones':
+                return new StandardProcessusFreeZone(projectLabel, sofwareLabel, clientId)
+                break
+            case 'Standard_Processus_Society_Free_Zone':
+                return new StandardProcessusSocietyFreeZone(projectLabel, sofwareLabel, clientId)
+                break
+            case 'Standard_Processus_Absences':
+                return new StandardProcessusAbsence(projectLabel, sofwareLabel, clientId)
+                break
+            case 'Standard_Processus_Salary':
+                return new StandardProcessusSalary(projectLabel, sofwareLabel, clientId)
                 break
 
             default:

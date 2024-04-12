@@ -4,6 +4,8 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 export type API = {
     clientSlug: string | null
+    apiKeyMasked: string | null
+    apiKey: string | null
     label: string | null
     slug: string | null
     count: string | null
@@ -27,7 +29,10 @@ export const columns: ColumnDef<API>[] = [
         accessorKey: "label",
         header: "Libellé",
     },
-
+    {
+        accessorKey: "apiKeyMasked",
+        header: "API",
+    },
     {
         accessorKey: "count",
         header: "Activité",
@@ -58,7 +63,11 @@ export const columns: ColumnDef<API>[] = [
                         <DropdownMenuSeparator />
                         <DropdownMenuItem><Link href={``}>Activité</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={``}>Révoquer</Link></DropdownMenuItem>
-
+                        <DropdownMenuItem onClick={() => {
+                            if (user.apiKey) {
+                                navigator.clipboard.writeText(user.apiKey);
+                            }
+                        }}>Copier la clée</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )

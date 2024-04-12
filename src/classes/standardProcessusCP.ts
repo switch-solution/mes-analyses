@@ -143,5 +143,11 @@ export class StandardProcessusPaidLeave implements IProcessus {
 
         throw new Error("Method not implemented.")
     }
+    approve({ processusSlug, clientSlug, projectSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; }): void {
+        throw new Error("Method not implemented.")
+    }
+    approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
+        throw new Error("Method not implemented.")
+    }
 
 }

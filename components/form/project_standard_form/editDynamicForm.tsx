@@ -4,7 +4,7 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { SocietyEditSchema, EstablishmentEditSchema, OpsEditSchema } from "@/src/helpers/definition";
+import { SocietyEditSchema, EstablishmentEditSchema, OpsEditSchema, BankEditSchema } from "@/src/helpers/definition";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { updateSociety } from "@/src/features/actions/project_data/project_society.actions";
 import { updateEstablishement } from "@/src/features/actions/project_data/project_establishment.actions";
@@ -14,8 +14,9 @@ import DynamicField from "@/components/ui/dynamic-field"
 import type { TypeDynamicInput } from "@/src/helpers/type"
 import { Form } from "@/components/ui/form"
 import type { getSelectOptions } from "@/src/query/form.query";
-export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug, inputs, options, datas }: {
-    clientSlug: string, projectSlug: string, processusSlug: string, inputs: TypeDynamicInput, options: getSelectOptions, datas: {}
+import { updateBank } from "@/src/features/actions/project_data/project_bank.actions";
+export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug, inputs, options, datas, disabled = false }: {
+    clientSlug: string, projectSlug: string, processusSlug: string, inputs: TypeDynamicInput, options: getSelectOptions, datas: {}, disabled?: boolean
 }) {
     const [loading, setLoading] = useState(false)
     type FormInputs = z.infer<typeof SocietyEditSchema>
@@ -33,6 +34,9 @@ export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug
             break
         case "Standard_Processus_RateAt":
             formSchema = OpsEditSchema
+            break
+        case "Standard_Processus_Bank":
+            formSchema = BankEditSchema
             break
         default: {
             throw new Error("La table n'existe pas")
@@ -62,6 +66,9 @@ export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug
                 case "Standard_Processus_URSSAF":
                     action = await updateUrssaf(data as z.infer<typeof OpsEditSchema>)
                     break
+                case "Standard_Processus_Bank":
+                    action = await updateBank(data as z.infer<typeof BankEditSchema>)
+                    break
                 default: {
                     throw new Error("La table n'existe pas")
                 }
@@ -87,7 +94,7 @@ export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug
     return (
         < Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-                <DynamicField inputs={inputs} form={form} options={options} />
+                <DynamicField inputs={inputs} form={form} options={options} disabled={disabled} />
                 {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
             </form>
         </Form >

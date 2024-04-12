@@ -17,7 +17,7 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
     projectLabel,
     domain,
 }) => (
-    <div>
+    <div className='flex min-h-screen w-full flex-col bg-slate-950'>
         <h1>Bonjour, {civility} {lastname} {firstname}!</h1>
         <span>Vous avez été invité à rejoindre {clientLabel}.</span>
         <span><a href={domain}>Lien de connexion</a></span>

@@ -64,7 +64,22 @@ export class Client {
             throw new Error(err as string)
         }
     }
-
+    async clientApi() {
+        try {
+            const api = await prisma.client.findUniqueOrThrow({
+                where: {
+                    slug: this.clientSlug
+                },
+                include: {
+                    Client_API: true
+                }
+            })
+            return api
+        } catch (err) {
+            console.log(err)
+            throw new Error(err as string)
+        }
+    }
     async sirenExist(siren: string) {
         const clientSlugExist = await prisma.client.findUnique({
             where: {
@@ -75,11 +90,11 @@ export class Client {
 
     }
 
-    async softwareClient() {
+    async softwareClient(clientId: string) {
         try {
             const softwareClient = await prisma.software.findMany({
                 where: {
-                    slug: this.clientSlug
+                    clientId
                 }
             })
             return softwareClient
@@ -163,6 +178,53 @@ export class Client {
 
     }
 
+    async getClientSoftware() {
+        try {
+            const client = await this.clientDetail()
+            const softwares = await prisma.software.findMany({
+                where: {
+                    clientId: client?.siren
+                },
+                select: {
+                    label: true,
+                },
+            })
+            const projects = await prisma.project.findMany({
+                where: {
+                    clientId: client?.siren,
+                }
+            })
+            const processus = await prisma.software_Processus.findMany({
+                where: {
+                    clientId: client?.siren
+                }
+            })
+            const users = await prisma.userSoftware.findMany({
+                where: {
+                    softwareClientId: client?.siren
+                }
+            })
+            const softwareDataTable = []
+            for (const software of softwares) {
+                let label = software.label
+                let countProject = projects.filter(project => project.softwareLabel === software.label).length
+                let countProcessus = processus.filter(processus => processus.softwareLabel === software.label).length
+                let countUser = users.filter(user => user.softwareLabel === software.label).length
+                softwareDataTable.push({
+                    label,
+                    countProject,
+                    countProcessus,
+                    countUser
+                })
+            }
+            return softwareDataTable
+        } catch (err) {
+            console.log(err)
+            throw new Error(err as string)
+        }
+
+    }
+
     async endTrial() {
         try {
             const clientExist = await this.clientExist()
@@ -172,6 +234,23 @@ export class Client {
             const days = diffInMs / (1000 * 60 * 60 * 24);
             const numberDaysBeforeEndTrial = days.toFixed(0)
             return numberDaysBeforeEndTrial
+        } catch (err) {
+            console.log(err)
+            throw new Error(err as string)
+        }
+    }
+
+    async getInvitation() {
+        try {
+            const invitation = await prisma.client.findMany({
+                where: {
+                    slug: this.clientSlug
+                },
+                include: {
+                    Invitation: true
+                }
+            })
+            return invitation
         } catch (err) {
             console.log(err)
             throw new Error(err as string)

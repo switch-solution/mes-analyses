@@ -6,7 +6,7 @@ export default function Modal({ clientSlug }: { clientSlug: string }) {
     const router = useRouter()
     const pathname = usePathname()
     return (
-        <Dialog open={pathname === `/client/${clientSlug}/administrator/api/create`} onOpenChange={() => router.back()}>
+        <Dialog open={pathname === `/client/${clientSlug}/administration/api/create`} onOpenChange={() => router.back()}>
             <DialogContent>
                 <CreateApiKey clientSlug={clientSlug} />
             </DialogContent>

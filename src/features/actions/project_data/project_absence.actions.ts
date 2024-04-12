@@ -1,52 +1,42 @@
 "use server";
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { CreateProjectAbsenceSchema } from "@/src/helpers/definition";
+import { ProjectAbsenceCreateSchema } from "@/src/helpers/definition";
+import { ProcessusFactory } from "@/src/classes/processusFactory";
 import { authentifcationActionUserIsAuthorizeToEditProject, ActionError } from "@/lib/safe-actions";
 import z from "zod";
-import { generateSlug } from "@/src/helpers/generateSlug";
 
-export const createPaidLeave = authentifcationActionUserIsAuthorizeToEditProject(CreateProjectAbsenceSchema, async (values: z.infer<typeof CreateProjectAbsenceSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
-    const { clientSlug, processusSlug, projectSlug, method, id, dsnId, societyId, label, population, isSocialSecurity, settlement, description } = CreateProjectAbsenceSchema.parse(values)
+export const createAbsence = authentifcationActionUserIsAuthorizeToEditProject(ProjectAbsenceCreateSchema, async (values: z.infer<typeof ProjectAbsenceCreateSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
+    const { clientSlug, processusSlug, projectSlug, method, id, dsnId, societyId, label, population, isSocialSecurity, description } = ProjectAbsenceCreateSchema.parse(values)
 
-    const absenceExist = await prisma.project_Absence.findFirst({
-        where: {
-            projectLabel,
-            softwareLabel,
-            clientId,
-            id
-        }
+    const processus = ProcessusFactory.create({
+        processusSlug,
+        clientId,
+        projectLabel,
+        sofwareLabel: softwareLabel
+    })
 
+    const absenceExist = await processus.valueExist({
+        value: id,
+        clientId,
+        projectLabel,
+        softwareLabel
     })
     if (absenceExist) {
-        throw new ActionError("L'asbsence existe déjà")
+        throw new ActionError('L\'absence existe déjà')
     }
     try {
-        const count = await prisma.project_Absence.count()
-        await prisma.project_Absence.create({
-            data: {
-                id,
-                label,
-                dsnId,
-                clientId,
-                projectLabel,
-                softwareLabel,
-                population,
-                method: method ? method : "Heures ouvrés",
-                description,
-                settlement,
-                societyId,
-                isSocialSecurity,
-                createdBy: userId,
-                slug: generateSlug(`Absence-${count + 1}`),
-            }
-        })
+        await processus.insert({
+            values,
+            userId,
+            projectLabel,
+            softwareLabel,
+            clientId
 
+        })
     } catch (err: unknown) {
         console.error(err)
         throw new ActionError(err as string)
-
     }
     revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
     redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)

@@ -4,7 +4,7 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { SocietyCreateSchema, EstablishmentCreateSchema, CreateProjectAbsenceSchema, CreateServiceSchema, JobCreateSchema, CreatePaidLeaveSchema, RateAtCreateSchema, OpsCreateSchema, CreateIdccSchema, CreateClassificationSchema } from "@/src/helpers/definition";
+import { SocietyCreateSchema, BankCreateSchema, SocietyFreeZoneCreateSchema, SalaryCreateSchema, ProjectAbsenceCreateSchema, EstablishmentBankCreateSchema, FreeZoneCreateSchema, EstablishmentCreateSchema, CreateServiceSchema, JobCreateSchema, CreatePaidLeaveSchema, RateAtCreateSchema, OpsCreateSchema, CreateIdccSchema, CreateClassificationSchema } from "@/src/helpers/definition";
 import { createUrssaf } from "@/src/features/actions/project_data/project_urssaf.actions";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { createJob } from "@/src/features/actions/project_data/project_job.actions";
@@ -24,6 +24,12 @@ import { createCoefficient } from "@/src/features/actions/project_data/project_c
 import { createQualification } from "@/src/features/actions/project_data/project_qualification.actions";
 import { createIndice } from "@/src/features/actions/project_data/project_indice.actions";
 import { createEchelon } from "@/src/features/actions/project_data/project_echelon.actions";
+import { createBank } from "@/src/features/actions/project_data/project_bank.actions";
+import { createEstablishmentBank } from "@/src/features/actions/project_data/project_establishmentBank.actions"
+import { createFreeZone } from "@/src/features/actions/project_data/project_freeZone.actions"
+import { createSocietyFreeZone } from "@/src/features/actions/project_data/project_societyFreeZone.actions"
+import { createAbsence } from "@/src/features/actions/project_data/project_absence.actions"
+import { createSalary } from "@/src/features/actions/project_data/project_salary.actions"
 import {
     Form,
 } from "@/components/ui/form"
@@ -94,12 +100,29 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
         case "Standard_Processus_CP":
             formSchema = CreatePaidLeaveSchema
             break
-        case "Standard_Processus_Absences":
-            formSchema = CreateProjectAbsenceSchema
-            break
         case "Standard_Processus_services":
             formSchema = CreateServiceSchema
             break
+        case "Standard_Processus_Bank":
+            formSchema = BankCreateSchema
+            break
+        case "Standard_Processus_Establisment_Bank":
+            formSchema = EstablishmentBankCreateSchema
+            break
+        case "Standard_Processus_Free_Zones":
+            formSchema = FreeZoneCreateSchema
+            break
+        case "Standard_Processus_Society_Free_Zone":
+            formSchema = SocietyFreeZoneCreateSchema
+            break
+        case "Standard_Processus_Absences":
+            formSchema = ProjectAbsenceCreateSchema
+            break
+        case "Standard_Processus_Salary":
+            formSchema = SalaryCreateSchema
+            break
+
+
         default: {
             throw new Error("La table n'existe pas")
         }
@@ -167,6 +190,24 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
                 case "Standard_Processus_services":
                     action = await createService(data as z.infer<typeof CreateServiceSchema>)
                     break
+                case "Standard_Processus_Bank":
+                    action = await createBank(data as z.infer<typeof BankCreateSchema>)
+                    break
+                case "Standard_Processus_Establisment_Bank":
+                    action = await createEstablishmentBank(data as z.infer<typeof EstablishmentBankCreateSchema>)
+                    break
+                case "Standard_Processus_Free_Zones":
+                    action = await createFreeZone(data as z.infer<typeof FreeZoneCreateSchema>)
+                    break
+                case "Standard_Processus_Society_Free_Zone":
+                    action = await createSocietyFreeZone(data as z.infer<typeof SocietyFreeZoneCreateSchema>)
+                    break
+                case "Standard_Processus_Absences":
+                    action = await createAbsence(data as z.infer<typeof ProjectAbsenceCreateSchema>)
+                    break
+                case "Standard_Processus_Salary":
+                    action = await createSalary(data as z.infer<typeof SalaryCreateSchema>)
+                    break
                 default: {
                     throw new Error("La table n'existe pas")
                 }
@@ -188,7 +229,6 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
 
         }
     }
-
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='gap-4 space-y-8 p-4'>

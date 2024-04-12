@@ -1,13 +1,13 @@
 import { env } from "@/lib/env";
 
-export const apiFetch = async (url: string, options: RequestInit = {}) => {
+export const sendEmail = async (options: RequestInit = {}) => {
     const domain = env.DOMAIN
     const api = env.API_KEY
-    const fetchUrl = `${domain}${url}`
+    const fetchUrl = `${domain}/api/send`
     const response = await fetch(fetchUrl, {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': api
+            'Authorization': `Bearer ${api}`,
         },
         ...options,
     });

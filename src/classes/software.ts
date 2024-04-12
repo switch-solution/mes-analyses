@@ -29,6 +29,7 @@ export class Software {
         clientId: string
     }) {
         const processus = await this.processus()
+        const defaultSetting = await prisma.default_Setting.findMany()
         const software = await prisma.software.create({
             data: {
                 label,
@@ -54,6 +55,18 @@ export class Software {
                         }
                     })
                 },
+                Software_Setting: {
+                    create: defaultSetting.map((setting) => {
+                        return {
+                            id: setting.id,
+                            label: setting.label,
+                            value: setting.value,
+                            description: setting.description,
+                            createdBy: userId
+                        }
+                    })
+
+                }
             }
         })
         return software

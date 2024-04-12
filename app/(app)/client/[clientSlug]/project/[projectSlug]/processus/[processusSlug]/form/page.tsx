@@ -48,7 +48,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         clientId: projectDetail.clientId
 
     })
-
     return (
         <Container>
             <ContainerBreadCrumb>

@@ -32,7 +32,9 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     const apiList = await getApiByClientSlug(params.clientSlug)
     const api = apiList.map(api => {
         return {
-            label: maskApiKey(api.apiKey),
+            label: api.label,
+            apiKeyMasked: maskApiKey(api.apiKey),
+            apiKey: api.apiKey,
             count: api._count?.Client_API_Activity.toString(),
             slug: api.slug,
             revoked: api.revoked,

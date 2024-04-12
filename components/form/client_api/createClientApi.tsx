@@ -85,7 +85,7 @@ export default function CreateApiKey({ clientSlug }: { clientSlug: string }) {
                     name="limit"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Utilisattion maximum par jour</FormLabel>
+                            <FormLabel>Utilisation maximum par jour</FormLabel>
                             <FormControl>
                                 <Input type='number' placeholder="10" {...field} required />
                             </FormControl>

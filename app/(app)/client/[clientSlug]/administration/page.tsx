@@ -43,8 +43,6 @@ import {
     PaginationContent,
     PaginationItem,
 } from "@/components/ui/pagination"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
 import {
     Table,
     TableBody,
@@ -70,10 +68,11 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     const today = new Date().toLocaleDateString()
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
-    const endTrial = await client.endTrial()
     const userBillable = await client.userClientBillable()
     const clientDetail = await client.clientDetail()
-    const softareClient = await client.softwareClient()
+    const softareClient = await client.softwareClient(clientExist.siren)
+    const clientApi = await client.clientApi()
+    const invitation = await client.getInvitation()
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -113,41 +112,38 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                             <Card x-chunk="dashboard-05-chunk-1">
                                 <CardHeader className="pb-2">
                                     <CardDescription>Nombre de logiciel</CardDescription>
-                                    <CardTitle className="flex justify-center text-4xl">{softareClient.length}</CardTitle>
+                                    <CardTitle className="flex justify-center text-4xl"><Link href={`/client/${params.clientSlug}/administration/software`}>{softareClient.length}</Link></CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-xs text-muted-foreground">
-                                        +25% depuis la semaine dernière
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Progress value={25} aria-label="25% increase" />
+                                    <Link href={`/client/${client.clientSlug}/software/create`}><Button>Créer un logiciel</Button></Link>
                                 </CardFooter>
                             </Card>
                             <Card x-chunk="dashboard-05-chunk-2">
                                 <CardHeader className="pb-2">
-                                    <CardDescription>Fin de prériode d&apos;essai</CardDescription>
-                                    <CardTitle className="flex justify-center text-4xl">{endTrial}</CardTitle>
+                                    <CardDescription>Nombre d&apos;API</CardDescription>
+                                    <CardTitle className="flex justify-center text-4xl"><Link href={`/client/${params.clientSlug}/administration/api`}>{clientApi.Client_API.length}</Link></CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-xs text-muted-foreground">
-                                        Jours restants
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Progress value={12} aria-label="Avancement" />
+                                    <Link href={`/client/${client.clientSlug}/administration/api/create`}><Button>Créer une API</Button></Link>
                                 </CardFooter>
                             </Card>
                         </div>
-                        <Tabs defaultValue="enable">
+                        <Tabs defaultValue="bilable">
                             <div className="flex items-center">
                                 <TabsList>
-                                    <TabsTrigger value="enable">Actif</TabsTrigger>
-                                    <TabsTrigger value="archived">Archivé</TabsTrigger>
-                                    <TabsTrigger value="disable">En attente</TabsTrigger>
+                                    <TabsTrigger value="bilable">Facturable</TabsTrigger>
+                                    <TabsTrigger value="disable">Bloqué</TabsTrigger>
+                                    <TabsTrigger value="invitation">Invitation</TabsTrigger>
                                 </TabsList>
                                 <div className="ml-auto flex items-center gap-2">
-
                                     <Button
                                         size="sm"
                                         variant="outline"
@@ -158,7 +154,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                     </Button>
                                 </div>
                             </div>
-                            <TabsContent value="enable">
+                            <TabsContent value="bilable">
                                 <Card x-chunk="dashboard-05-chunk-3">
                                     <CardHeader className="px-7">
                                         <CardTitle>Utililisateurs</CardTitle>
@@ -197,6 +193,65 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                                                 </TableCell>
                                                                 <TableCell className="hidden md:table-cell">
                                                                     <div className="font-medium">{userClient.isAdministrator}</div>
+                                                                </TableCell>
+                                                                <TableCell className="hidden md:table-cell">
+                                                                    <Link href={'/home'}>
+                                                                        <ArrowRight />
+                                                                    </Link>
+                                                                </TableCell>
+                                                            </TableRow>
+
+                                                        ))
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                            <TabsContent value="invitation">
+                                <Card x-chunk="dashboard-05-chunk-3">
+                                    <CardHeader className="px-7">
+                                        <CardTitle>Utililisateurs</CardTitle>
+                                        <CardDescription>
+                                            Mes invitations en attente
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Email</TableHead>
+                                                    <TableHead className="hidden sm:table-cell">
+                                                        Nom
+                                                    </TableHead>
+                                                    <TableHead className="hidden sm:table-cell">
+                                                        Prénom
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Email envoyé
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Ouvrir
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {
+                                                    invitation.map((user) => (
+                                                        user.Invitation.map((invitation) => (
+                                                            <TableRow key={invitation.email} className="bg-accent">
+                                                                <TableCell>
+                                                                    <div className="font-medium">{invitation.email}</div>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <div className="font-medium">{invitation.lastname}</div>
+                                                                </TableCell>
+                                                                <TableCell className="hidden sm:table-cell">
+                                                                    <div className="font-medium">{invitation.firstname}</div>
+                                                                </TableCell>
+                                                                <TableCell className="hidden md:table-cell">
+                                                                    <div className="font-medium"><Badge variant={invitation.sendEmail ? "default" : "destructive"} >{invitation.sendEmail ? "Envoyé" : "Erreur"}</Badge></div>
                                                                 </TableCell>
                                                                 <TableCell className="hidden md:table-cell">
                                                                     <Link href={'/home'}>

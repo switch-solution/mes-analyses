@@ -189,5 +189,26 @@ export class User {
         }
     }
 
+    async getMyValidation() {
+        try {
+            const clientActive = await this.getMyClientActive()
+            const softwareActive = await this.getMySoftwareActive()
+            const validation = await prisma.project_Approve.findMany({
+                where: {
+                    userId: this.userId,
+                    clientId: clientActive.clientId,
+                    softwareLabel: softwareActive.softwareLabel,
+                    isApproved: false,
+                    isRefused: false
+                }
+            })
+            return validation
+        } catch (err) {
+            console.error(err)
+            throw new Error(`Une erreur est survenue lors de la récupération des validations.`)
+        }
+
+    }
+
 
 }

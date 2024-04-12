@@ -98,6 +98,20 @@ export const getSelectOptions = async ({
                     clientId
                 }
             }),
+            bankList: await prisma.project_Bank.findMany({
+                where: {
+                    projectLabel,
+                    softwareLabel,
+                    clientId
+                }
+            }),
+            freeZone: await prisma.project_Free_Zone.findMany({
+                where: {
+                    projectLabel,
+                    softwareLabel,
+                    clientId
+                }
+            })
 
 
         }

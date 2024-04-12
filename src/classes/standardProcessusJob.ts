@@ -146,5 +146,11 @@ export class StandardProcessusJob implements IProcessus {
         return jobs
 
     }
+    approve({ processusSlug, clientSlug, projectSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; }): void {
+        throw new Error("Method not implemented.")
+    }
+    approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
+        throw new Error("Method not implemented.")
+    }
 
 }

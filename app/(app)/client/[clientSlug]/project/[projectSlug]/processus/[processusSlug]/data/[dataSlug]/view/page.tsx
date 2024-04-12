@@ -1,6 +1,5 @@
-import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
-import { Slash } from "lucide-react"
-import ViewDynamicForm from "@/components/form/project_standard_form/viewDynamicForm";
+import { Container, ContainerBreadCrumb, ContainerForm } from "@/components/layout/container";
+import EditDynamicForm from "@/components/form/project_standard_form/editDynamicForm";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -8,23 +7,27 @@ import {
     BreadcrumbList,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Processus } from "@/src/classes/processus";
-
-import { getSelectOptions } from "@/src/query/form.query";
 import { Project } from "@/src/classes/project";
+import { Processus } from "@/src/classes/processus";
+import { getSelectOptions } from "@/src/query/form.query";
 import { ProcessusFactory } from "@/src/classes/processusFactory";
 import { Security } from "@/src/classes/security";
+import { Client } from "@/src/classes/client";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string, processusSlug: string, dataSlug: string } }) {
-
-    const project = new Project(params.projectSlug)
-    const projectExist = await project.projectExist()
-    if (!projectExist) {
-        throw new Error("Le projet n'existe pas")
+    const client = new Client(params.clientSlug)
+    const clientExist = await client.clientExist()
+    if (!clientExist) {
+        throw new Error("Ce client n'existe pas.")
     }
     const security = new Security()
     const userIsAuthorized = await security.isAuthorizedInThisProject(params.projectSlug)
     if (!userIsAuthorized) {
         throw new Error("Vous n'êtes pas autorisé à accéder à cette page.");
+    }
+    const project = new Project(params.projectSlug)
+    const projectExist = await project.projectExist()
+    if (!projectExist) {
+        throw new Error("Le projet n'existe pas")
     }
     const processus = new Processus(params.processusSlug)
     const processusExist = await processus.processusExist()
@@ -56,60 +59,53 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         sofwareLabel: projectDetail.softwareLabel
     })
     const datas = await processusFactory.read(params.dataSlug)
-
-
     return (
         <Container>
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/`}>Projets</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectDetail.label}</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus`}>Processus</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/${params.processusSlug}`}>{processusExist.label}</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Slash />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/${params.processusSlug}/data/${params.dataSlug}/view`}>Vue</BreadcrumbLink>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-            <ViewDynamicForm
-                inputs={inputs?.map((input) => ({
-                    ...input,
-                    clientId: projectDetail.clientId,
-                    softwareLabel: processusExist.label,
-                    projectLabel: projectDetail.label,
-                })) || []}
-                datas={datas}
-                clientSlug={params.clientSlug}
-                projectSlug={params.projectSlug}
-                processusSlug={processusExist.slug}
-                options={options}
-            />
+            <ContainerBreadCrumb>
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/`}>Projets</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectDetail.label}</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus`}>Processus</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/${params.processusSlug}`}>{processusExist.label}</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/${params.processusSlug}/data/${params.dataSlug}/edit`}>Edition</BreadcrumbLink>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+            </ContainerBreadCrumb>
+            <ContainerForm>
+                <EditDynamicForm
+                    inputs={inputs ? inputs.map((input) => ({
+                        ...input,
+                        clientId: projectDetail.clientId,
+                        softwareLabel: processusExist.label,
+                        projectLabel: projectDetail.label,
+                    })) : []}
+                    datas={datas}
+                    clientSlug={params.clientSlug}
+                    projectSlug={params.projectSlug}
+                    processusSlug={processusExist.slug}
+                    options={options}
+                    disabled={true}
+                />
+            </ContainerForm>
         </Container>
     )
 }

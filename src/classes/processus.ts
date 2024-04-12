@@ -51,6 +51,32 @@ export interface IProcessus {
         status: string;
         type: string;
     }[]>,
+    approve({
+        processusSlug,
+        clientSlug,
+        projectSlug
+    }: {
+        processusSlug: string,
+        clientSlug: string,
+        projectSlug: string
+    }): void
+    approveRecord({
+        processusSlug,
+        clientSlug,
+        projectSlug,
+        recordSlug,
+        isApproved,
+        isRefused
+    }: {
+        processusSlug: string,
+        clientSlug: string,
+        projectSlug: string,
+        recordSlug: string,
+        isApproved?: boolean,
+        isRefused?: boolean
+
+    }): void
+
 
 }
 

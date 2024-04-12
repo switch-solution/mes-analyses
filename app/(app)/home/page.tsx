@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/tabs"
 import { User } from "@/src/classes/user"
 import { getAuthSession } from "@/lib/auth"
-import { redirect } from 'next/navigation';
+import { redirect } from 'next/navigation'
 
 export default async function Page() {
     const today = new Date().toLocaleDateString()
@@ -60,14 +60,11 @@ export default async function Page() {
     if (!userId) {
         throw new Error("ID utilisateur manquant")
     }
-    console.log(session)
     const user = new User(userId)
     const userIsSetup = await user.userIsSetup()
-    console.log(userIsSetup)
     if (!userIsSetup) {
-        console.log("redirect")
         redirect("/setup/cgv")
-        return
+
     }
     const client = await user.getMyClientActive()
     if (!client) {

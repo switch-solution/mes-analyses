@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { SoftwaresSchema, CreateUserSoftwareSchema } from "@/src/helpers/definition";
 import { createLog } from "@/src/query/logger.query";
 import type { Logger } from "@/src/helpers/type";
-import { generateSlug } from "@/src/helpers/generateSlug"
+import { User } from "@/src/classes/user";
 import { getClientSirenBySlug } from "@/src/query/client.query";
 import { authentificationActionUserIsAdminClient, ActionError } from "@/lib/safe-actions";
 import z from "zod";
@@ -117,82 +117,29 @@ export const createUserSoftware = authentificationActionUserIsAdminClient(Create
     redirect(`/client/${clientSlug}/administrator/software/${softwareSlug}/user`)
 })
 
-export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresSchema, async (values: z.infer<typeof SoftwaresSchema>, { clientId, userId }) => {
+export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresSchema, async (values: z.infer<typeof SoftwaresSchema>, { clientId, userId, clientSlug }) => {
 
-    const { label, clientSlug } = SoftwaresSchema.parse(values)
-    const slug = generateSlug(`${clientSlug}-${label}`)
+    const { label } = SoftwaresSchema.parse(values)
+    const software = new Software('')
+    const softwareExist = await software.softwareLabelExistForThisClient(label, clientId)
+    if (softwareExist) throw new ActionError("Le logiciel existe déjà.")
     try {
-        const softwareExist = await prisma.software.findFirst({
-            where: {
-                label,
-                clientId
-            }
+        const soft = await software.create({
+            clientId,
+            label,
+            userId
         })
-        if (softwareExist) {
-            const log: Logger = {
-                level: "error",
-                message: `Erreur lors de la création du logiciel ${label} `,
-                scope: "software",
-                clientId: clientId,
-            }
-            await createLog(log)
-            throw new ActionError("Ce logiciel existe déjà.")
+        if (!soft) {
+            throw new ActionError("Une erreur est survenue lors de la création du logiciel.")
         }
-        await prisma.userSoftware.updateMany({
+        await prisma.userOtherData.update({
             where: {
                 userId: userId
             },
             data: {
-                isActivated: false
+                isSetup: true
             }
         })
-        await prisma.software.create({
-            data: {
-                label,
-                slug,
-                clientId: clientId,
-                createdBy: userId,
-                UserSoftware: {
-                    create: {
-                        userId,
-                        isEditor: true,
-                        isActivated: true
-                    }
-
-                }
-            }
-        })
-        //Move to new default software
-
-
-        const defaultSetting = await prisma.default_Setting.findMany()
-        let countSetting = await prisma.software_Setting.count()
-        const softwareSetting = defaultSetting.map(setting => {
-            countSetting = countSetting + 1
-            return {
-                id: setting.id,
-                label: setting.label,
-                description: setting.description,
-                value: setting.value,
-                softwareLabel: label,
-                clientId: clientId,
-                createdBy: userId,
-                slug: generateSlug(`setting-${countSetting}`)
-            }
-
-        })
-        await prisma.software_Setting.createMany({
-            data: softwareSetting
-        })
-
-        const log: Logger = {
-            level: "info",
-            message: `Le logiciel ${label} a été ajouté`,
-            scope: "software",
-            clientId: clientId,
-        }
-
-        await createLog(log)
     } catch (err: unknown) {
 
         console.error(err)

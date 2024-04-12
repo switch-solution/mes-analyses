@@ -15,6 +15,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
+
 import {
     Card,
     CardContent,
@@ -30,7 +31,6 @@ import {
     PaginationItem,
 } from "@/components/ui/pagination"
 import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
 import {
     Table,
     TableBody,
@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/tabs"
 import { User } from "@/src/classes/user"
 import { Security } from "@/src/classes/security"
+import AlertApproveProcessus from "@/components/alert/alertApproveProcessus"
 import { notFound } from "next/navigation"
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const project = new Project(params.projectSlug)
@@ -60,9 +61,9 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const client = await user.getMyClientActive()
     const projectDetails = await project.projectDetails()
     const processus = await project.processus()
-    const processusEnable = processus.filter((processus) => processus.status === 'Actif')
-    const processusDisable = processus.filter((processus) => processus.status !== 'Actif')
-    console.log(processusDisable)
+    const processusOpen = processus.filter((processus) => processus.isOpen === true)
+    const processusPending = processus.filter((processus) => processus.isPending === true)
+    const processusInProgress = processus.filter((processus) => processus.isProgress === true)
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -132,12 +133,15 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                 </CardFooter>
                             </Card>
                         </div>
-                        <Tabs defaultValue="enable">
+                        <Tabs defaultValue="isOpen">
                             <div className="flex items-center">
                                 <TabsList>
-                                    <TabsTrigger value="enable">Actif</TabsTrigger>
-                                    <TabsTrigger value="archived">Archivé</TabsTrigger>
-                                    <TabsTrigger value="notStarted">En attente</TabsTrigger>
+                                    <TabsTrigger value="isOpen">Actif</TabsTrigger>
+                                    <TabsTrigger value="isPending">En attente</TabsTrigger>
+                                    <TabsTrigger value="isProgress">En cours de validation</TabsTrigger>
+                                    <TabsTrigger value="isFinish">Validé</TabsTrigger>
+                                    <TabsTrigger value="isReopn">Réouverture</TabsTrigger>
+
                                 </TabsList>
                                 <div className="ml-auto flex items-center gap-2">
 
@@ -151,7 +155,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                     </Button>
                                 </div>
                             </div>
-                            <TabsContent value="enable">
+                            <TabsContent value="isOpen">
                                 <Card x-chunk="dashboard-05-chunk-3">
                                     <CardHeader className="px-7">
                                         <CardTitle>Etape</CardTitle>
@@ -173,11 +177,70 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                     <TableHead className="hidden md:table-cell">
                                                         Ouvrir
                                                     </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Valider
+                                                    </TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
                                                 {
-                                                    processusEnable.map((processus) => (
+                                                    processusOpen.map((processus) => (
+                                                        <TableRow key={processus.id} className="bg-accent">
+                                                            <TableCell>
+                                                                <div className="font-medium">{processus.label}</div>
+                                                            </TableCell>
+                                                            <TableCell className="hidden sm:table-cell">
+                                                                <Badge className="text-xs" variant="secondary">
+                                                                    {processus.status}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                {processus.createdAt.toLocaleDateString()}
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                <Link href={`/client/${client.clientSlug}/project/${params.projectSlug}/processus/${processus.processusSlug}`}>
+                                                                    <ArrowRight />
+                                                                </Link>
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                <AlertApproveProcessus processusSlug={processus.processusSlug} clientSlug={client.clientSlug} projectSlug={params.projectSlug} />
+                                                            </TableCell>
+                                                        </TableRow>
+
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                            <TabsContent value="isPending">
+                                <Card x-chunk="dashboard-05-chunk-3">
+                                    <CardHeader className="px-7">
+                                        <CardTitle>Etape</CardTitle>
+                                        <CardDescription>
+                                            Liste des étapes en attente
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Titre</TableHead>
+                                                    <TableHead className="hidden sm:table-cell">
+                                                        Thême
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Date de création
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Ouvrir
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {
+                                                    processusPending.map((processus) => (
                                                         <TableRow key={processus.id} className="bg-accent">
                                                             <TableCell>
                                                                 <div className="font-medium">{processus.label}</div>
@@ -204,7 +267,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                     </CardContent>
                                 </Card>
                             </TabsContent>
-                            <TabsContent value="notStarted">
+                            <TabsContent value="isProgress">
                                 <Card x-chunk="dashboard-05-chunk-3">
                                     <CardHeader className="px-7">
                                         <CardTitle>Etape</CardTitle>
@@ -218,7 +281,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                 <TableRow>
                                                     <TableHead>Titre</TableHead>
                                                     <TableHead className="hidden sm:table-cell">
-                                                        Status
+                                                        Thême
                                                     </TableHead>
                                                     <TableHead className="hidden md:table-cell">
                                                         Date de création
@@ -230,7 +293,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                             </TableHeader>
                                             <TableBody>
                                                 {
-                                                    processusDisable.map((processus) => (
+                                                    processusInProgress.map((processus) => (
                                                         <TableRow key={processus.id} className="bg-accent">
                                                             <TableCell>
                                                                 <div className="font-medium">{processus.label}</div>

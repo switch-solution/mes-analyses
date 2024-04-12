@@ -18,6 +18,17 @@ import { formV0009 } from './seed/16_form.v0009.seed'
 import { formV0010 } from './seed/17_form.v0010.seed'
 import { formV0011 } from './seed/18_form.v0011.seed'
 import { legalV0001Seed } from './seed/19_legal.v0001.seed'
+import { processusV0002 } from './seed/20_processus.v0002.seed'
+import { formV0012 } from './seed/21_form.v0012.seed'
+import { formV0013 } from './seed/22_form.v0013.seed'
+import { processusV0003 } from './seed/23_processus.v0003.seed'
+import { formV0014 } from './seed/24_form.v0014.seed'
+import { settingV0002 } from './seed/25_setting.v0002.seed'
+import { processusV0004 } from './seed/26_processus.v0004.seed'
+import { formV0015 } from './seed/27_form.v0015.seed'
+import { settingV0003 } from './seed/28_setting.v0003.seed'
+import { settingV0004 } from './seed/29_setting.v0004.seed'
+import { formV0016 } from './seed/30_form.v0016.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -206,6 +217,105 @@ const main = async () => {
             process.exit(1)
         })
     await legalV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await processusV0002.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0012.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0013.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await processusV0003.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0014.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await settingV0002.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await processusV0004.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0015.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await settingV0003.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await settingV0004.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0016.run()
         .then(async () => {
             await prisma.$disconnect()
         })

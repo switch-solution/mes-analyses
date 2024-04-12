@@ -14,13 +14,15 @@ import {
     LineChart,
     CircleUserRound,
     Settings,
+    Building2,
     Users2,
     PanelLeft,
     Package2,
     ShoppingCart,
     Package,
     MessageCircle,
-    Pencil
+    Pencil,
+    Check
 } from "lucide-react"
 import { User } from "@/src/classes/user"
 import { getAuthSession } from "@/lib/auth";
@@ -37,7 +39,10 @@ export default async function NavBar() {
     }
     const user = new User(userId)
     const userIsSetup = await user.userIsSetup()
+    if (!userIsSetup) {
+        redirect("/setup/cgv")
 
+    }
     const client = await user.getMyClientActive()
     if (!client) {
         throw new Error("Client manquant")
@@ -66,7 +71,7 @@ export default async function NavBar() {
                                     href={`/client/${client.clientSlug}/administration`}
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
                                 >
-                                    <Users2 className="size-5" />
+                                    <Building2 className="size-5" />
                                     <span className="sr-only">Client</span>
                                 </Link>
                             </TooltipTrigger>
@@ -87,6 +92,18 @@ export default async function NavBar() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link
+                                    href={`/client/${client.clientSlug}/validation`}
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <Check className="size-5" />
+                                    <span className="sr-only">Validation</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Validation</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
                                     href={`/client/${client.clientSlug}/`}
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
                                 >
@@ -95,6 +112,18 @@ export default async function NavBar() {
                                 </Link>
                             </TooltipTrigger>
                             <TooltipContent side="right">Requetes</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href={`/client/${client.clientSlug}/administration/invitation`}
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <Users2 className="size-5" />
+                                    <span className="sr-only">Inviter des utilisateurs</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Inviter des utilisateurs</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                             <TooltipTrigger asChild>

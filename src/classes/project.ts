@@ -86,7 +86,11 @@ export class Project {
                                 }
                             }
                         }
-                    }
+                    },
+
+                },
+                orderBy: {
+                    order: 'asc'
                 }
             })
             let count = await prisma.project_Processus.count()
@@ -106,6 +110,25 @@ export class Project {
                         createdBy: "system"
                     }
                 })
+            })
+
+            await prisma.project_Processus.update({
+                where: {
+                    clientId_projectLabel_softwareLabel_id_version: {
+                        clientId,
+                        projectLabel,
+                        softwareLabel,
+                        id: softwareProcessus[0].processusId,
+                        version: softwareProcessus[0].processusVersion
+                    },
+                    order: 1
+
+                },
+                data: {
+                    status: 'Actif',
+                    isOpen: true,
+                    isPending: false
+                }
             })
 
         } catch (err) {
