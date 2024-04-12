@@ -147,7 +147,6 @@ CREATE TABLE "Invitation" (
     "projectSoftwareLabel" TEXT,
     "isAdministratorClient" BOOLEAN NOT NULL DEFAULT false,
     "isEditorClient" BOOLEAN NOT NULL DEFAULT false,
-    "source" TEXT NOT NULL,
     "isArchived" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Invitation_pkey" PRIMARY KEY ("email","clientId")
@@ -834,17 +833,58 @@ CREATE TABLE "Project_Absence" (
     "clientId" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'En cours',
-    "settlement" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
     "isSocialSecurity" BOOLEAN NOT NULL DEFAULT false,
     "softwareLabel" TEXT NOT NULL,
     "source" TEXT NOT NULL DEFAULT 'analyse',
-    "societyId" TEXT,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
     CONSTRAINT "Project_Absence_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Society_Absence" (
+    "clientId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "societyId" TEXT NOT NULL,
+    "absenceId" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL DEFAULT false,
+    "isPending" BOOLEAN NOT NULL DEFAULT false,
+    "isOpen" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL,
+    "updateAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Project_Society_Absence_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","societyId","absenceId")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Absence_Archived" (
+    "slug" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "dsnId" TEXT,
+    "method" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL DEFAULT false,
+    "isPending" BOOLEAN NOT NULL DEFAULT false,
+    "isOpen" BOOLEAN NOT NULL DEFAULT true,
+    "population" TEXT,
+    "description" TEXT,
+    "clientId" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "isSocialSecurity" BOOLEAN NOT NULL DEFAULT false,
+    "softwareLabel" TEXT NOT NULL,
+    "source" TEXT NOT NULL DEFAULT 'analyse',
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+    "version" INTEGER NOT NULL,
+
+    CONSTRAINT "Project_Absence_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel","version")
 );
 
 -- CreateTable
@@ -913,8 +953,9 @@ CREATE TABLE "Project_Establishment_Archived" (
 CREATE TABLE "Project_Establishment_Idcc" (
     "clientId" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
-    "isFinished" BOOLEAN NOT NULL DEFAULT false,
     "isApproved" BOOLEAN NOT NULL DEFAULT false,
+    "isPending" BOOLEAN NOT NULL DEFAULT false,
+    "isOpen" BOOLEAN NOT NULL DEFAULT true,
     "source" TEXT NOT NULL DEFAULT 'analyse',
     "projectLabel" TEXT NOT NULL,
     "societyId" TEXT NOT NULL,
@@ -938,6 +979,65 @@ CREATE TABLE "Project_Establishement_Rate_AT" (
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
     CONSTRAINT "Project_Establishement_Rate_AT_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","societyId","establishmentNic","idRateAt")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Free_Zone" (
+    "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL DEFAULT false,
+    "isPending" BOOLEAN NOT NULL DEFAULT false,
+    "isOpen" BOOLEAN NOT NULL DEFAULT true,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "label" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Free_Zone_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Free_Zone_Archived" (
+    "slug" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "version" INTEGER NOT NULL,
+
+    CONSTRAINT "Project_Free_Zone_Archived_pkey" PRIMARY KEY ("id","type","clientId","softwareLabel","projectLabel","version")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Society_Free_Zone" (
+    "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "societyId" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL DEFAULT false,
+    "isPending" BOOLEAN NOT NULL DEFAULT false,
+    "isOpen" BOOLEAN NOT NULL DEFAULT true,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "zoneId" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Society_Free_Zone_pkey" PRIMARY KEY ("zoneId","clientId","softwareLabel","projectLabel","societyId")
 );
 
 -- CreateTable
@@ -1606,30 +1706,142 @@ CREATE TABLE "Logger" (
 );
 
 -- CreateTable
-CREATE TABLE "Project_Items" (
-    "id" TEXT NOT NULL,
-    "projectLabel" TEXT NOT NULL,
-    "projectSoftwareLabel" TEXT NOT NULL,
+CREATE TABLE "Project_Salary" (
     "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "description" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "baseType" TEXT,
+    "base" TEXT,
+    "rateType" TEXT,
+    "rate" TEXT,
+    "source" TEXT NOT NULL DEFAULT 'analyse',
+    "amoutType" TEXT,
+    "amount" TEXT,
+    "slug" TEXT NOT NULL,
     "isApproved" BOOLEAN NOT NULL DEFAULT false,
     "isPending" BOOLEAN NOT NULL DEFAULT false,
     "isOpen" BOOLEAN NOT NULL DEFAULT true,
-    "type" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Salary_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Salary_Archived" (
+    "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
     "label" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "idccCode" TEXT NOT NULL,
+    "description" TEXT,
+    "method" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "baseType" TEXT NOT NULL,
+    "base" TEXT NOT NULL,
+    "rateType" TEXT NOT NULL,
     "version" INTEGER NOT NULL,
+    "rate" TEXT NOT NULL,
+    "amoutType" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "amount" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL,
+    "isPending" BOOLEAN NOT NULL,
+    "isOpen" BOOLEAN NOT NULL,
+
+    CONSTRAINT "Project_Salary_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel","version")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Contribution" (
+    "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "description" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'En cours',
+    "baseType" TEXT NOT NULL,
+    "base" TEXT NOT NULL,
+    "employeeType" TEXT NOT NULL,
+    "employee" TEXT NOT NULL,
+    "employType" TEXT NOT NULL,
+    "employ" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "amoutType" TEXT NOT NULL,
+    "amount" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL DEFAULT false,
+    "isPending" BOOLEAN NOT NULL DEFAULT false,
+    "isOpen" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Contribution_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Contribution_Archived" (
+    "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "description" TEXT,
+    "status" TEXT NOT NULL,
+    "baseType" TEXT NOT NULL,
+    "base" TEXT NOT NULL,
+    "employeeType" TEXT NOT NULL,
+    "employee" TEXT NOT NULL,
+    "employType" TEXT NOT NULL,
+    "employ" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "amoutType" TEXT NOT NULL,
+    "amount" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL,
+    "isPending" BOOLEAN NOT NULL,
+    "isOpen" BOOLEAN NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
-    "base" TEXT NOT NULL,
-    "rate" TEXT NOT NULL,
-    "amount" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
-    "employeeContribution" TEXT NOT NULL,
-    "employerContribution" TEXT NOT NULL,
 
-    CONSTRAINT "Project_Items_pkey" PRIMARY KEY ("id","type","projectLabel","projectSoftwareLabel","clientId","version")
+    CONSTRAINT "Project_Contribution_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Society_Contribution" (
+    "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "societyId" TEXT NOT NULL,
+    "contributionId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Society_Contribution_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","societyId","contributionId")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Society_Salary" (
+    "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "societyId" TEXT NOT NULL,
+    "salaryId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Society_Salary_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","societyId","salaryId")
 );
 
 -- CreateTable
@@ -2411,10 +2623,22 @@ CREATE UNIQUE INDEX "Project_Society_Archived_slug_key" ON "Project_Society_Arch
 CREATE UNIQUE INDEX "Project_Absence_slug_key" ON "Project_Absence"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Project_Absence_Archived_slug_key" ON "Project_Absence_Archived"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Project_Establishment_slug_key" ON "Project_Establishment"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Establishment_Archived_slug_key" ON "Project_Establishment_Archived"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Free_Zone_slug_key" ON "Project_Free_Zone"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Free_Zone_Archived_slug_key" ON "Project_Free_Zone_Archived"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Society_Free_Zone_slug_key" ON "Project_Society_Free_Zone"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Rate_AT_slug_key" ON "Project_Rate_AT"("slug");
@@ -2478,6 +2702,9 @@ CREATE UNIQUE INDEX "Project_Mutuelle_slug_key" ON "Project_Mutuelle"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Mutuelle_Archived_slug_key" ON "Project_Mutuelle_Archived"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Salary_slug_key" ON "Project_Salary"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Constant_Legal_slug_key" ON "Constant_Legal"("slug");
@@ -2729,7 +2956,13 @@ ALTER TABLE "Project_Payrool_Item" ADD CONSTRAINT "Project_Payrool_Item_clientId
 ALTER TABLE "Project_Absence" ADD CONSTRAINT "Project_Absence_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Absence" ADD CONSTRAINT "Project_Absence_projectLabel_softwareLabel_clientId_societ_fkey" FOREIGN KEY ("projectLabel", "softwareLabel", "clientId", "societyId") REFERENCES "Project_Society"("projectLabel", "softwareLabel", "clientId", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Project_Society_Absence" ADD CONSTRAINT "Society" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "societyId") REFERENCES "Project_Society"("clientId", "softwareLabel", "projectLabel", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Society_Absence" ADD CONSTRAINT "Absence" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "absenceId") REFERENCES "Project_Absence"("clientId", "softwareLabel", "projectLabel", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Absence_Archived" ADD CONSTRAINT "Project_Absence_Archived_clientId_softwareLabel_projectLab_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "id") REFERENCES "Project_Absence"("clientId", "softwareLabel", "projectLabel", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Establishment" ADD CONSTRAINT "Project_Establishment_clientId_softwareLabel_societyId_pro_fkey" FOREIGN KEY ("clientId", "softwareLabel", "societyId", "projectLabel") REFERENCES "Project_Society"("clientId", "softwareLabel", "siren", "projectLabel") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2748,6 +2981,15 @@ ALTER TABLE "Project_Establishement_Rate_AT" ADD CONSTRAINT "Project_Establishem
 
 -- AddForeignKey
 ALTER TABLE "Project_Establishement_Rate_AT" ADD CONSTRAINT "Project_Establishement_Rate_AT_clientId_softwareLabel_proj_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "idRateAt") REFERENCES "Project_Rate_AT"("clientId", "softwareLabel", "projectLabel", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Free_Zone_Archived" ADD CONSTRAINT "Project_Free_Zone_Archived_id_clientId_softwareLabel_proje_fkey" FOREIGN KEY ("id", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Free_Zone"("id", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Society_Free_Zone" ADD CONSTRAINT "Project_Society_Free_Zone_clientId_softwareLabel_projectLa_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "societyId") REFERENCES "Project_Society"("clientId", "softwareLabel", "projectLabel", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Society_Free_Zone" ADD CONSTRAINT "Project_Society_Free_Zone_zoneId_clientId_softwareLabel_pr_fkey" FOREIGN KEY ("zoneId", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Free_Zone"("id", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Rate_AT" ADD CONSTRAINT "Project_Rate_AT_projectClientId_projectSoftwareLabel_proje_fkey" FOREIGN KEY ("projectClientId", "projectSoftwareLabel", "projectLabel") REFERENCES "Project"("clientId", "softwareLabel", "label") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2846,10 +3088,28 @@ ALTER TABLE "Logger" ADD CONSTRAINT "Logger_clientId_fkey" FOREIGN KEY ("clientI
 ALTER TABLE "Logger" ADD CONSTRAINT "Logger_clientId_projectLabel_projectSoftwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "projectSoftwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Items" ADD CONSTRAINT "Project_Items_projectLabel_projectSoftwareLabel_clientId_fkey" FOREIGN KEY ("projectLabel", "projectSoftwareLabel", "clientId") REFERENCES "Project"("label", "softwareLabel", "clientId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Project_Salary" ADD CONSTRAINT "Project_Salary_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "softwareLabel", "label") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Items" ADD CONSTRAINT "Project_Items_idccCode_fkey" FOREIGN KEY ("idccCode") REFERENCES "Idcc"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Project_Salary_Archived" ADD CONSTRAINT "Project_Salary_Archived_id_clientId_softwareLabel_projectL_fkey" FOREIGN KEY ("id", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Salary"("id", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Contribution" ADD CONSTRAINT "Project_Contribution_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "softwareLabel", "label") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Contribution_Archived" ADD CONSTRAINT "Project_Contribution_Archived_id_clientId_softwareLabel_pr_fkey" FOREIGN KEY ("id", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Contribution"("id", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Society_Contribution" ADD CONSTRAINT "Society" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "societyId") REFERENCES "Project_Society"("clientId", "softwareLabel", "projectLabel", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Society_Contribution" ADD CONSTRAINT "Contribution" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "contributionId") REFERENCES "Project_Contribution"("clientId", "softwareLabel", "projectLabel", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Society_Salary" ADD CONSTRAINT "Society" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "societyId") REFERENCES "Project_Society"("clientId", "softwareLabel", "projectLabel", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Society_Salary" ADD CONSTRAINT "Salary" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "salaryId") REFERENCES "Project_Salary"("clientId", "softwareLabel", "projectLabel", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Constant_Legal" ADD CONSTRAINT "Constant_Legal_idccCode_fkey" FOREIGN KEY ("idccCode") REFERENCES "Idcc"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
