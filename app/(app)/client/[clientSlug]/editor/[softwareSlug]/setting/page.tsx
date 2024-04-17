@@ -12,7 +12,6 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { User } from "@/src/classes/user";
-import { s } from "vitest/dist/reporters-P7C2ytIv.js";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()

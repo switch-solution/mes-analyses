@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
 import { CreateClassificationSchema } from "@/src/helpers/definition";
 import { generateSlug } from "@/src/helpers/generateSlug"
-import { n } from "vitest/dist/reporters-P7C2ytIv.js";
 export class StandardProcessusNiveau implements IProcessus {
     projectLabel: string
     softwareLabel: string

@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma'
-import { s } from 'vitest/dist/reporters-P7C2ytIv.js'
 
 export class User {
     userId: string
