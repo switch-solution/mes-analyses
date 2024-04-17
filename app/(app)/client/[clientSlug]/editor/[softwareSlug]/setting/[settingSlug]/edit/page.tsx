@@ -40,7 +40,7 @@ export default async function Page({ params }: { params: { clientSlug: string, s
             </Breadcrumb>
         </ContainerBreadCrumb>
         <ContainerForm>
-            <EditSoftwareSetting clientSlug={params.clientSlug} setting={setting} />
+            <EditSoftwareSetting clientSlug={params.clientSlug} softwareSlug={params.softwareSlug} setting={setting} />
         </ContainerForm>
     </Container>)
 }

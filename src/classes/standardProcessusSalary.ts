@@ -2,15 +2,16 @@ import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
 import { SalaryCreateSchema, BankEditSchema } from "@/src/helpers/definition";
 import { generateSlug } from "@/src/helpers/generateSlug"
-import { th } from "date-fns/locale";
 export class StandardProcessusSalary implements IProcessus {
     projectLabel: string
     softwareLabel: string
     clientId: string
-    constructor(projectLabel: string, softwareLabel: string, clientId: string) {
+    processusSlug: string
+    constructor(projectLabel: string, softwareLabel: string, clientId: string, processusSlug: string) {
         this.projectLabel = projectLabel
         this.softwareLabel = softwareLabel
         this.clientId = clientId
+        this.processusSlug = processusSlug
     }
 
     async read(slug: string): Promise<{}> {
@@ -146,6 +147,97 @@ export class StandardProcessusSalary implements IProcessus {
     }
     approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
         throw new Error("Method not implemented.")
+    }
+    async extraction(): Promise<{ datas: {}[], archived: {}[], inputs: { zodLabel: string, label: string }[] }> {
+        try {
+            const salaryList = await prisma.project_Salary.findMany({
+                where: {
+                    projectLabel: this.projectLabel,
+                    softwareLabel: this.softwareLabel,
+                    clientId: this.clientId
+                },
+                include: {
+                    Project_Salary_Archived: true
+                }
+            })
+            const datas = salaryList.map((salary) => {
+                return {
+                    id: salary.id,
+                    label: salary.label,
+                    rate: salary.rate,
+                    rateType: salary.rateType,
+                    amoutType: salary.amoutType,
+                    amount: salary.amount,
+                    base: salary.base,
+                    baseType: salary.baseType,
+                    description: salary.description,
+                    status: salary.status,
+                    source: salary.source,
+                    createdAt: salary.createdAt,
+                    updatedAt: salary.updatedAt
+                }
+            })
+
+            const archived = salaryList.map((salary) => {
+                return salary.Project_Salary_Archived.map((archived) => {
+                    return {
+                        id: archived.id,
+                        label: archived.label,
+                        rate: archived.rate,
+                        rateType: archived.rateType,
+                        amoutType: archived.amoutType,
+                        amount: archived.amount,
+                        base: archived.base,
+                        baseType: archived.baseType,
+                        description: archived.description,
+                        status: archived.status,
+                        source: archived.source,
+                    }
+                })
+
+            }).flat(1)
+
+
+            const inputsList = await prisma.processus.findUniqueOrThrow({
+                where: {
+                    slug: this.processusSlug,
+                },
+                include: {
+                    Form: {
+                        where: {
+                            isCreate: true,
+
+                        },
+                        include: {
+                            Form_Input: {
+                                select: {
+                                    zodLabel: true,
+                                    label: true
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            const inputs = inputsList.Form.map((form) => {
+                return form.Form_Input.map((input) => {
+                    return {
+                        zodLabel: input.zodLabel,
+                        label: input.label
+                    }
+                })
+            }).flat(1)
+            const extractions = {
+                datas: datas,
+                archived: archived,
+                inputs: inputs
+            }
+
+            return extractions
+        } catch (err) {
+            console.error(err)
+            throw new Error(err as string)
+        }
     }
 
 }

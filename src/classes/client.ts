@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { generateSlug } from '../helpers/generateSlug'
+import { is } from 'date-fns/locale'
 export class Client {
     clientSlug?: string
     private _slug?: string
@@ -251,6 +252,73 @@ export class Client {
                 }
             })
             return invitation
+        } catch (err) {
+            console.log(err)
+            throw new Error(err as string)
+        }
+    }
+
+    async getProjects({ isOpen = true, isPending = false, isApproved = false }: { isOpen: boolean, isPending: boolean, isApproved: boolean }) {
+        try {
+            const projectsList = await prisma.client.findMany({
+                where: {
+                    slug: this.clientSlug
+
+                },
+                include: {
+                    Project: {
+                        where: {
+                            isOpen,
+                            isPending,
+                            isApproved
+                        },
+                        include: {
+                            Project_Processus: true
+                        }
+                    }
+                }
+            })
+            const projects = projectsList.map((project) => {
+                return project.Project.map((project) => {
+                    return {
+                        ...project
+                    }
+                })
+
+            }).flat(1)
+            return projects
+        } catch (err) {
+            console.log(err)
+            throw new Error(err as string)
+        }
+
+    }
+
+    async getUsers() {
+        try {
+            const user = await prisma.client.findMany({
+                where: {
+                    slug: this.clientSlug
+                },
+                include: {
+                    UserClient: {
+                        include: {
+                            user: true
+                        }
+                    }
+                }
+            })
+            const users = user.map(client => {
+                return client.UserClient.map(users => {
+                    return {
+                        email: users.user.email,
+                        label: users.userId
+                    }
+                })
+
+            }).flat(1)
+
+            return users
         } catch (err) {
             console.log(err)
             throw new Error(err as string)

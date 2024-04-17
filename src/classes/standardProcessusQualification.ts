@@ -6,10 +6,12 @@ export class StandardProcessusQualification implements IProcessus {
     projectLabel: string
     softwareLabel: string
     clientId: string
-    constructor(projectLabel: string, softwareLabel: string, clientId: string) {
+    processusSlug: string
+    constructor(projectLabel: string, softwareLabel: string, clientId: string, processusSlug: string) {
         this.projectLabel = projectLabel
         this.softwareLabel = softwareLabel
         this.clientId = clientId
+        this.processusSlug = processusSlug
     }
 
     async read(slug: string): Promise<{}> {
@@ -152,6 +154,67 @@ export class StandardProcessusQualification implements IProcessus {
     }
     approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
         throw new Error("Method not implemented.")
+    }
+    async extraction(): Promise<{ datas: {}[], archived: {}[], inputs: { zodLabel: string, label: string }[] }> {
+        try {
+            const qualifs = await prisma.project_Qualification.findMany({
+                where: {
+                    projectLabel: this.projectLabel,
+                    softwareLabel: this.softwareLabel,
+                    clientId: this.clientId
+                },
+
+            })
+            const datas = qualifs.map((quali) => {
+                return {
+                    id: quali.id,
+                    label: quali.label,
+                    status: quali.status,
+                    createdAt: quali.createdAt
+                }
+            })
+
+
+            const inputsList = await prisma.processus.findUniqueOrThrow({
+                where: {
+                    slug: this.processusSlug,
+                },
+                include: {
+                    Form: {
+                        where: {
+                            isCreate: true,
+
+                        },
+                        include: {
+                            Form_Input: {
+                                select: {
+                                    zodLabel: true,
+                                    label: true
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            const inputs = inputsList.Form.map((form) => {
+                return form.Form_Input.map((input) => {
+                    return {
+                        zodLabel: input.zodLabel,
+                        label: input.label
+                    }
+                })
+            }).flat(1)
+            const extractions = {
+                datas: datas,
+                archived: [],
+                inputs: inputs
+            }
+
+            return extractions
+        } catch (err) {
+            console.error(err)
+            throw new Error(err as string)
+        }
     }
 
 }

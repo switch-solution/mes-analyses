@@ -49,7 +49,7 @@ export const columns: ColumnDef<API>[] = [
     {
         id: "actions",
         cell: ({ row }) => {
-            const user = row.original
+            const api = row.original
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -61,11 +61,11 @@ export const columns: ColumnDef<API>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Mes options</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem><Link href={``}>Activité</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${api.clientSlug}/administration/api/${api.slug}/activity`}>Activité</Link></DropdownMenuItem>
                         <DropdownMenuItem><Link href={``}>Révoquer</Link></DropdownMenuItem>
                         <DropdownMenuItem onClick={() => {
-                            if (user.apiKey) {
-                                navigator.clipboard.writeText(user.apiKey);
+                            if (api.apiKey) {
+                                navigator.clipboard.writeText(api.apiKey);
                             }
                         }}>Copier la clée</DropdownMenuItem>
                     </DropdownMenuContent>

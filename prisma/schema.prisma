@@ -60,6 +60,7 @@ model User {
   UserProject     UserProject[]
   UserSoftware    UserSoftware[]
   Project_Approve Project_Approve[]
+  Logger          Logger[]
 }
 
 model UserOtherData {
@@ -125,13 +126,13 @@ model Client_API {
 model Client_API_Activity {
   clientId   String
   uuidApi    String
-  pathname   String
+  url        String
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   createdBy  String     @default("system")
   Client_API Client_API @relation(fields: [clientId, uuidApi], references: [clientId, uuid], onDelete: Cascade)
 
-  @@id([clientId, uuidApi, pathname, createdAt])
+  @@id([clientId, uuidApi, url, createdAt])
 }
 
 model UserClient {
@@ -778,7 +779,6 @@ model UserProject {
   projectClientId      String
   projectSoftwareLabel String
   projectLabel         String
-  team                 String
   role                 String?
   isBlocked            Boolean  @default(false)
 
@@ -795,6 +795,9 @@ model Project {
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   createdBy             String
+  isOpen                Boolean                 @default(true)
+  isPending             Boolean                 @default(false)
+  isApproved            Boolean                 @default(false)
   Software              Software                @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
   softwareLabel         String
   UserProject           UserProject[]
@@ -1847,6 +1850,7 @@ model Logger {
   userId               String?
   client               Client?  @relation(fields: [clientId], references: [siren])
   project              Project? @relation(fields: [clientId, projectLabel, projectSoftwareLabel], references: [clientId, label, softwareLabel])
+  user                 User?    @relation(fields: [userId], references: [id])
   projectSoftwareLabel String?
   projectLabel         String?
 }
@@ -2562,6 +2566,8 @@ model Project_Approve {
   projectSlug   String
   clientSlug    String
   label         String
+  description   String
+  theme         String
   isApproved    Boolean  @default(false)
   isRefused     Boolean  @default(false)
   comment       String?

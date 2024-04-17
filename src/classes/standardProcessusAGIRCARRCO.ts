@@ -8,10 +8,12 @@ export class StandardProcessusAgircArrco implements IProcessus {
     projectLabel: string
     softwareLabel: string
     clientId: string
-    constructor(projectLabel: string, softwareLabel: string, clientId: string) {
+    processusSlug: string
+    constructor(projectLabel: string, softwareLabel: string, clientId: string, processusSlug: string) {
         this.projectLabel = projectLabel
         this.softwareLabel = softwareLabel
         this.clientId = clientId
+        this.processusSlug = processusSlug
     }
 
     async read(slug: string): Promise<{}> {
@@ -247,6 +249,97 @@ export class StandardProcessusAgircArrco implements IProcessus {
     }
     approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
         throw new Error("Method not implemented.")
+    }
+    async extraction(): Promise<{ datas: {}[], archived: {}[], inputs: { zodLabel: string, label: string }[] }> {
+        try {
+            const agircArrco = await prisma.project_AGIRC_ARRCO.findMany({
+                where: {
+                    projectLabel: this.projectLabel,
+                    softwareLabel: this.softwareLabel,
+                    clientId: this.clientId
+                },
+                include: {
+                    Project_AGIRC_ARRCO_Archived: true
+                }
+            })
+            const datas = agircArrco.map((agirc) => {
+                return {
+                    id: agirc.id,
+                    label: agirc.label,
+                    address1: agirc.address1,
+                    address2: agirc.address2,
+                    address3: agirc.address3,
+                    address4: agirc.address4,
+                    postalCode: agirc.postalCode,
+                    city: agirc.city,
+                    country: agirc.country,
+                    status: agirc.status,
+                    createdAt: agirc.createdAt,
+                    updatedAt: agirc.updatedAt
+                }
+            })
+
+            const archived = agircArrco.map((agirc) => {
+                return agirc.Project_AGIRC_ARRCO_Archived.map((archived) => {
+                    return {
+                        id: archived.id,
+                        label: archived.label,
+                        address1: archived.address1,
+                        address2: archived.address2,
+                        address3: archived.address3,
+                        address4: archived.address4,
+                        postalCode: archived.postalCode,
+                        city: archived.city,
+                        country: archived.country,
+                        status: archived.status,
+                        createdAt: archived.createdAt,
+                        updatedAt: archived.updatedAt
+                    }
+                })
+
+            }).flat(1)
+
+
+            const inputsList = await prisma.processus.findUniqueOrThrow({
+                where: {
+                    slug: this.processusSlug,
+                },
+                include: {
+                    Form: {
+                        where: {
+                            isCreate: true,
+
+                        },
+                        include: {
+                            Form_Input: {
+                                select: {
+                                    zodLabel: true,
+                                    label: true
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            const inputs = inputsList.Form.map((form) => {
+                return form.Form_Input.map((input) => {
+                    return {
+                        zodLabel: input.zodLabel,
+                        label: input.label
+                    }
+                })
+            }).flat(1)
+            const extractions = {
+                datas: datas,
+                archived: archived,
+                inputs: inputs
+            }
+
+            return extractions
+        } catch (err) {
+            console.error(err)
+            throw new Error(err as string)
+        }
     }
 
 }

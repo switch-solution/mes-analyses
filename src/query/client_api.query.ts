@@ -26,3 +26,36 @@ export const getApiByClientSlug = async (clientSlug: string) => {
 
 }
 
+export const getApiActivityByUuid = async (apiSlug: string) => {
+    try {
+        const api = await prisma.client_API.findMany({
+            where: {
+                slug: apiSlug
+            },
+            include: {
+                Client_API_Activity: {
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                },
+
+            },
+
+        })
+        const activity = api.map(api => {
+            return api.Client_API_Activity.map(activity => {
+                return {
+                    url: activity.url,
+                    createdAt: api.createdAt
+                }
+            })
+
+        }).flat(1)
+        return activity
+    } catch (err) {
+        console.error(err)
+        throw new Error("Une erreur est survenue")
+    }
+
+}
+

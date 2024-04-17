@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { ButtonLoading } from "@/components/ui/button-loader";
-import { createSoftware } from "@/src/features/actions/software/software.actions"
 import { createSetupSoftware } from "@/src/features/actions/setup/setup.actions"
 import {
     Form,
@@ -31,31 +30,10 @@ export default function CreateSoftware({ clientSlug, setup = false }: { clientSl
     const onSubmit = async (data: z.infer<typeof SoftwareCreateSchema>) => {
         try {
             setLoading(true)
-            if (setup) {
-                const action = await createSetupSoftware(data)
-                if (action?.serverError) {
-                    setLoading(false)
-                    toast(`${action.serverError}`, {
-                        description: new Date().toLocaleDateString(),
-                        action: {
-                            label: "fermer",
-                            onClick: () => console.log("fermeture"),
-                        },
-                    })
-                }
-            } else {
-                const action = await createSoftware(data)
-                if (action?.serverError) {
-                    setLoading(false)
-                    toast(`${action.serverError}`, {
-                        description: new Date().toLocaleDateString(),
-                        action: {
-                            label: "fermer",
-                            onClick: () => console.log("fermeture"),
-                        },
-                    })
-                }
-                toast(`Vous venez de changer de logiciel`, {
+            const action = await createSetupSoftware(data)
+            if (action?.serverError) {
+                setLoading(false)
+                toast(`${action.serverError}`, {
                     description: new Date().toLocaleDateString(),
                     action: {
                         label: "fermer",
@@ -98,7 +76,7 @@ export default function CreateSoftware({ clientSlug, setup = false }: { clientSl
                                     <Input placeholder="Nom du logiciel" {...field} required />
                                 </FormControl>
                                 <FormDescription>
-                                    Nom de éditeur du logiciel
+                                    Nom du logiciel
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>

@@ -9,7 +9,7 @@ export class User {
 
     async getMyClientsAll() {
         try {
-            const clients = await prisma.userClient.findMany({
+            const clientsList = await prisma.userClient.findMany({
                 where: {
                     userId: this.userId,
                 },
@@ -18,7 +18,11 @@ export class User {
                 }
 
             })
-
+            const clients = clientsList.map(user => {
+                return {
+                    ...user.client
+                }
+            })
             return clients
         } catch (err) {
             console.error(err)
@@ -72,12 +76,17 @@ export class User {
 
     async getMySoftwaresAll() {
         try {
-            const softwares = await prisma.userSoftware.findMany({
+            const softwaresList = await prisma.userSoftware.findMany({
                 where: {
                     userId: this.userId,
                 },
                 include: {
                     software: true
+                }
+            })
+            const softwares = softwaresList.map(user => {
+                return {
+                    ...user.software
                 }
             })
             return softwares
@@ -159,21 +168,6 @@ export class User {
 
     }
 
-    async myActivity() {
-        try {
-            const myActivity = await prisma.logger.findMany({
-                where: {
-                    userId: this.userId,
-                },
-            })
-            return myActivity
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la récupération des logs.`)
-        }
-
-    }
-
     async getUserOtherData() {
         try {
             const user = await prisma.userOtherData.findFirstOrThrow({
@@ -208,6 +202,39 @@ export class User {
             throw new Error(`Une erreur est survenue lors de la récupération des validations.`)
         }
 
+    }
+
+    async getLogs() {
+        try {
+            const logsList = await prisma.user.findMany({
+                where: {
+                    id: this.userId
+                },
+                include: {
+                    Logger: {
+                        orderBy: {
+                            createdAt: 'desc'
+                        }
+                    }
+                },
+                take: 100
+
+            })
+            const logs = logsList.map(user => {
+                return user.Logger.map(log => {
+                    return {
+                        ...log
+                    }
+                })
+
+            }).flat(1)
+            return logs
+
+
+        } catch (err) {
+            console.error(err)
+            throw new Error(`Une erreur est survenue lors de la récupération des logs.`)
+        }
     }
 
 

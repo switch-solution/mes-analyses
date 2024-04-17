@@ -45,5 +45,30 @@ export class Editor {
 
     }
 
+    async getCountSoftwareElement() {
+        try {
+            const countSetting = await prisma.software_Setting.count({
+                where: {
+                    softwareLabel: this.softwareActiveLabel
+                }
+            });
+            const countConstant = await prisma.software_Constant_Legal.count({
+                where: {
+                    softwareLabel: this.softwareActiveLabel
+                }
+
+            })
+            return {
+                countSetting: countSetting ? countSetting : 0,
+                countConstant: countConstant ? countConstant : 0
+            }
+
+        } catch (err) {
+            console.log(err);
+            throw new Error("Impossible de récupèrer les données IDCC");
+        }
+
+    }
+
 
 }

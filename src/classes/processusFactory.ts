@@ -38,73 +38,73 @@ export class ProcessusFactory {
 
         switch (processusSlug) {
             case 'Standard_Processus_DSN':
-                return new StandardProcessusDsn(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusDsn(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Society':
-                return new StandardProcessusSociety(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusSociety(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Establishment':
-                return new StandardProcessusEstablishment(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusEstablishment(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_URSSAF':
-                return new StandardProcessusUrssaf(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusUrssaf(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_RateAt':
-                return new StandardProcessusRateAt(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusRateAt(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_job':
-                return new StandardProcessusJob(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusJob(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_ccn':
-                return new StandardProcessusCcn(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusCcn(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_coefficient':
-                return new StandardProcessusCoefficient(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusCoefficient(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_niveau':
-                return new StandardProcessusNiveau(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusNiveau(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_echelon':
-                return new StandardProcessusEchelon(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusEchelon(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_indice':
-                return new StandardProcessusIndice(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusIndice(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_qualification':
-                return new StandardProcessusQualification(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusQualification(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_AGIRC-ARRCO':
-                return new StandardProcessusAgircArrco(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusAgircArrco(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Prevoyance':
-                return new StandardProcessusPrevoyance(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusPrevoyance(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Mutuelle':
-                return new StandardProcessusMutual(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusMutual(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_CP':
-                return new StandardProcessusPaidLeave(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusPaidLeave(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_services':
-                return new StandardProcessusService(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusService(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Bank':
-                return new StandardProcessusBank(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusBank(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Establisment_Bank':
-                return new StandardProcessusEstablishmentBank(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusEstablishmentBank(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Free_Zones':
-                return new StandardProcessusFreeZone(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusFreeZone(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Society_Free_Zone':
-                return new StandardProcessusSocietyFreeZone(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusSocietyFreeZone(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Absences':
-                return new StandardProcessusAbsence(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusAbsence(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
             case 'Standard_Processus_Salary':
-                return new StandardProcessusSalary(projectLabel, sofwareLabel, clientId)
+                return new StandardProcessusSalary(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
 
             default:

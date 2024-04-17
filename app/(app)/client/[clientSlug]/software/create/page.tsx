@@ -1,7 +1,8 @@
-import SoftwareCreateForm from "@/components/form/software/SoftwareCreateForm"
 import { Container, ContainerBreadCrumb } from "@/components/layout/container";
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
+import CreateSoftware from "@/components/form/software/createSoftware";
+
 export default async function Page({ params }: { params: { clientSlug: string } }) {
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
@@ -13,7 +14,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     if (!isAdmin) throw new Error("Vous n'avez pas les droits pour acceder à cette page.")
     return (
         <Container>
-            <SoftwareCreateForm clientSlug={params.clientSlug} />
+            <CreateSoftware clientSlug={params.clientSlug} />
         </Container>
     )
 }

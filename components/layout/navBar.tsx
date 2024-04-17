@@ -22,6 +22,7 @@ import {
     Package,
     MessageCircle,
     Pencil,
+    Workflow,
     Check
 } from "lucide-react"
 import { User } from "@/src/classes/user"
@@ -41,7 +42,6 @@ export default async function NavBar() {
     const userIsSetup = await user.userIsSetup()
     if (!userIsSetup) {
         redirect("/setup/cgv")
-
     }
     const client = await user.getMyClientActive()
     if (!client) {
@@ -92,10 +92,10 @@ export default async function NavBar() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link
-                                    href={`/client/${client.clientSlug}/validation`}
+                                    href={`/client/${client.clientSlug}/workflow`}
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
                                 >
-                                    <Check className="size-5" />
+                                    <Workflow className="size-5" />
                                     <span className="sr-only">Validation</span>
                                 </Link>
                             </TooltipTrigger>
@@ -104,7 +104,19 @@ export default async function NavBar() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link
-                                    href={`/client/${client.clientSlug}/`}
+                                    href={`/client/${client.clientSlug}/validation`}
+                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
+                                >
+                                    <Check className="size-5" />
+                                    <span className="sr-only">Etat des validations</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Etat des validations</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href={`/client/${client.clientSlug}/dashboard`}
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
                                 >
                                     <LineChart className="size-5" />

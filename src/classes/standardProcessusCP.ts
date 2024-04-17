@@ -6,10 +6,12 @@ export class StandardProcessusPaidLeave implements IProcessus {
     projectLabel: string
     softwareLabel: string
     clientId: string
-    constructor(projectLabel: string, softwareLabel: string, clientId: string) {
+    processusSlug: string
+    constructor(projectLabel: string, softwareLabel: string, clientId: string, processusSlug: string) {
         this.projectLabel = projectLabel
         this.softwareLabel = softwareLabel
         this.clientId = clientId
+        this.processusSlug = processusSlug
     }
 
     async read(slug: string): Promise<{}> {
@@ -148,6 +150,14 @@ export class StandardProcessusPaidLeave implements IProcessus {
     }
     approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
         throw new Error("Method not implemented.")
+    }
+    async extraction(): Promise<{ datas: {}[]; archived: {}[]; inputs: { zodLabel: string; label: string }[] }> {
+        try {
+            throw new Error("Method not implemented.")
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de l\'extraction')
+        }
     }
 
 }

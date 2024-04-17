@@ -2,14 +2,17 @@ import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
 import { SocietyCreateSchema, SocietyEditSchema } from "@/src/helpers/definition"
 import { generateSlug } from "@/src/helpers/generateSlug"
+import { de, th } from "date-fns/locale"
 export class StandardProcessusSociety implements IProcessus {
     projectLabel: string
     softwareLabel: string
     clientId: string
-    constructor(projectLabel: string, softwareLabel: string, clientId: string) {
+    processusSlug: string
+    constructor(projectLabel: string, softwareLabel: string, clientId: string, processusSlug: string) {
         this.projectLabel = projectLabel
         this.softwareLabel = softwareLabel
         this.clientId = clientId
+        this.processusSlug = processusSlug
     }
 
     async read(slug: string): Promise<{}> {
@@ -402,7 +405,9 @@ export class StandardProcessusSociety implements IProcessus {
                             processusSlug: processusExist.slug,
                             projectSlug: projectSlug,
                             clientSlug: clientSlug,
-                            label: society.socialReason
+                            label: society.socialReason,
+                            theme: 'Société',
+                            description: 'Validation de la société',
                         }
                     })
                 )
@@ -451,6 +456,103 @@ export class StandardProcessusSociety implements IProcessus {
     }
     approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string }): void {
         throw new Error("Method not implemented.")
+    }
+    async extraction(): Promise<{ datas: {}[], archived: {}[], inputs: { zodLabel: string, label: string }[] }> {
+        try {
+            const society = await prisma.project_Society.findMany({
+                where: {
+                    projectLabel: this.projectLabel,
+                    softwareLabel: this.softwareLabel,
+                    clientId: this.clientId
+                },
+                include: {
+                    Project_Society_Archived: true
+                }
+            })
+            const datas = society.map((society) => {
+                return {
+                    socialReason: society.socialReason,
+                    id: society.id,
+                    siren: society.siren,
+                    address1: society.address1,
+                    address2: society.address2,
+                    address3: society.address3,
+                    address4: society.address4,
+                    city: society.city,
+                    postalCode: society.postalCode,
+                    country: society.country,
+                    ape: society.ape,
+                    status: society.status,
+                    source: society.source,
+                    createdAt: society.createdAt,
+                    updatedAt: society.updatedAt
+                }
+            })
+
+            const archived = society.map((society) => {
+                return society.Project_Society_Archived.map((archived) => {
+                    return {
+                        id: archived.id,
+                        socialReason: archived.socialReason,
+                        siren: archived.siren,
+                        address1: archived.address1,
+                        address2: archived.address2,
+                        address3: archived.address3,
+                        address4: archived.address4,
+                        city: archived.city,
+                        postalCode: archived.postalCode,
+                        country: archived.country,
+                        ape: archived.ape,
+                        status: archived.status,
+                        source: archived.source,
+                        createdAt: archived.createdAt,
+                        updatedAt: archived.updatedAt
+                    }
+                })
+
+            }).flat(1)
+
+
+            const inputsList = await prisma.processus.findUniqueOrThrow({
+                where: {
+                    slug: this.processusSlug,
+                },
+                include: {
+                    Form: {
+                        where: {
+                            isCreate: true,
+
+                        },
+                        include: {
+                            Form_Input: {
+                                select: {
+                                    zodLabel: true,
+                                    label: true
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            const inputs = inputsList.Form.map((form) => {
+                return form.Form_Input.map((input) => {
+                    return {
+                        zodLabel: input.zodLabel,
+                        label: input.label
+                    }
+                })
+            }).flat(1)
+            const extractions = {
+                datas: datas,
+                archived: archived,
+                inputs: inputs
+            }
+
+            return extractions
+        } catch (err) {
+            console.error(err)
+            throw new Error(err as string)
+        }
     }
 
 }

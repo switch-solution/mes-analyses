@@ -77,6 +77,8 @@ export interface IProcessus {
 
     }): void
 
+    extraction(): Promise<{ datas: {}[], archived: {}[], inputs: { zodLabel: string, label: string }[] }>
+
 
 }
 

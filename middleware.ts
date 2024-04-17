@@ -17,7 +17,6 @@ const ratelimit = new Ratelimit({
 })
 
 import { NextRequest, NextResponse } from 'next/server'
-import { redirect } from "next/dist/server/api-utils"
 
 
 export async function middleware(request: NextRequest) {
@@ -40,8 +39,6 @@ export async function middleware(request: NextRequest) {
         }
 
     }
-
-
 
     //API route
     if (request.nextUrl.pathname.startsWith('/api/v1')) {

@@ -5,7 +5,6 @@ import {
     File,
     ArrowRight,
 } from "lucide-react"
-
 import { Badge } from "@/components/ui/badge"
 import {
     Breadcrumb,
@@ -49,8 +48,9 @@ import {
 import { User } from "@/src/classes/user"
 import { getAuthSession } from "@/lib/auth"
 import { redirect } from 'next/navigation'
-
+import ExcelButtonFile from "@/components/button/excelButtonFile"
 export default async function Page() {
+    console.log('home render')
     const today = new Date().toLocaleDateString()
     const session = await getAuthSession()
     if (!session) {
@@ -64,16 +64,14 @@ export default async function Page() {
     const userIsSetup = await user.userIsSetup()
     if (!userIsSetup) {
         redirect("/setup/cgv")
-
     }
     const client = await user.getMyClientActive()
     if (!client) {
         throw new Error("Client manquant")
     }
-    const activity = await user.myActivity()
+    const activity = await user.getLogs()
     const projects = await user.myProject()
     const projectsEnable = projects.filter((project) => project.project.status === "actif")
-    const projectsDisable = projects.filter((project) => project.project.status !== "actif")
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -143,15 +141,7 @@ export default async function Page() {
                                     <TabsTrigger value="disable">En attente</TabsTrigger>
                                 </TabsList>
                                 <div className="ml-auto flex items-center gap-2">
-
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="h-7 gap-1 text-sm"
-                                    >
-                                        <File className="size-3.5" />
-                                        <span className="sr-only sm:not-sr-only">Export</span>
-                                    </Button>
+                                    <ExcelButtonFile query="projects" />
                                 </div>
                             </div>
                             <TabsContent value="enable">

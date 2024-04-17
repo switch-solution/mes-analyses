@@ -25,15 +25,15 @@ export default async function Page() {
     const clients = await user.getMyClientsAll()
     const clientsMap = clients.map((client) => {
         return {
-            slug: client.client.slug,
-            socialReason: client.client.socialReason,
-            siren: client.client.siren
+            slug: client.slug,
+            socialReason: client.socialReason,
+            siren: client.siren
         }
     })
     const softwaresMap = softwares.map((software) => {
         return {
-            slug: software.software.slug,
-            label: software.software.label
+            slug: software.slug,
+            label: software.label
         }
     })
     return (

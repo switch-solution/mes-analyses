@@ -8,11 +8,14 @@ export class StandardProcessusMutual implements IProcessus {
     projectLabel: string
     softwareLabel: string
     clientId: string
-    constructor(projectLabel: string, softwareLabel: string, clientId: string) {
+    processusSlug: string
+    constructor(projectLabel: string, softwareLabel: string, clientId: string, processusSlug: string) {
         this.projectLabel = projectLabel
         this.softwareLabel = softwareLabel
         this.clientId = clientId
+        this.processusSlug = processusSlug
     }
+
 
     async read(slug: string): Promise<{}> {
         const mutual = await prisma.project_Mutuelle.findUniqueOrThrow({
@@ -248,5 +251,71 @@ export class StandardProcessusMutual implements IProcessus {
 
     approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
         throw new Error("Method not implemented.")
+    }
+    async extraction(): Promise<{ datas: {}[], archived: {}[], inputs: { zodLabel: string, label: string }[] }> {
+        try {
+            const mutuelleList = await prisma.project_Mutuelle.findMany({
+                where: {
+                    projectLabel: this.projectLabel,
+                    softwareLabel: this.softwareLabel,
+                    clientId: this.clientId
+                },
+
+            })
+            const datas = mutuelleList.map((mutuelle) => {
+                return {
+                    id: mutuelle.id,
+                    label: mutuelle.label,
+                    address1: mutuelle.address1,
+                    address2: mutuelle.address2,
+                    address3: mutuelle.address3,
+                    address4: mutuelle.address4,
+                    city: mutuelle.city,
+                    postalCode: mutuelle.postalCode,
+                    status: mutuelle.status,
+                    createdAt: mutuelle.createdAt
+                }
+            })
+
+            const inputsList = await prisma.processus.findUniqueOrThrow({
+                where: {
+                    slug: this.processusSlug,
+                },
+                include: {
+                    Form: {
+                        where: {
+                            isEdit: true,
+
+                        },
+                        include: {
+                            Form_Input: {
+                                select: {
+                                    zodLabel: true,
+                                    label: true
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            const inputs = inputsList.Form.map((form) => {
+                return form.Form_Input.map((input) => {
+                    return {
+                        zodLabel: input.zodLabel,
+                        label: input.label
+                    }
+                })
+            }).flat(1)
+            const extractions = {
+                datas: datas,
+                archived: [],
+                inputs: inputs
+            }
+
+            return extractions
+        } catch (err) {
+            console.error(err)
+            throw new Error(err as string)
+        }
     }
 }

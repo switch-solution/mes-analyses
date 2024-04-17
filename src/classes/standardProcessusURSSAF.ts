@@ -8,11 +8,14 @@ export class StandardProcessusUrssaf implements IProcessus {
     projectLabel: string
     softwareLabel: string
     clientId: string
-    constructor(projectLabel: string, softwareLabel: string, clientId: string) {
+    processusSlug: string
+    constructor(projectLabel: string, softwareLabel: string, clientId: string, processusSlug: string) {
         this.projectLabel = projectLabel
         this.softwareLabel = softwareLabel
         this.clientId = clientId
+        this.processusSlug = processusSlug
     }
+
 
     async read(slug: string): Promise<{}> {
         const urssaf = await prisma.project_URSSAF.findUniqueOrThrow({
@@ -344,7 +347,9 @@ export class StandardProcessusUrssaf implements IProcessus {
                                         processusSlug: processusExist.slug,
                                         projectSlug: projectSlug,
                                         clientSlug: clientSlug,
-                                        label: urssaf.Project_URSSAF.label
+                                        label: urssaf.Project_URSSAF.label,
+                                        theme: 'URSSAF',
+                                        description: 'Validation URSSAF',
                                     }
                                 }))
 
@@ -400,5 +405,72 @@ export class StandardProcessusUrssaf implements IProcessus {
     approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
         throw new Error("Method not implemented.")
     }
+    async extraction(): Promise<{ datas: {}[], archived: {}[], inputs: { zodLabel: string, label: string }[] }> {
+        try {
+            const urssafList = await prisma.project_URSSAF.findMany({
+                where: {
+                    projectLabel: this.projectLabel,
+                    softwareLabel: this.softwareLabel,
+                    clientId: this.clientId
+                },
+
+            })
+            const datas = urssafList.map((urssaf) => {
+                return {
+                    id: urssaf.id,
+                    label: urssaf.label,
+                    address1: urssaf.address1,
+                    address2: urssaf.address2,
+                    address3: urssaf.address3,
+                    address4: urssaf.address4,
+                    city: urssaf.city,
+                    postalCode: urssaf.postalCode,
+                    status: urssaf.status,
+                    createdAt: urssaf.createdAt
+                }
+            })
+
+            const inputsList = await prisma.processus.findUniqueOrThrow({
+                where: {
+                    slug: this.processusSlug,
+                },
+                include: {
+                    Form: {
+                        where: {
+                            isEdit: true,
+
+                        },
+                        include: {
+                            Form_Input: {
+                                select: {
+                                    zodLabel: true,
+                                    label: true
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            const inputs = inputsList.Form.map((form) => {
+                return form.Form_Input.map((input) => {
+                    return {
+                        zodLabel: input.zodLabel,
+                        label: input.label
+                    }
+                })
+            }).flat(1)
+            const extractions = {
+                datas: datas,
+                archived: [],
+                inputs: inputs
+            }
+
+            return extractions
+        } catch (err) {
+            console.error(err)
+            throw new Error(err as string)
+        }
+    }
+
 
 }

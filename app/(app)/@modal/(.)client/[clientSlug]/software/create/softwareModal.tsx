@@ -1,7 +1,7 @@
 "use client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useRouter, usePathname } from "next/navigation";
-import CreateSoftware from "@/components/form/setup/createSoftware";
+import CreateSoftware from "@/components/form/software/createSoftware";
 export default function Modal({ clientSlug }: { clientSlug: string }) {
     const router = useRouter()
     const pathname = usePathname()

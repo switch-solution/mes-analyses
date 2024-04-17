@@ -36,7 +36,7 @@ import { createSoftwareSetting } from "@/src/features/actions/software_setting/s
 import { Input } from '@/components/ui/input'
 import { toast } from "sonner"
 
-export default function CreateSoftwareSetting({ clientSlug, softwares }: { clientSlug: string, softwares: any }) {
+export default function CreateSoftwareSetting({ clientSlug, softwareSlug }: { clientSlug: string, softwareSlug: string }) {
     const [loading, setLoading] = useState(false)
 
     const form = useForm<z.infer<typeof SettingCreateSchema>>({
@@ -47,9 +47,8 @@ export default function CreateSoftwareSetting({ clientSlug, softwares }: { clien
             id: "",
             value: "",
             description: "",
-            dateStart: new Date(),
-            softwareSlug: softwares.at(0)?.software.slug as string,
-            dateEnd: new Date('01/01/4000'),
+            softwareSlug: softwareSlug,
+
 
         },
     })
@@ -89,6 +88,17 @@ export default function CreateSoftwareSetting({ clientSlug, softwares }: { clien
                 />
                 <FormField
                     control={form.control}
+                    name="softwareSlug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input type="hidden" {...field} required />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
                     name="id"
                     render={({ field }) => (
                         <FormItem>
@@ -99,27 +109,7 @@ export default function CreateSoftwareSetting({ clientSlug, softwares }: { clien
                         </FormItem>
                     )}
                 />
-                <FormField
-                    control={form.control}
-                    name="softwareSlug"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Choisir votre logiciel</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Choisir votre logiciel" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {softwares.map((software: any) => (
-                                        <SelectItem key={software.software.slug} value={software.software.slug}>{software.softwareLabel}</SelectItem>))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+
                 <FormField
                     control={form.control}
                     name="label"
@@ -159,88 +149,7 @@ export default function CreateSoftwareSetting({ clientSlug, softwares }: { clien
                         </FormItem>
                     )}
                 />
-                <FormField
-                    control={form.control}
-                    name="dateStart"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel>Date de début</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-[240px] pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                        >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto size-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        disabled={(date) =>
-                                            date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="dateEnd"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel>Date de début</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-[240px] pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                        >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto size-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        disabled={(date) =>
-                                            date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+
 
                 {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 

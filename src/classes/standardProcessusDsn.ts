@@ -6,11 +6,14 @@ export class StandardProcessusDsn implements IProcessus {
     projectLabel: string
     softwareLabel: string
     clientId: string
-    constructor(projectLabel: string, softwareLabel: string, clientId: string) {
+    processusSlug: string
+    constructor(projectLabel: string, softwareLabel: string, clientId: string, processusSlug: string) {
         this.projectLabel = projectLabel
         this.softwareLabel = softwareLabel
         this.clientId = clientId
+        this.processusSlug = processusSlug
     }
+
 
     async read(slug: string): Promise<{}> {
         const society = await prisma.project_DSN.findUniqueOrThrow({
@@ -402,7 +405,9 @@ export class StandardProcessusDsn implements IProcessus {
                             processusSlug: processusExist.slug,
                             projectSlug: projectSlug,
                             clientSlug: clientSlug,
-                            label: dsn.dsnSiret
+                            label: dsn.dsnSiret,
+                            theme: 'DSN',
+                            description: 'Validation de la DSN',
                         }
                     })
                 )
@@ -467,6 +472,14 @@ export class StandardProcessusDsn implements IProcessus {
         } catch (err) {
             console.error(err)
             throw new Error('Erreur lors de la validation du processus')
+        }
+    }
+    async extraction(): Promise<{ datas: {}[]; archived: {}[]; inputs: { zodLabel: string; label: string }[] }> {
+        try {
+            throw new Error("Method not implemented.")
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de l\'extraction')
         }
     }
 

@@ -63,6 +63,8 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     const softwareActive = await user.getMySoftwareActive()
     const editor = new Editor(clientActive.clientId, softwareActive.softwareLabel)
     const { countDsn, countIdcc, countOps, countAbsence } = await editor.getCountStandardElement()
+    const { countSetting, countConstant } = await editor.getCountSoftwareElement()
+
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -215,6 +217,11 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
+                                                <TableRow>
+                                                    <TableCell className="font-medium">Paramétres</TableCell>
+                                                    <TableCell>{countSetting}</TableCell>
+                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/setting`}><ArrowRight /></Link></TableCell>
+                                                </TableRow>
                                                 <TableRow>
                                                     <TableCell className="font-medium">Zone de texte</TableCell>
                                                     <TableCell>10</TableCell>

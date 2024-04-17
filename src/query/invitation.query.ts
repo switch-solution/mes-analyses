@@ -133,7 +133,6 @@ export const copyInvitation = async (invitation: getInvitation, userId: string) 
                 create: {
                     userId: userId,
                     projectLabel: invitation.projectLabel,
-                    team: invitation.isInternal ? "client" : "externe",
                     projectSoftwareLabel: invitation.softwareLabel,
                     projectClientId: invitation.clientId,
                     createdBy: userId,

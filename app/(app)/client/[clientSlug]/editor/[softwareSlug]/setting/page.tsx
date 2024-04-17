@@ -12,6 +12,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { User } from "@/src/classes/user";
+import { s } from "vitest/dist/reporters-P7C2ytIv.js";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
@@ -37,24 +38,29 @@ export default async function Page({ params }: { params: { clientSlug: string, s
             softwareLabel: setting.softwareLabel,
             slug: setting.slug,
             description: setting.description,
+            softwareSlug: params.softwareSlug
         }
     })
 
     return (
         <Container>
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/`}>Editeur</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                </BreadcrumbList>
-            </Breadcrumb>
-            <DataTable columns={columns} data={settings} inputSearch="code" inputSearchPlaceholder="Chercher par code" href={`/client/${params.clientSlug}/editor/setting/create`} buttonLabel="Ajouter un paramétre" />
+            <ContainerBreadCrumb>
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/`}>Editeur</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                    </BreadcrumbList>
+                </Breadcrumb>
+            </ContainerBreadCrumb>
+            <ContainerDataTable>
+                <DataTable columns={columns} data={settings} inputSearch="code" inputSearchPlaceholder="Chercher par code" href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/setting/create`} buttonLabel="Ajouter un paramétre" />
+            </ContainerDataTable>
         </Container>
     )
 

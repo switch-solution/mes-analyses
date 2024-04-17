@@ -1,4 +1,5 @@
-import { id } from 'date-fns/locale';
+import { isValid } from 'date-fns';
+import { id, is } from 'date-fns/locale';
 import { z } from 'zod';
 import { zfd } from "zod-form-data";
 
@@ -240,6 +241,18 @@ export const FeedbackCreateSchema = z.object({
     isBlocked: z.boolean().optional(),
 })
 
+export const ExcelFileSchema = z.object({
+    query: z.string({ required_error: "La requete est obligatoire" }).min(1, { message: "La requête est obligatoire." }),
+})
+
+export const ProcessusExtraction = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    processusSlug: z.string({ required_error: "Le processus est obligatoire." }),
+
+})
+
+
 export const UserCreateSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     email: z.string({ required_error: "L email est obligatoire." }).email(),
@@ -250,9 +263,14 @@ export const UserCreateSchema = z.object({
 })
 
 export const UserEditSchema = z.object({
+    email: z.string().email(),
     civility: z.enum(['M', 'Mme']),
     lastname: z.string().min(1, { message: "Le nom doit contenir au moins 2 caractères." }),
     firstname: z.string().min(1, { message: "Le prénom doit contenir au moins 2 caractères." }),
+})
+
+export const UserDeleteSchema = z.object({
+    id: z.string({ required_error: "L'utilisateur est obligatoire." }),
 })
 
 export const TableSeniorityCreateSchema = z.object({
@@ -353,9 +371,7 @@ export const SettingCreateSchema = z.object({
     id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
     description: z.string().optional(),
     value: z.string().min(1, { message: "La valeur doit contenir au moins 2 caractères." }),
-    dateStart: z.date(),
     softwareSlug: z.string().min(1, { message: "Le logiciel est obligatoire." }),
-    dateEnd: z.date().optional(),
 
 })
 
@@ -404,8 +420,7 @@ export const SettingEditSchema = z.object({
     slug: z.string().min(2, { message: "Le slug doit contenir au moins 2 caractères." }),
     description: z.string().optional(),
     value: z.string().min(1, { message: "La valeur doit contenir au moins 2 caractères." }),
-    dateStart: z.date(),
-    dateEnd: z.date().optional(),
+    softwareSlug: z.string().min(1, { message: "Le logiciel est obligatoire." }),
 
 })
 
@@ -460,6 +475,15 @@ export const ButtonDangerDeleteSchema = z.object({
 })
 
 
+export const ProjectUserCreateSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    newUserId: z.string({ required_error: "L'utilisateur est obligatoire." }),
+    isValidator: z.boolean().optional(),
+    isEditor: z.boolean().optional(),
+    isAdministrator: z.boolean().optional(),
+    role: z.enum(['Consultant déploiement', 'Directeur de projet', 'Chef de projet', 'Consultant technique', 'Support']),
+})
 
 export const ProjectCreateSchema = z.object({
     label: z.string().min(2, { message: "Le nom du projet doit contenir au moins 2 caractères." }),
@@ -468,6 +492,11 @@ export const ProjectCreateSchema = z.object({
     role: z.enum(['Consultant déploiement', 'Directeur de projet', 'Chef de projet', 'Consultant technique', 'Support']),
 })
 
+export const ForumCreateSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    subject: z.string().min(2, { message: "Le sujet doit contenir au moins 2 caractères." }),
+})
 
 
 export const CreateInvoiceSchema = z.object({

@@ -37,7 +37,7 @@ import { editSoftwareSetting } from "@/src/features/actions/software_setting/sof
 import { Input } from '@/components/ui/input'
 import { toast } from "sonner"
 
-export default function EditSoftwareSetting({ clientSlug, setting }: { clientSlug: string, setting: getSoftwareSettingBySlug }) {
+export default function EditSoftwareSetting({ clientSlug, softwareSlug, setting }: { clientSlug: string, softwareSlug: string, setting: getSoftwareSettingBySlug }) {
     const [loading, setLoading] = useState(false)
 
     const form = useForm<z.infer<typeof SettingEditSchema>>({
@@ -49,6 +49,7 @@ export default function EditSoftwareSetting({ clientSlug, setting }: { clientSlu
             id: setting?.id,
             value: setting?.value,
             description: setting?.description ?? '',
+            softwareSlug: softwareSlug
 
         },
     })
@@ -78,6 +79,17 @@ export default function EditSoftwareSetting({ clientSlug, setting }: { clientSlu
                 <FormField
                     control={form.control}
                     name="clientSlug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input type="hidden" {...field} required />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="softwareSlug"
                     render={({ field }) => (
                         <FormItem>
                             <FormControl>
@@ -145,88 +157,6 @@ export default function EditSoftwareSetting({ clientSlug, setting }: { clientSlu
                             <FormControl>
                                 <Input placeholder="La description de mon paramètre" {...field} />
                             </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="dateStart"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel>Date de début</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-[240px] pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                        >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto size-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        disabled={(date) =>
-                                            date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="dateEnd"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel>Date de début</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-[240px] pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                        >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto size-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        disabled={(date) =>
-                                            date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
                             <FormMessage />
                         </FormItem>
                     )}

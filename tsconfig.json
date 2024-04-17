@@ -39,7 +39,9 @@
     "jest.config.ts",
     "__tests__/page.test.jsx",
     "app/(app)/@modal/default.tsx",
-    "app/(app)/loading.tsx"
+    "app/(app)/loading.tsx",
+    "app/api/v1/project/route.ts",
+    "app/api/v1/project/[slug]/route.ts"
   ],
   "exclude": [
     "node_modules"

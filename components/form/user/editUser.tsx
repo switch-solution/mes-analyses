@@ -24,15 +24,16 @@ import {
 } from "@/components/ui/select"
 import { editUser } from "@/src/features/actions/user/user.actions"
 import { toast } from "sonner"
-export default function EditUser({ user }: { user: any }) {
+export default function EditUser({ user }: { user: { email: string, firstname: string, lastname: string, civility: 'M' | 'Mme' } }) {
     const [loading, setLoading] = useState(false)
 
     const form = useForm<z.infer<typeof UserEditSchema>>({
         resolver: zodResolver(UserEditSchema),
         defaultValues: {
-            firstname: user?.firstname ?? "",
-            lastname: user?.lastname ?? "",
-            civility: user?.civility ? user.civility as 'M' : "M",
+            email: user.email,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            civility: user.civility,
         },
     })
     const onSubmit = async (data: z.infer<typeof UserEditSchema>) => {
@@ -42,6 +43,14 @@ export default function EditUser({ user }: { user: any }) {
             if (action?.serverError) {
                 setLoading(true)
                 toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                })
+            } else {
+                toast('Mise à jour du profil avec succès', {
                     description: new Date().toLocaleDateString(),
                     action: {
                         label: "fermer",
@@ -58,7 +67,20 @@ export default function EditUser({ user }: { user: any }) {
     return (
         <Form  {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                                <Input type="text" placeholder="DUPONT" readOnly disabled {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
 
+                    )}
+                />
                 <FormField
                     control={form.control}
                     name="civility"
@@ -93,7 +115,6 @@ export default function EditUser({ user }: { user: any }) {
                         </FormItem>
 
                     )}
-
                 />
                 <FormField
                     control={form.control}

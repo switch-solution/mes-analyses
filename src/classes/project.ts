@@ -39,7 +39,6 @@ export class Project {
                             isEditor: true,
                             isValidator: true,
                             createdBy: userId,
-                            team: 'Editeur',
                             role
                         }
                     },
@@ -279,6 +278,46 @@ export class Project {
         } catch (err) {
             console.error(err)
             throw new Error('Erreur lors de la récupération des validateurs du projet')
+        }
+    }
+
+    async addUser({
+        newUserId,
+        isAdministrator,
+        isEditor,
+        isValidator,
+        userId,
+        role
+    }: {
+        newUserId: string,
+        isAdministrator: boolean,
+        isEditor: boolean,
+        isValidator: boolean,
+        userId: string,
+        role: string
+    }) {
+        try {
+            const project = await this.projetDetail()
+            if (!project) {
+                throw new Error('Projet introuvable')
+            }
+            await prisma.userProject.create({
+                data: {
+                    userId: newUserId,
+                    projectLabel: project?.label,
+                    projectSoftwareLabel: project?.softwareLabel,
+                    projectClientId: project?.clientId,
+                    isAdmin: isAdministrator,
+                    isEditor,
+                    isValidator,
+                    role,
+                    createdBy: userId,
+                }
+            })
+            return
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de l\'ajout de l\'utilisateur')
         }
     }
 

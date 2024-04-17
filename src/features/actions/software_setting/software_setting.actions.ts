@@ -9,8 +9,9 @@ import z from "zod";
 import { getSoftwareSettingBySlug } from "@/src/query/software_setting.query";
 import { authentificationActionUserIsEditorClient, ActionError } from "@/lib/safe-actions";
 import { getSoftwareBySlug } from "@/src/query/software.query";
+import { generateSlug } from "@/src/helpers/generateSlug";
 export const createSoftwareSetting = authentificationActionUserIsEditorClient(SettingCreateSchema, async (values: z.infer<typeof SettingCreateSchema>, { clientId, userId }) => {
-    const { id, value, dateStart, label, dateEnd, description, clientSlug, softwareSlug } = SettingCreateSchema.parse(values)
+    const { id, value, label, description, clientSlug, softwareSlug } = SettingCreateSchema.parse(values)
     const softwareExist = await getSoftwareBySlug(softwareSlug)
     if (!softwareExist) {
         throw new ActionError("Ce logiciel n'existe pas.")
@@ -26,7 +27,7 @@ export const createSoftwareSetting = authentificationActionUserIsEditorClient(Se
                 clientId,
                 createdBy: userId,
                 softwareLabel: softwareExist.label,
-                slug: `PARAM_${countParam + 1}_${id}_${label}`
+                slug: generateSlug(`PARAM_${countParam + 1}_${id}_${label}`)
             }
 
         })
@@ -42,12 +43,12 @@ export const createSoftwareSetting = authentificationActionUserIsEditorClient(Se
     }
 
 
-    revalidatePath(`/client/${clientSlug}/editor/setting/`)
-    redirect(`/client/${clientSlug}/editor/setting/`)
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/setting/`)
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/setting/`)
 })
 
 export const editSoftwareSetting = authentificationActionUserIsEditorClient(SettingEditSchema, async (values: z.infer<typeof SettingEditSchema>, { clientId, userId }) => {
-    const { id, value, dateStart, label, dateEnd, description, clientSlug, slug } = SettingEditSchema.parse(values)
+    const { id, value, label, description, clientSlug, slug, softwareSlug } = SettingEditSchema.parse(values)
     const settingExist = await getSoftwareSettingBySlug(slug)
     if (!settingExist) {
         throw new ActionError("Ce paramètre n'existe pas.")
@@ -85,6 +86,6 @@ export const editSoftwareSetting = authentificationActionUserIsEditorClient(Sett
     }
 
 
-    revalidatePath(`/client/${clientSlug}/editor/setting/`)
-    redirect(`/client/${clientSlug}/editor/setting/`)
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/setting/`)
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/setting/`)
 })

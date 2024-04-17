@@ -27,19 +27,43 @@ export async function POST(request: NextRequest) {
             return Response.json({ error: 'Email from is not set' });
         }
         const body = await request.json();
-        console.log(body);
         if (!body.to) {
             return Response.json({ error: 'Email is required' });
         }
-        const data = await resend.emails.send({
-            from: emaiFrom,
-            to: body.to,
-            subject: body.subject,
-            text: '',
-            react: EmailTemplate({ ...body, domain }),
-        });
+        const type = body.type;
+        let resendResponse
+        switch (type) {
+            case 'invitation':
+                resendResponse = await resend.emails.send({
+                    from: emaiFrom,
+                    to: body.to,
+                    subject: body.subject,
+                    text: '',
+                    react: EmailTemplate({ ...body, domain }),
+                });
+                break;
+            case 'excel':
+                resendResponse = await resend.emails.send({
+                    from: emaiFrom,
+                    to: body.to,
+                    subject: body.subject,
+                    text: '',
+                    react: EmailTemplate({ ...body, domain }),
+                    attachments: [
+                        {
+                            "filename": body.filename,
+                            "path": body.path
 
-        return Response.json(data);
+                        }
+                    ],
+                });
+                break
+            default:
+                return Response.json({ error: 'Type is required' });
+
+        }
+
+        return Response.json(resendResponse);
     } catch (error) {
         console.error(error);
         return Response.json({ error });

@@ -7,6 +7,7 @@ import Link from "next/link"
 // You can use a Zod schema here if you want.
 export type Setting = {
     clientSlug: string | null
+    softwareSlug: string | null
     code: string | null,
     label: string | null
     value: string | null
@@ -71,9 +72,9 @@ export const columns: ColumnDef<Setting>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Mes options</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem><Link href={`/client/${setting.clientSlug}/editor/setting`}>Ouvrir</Link></DropdownMenuItem>
-                        <DropdownMenuItem><Link href={`/client/${setting.clientSlug}/editor/setting/${setting.slug}/edit`}>Editer</Link></DropdownMenuItem>
-                        <DropdownMenuItem><Link href={`/client/${setting.clientSlug}/editor/setting/${setting.slug}/delete`}>Supprimer</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${setting.clientSlug}/editor/${setting.softwareSlug}/setting`}>Ouvrir</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${setting.clientSlug}/editor/${setting.softwareSlug}/setting/${setting.slug}/edit`}>Editer</Link></DropdownMenuItem>
+                        <DropdownMenuItem><Link href={`/client/${setting.clientSlug}/editor/${setting.softwareSlug}/setting/${setting.slug}/delete`}>Supprimer</Link></DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )

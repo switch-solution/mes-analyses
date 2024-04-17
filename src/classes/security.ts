@@ -51,12 +51,16 @@ export class Security {
      * @param apiKey 
      * @returns 
      */
-    async apiIsValid(apiKey: string) {
+    async apiIsValid(apiKey: string, url: string) {
         try {
             const splitApi = apiKey.split('Bearer ')
+            if (splitApi.length !== 2) {
+                throw new Error('L\'API n\'est pas valide')
+            }
             const apiExist = await prisma.client_API.findFirstOrThrow({
                 where: {
-                    apiKey: splitApi[1]
+                    apiKey: splitApi[1],
+                    revoked: false
                 },
                 include: {
                     client: {
@@ -66,10 +70,33 @@ export class Security {
                     }
                 }
             })
+            await prisma.client_API_Activity.create({
+                data: {
+                    url,
+                    clientId: apiExist.clientId,
+                    uuidApi: apiExist.uuid
+
+                }
+            })
+            const maxActivity = apiExist.limit
+            const now = new Date();
+            const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            const countActivity = await prisma.client_API_Activity.count({
+                where: {
+                    uuidApi: apiExist.uuid,
+                    createdAt: {
+                        gte: yesterday,
+                        lt: now
+                    }
+                }
+            })
+            if (countActivity > maxActivity) {
+                throw new Error(`L\'API a atteint la limite d\'activité sur les 24 dernières heures soit ${maxActivity} activités`)
+            }
             return apiExist.client.slug
         } catch (err) {
             console.error(err)
-            throw new Error('L\'API n\'est pas valide')
+            throw new Error((err as Error).message)
         }
     }
     async userIsValid() {
