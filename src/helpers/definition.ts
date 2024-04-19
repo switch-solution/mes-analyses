@@ -233,7 +233,7 @@ export const SoftwaresSchema = z.object({
     label: z.string().min(2, { message: "Le nom du logiciel doit contenir au moins 2 caractères." }),
 })
 export const FeedbackCreateSchema = z.object({
-    feature: z.enum(['Projet', 'Client', 'Editeur', 'Autre élément', 'DSN', 'Taches']),
+    feature: z.enum(['Projet', 'Client', 'Editeur', 'Autre élément', 'DSN', 'Taches', 'idcc']),
     message: z.string().min(2, { message: "Le message doit contenir au moins 2 caractères." }),
     level: z.enum(['Suggestion', 'Anomalie']),
     isBlocked: z.boolean().optional(),

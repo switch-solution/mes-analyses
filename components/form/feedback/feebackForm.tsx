@@ -50,6 +50,13 @@ export default function FeedBackForm() {
                     },
                 })
             }
+            toast(`Prise en compte de votre demande`, {
+                description: new Date().toLocaleDateString(),
+                action: {
+                    label: "fermer",
+                    onClick: () => console.log("fermeture"),
+                },
+            })
             router.back()
         } catch (err) {
             console.error(err)
@@ -78,6 +85,7 @@ export default function FeedBackForm() {
                                     <SelectItem value="DSN">DSN</SelectItem>
                                     <SelectItem value="Taches">Taches</SelectItem>
                                     <SelectItem value="Autre élément">Autre élément</SelectItem>
+                                    <SelectItem value="idcc">Convention collective</SelectItem>
                                 </SelectContent>
                             </Select>
 
