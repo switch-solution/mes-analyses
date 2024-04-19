@@ -1,4 +1,4 @@
-import { Container, ContainerBreadCrumb } from "@/components/layout/container";
+import { Container, ContainerBreadCrumb, ContainerForm } from "@/components/layout/container";
 import CreateDynamicForm from "@/components/form/project_standard_form/createDynamicForm";
 import { Slash } from "lucide-react"
 import UploadFileDsn from "@/components/form/dsn/upload";
@@ -89,21 +89,22 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     </BreadcrumbList>
                 </Breadcrumb>
             </ContainerBreadCrumb>
-            {processusExist.slug === "Standard_Processus_DSN" && <UploadFileDsn clientSlug={params.clientSlug} projectSlug={params.projectSlug} dsnStructure={await getDsnStructure()} processusSlug={params.processusSlug} />}
-            {processusExist.slug !== "Standard_Processus_DSN" && inputs && <CreateDynamicForm
-                inputs={inputs.map((input) => ({
-                    ...input,
-                    clientId: projectDetail.clientId,
-                    softwareLabel: processusExist.label,
-                    projectLabel: projectDetail.label,
-                }))}
-                clientSlug={params.clientSlug}
-                projectSlug={params.projectSlug}
-                processusSlug={processusExist.slug}
-                options={options}
-            />}
+            <ContainerForm>
+                {processusExist.slug === "Standard_Processus_DSN" && <UploadFileDsn clientSlug={params.clientSlug} projectSlug={params.projectSlug} dsnStructure={await getDsnStructure()} processusSlug={params.processusSlug} />}
+                {processusExist.slug !== "Standard_Processus_DSN" && inputs && <CreateDynamicForm
+                    inputs={inputs.map((input) => ({
+                        ...input,
+                        clientId: projectDetail.clientId,
+                        softwareLabel: processusExist.label,
+                        projectLabel: projectDetail.label,
+                    }))}
+                    clientSlug={params.clientSlug}
+                    projectSlug={params.projectSlug}
+                    processusSlug={processusExist.slug}
+                    options={options}
+                />}
 
-
+            </ContainerForm>
         </Container>
     )
 }

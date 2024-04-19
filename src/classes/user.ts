@@ -75,9 +75,11 @@ export class User {
 
     async getMySoftwaresAll() {
         try {
+            const clientActive = await this.getMyClientActive()
             const softwaresList = await prisma.userSoftware.findMany({
                 where: {
                     userId: this.userId,
+                    softwareClientId: clientActive.clientId
                 },
                 include: {
                     software: true

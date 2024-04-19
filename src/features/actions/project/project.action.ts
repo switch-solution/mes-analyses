@@ -46,7 +46,7 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
     revalidatePath(`/client/${clientSlug}/project/${project.slug}`);
 
     redirect(`/client/${clientSlug}/project/${project.slug}`);
-
+    return project.slug
 })
 
 export const createProjetUser = authentifcationActionUserIsAuthorizeToAdminProject(ProjectUserCreateSchema, async (values: z.infer<typeof ProjectUserCreateSchema>, { userId, projectLabel, softwareLabel }) => {

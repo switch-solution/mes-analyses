@@ -17,6 +17,7 @@ import Link from "next/link"
 export type ProjectData = {
     projectSlug: string | null
     processusSlug: string | null
+    isTable: boolean | null
     clientSlug: string | null
     id: string | null
     label: string | null
@@ -24,14 +25,13 @@ export type ProjectData = {
     status: string | null
 }
 
-import { toast } from "sonner"
 
 export const columns: ColumnDef<ProjectData>[] = [
     {
         accessorKey: "id",
         header: "Code",
         cell: ({ row }) => {
-            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.processusSlug}/data/${row.original.slug}/view`}>{row.original.id}</Link>
+            return <Link href={`/client/${row.original.clientSlug}/project/${row.original.projectSlug}/processus/${row.original.processusSlug}/data/${row.original.slug}/${row.original.isTable ? 'table' : 'view'}`}>{row.original.id}</Link>
         }
     },
     {

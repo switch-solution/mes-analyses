@@ -15,13 +15,13 @@ export class StandardProcessusBank implements IProcessus {
     }
 
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const bank = await prisma.project_Bank.findUniqueOrThrow({
             where: {
                 slug
             }
         })
-        return bank
+        return bank as T
 
     }
     async update({

@@ -8,6 +8,14 @@ import { ButtonLoading } from "@/components/ui/button-loader";
 import type { getDsnStructure } from "@/src/query/dsn.query";
 import type { Row } from "@/src/features/actions/dsn/dsn.actions";
 import { toast } from "sonner"
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 const getRandomInt = (min: number, max: number) => {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -96,12 +104,22 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
 
     }
     return (
-        <form onSubmit={handleSubmit}>
-            <Label htmlFor="dsn">DSN</Label>
-            <Input id="dsn" name="dsn" type="file" accept=".dsn" required multiple />
-            {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
-        </form>
+        <Card x-chunk="dashboard-05-chunk-3">
+            <CardHeader className="px-7">
+                <CardTitle>Import DSN</CardTitle>
+                <CardDescription>
+                    Importer vos fichiers DSN
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <form onSubmit={handleSubmit}>
+                    <Label htmlFor="dsn">DSN</Label>
+                    <Input id="dsn" name="dsn" type="file" accept=".dsn" required multiple />
+                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
+                </form>
 
+
+            </CardContent>
+        </Card>
     )
-
 }

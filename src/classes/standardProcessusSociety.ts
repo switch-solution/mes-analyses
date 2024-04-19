@@ -15,13 +15,13 @@ export class StandardProcessusSociety implements IProcessus {
         this.processusSlug = processusSlug
     }
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const society = await prisma.project_Society.findUniqueOrThrow({
             where: {
                 slug
             }
         })
-        return society
+        return society as T
 
     }
     async update({

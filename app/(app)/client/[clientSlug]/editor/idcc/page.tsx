@@ -3,7 +3,6 @@ import { DataTable } from "@/components/layout/dataTable";
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
 import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
-import { Slash } from "lucide-react"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -13,7 +12,8 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { getIdcc } from "@/src/query/idcc.query";
-export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
+import { Idcc } from "@/src/classes/idcc";
+export default async function Page({ params }: { params: { clientSlug: string, idcc: string } }) {
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
     if (!clientExist) {
@@ -27,7 +27,6 @@ export default async function Page({ params }: { params: { clientSlug: string, s
         return {
             id: idcc.code,
             label: idcc.label,
-            softwareSlug: params.softwareSlug,
             clientSlug: params.clientSlug
         }
     })
@@ -39,15 +38,11 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                         <BreadcrumbItem>
                             <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/editor/`}>Editeur</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/editor/idcc`}>Idcc</BreadcrumbLink>
                         </BreadcrumbItem>

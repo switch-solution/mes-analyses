@@ -1,7 +1,5 @@
 import { Security } from "@/src/classes/security";
 import { Container } from "@/components/layout/container";
-
-import { Button } from "@/components/ui/button"
 import {
     Card,
     CardContent,
@@ -11,8 +9,6 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import Link from "next/link"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
 import EditUser from "@/components/form/user/editUser";
 export default async function Page() {
     const security = new Security()
@@ -47,9 +43,7 @@ export default async function Page() {
                             Mes informations
                         </Link>
                         <Link href="/profile/security">Securité</Link>
-                        <Link href="/profile/organization">Organisation</Link>
-                        <Link href="#">Support</Link>
-                        <Link href="#">Advanced</Link>
+                        <Link href="/profile/default">Environnement</Link>
                     </nav>
                     <div className="grid gap-6">
                         <Card x-chunk="dashboard-04-chunk-1">

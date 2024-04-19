@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { File } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from 'next/navigation'
 import { Pickaxe } from "lucide-react";

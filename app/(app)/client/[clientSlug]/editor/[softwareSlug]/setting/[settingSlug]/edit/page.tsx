@@ -33,9 +33,12 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/setting`}>Paramètres</BreadcrumbLink>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/setting`}>Paramètres</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/setting/${params.settingSlug}`}>Editer</BreadcrumbLink>
+                    </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
         </ContainerBreadCrumb>

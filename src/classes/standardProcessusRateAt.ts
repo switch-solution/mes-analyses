@@ -16,13 +16,13 @@ export class StandardProcessusRateAt implements IProcessus {
     }
 
 
-    async read(slug: string): Promise<{}> {
-        const urssaf = await prisma.project_Rate_AT.findUniqueOrThrow({
+    async read<T>(slug: string): Promise<T> {
+        const rateAt = await prisma.project_Rate_AT.findUniqueOrThrow({
             where: {
                 slug: slug
             }
         })
-        return urssaf
+        return rateAt as T
 
     }
     async update({

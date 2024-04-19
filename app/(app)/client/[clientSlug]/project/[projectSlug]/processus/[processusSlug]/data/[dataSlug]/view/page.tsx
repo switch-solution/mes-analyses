@@ -13,6 +13,7 @@ import { getSelectOptions } from "@/src/query/form.query";
 import { ProcessusFactory } from "@/src/classes/processusFactory";
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
+
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string, processusSlug: string, dataSlug: string } }) {
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
@@ -58,7 +59,9 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         projectLabel: projectDetail.label,
         sofwareLabel: projectDetail.softwareLabel
     })
-    const datas = await processusFactory.read(params.dataSlug)
+    const datas = await processusFactory.read<{}>(params.dataSlug)
+
+
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -85,7 +88,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/${params.processusSlug}/data/${params.dataSlug}/edit`}>Edition</BreadcrumbLink>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/${params.processusSlug}/data/${params.dataSlug}/edit`}>Vue</BreadcrumbLink>
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>

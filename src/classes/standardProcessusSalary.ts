@@ -14,13 +14,13 @@ export class StandardProcessusSalary implements IProcessus {
         this.processusSlug = processusSlug
     }
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const bank = await prisma.project_Salary.findUniqueOrThrow({
             where: {
                 slug
             }
         })
-        return bank
+        return bank as T
 
     }
     async update({

@@ -34,7 +34,6 @@ export default function CreateApiKey({ clientSlug }: { clientSlug: string }) {
     const onSubmit = async (data: z.infer<typeof CreateApiKeysSchema>) => {
         try {
             setLoading(true)
-
             const action = await createApiKey(data)
             if (action?.serverError) {
                 setLoading(false)
@@ -47,6 +46,7 @@ export default function CreateApiKey({ clientSlug }: { clientSlug: string }) {
                     },
                 })
             }
+            setLoading(false)
         } catch (err) {
             setLoading(false)
             console.error(err)

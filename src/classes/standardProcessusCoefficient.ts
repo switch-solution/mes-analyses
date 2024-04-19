@@ -15,13 +15,13 @@ export class StandardProcessusCoefficient implements IProcessus {
     }
 
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const coefficient = await prisma.project_Coefficient.findUniqueOrThrow({
             where: {
                 slug
             }
         })
-        return slug
+        return coefficient as T
 
     }
     async update({

@@ -48,6 +48,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
             processusSlug: params.processusSlug,
             status: data.status,
             clientSlug: params.clientSlug,
+            isTable: processusExist.isTable
         }
     })
     return (

@@ -19,7 +19,9 @@ type DataProps = {
     rowSlug: string,
     processusSlug: string,
     projectSlug: string,
-    slug: string
+    slug: string,
+    description: string,
+    theme: string,
 }
 import { toast } from "sonner"
 
@@ -36,6 +38,10 @@ export default function ApproveCard({ datas }: { datas: DataProps[] }) {
                                 <CardDescription>{data.label}</CardDescription>
                             </CardHeader>
                             <CardContent>
+                                <ul>
+                                    <li>Thême : {data.theme}.</li>
+                                    <li>Description : {data.description}</li>
+                                </ul>
                                 <Link href={`/client/${data.clientSlug}/project/${data.projectSlug}/processus/${data.processusSlug}/data/${data.rowSlug}/view`}>Consulter l&apos;enregistrement.</Link>
                             </CardContent>
                             <CardFooter className="flex justify-between">

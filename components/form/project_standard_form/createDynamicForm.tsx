@@ -4,7 +4,7 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { SocietyCreateSchema, BankCreateSchema, SocietyFreeZoneCreateSchema, SalaryCreateSchema, ProjectAbsenceCreateSchema, EstablishmentBankCreateSchema, FreeZoneCreateSchema, EstablishmentCreateSchema, CreateServiceSchema, JobCreateSchema, CreatePaidLeaveSchema, RateAtCreateSchema, OpsCreateSchema, CreateIdccSchema, CreateClassificationSchema } from "@/src/helpers/definition";
+import { SocietyCreateSchema, BankCreateSchema, ProjectTableCreateSchema, SocietyFreeZoneCreateSchema, SalaryCreateSchema, ProjectAbsenceCreateSchema, EstablishmentBankCreateSchema, FreeZoneCreateSchema, EstablishmentCreateSchema, CreateServiceSchema, JobCreateSchema, CreatePaidLeaveSchema, RateAtCreateSchema, OpsCreateSchema, CreateIdccSchema, CreateClassificationSchema } from "@/src/helpers/definition";
 import { createUrssaf } from "@/src/features/actions/project_data/project_urssaf.actions";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { createJob } from "@/src/features/actions/project_data/project_job.actions";
@@ -30,13 +30,20 @@ import { createFreeZone } from "@/src/features/actions/project_data/project_free
 import { createSocietyFreeZone } from "@/src/features/actions/project_data/project_societyFreeZone.actions"
 import { createAbsence } from "@/src/features/actions/project_data/project_absence.actions"
 import { createSalary } from "@/src/features/actions/project_data/project_salary.actions"
-import {
-    Form,
-} from "@/components/ui/form"
+import { createTableSeniority } from "@/src/features/actions/project_data/project_tableSeniority.actions"
+import { Form } from "@/components/ui/form"
 import type { getSelectOptions } from "@/src/query/form.query";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 import { createRateAt } from "@/src/features/actions/project_data/project_rateAt.actions";
 export default function CreateDynamicForm({ clientSlug, projectSlug, processusSlug, inputs, options }: {
-    clientSlug: string, projectSlug: string, processusSlug: string, inputs: TypeDynamicInput, options: getSelectOptions
+    clientSlug: string, projectSlug: string, processusSlug: string, inputs: TypeDynamicInput, options: getSelectOptions,
 }) {
     const [loading, setLoading] = useState(false)
     type FormInputs = z.infer<typeof SocietyCreateSchema>
@@ -120,6 +127,9 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
             break
         case "Standard_Processus_Salary":
             formSchema = SalaryCreateSchema
+            break
+        case "Standard_Processus_Table_Seniority":
+            formSchema = ProjectTableCreateSchema
             break
 
 
@@ -208,6 +218,9 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
                 case "Standard_Processus_Salary":
                     action = await createSalary(data as z.infer<typeof SalaryCreateSchema>)
                     break
+                case "Standard_Processus_Table_Seniority":
+                    action = await createTableSeniority(data as z.infer<typeof ProjectTableCreateSchema>)
+                    break
                 default: {
                     throw new Error("La table n'existe pas")
                 }
@@ -230,12 +243,22 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
         }
     }
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='gap-4 space-y-8 p-4'>
-                <DynamicField inputs={inputs} form={form} options={options} />
-                {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
-            </form>
-        </Form >
+        <Card x-chunk="dashboard-05-chunk-3">
+            <CardHeader className="px-7">
+                <CardTitle>Formulaire</CardTitle>
+                <CardDescription>
+                    Table ancienneté code
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className='gap-4 space-y-8 p-4'>
+                        <DynamicField inputs={inputs} form={form} options={options} />
+                        {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
+                    </form>
+                </Form >
+            </CardContent>
+        </Card>
 
     )
 

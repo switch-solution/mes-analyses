@@ -17,13 +17,13 @@ export class StandardProcessusPrevoyance implements IProcessus {
     }
 
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const prevoyance = await prisma.project_Prevoyance.findUniqueOrThrow({
             where: {
                 slug: slug
             }
         })
-        return prevoyance
+        return prevoyance as T
 
     }
     async update({

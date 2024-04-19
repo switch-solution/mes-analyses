@@ -58,7 +58,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         projectLabel: projectDetail.label,
         sofwareLabel: projectDetail.softwareLabel
     })
-    const datas = await processusFactory.read(params.dataSlug)
+    const datas = await processusFactory.read<{}>(params.dataSlug)
     return (
         <Container>
             <ContainerBreadCrumb>

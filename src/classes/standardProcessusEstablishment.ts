@@ -15,13 +15,13 @@ export class StandardProcessusEstablishment implements IProcessus {
     }
 
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const society = await prisma.project_Establishment.findUniqueOrThrow({
             where: {
                 slug
             }
         })
-        return society
+        return society as T
 
     }
     async update({

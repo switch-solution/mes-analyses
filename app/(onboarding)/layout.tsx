@@ -23,6 +23,9 @@ export default async function RootLayout({
     modal
 }: LayoutProps) {
     const session = await getAuthSession()
+    if (!session) {
+        throw new Error('No session')
+    }
     return (
         <html lang="fr" className='h-full' suppressHydrationWarning>
             <body className={clsx(inter.className, 'flex min-h-screen w-full flex-col bg-muted/40')}>

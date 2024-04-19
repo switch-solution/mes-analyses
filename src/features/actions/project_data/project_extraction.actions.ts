@@ -59,10 +59,26 @@ export const extractionProcessus = authentifcationActionUserIsAuthorizeToEditPro
 
         await excelFile.xlsx.writeFile(pathProcessFile)
 
-
-
         const file = fs.readFileSync(pathProcessFile)
         blob = await put(processusFileName, file, { access: 'public' });
+
+        //Suppression du fichier
+        fs.unlink(pathProcessFile, (err) => {
+            if (err) {
+                console.error('Il y a eu une erreur lors de la suppression du fichier:', err);
+            } else {
+                console.log('Fichier supprimé avec succès');
+            }
+        });
+
+        fs.rmdir(dir, { recursive: true }, (err) => {
+            if (err) {
+                console.error('Il y a eu une erreur lors de la suppression du répertoire:', err);
+            } else {
+                console.log('Répertoire supprimé avec succès');
+            }
+        });
+
         return blob.downloadUrl
 
     } catch (err: unknown) {

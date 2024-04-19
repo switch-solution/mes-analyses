@@ -307,7 +307,7 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
                                                                                 <FormControl>
                                                                                     <SelectTrigger>
-                                                                                        <SelectValue placeholder="Selectioner votre méthode de calcul" />
+                                                                                        <SelectValue placeholder="Selectioner votre structure juridique" />
                                                                                     </SelectTrigger>
                                                                                 </FormControl>
                                                                                 <SelectContent>

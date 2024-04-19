@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import {
     Home,
     LineChart,
-    CircleUserRound,
     Settings,
     Building2,
     Users2,
@@ -140,18 +139,6 @@ export default async function NavBar() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link
-                                    href="/profile"
-                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
-                                >
-                                    <CircleUserRound className="size-5" />
-                                    <span className="sr-only">Profil</span>
-                                </Link>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">Profil</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Link
                                     scroll={false}
                                     href="/feedback"
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
@@ -176,7 +163,7 @@ export default async function NavBar() {
                             </Tooltip>
                             <TooltipTrigger asChild>
                                 <Link
-                                    href="/profile/default"
+                                    href="/profile/"
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
                                 >
                                     <Settings className="size-5" />

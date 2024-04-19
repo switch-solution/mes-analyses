@@ -95,6 +95,47 @@ export class Software {
         return softwareLabelExist
     }
 
+    async getProcessus() {
+        try {
+            const processusList = await prisma.software.findMany({
+                where: {
+                    slug: this.softwareSlug
+                },
+                include: {
+                    Software_Processus: {
+                        include: {
+                            Processus: true
+
+                        },
+                        orderBy: {
+                            order: 'asc'
+                        }
+                    }
+                }
+
+            })
+            const processus = processusList.map((software) => {
+                return software.Software_Processus.map((processus) => {
+                    return {
+                        id: processus.Processus.id,
+                        label: processus.Processus.label,
+                        version: processus.processusVersion,
+                        slug: processus.Processus.slug,
+                        order: processus.order
+                    }
+                })
+            }).flat(1)
+
+            return processus
+
+        } catch (err) {
+            console.error(err)
+            throw new Error(`Une erreur est survenue lors de la récupération des processus.`)
+        }
+
+
+    }
+
 
 
 }

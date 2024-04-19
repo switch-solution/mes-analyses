@@ -14,13 +14,13 @@ export class StandardProcessusSocietyFreeZone implements IProcessus {
         this.processusSlug = processusSlug
     }
 
-    async read(slug: string): Promise<{}> {
-        const bank = await prisma.project_Society_Free_Zone.findUniqueOrThrow({
+    async read<T>(slug: string): Promise<T> {
+        const free = await prisma.project_Society_Free_Zone.findUniqueOrThrow({
             where: {
                 slug
             }
         })
-        return bank
+        return free as T
 
     }
     async update({

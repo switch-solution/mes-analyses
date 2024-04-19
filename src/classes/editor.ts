@@ -32,11 +32,13 @@ export class Editor {
             const countIdcc = await prisma.idcc.count();
             const countDsn = await prisma.dsn_Structure.count();
             const countAbsence = await prisma.dsn_Absence.count();
+            const countRateAt = await prisma.rate_At.count();
             return {
                 countOps,
                 countIdcc,
                 countDsn,
-                countAbsence
+                countAbsence,
+                countRateAt
             }
         } catch (err) {
             console.log(err);
@@ -52,15 +54,32 @@ export class Editor {
                     softwareLabel: this.softwareActiveLabel
                 }
             });
-            const countConstant = await prisma.software_Constant_Legal.count({
+            const countProcessus = await prisma.software_Processus.count({
                 where: {
                     softwareLabel: this.softwareActiveLabel
                 }
-
+            })
+            const countAbsence = await prisma.software_Absence.count({
+                where: {
+                    softwareLabel: this.softwareActiveLabel
+                }
+            })
+            const countAccumulation = await prisma.software_Accumulation.count({
+                where: {
+                    softwareLabel: this.softwareActiveLabel
+                }
+            })
+            const countItems = await prisma.software_Items.count({
+                where: {
+                    softwareLabel: this.softwareActiveLabel
+                }
             })
             return {
-                countSetting: countSetting ? countSetting : 0,
-                countConstant: countConstant ? countConstant : 0
+                countSetting,
+                countProcessus,
+                countAbsence,
+                countAccumulation,
+                countItems
             }
 
         } catch (err) {

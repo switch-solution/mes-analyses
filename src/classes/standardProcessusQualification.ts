@@ -14,13 +14,13 @@ export class StandardProcessusQualification implements IProcessus {
         this.processusSlug = processusSlug
     }
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const qualification = await prisma.project_Qualification.findUniqueOrThrow({
             where: {
                 slug
             }
         })
-        return qualification
+        return qualification as T
 
     }
     async update({

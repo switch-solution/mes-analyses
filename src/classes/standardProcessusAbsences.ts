@@ -14,13 +14,13 @@ export class StandardProcessusAbsence implements IProcessus {
         this.processusSlug = processusSlug
     }
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const absences = await prisma.project_Absence.findUniqueOrThrow({
             where: {
                 slug
             }
         })
-        return absences
+        return absences as T
 
     }
     async update({

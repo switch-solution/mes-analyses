@@ -23,8 +23,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { useRouter } from "next/navigation";
 import { toast } from "sonner"
 export default function CreateProject({ clientSlug }: { clientSlug: string }) {
+    const router = useRouter()
     const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof ProjectCreateSchema>>({
         resolver: zodResolver(ProjectCreateSchema),
@@ -50,6 +52,10 @@ export default function CreateProject({ clientSlug }: { clientSlug: string }) {
                     },
                 })
             }
+            //Bug next Js 14.2.1 modal not close after submit
+            router.back()
+            setLoading(false)
+
         } catch (err) {
             setLoading(false)
             console.error(err)

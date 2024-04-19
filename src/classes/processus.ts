@@ -15,6 +15,7 @@ export interface IProcessus {
         projectLabel: string,
         softwareLabel: string
     }): Promise<boolean>,
+    read<T>(slug: string): Promise<T>,
     insert({
         values,
         userId,
@@ -155,6 +156,35 @@ export class Processus {
                 }
 
             })
+            return form
+        } catch (err) {
+            console.error(err)
+            throw new Error("Erreur lors de la récupération du formulaire")
+        }
+
+    }
+
+    async getForm() {
+        try {
+            const formList = await prisma.processus.findMany({
+                where: {
+                    slug: this.processusSlug
+                },
+                include: {
+                    Form: true
+                }
+            })
+            const form = formList.map((processus) => {
+                return processus.Form.map((form) => {
+                    return {
+                        id: form.id,
+                        label: form.label,
+                        slug: form.slug,
+                        isCreate: form.isCreate,
+                        isEdit: form.isEdit,
+                    }
+                })
+            }).flat(1)
             return form
         } catch (err) {
             console.error(err)

@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma'
 import { generateSlug } from '../helpers/generateSlug'
-import { is } from 'date-fns/locale'
 export class Client {
     clientSlug?: string
     private _slug?: string

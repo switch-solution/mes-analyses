@@ -14,13 +14,13 @@ export class StandardProcessusPaidLeave implements IProcessus {
         this.processusSlug = processusSlug
     }
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const paidLeave = await prisma.project_Paid_Leave.findUniqueOrThrow({
             where: {
                 slug
             }
         })
-        return paidLeave
+        return paidLeave as T
 
     }
     async update({

@@ -16,13 +16,13 @@ export class StandardProcessusAgircArrco implements IProcessus {
         this.processusSlug = processusSlug
     }
 
-    async read(slug: string): Promise<{}> {
+    async read<T>(slug: string): Promise<T> {
         const urssaf = await prisma.project_URSSAF.findUniqueOrThrow({
             where: {
                 slug: slug
             }
         })
-        return urssaf
+        return urssaf as T
 
     }
     async update({

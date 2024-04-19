@@ -121,8 +121,8 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
         console.error(err)
         throw new ActionError(err as string)
     }
-    revalidatePath(`/`)
-    redirect(`/`)
+    revalidatePath(`/home`)
+    redirect(`/home`)
 
 })
 

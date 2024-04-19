@@ -13,7 +13,6 @@ export type Processus = {
 
 }
 
-import { Pickaxe } from "lucide-react";
 export const columns: ColumnDef<Processus>[] = [
     {
         accessorKey: "label",

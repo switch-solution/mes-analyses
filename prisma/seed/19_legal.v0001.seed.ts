@@ -44,7 +44,7 @@ class LegalV0001Seed extends Seed {
                         label: 'Plafond de la sécurité sociale',
                         description: 'Plafond de la sécurité sociale',
                         idccCode: '9999',
-                        dateStart: new Date('2024-01-01').toLocaleDateString(),
+                        dateStart: new Date('2024-01-01'),
                         slug: `STD_PLSS_2024_01_${new Date('2024-01-01').toISOString().split('T')[0].replace(/-/g, '_')}`,
 
                     },
@@ -56,8 +56,7 @@ class LegalV0001Seed extends Seed {
                         idccCode: '9999',
                         value: '3864',
                         createdBy: 'system',
-                        dateStart: new Date('2024-01-01').toLocaleDateString(),
-                        level: 'Standard',
+                        dateStart: new Date('2024-01-01'),
                         slug: `STD_PLSS_2024_01_${new Date('2024-01-01').toISOString().split('T')[0].replace(/-/g, '_')}`,
                     }
 
@@ -69,19 +68,18 @@ class LegalV0001Seed extends Seed {
                         label: 'SMIC horaire brut',
                         description: 'SMIC horaire brut',
                         idccCode: '9999',
-                        dateStart: new Date('2024-01-01').toLocaleDateString(),
+                        dateStart: new Date('2024-01-01'),
                         slug: 'SMIC_2024_01'
                     },
                     update: {},
                     create: {
                         id: 'STD_0002',
-                        level: 'Standard',
                         label: 'SMIC horaire brut',
                         description: 'SMIC horaire brut',
                         idccCode: '9999',
                         value: '11.65',
                         createdBy: 'system',
-                        dateStart: new Date('2024-01-01').toLocaleDateString(),
+                        dateStart: new Date('2024-01-01'),
                         slug: `STD_SMIC_2024_01${new Date('2024-01-01').toISOString().split('T')[0].replace(/-/g, '_')}`,
                     }
 

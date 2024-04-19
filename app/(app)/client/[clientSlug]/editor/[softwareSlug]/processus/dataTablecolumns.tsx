@@ -2,22 +2,17 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type Idcc = {
+import { ArrowRight } from "lucide-react"
+export type Processus = {
     id: string | null
     clientSlug: string | null
     softwareSlug: string | null
     slug: string | null
     label: string | null
-    level: string | null
+    order: number | null
 }
 
-export const columns: ColumnDef<Idcc>[] = [
-    {
-        accessorKey: "level",
-        header: "Niveau",
-    },
+export const columns: ColumnDef<Processus>[] = [
     {
         accessorKey: "id",
         header: "Code",
@@ -26,6 +21,21 @@ export const columns: ColumnDef<Idcc>[] = [
         accessorKey: "label",
         header: "Libellé",
     },
+    {
+        accessorKey: "order",
+        header: "Ordre",
+    },
+    {
+        id: "open",
+        header: "Ouvrir",
+        cell: ({ row }) => {
+            const processus = row.original
+            return (
+                <Link href={`/client/${processus.clientSlug}/editor/${processus.softwareSlug}/processus/${processus.slug}`}><ArrowRight /></Link>
+            )
+        },
+    },
+
 
 
 ]

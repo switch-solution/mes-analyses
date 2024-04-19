@@ -62,8 +62,8 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     const clientActive = await user.getMyClientActive()
     const softwareActive = await user.getMySoftwareActive()
     const editor = new Editor(clientActive.clientId, softwareActive.softwareLabel)
-    const { countDsn, countIdcc, countOps, countAbsence } = await editor.getCountStandardElement()
-    const { countSetting, countConstant } = await editor.getCountSoftwareElement()
+    const { countDsn, countIdcc, countOps, countRateAt } = await editor.getCountStandardElement()
+    const { countSetting, countAbsence, countAccumulation, countItems, countProcessus } = await editor.getCountSoftwareElement()
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -136,6 +136,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                 <TabsList>
                                     <TabsTrigger value="standard">Standard</TabsTrigger>
                                     <TabsTrigger value="software">Logiciel</TabsTrigger>
+
                                 </TabsList>
                                 <div className="ml-auto flex items-center gap-2">
                                     <Button
@@ -190,11 +191,17 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                                     <TableCell>{countAbsence}</TableCell>
                                                     <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/absence`}><ArrowRight /></Link></TableCell>
                                                 </TableRow>
+                                                <TableRow>
+                                                    <TableCell className="font-medium">Taux AT</TableCell>
+                                                    <TableCell>{countRateAt}</TableCell>
+                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/rateAt`}><ArrowRight /></Link></TableCell>
+                                                </TableRow>
                                             </TableBody>
                                         </Table>
                                     </CardContent>
                                 </Card>
                             </TabsContent>
+
                             <TabsContent value="software">
                                 <Card x-chunk="dashboard-05-chunk-3">
                                     <CardHeader className="px-7">
@@ -228,21 +235,6 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                                     <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/textarea`}><ArrowRight /></Link></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell className="font-medium">Tabe des ages</TableCell>
-                                                    <TableCell>10</TableCell>
-                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/age`}><ArrowRight /></Link></TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell className="font-medium">Table ancienneté</TableCell>
-                                                    <TableCell>10</TableCell>
-                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/seniority`}><ArrowRight /></Link></TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell className="font-medium">Table des maintiens des salaires</TableCell>
-                                                    <TableCell>10</TableCell>
-                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/keepingWage`}><ArrowRight /></Link></TableCell>
-                                                </TableRow>
-                                                <TableRow>
                                                     <TableCell className="font-medium">Absences</TableCell>
                                                     <TableCell>10</TableCell>
                                                     <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/absence`}><ArrowRight /></Link></TableCell>
@@ -253,19 +245,19 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                                     <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/profile`}><ArrowRight /></Link></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell className="font-medium">Constante</TableCell>
-                                                    <TableCell>10</TableCell>
-                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/constant`}><ArrowRight /></Link></TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell className="font-medium">Compteur</TableCell>
+                                                    <TableCell className="font-medium">Compteurs</TableCell>
                                                     <TableCell>10</TableCell>
                                                     <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/accumulation`}><ArrowRight /></Link></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell className="font-medium">Rubrique</TableCell>
+                                                    <TableCell className="font-medium">Rubriques</TableCell>
                                                     <TableCell>10</TableCell>
                                                     <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/item}`}><ArrowRight /></Link></TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell className="font-medium">Processus</TableCell>
+                                                    <TableCell>{countProcessus}</TableCell>
+                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/processus`}><ArrowRight /></Link></TableCell>
                                                 </TableRow>
 
                                             </TableBody>

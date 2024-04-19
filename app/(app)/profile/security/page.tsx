@@ -45,9 +45,7 @@ export default async function Page() {
                             Mes informations
                         </Link>
                         <Link href="/profile/security" className="font-semibold text-primary">Securité</Link>
-                        <Link href="/profile/organization">Organisation</Link>
-                        <Link href="#">Support</Link>
-                        <Link href="#">Advanced</Link>
+                        <Link href="/profile/default">Environnement</Link>
                     </nav>
                     <div className="grid gap-6">
                         <Card x-chunk="dashboard-04-chunk-1">

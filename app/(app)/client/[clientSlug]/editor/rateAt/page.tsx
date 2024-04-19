@@ -12,7 +12,7 @@ import {
 import { getRateAt } from "@/src/query/rateAt.query";
 import { Client } from "@/src/classes/client";
 import { Security } from "@/src/classes/security";
-export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
+export default async function Page({ params }: { params: { clientSlug: string } }) {
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
     if (!clientExist) {
@@ -33,11 +33,11 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</BreadcrumbLink>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/`}>Editeur</BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/rateAt`}>Taux AT</BreadcrumbLink>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/rateAt`}>Taux AT</BreadcrumbLink>
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>

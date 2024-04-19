@@ -9,7 +9,6 @@ export const getCountAllTables = async () => {
         const countSoftware = await prisma.software.count()
         const countTask = await prisma.task.count()
         const countAccumulation = await prisma.accumulation.count()
-        const countSoftwareTask = await prisma.software_Task.count()
         const countSoftwareAccumulation = await prisma.software_Accumulation.count()
         const countLoggers = await prisma.logger.count()
         const countDsnOps = await prisma.dsn_OPS.count()
@@ -39,10 +38,6 @@ export const getCountAllTables = async () => {
             {
                 label: 'Cumul de paie',
                 count: countAccumulation
-            },
-            {
-                label: 'Tâches par logiciel',
-                count: countSoftwareTask
             },
             {
                 label: 'Cumul de paie par logiciel',

@@ -4,7 +4,7 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { SocietyEditSchema, EstablishmentEditSchema, OpsEditSchema, BankEditSchema } from "@/src/helpers/definition";
+import { SocietyEditSchema, EstablishmentEditSchema, OpsEditSchema, BankEditSchema, ProjectTableEditSchema } from "@/src/helpers/definition";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { updateSociety } from "@/src/features/actions/project_data/project_society.actions";
 import { updateEstablishement } from "@/src/features/actions/project_data/project_establishment.actions";
@@ -13,6 +13,14 @@ import { toast } from "sonner"
 import DynamicField from "@/components/ui/dynamic-field"
 import type { TypeDynamicInput } from "@/src/helpers/type"
 import { Form } from "@/components/ui/form"
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 import type { getSelectOptions } from "@/src/query/form.query";
 import { updateBank } from "@/src/features/actions/project_data/project_bank.actions";
 export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug, inputs, options, datas, disabled = false }: {
@@ -37,6 +45,9 @@ export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug
             break
         case "Standard_Processus_Bank":
             formSchema = BankEditSchema
+            break
+        case "Standard_Processus_Table_Seniority":
+            formSchema = ProjectTableEditSchema
             break
         default: {
             throw new Error("La table n'existe pas")
@@ -92,12 +103,24 @@ export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug
     }
 
     return (
-        < Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-                <DynamicField inputs={inputs} form={form} options={options} disabled={disabled} />
-                {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
-            </form>
-        </Form >
+        <Card x-chunk="dashboard-05-chunk-3">
+            <CardHeader className="px-7">
+                <CardTitle>Formulaire</CardTitle>
+                <CardDescription>
+                    Table ancienneté code
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+
+                < Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+                        <DynamicField inputs={inputs} form={form} options={options} disabled={disabled} />
+                        {disabled ? undefined : loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
+                    </form>
+                </Form >
+            </CardContent>
+        </Card>
+
     )
 
 }

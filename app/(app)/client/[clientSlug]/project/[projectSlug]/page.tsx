@@ -138,10 +138,8 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                     <TabsTrigger value="isProgress">En cours de validation</TabsTrigger>
                                     <TabsTrigger value="isFinish">Validé</TabsTrigger>
                                     <TabsTrigger value="isReopn">Réouverture</TabsTrigger>
-
                                 </TabsList>
                                 <div className="ml-auto flex items-center gap-2">
-
                                     <Button
                                         size="sm"
                                         variant="outline"

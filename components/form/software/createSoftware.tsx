@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { createSoftware } from "@/src/features/actions/software/software.actions"
-import { createSetupSoftware } from "@/src/features/actions/setup/setup.actions"
 import {
     Form,
     FormControl,
