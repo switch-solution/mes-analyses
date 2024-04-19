@@ -12,6 +12,11 @@ import {
 import { getApiActivityByUuid } from "@/src/query/client_api.query";
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
+type API = {
+    url: string,
+    createdAt: Date,
+
+}
 export default async function Page({ params }: { params: { clientSlug: string, apiSlug: string } }) {
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
@@ -25,10 +30,10 @@ export default async function Page({ params }: { params: { clientSlug: string, a
     }
 
     const apiList = await getApiActivityByUuid(params.apiSlug)
-    const api = apiList.map(api => {
+    const api = apiList.map((apiDetail: API) => {
         return {
-            url: api.url,
-            createdAt: api.createdAt.toTimeString(),
+            url: apiDetail.url,
+            createdAt: apiDetail.createdAt.toTimeString(),
             clientSlug: params.clientSlug
         }
     })

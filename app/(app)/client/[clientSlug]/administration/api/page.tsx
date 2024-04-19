@@ -12,6 +12,15 @@ import {
 import { getApiByClientSlug } from "@/src/query/client_api.query";
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
+type API = {
+    label: string,
+    apiKeyMasked: string
+    apiKey: string
+    count: string
+    slug: string
+    revoked: string
+    clientSlug: string
+}
 export default async function Page({ params }: { params: { clientSlug: string } }) {
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
@@ -30,14 +39,14 @@ export default async function Page({ params }: { params: { clientSlug: string } 
         return start + masked + end; // Concatène le début, les étoiles et la fin
     }
     const apiList = await getApiByClientSlug(params.clientSlug)
-    const api = apiList.map(api => {
+    const api = apiList.map(apiDetail => {
         return {
-            label: api.label,
-            apiKeyMasked: maskApiKey(api.apiKey),
-            apiKey: api.apiKey,
-            count: api._count?.Client_API_Activity.toString(),
-            slug: api.slug,
-            revoked: api.revoked,
+            label: apiDetail.label,
+            apiKeyMasked: maskApiKey(apiDetail.apiKey),
+            apiKey: apiDetail.apiKey,
+            count: apiDetail._count?.Client_API_Activity.toString(),
+            slug: apiDetail.slug,
+            revoked: apiDetail.revoked,
             clientSlug: params.clientSlug
         }
     })

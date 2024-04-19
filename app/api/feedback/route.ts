@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic' // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+
 import { type NextRequest } from 'next/server'
 import { prisma } from "@/lib/prisma";
 import { env } from '@/lib/env';
