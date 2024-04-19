@@ -52,8 +52,7 @@ export default function CreateProject({ clientSlug }: { clientSlug: string }) {
                     },
                 })
             }
-            //Bug next Js 14.2.1 modal not close after submit
-            router.back()
+
             setLoading(false)
 
         } catch (err) {
