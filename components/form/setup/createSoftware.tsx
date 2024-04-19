@@ -18,7 +18,9 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from '@/components/ui/input'
+import { useRouter } from "next/navigation";
 export default function CreateSoftware({ clientSlug, setup = false }: { clientSlug: string, setup?: boolean }) {
+    const router = useRouter()
     const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof SoftwareCreateSchema>>({
         resolver: zodResolver(SoftwareCreateSchema),
@@ -41,6 +43,9 @@ export default function CreateSoftware({ clientSlug, setup = false }: { clientSl
                     },
                 })
             }
+
+            //Fix redirect in server actions don't work
+            router.push(`/home`)
 
             setLoading(false)
 

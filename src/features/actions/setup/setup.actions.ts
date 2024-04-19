@@ -113,6 +113,14 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
                 userId: userId
             },
             data: {
+                isSetup: false
+            }
+        })
+        await prisma.userOtherData.update({
+            where: {
+                userId: userId
+            },
+            data: {
                 isSetup: true
             }
         })
@@ -122,7 +130,7 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
         throw new ActionError(err as string)
     }
     revalidatePath(`/home`)
-    redirect(`/home`)
+    revalidatePath(`/home`)
 
 })
 

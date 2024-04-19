@@ -50,7 +50,6 @@ import { getAuthSession } from "@/lib/auth"
 import { redirect } from 'next/navigation'
 import ExcelButtonFile from "@/components/button/excelButtonFile"
 export default async function Page() {
-    console.log('home render')
     const today = new Date().toLocaleDateString()
     const session = await getAuthSession()
     if (!session) {
@@ -72,7 +71,6 @@ export default async function Page() {
     const activity = await user.getLogs()
     const projects = await user.myProject()
     const projectsEnable = projects.filter((project) => project.project.status === "actif")
-
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
