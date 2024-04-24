@@ -115,6 +115,8 @@ class FormV0021 extends Seed {
                         order: 7
                     }
                 })
+                await this.seedUpdateStatus("completed")
+
             }
 
         } catch (err) {

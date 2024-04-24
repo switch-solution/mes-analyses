@@ -79,6 +79,8 @@ class FormV0020 extends Seed {
                     }
 
                 })
+                await this.seedUpdateStatus("completed")
+
             }
 
         } catch (err) {
