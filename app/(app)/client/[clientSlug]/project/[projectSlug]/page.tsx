@@ -4,6 +4,7 @@ import {
     ChevronRight,
     File,
     ArrowRight,
+    Printer
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -163,11 +164,11 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                             <TableHeader>
                                                 <TableRow>
                                                     <TableHead>Titre</TableHead>
-                                                    <TableHead className="hidden sm:table-cell">
-                                                        Status
-                                                    </TableHead>
                                                     <TableHead className="hidden md:table-cell">
                                                         Date de création
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Imprimer
                                                     </TableHead>
                                                     <TableHead className="hidden md:table-cell">
                                                         Ouvrir
@@ -184,13 +185,13 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                             <TableCell>
                                                                 <div className="font-medium">{processus.label}</div>
                                                             </TableCell>
-                                                            <TableCell className="hidden sm:table-cell">
-                                                                <Badge className="text-xs" variant="secondary">
-                                                                    {processus.status}
-                                                                </Badge>
-                                                            </TableCell>
                                                             <TableCell className="hidden md:table-cell">
                                                                 {processus.createdAt.toLocaleDateString()}
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                <Link href={`/client/${client.clientSlug}/project/${params.projectSlug}/processus/${processus.processusSlug}/pdf`}>
+                                                                    <Printer />
+                                                                </Link>
                                                             </TableCell>
                                                             <TableCell className="hidden md:table-cell">
                                                                 <Link href={`/client/${client.clientSlug}/project/${params.projectSlug}/processus/${processus.processusSlug}`}>
@@ -201,7 +202,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                                 <AlertApproveProcessus processusSlug={processus.processusSlug} clientSlug={client.clientSlug} projectSlug={params.projectSlug} />
                                                             </TableCell>
                                                         </TableRow>
-
                                                     ))
                                                 }
                                             </TableBody>

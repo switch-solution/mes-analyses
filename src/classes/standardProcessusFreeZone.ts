@@ -211,4 +211,5 @@ export class StandardProcessusFreeZone implements IProcessus {
             throw new Error('Erreur lors de l\'extraction')
         }
     }
+
 }

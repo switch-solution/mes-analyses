@@ -24,7 +24,7 @@ export default async function RootLayout({
 }: LayoutProps) {
     return (
         <html lang="fr" className='h-full' suppressHydrationWarning>
-            <body className={clsx(inter.className, 'flex min-h-screen w-full flex-col bg-muted/40')}>
+            <body className={clsx(inter.className, 'flex size-full min-h-screen flex-col bg-muted/40')}>
                 <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
                     <Header>
                         <NavBar />

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
-import { ProjectAbsenceCreateSchema, SocietyEditSchema } from "@/src/helpers/definition"
+import { ProjectAbsenceCreateSchema, ProjectAbsenceEditSchema } from "@/src/helpers/definition"
 import { generateSlug } from "@/src/helpers/generateSlug"
 export class StandardProcessusAbsence implements IProcessus {
     projectLabel: string
@@ -38,98 +38,60 @@ export class StandardProcessusAbsence implements IProcessus {
 
     }): Promise<void> {
         try {
-            const { id, siren, address1, socialReason, address2, slug, city, address3, address4, clientSlug, projectSlug, processusSlug, country, postalCode, ape } = SocietyEditSchema.parse(values)
+            const { id, label, clientSlug, projectSlug, processusSlug, dsnId, method, slug, isSocialSecurity } = ProjectAbsenceEditSchema.parse(values)
 
-            const societyBySlug = await prisma.project_Society.findUnique({
+            const absenceExist = await prisma.project_Absence.findUnique({
                 where: {
                     slug
                 }
             })
 
-            if (!societyBySlug) {
-                throw new Error("La société n'existe pas")
-            }
-            if (siren !== societyBySlug.siren) {
-                const sirenExist = await prisma.project_Society.findFirst({
-                    where: {
-                        siren: siren,
-                        clientId,
-                        projectLabel,
-                        softwareLabel,
-                    }
-                })
-                if (sirenExist) {
-                    throw new Error("Le siren existe déjà")
-                }
-
-                const establishment = await prisma.project_Establishment.findFirst({
-                    where: {
-                        societyId: societyBySlug.siren,
-                        clientId,
-                        projectLabel,
-                        softwareLabel,
-                    },
-                    select: {
-                        socialReason: true
-                    }
-                })
-                if (establishment) {
-                    throw new Error(`La société est liée à un établissement.Supprimer d'abord établissement : ${establishment.socialReason}`)
-                }
+            if (!absenceExist) {
+                throw new Error("L'absence n'existe pas")
             }
 
             //Update society
-            await prisma.project_Society.update({
+            await prisma.project_Absence.update({
                 where: {
                     slug
                 },
                 data: {
                     id,
-                    siren,
-                    address1,
-                    address2,
+                    label,
+                    dsnId,
+                    method,
+                    isSocialSecurity,
                     clientId,
-                    address3,
-                    socialReason,
                     createdBy: userId,
-                    city,
-                    address4,
-                    country,
-                    postalCode,
-                    ape,
                     projectLabel: projectLabel,
                     softwareLabel: softwareLabel,
                 }
             })
 
             //Add history
-            const countHistory = await prisma.project_Society_Archived.count({
+            const countHistory = await prisma.project_Absence_Archived.count({
                 where: {
-                    siren: societyBySlug.siren,
+                    id: absenceExist.id,
                     projectLabel,
                     softwareLabel,
                     clientId
                 }
             })
-            await prisma.project_Society_Archived.create({
+            await prisma.project_Absence_Archived.create({
                 data: {
-                    id: societyBySlug.id,
-                    siren: societyBySlug.siren,
-                    address1: societyBySlug.address1,
-                    address2: societyBySlug.address2,
-                    clientId: societyBySlug.clientId,
-                    address3: societyBySlug.address3,
-                    socialReason: societyBySlug.socialReason,
-                    createdBy: societyBySlug.createdBy,
-                    city: societyBySlug.city,
-                    status: societyBySlug.status,
-                    source: societyBySlug.source,
-                    address4: societyBySlug.address4,
-                    country: societyBySlug.country,
-                    postalCode: societyBySlug.postalCode,
-                    ape: societyBySlug.ape,
-                    projectLabel: societyBySlug.projectLabel,
-                    softwareLabel: societyBySlug.softwareLabel,
+                    id: absenceExist.id,
+                    label: absenceExist.label,
+                    dsnId: absenceExist.dsnId,
+                    status: absenceExist.status,
+                    softwareLabel: absenceExist.softwareLabel,
+                    isOpen: absenceExist.isOpen,
+                    isPending: absenceExist.isPending,
+                    isApproved: absenceExist.isApproved,
+                    method: absenceExist.method,
+                    isSocialSecurity: absenceExist.isSocialSecurity,
+                    clientId: absenceExist.clientId,
+                    createdBy: absenceExist.createdBy,
+                    projectLabel: absenceExist.projectLabel,
                     version: countHistory + 1
                 }
             })
@@ -178,7 +140,7 @@ export class StandardProcessusAbsence implements IProcessus {
 
     }): Promise<void> {
         try {
-            const { id, clientSlug, label, description, dsnId, population, method, isSocialSecurity } = ProjectAbsenceCreateSchema.parse(values)
+            const { id, clientSlug, label, description, dsnId, population, method, isSocialSecurity, settlement } = ProjectAbsenceCreateSchema.parse(values)
 
             const count = await prisma.project_Absence.count()
             await prisma.project_Absence.create({
@@ -189,6 +151,7 @@ export class StandardProcessusAbsence implements IProcessus {
                     label,
                     description,
                     clientId,
+                    settlement,
                     isSocialSecurity,
                     createdBy: userId,
                     projectLabel: projectLabel,
@@ -480,4 +443,5 @@ export class StandardProcessusAbsence implements IProcessus {
             throw new Error(err as string)
         }
     }
+
 }

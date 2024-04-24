@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
-import { CreateIdccSchema } from "@/src/helpers/definition";
+import { CreateIdccSchema, IdccEditSchema } from "@/src/helpers/definition";
 import { generateSlug } from "@/src/helpers/generateSlug"
 export class StandardProcessusCcn implements IProcessus {
     projectLabel: string
@@ -15,9 +15,9 @@ export class StandardProcessusCcn implements IProcessus {
     }
 
     async read<T>(slug: string): Promise<T> {
-        const ccn = await prisma.idcc.findUniqueOrThrow({
+        const ccn = await prisma.project_Idcc.findUniqueOrThrow({
             where: {
-                code: slug
+                slug: slug
             }
         })
         return ccn as T
@@ -37,8 +37,44 @@ export class StandardProcessusCcn implements IProcessus {
         clientId: string
 
     }): Promise<void> {
-        throw new Error("Method not implemented.")
+        try {
+            const { slug, extended } = IdccEditSchema.parse(values)
+            const idccExist = await prisma.project_Idcc.findUniqueOrThrow({
+                where: {
+                    slug: slug
+                }
+            })
+            const count = await prisma.project_Idcc_Archived.count({
+                where: {
+                    slug: slug
+                }
+            })
+            await prisma.project_Idcc_Archived.create({
+                data: {
+                    idcc: idccExist.idcc,
+                    extended: idccExist.extended,
+                    label: idccExist.label,
+                    clientId: idccExist.clientId,
+                    createdBy: idccExist.createdBy,
+                    projectLabel: idccExist.projectLabel,
+                    softwareLabel: idccExist.softwareLabel,
+                    version: count + 1
+                }
 
+            })
+            await prisma.project_Idcc.update({
+                where: {
+                    slug: slug
+
+                },
+                data: {
+                    extended: extended
+                }
+            })
+        } catch (err: unknown) {
+            console.error(err)
+            throw new Error(err as string)
+        }
     }
     async valueExist({
         value,
@@ -76,7 +112,7 @@ export class StandardProcessusCcn implements IProcessus {
 
     }): Promise<void> {
         try {
-            const { idcc, clientSlug, projectSlug, processusSlug } = CreateIdccSchema.parse(values)
+            const { idcc, clientSlug, projectSlug, processusSlug, extended } = CreateIdccSchema.parse(values)
 
             const idccExist = await prisma.project_Idcc.findFirst({
                 where: {
@@ -99,6 +135,7 @@ export class StandardProcessusCcn implements IProcessus {
                 await prisma.project_Idcc.create({
                     data: {
                         idcc,
+                        extended,
                         label: idccDetail.label,
                         clientId,
                         createdBy: userId,
@@ -350,5 +387,6 @@ export class StandardProcessusCcn implements IProcessus {
             throw new Error(err as string)
         }
     }
+
 
 }

@@ -406,6 +406,7 @@ export class StandardProcessusEstablishment implements IProcessus {
             const datas = establishments.map((establishment) => {
                 return {
                     id: establishment.nic,
+                    societyId: establishment.societyId,
                     label: establishment.socialReason,
                     address1: establishment.address1,
                     address2: establishment.address2,
@@ -486,4 +487,5 @@ export class StandardProcessusEstablishment implements IProcessus {
             throw new Error(err as string)
         }
     }
+
 }

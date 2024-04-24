@@ -294,7 +294,6 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                     </FormItem>
                                                                 )}
                                                             /> :
-
                                                             input.type === "select" && input.selectTableSource === 'Software_Setting' ?
                                                                 < FormField
                                                                     key={input.zodLabel}
@@ -307,14 +306,14 @@ export default function DynamicField({ inputs, form, options, disabled = false }
                                                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
                                                                                 <FormControl>
                                                                                     <SelectTrigger>
-                                                                                        <SelectValue placeholder="Selectioner votre structure juridique" />
+                                                                                        <SelectValue />
                                                                                     </SelectTrigger>
                                                                                 </FormControl>
                                                                                 <SelectContent>
                                                                                     {options.softwareSetting.filter(option => option.id === input.selectFieldSource).map((option) => {
                                                                                         return (
-                                                                                            <SelectItem key={option.label} value={option.label}>
-                                                                                                {option.label}
+                                                                                            <SelectItem key={option.value} value={option.value}>
+                                                                                                {option.value}
                                                                                             </SelectItem>
                                                                                         )
                                                                                     })}

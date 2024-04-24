@@ -28,7 +28,6 @@ export default async function ProjectCreate({ params }: { params: { clientSlug: 
     if (!isEditor) {
         throw new Error("Vous n'avez pas les droits pour accéder à cette page")
     }
-
     return (
         <Container>
             <ContainerBreadCrumb>

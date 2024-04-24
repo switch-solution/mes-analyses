@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { CreateClassificationSchema } from "@/src/helpers/definition";
+import { CreateClassificationSchema, ClassificationEditSchema } from "@/src/helpers/definition";
 import { authentifcationActionUserIsAuthorizeToEditProject, ActionError } from "@/lib/safe-actions";
 import z from "zod";
 import { ProcessusFactory } from "@/src/classes/processusFactory";
@@ -50,6 +50,33 @@ export const createIndice = authentifcationActionUserIsAuthorizeToEditProject(Cr
         throw new ActionError(err as string)
 
     }
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
+    redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
+})
+
+export const updateIndice = authentifcationActionUserIsAuthorizeToEditProject(ClassificationEditSchema, async (values: z.infer<typeof ClassificationEditSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
+    const { clientSlug, processusSlug, projectSlug, } = ClassificationEditSchema.parse(values)
+
+    const processus = ProcessusFactory.create({
+        processusSlug,
+        clientId,
+        projectLabel,
+        sofwareLabel: softwareLabel
+    })
+
+    try {
+        await processus.update({
+            values,
+            userId,
+            projectLabel,
+            softwareLabel,
+            clientId
+        })
+    } catch (err) {
+        console.error(err)
+        throw new ActionError(err as string)
+    }
+
     revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
     redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
 })

@@ -6,6 +6,23 @@ export class User {
         this.userId = userId
     }
 
+    async getUserDetail() {
+        try {
+            const user = await prisma.user.findUniqueOrThrow({
+                where: {
+                    id: this.userId
+                },
+                include: {
+                    UserOtherData: true
+                }
+            })
+            return user
+        } catch (err) {
+            console.error(err)
+            throw new Error(`Une erreur est survenue lors de la récupération des données de l'utilisateur.`)
+        }
+    }
+
     async getMyClientsAll() {
         try {
             const clientsList = await prisma.userClient.findMany({

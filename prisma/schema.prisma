@@ -452,6 +452,7 @@ model Project {
   Project_Rate_Mobility Project_Rate_Mobility[]
   Project_Contribution  Project_Contribution[]
   Project_Salary        Project_Salary[]
+  Project_Paid_Leave    Project_Paid_Leave[]
 
   @@id([clientId, softwareLabel, label])
 }
@@ -575,12 +576,13 @@ model Project_Absence {
   population               String?
   description              String?
   clientId                 String
+  settlement               String?
   slug                     String                     @unique
   status                   String                     @default("En cours")
   projectLabel             String
   isSocialSecurity         Boolean                    @default(false)
   softwareLabel            String
-  Project                  Project                    @relation(fields: [clientId, softwareLabel, projectLabel], references: [clientId, label, softwareLabel])
+  Project                  Project                    @relation(fields: [clientId, softwareLabel, projectLabel], references: [clientId, softwareLabel, label])
   source                   String                     @default("analyse")
   updatedAt                DateTime                   @updatedAt
   createdAt                DateTime                   @default(now())
@@ -866,6 +868,7 @@ model Project_Establishment_Rate_Mobility {
 model Project_Idcc {
   idcc                       String
   label                      String
+  extended                   Boolean                      @default(false)
   clientId                   String
   isApproved                 Boolean                      @default(false)
   isPending                  Boolean                      @default(false)
@@ -886,8 +889,26 @@ model Project_Idcc {
   Project_Echelon            Project_Echelon[]
   Project_Indice             Project_Indice[]
   Project_Table_Seniority    Project_Table_Seniority[]
+  Project_Idcc_Archived      Project_Idcc_Archived[]
 
   @@id([idcc, clientId, softwareLabel, projectLabel])
+}
+
+model Project_Idcc_Archived {
+  slug          String       @unique @default(cuid())
+  idcc          String
+  label         String
+  version       Int
+  extended      Boolean
+  clientId      String
+  projectLabel  String
+  softwareLabel String
+  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime     @default(now())
+  createdBy     String       @default("system")
+  Project_Idcc  Project_Idcc @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+
+  @@id([idcc, clientId, softwareLabel, projectLabel, version])
 }
 
 model Project_Table_Seniority {
@@ -925,26 +946,49 @@ model Project_Table_Seniority_Row {
 }
 
 model Project_Coefficient {
-  level         String       @default("Logiciel")
-  id            String
-  projectLabel  String
-  isApproved    Boolean      @default(false)
-  isPending     Boolean      @default(false)
-  isOpen        Boolean      @default(true)
-  slug          String       @unique
-  label         String
-  status        String       @default("En cours")
-  source        String       @default("analyse")
-  description   String?
-  idcc          String
-  clientId      String
-  softwareLabel String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  createdBy     String       @default("system")
-  Project_Idcc  Project_Idcc @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  level                        String                         @default("Logiciel")
+  id                           String
+  projectLabel                 String
+  isApproved                   Boolean                        @default(false)
+  isPending                    Boolean                        @default(false)
+  isOpen                       Boolean                        @default(true)
+  slug                         String                         @unique
+  label                        String
+  status                       String                         @default("En cours")
+  source                       String                         @default("analyse")
+  description                  String?
+  idcc                         String
+  clientId                     String
+  softwareLabel                String
+  createdAt                    DateTime                       @default(now())
+  updatedAt                    DateTime                       @updatedAt
+  createdBy                    String                         @default("system")
+  Project_Idcc                 Project_Idcc                   @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  Project_Coefficient_Archived Project_Coefficient_Archived[]
 
   @@id([id, idcc, projectLabel, clientId, softwareLabel])
+}
+
+model Project_Coefficient_Archived {
+  id                  String
+  projectLabel        String
+  isApproved          Boolean
+  isPending           Boolean
+  isOpen              Boolean
+  slug                String              @unique @default(cuid())
+  label               String
+  status              String
+  description         String?
+  idcc                String
+  clientId            String
+  softwareLabel       String
+  createdAt           DateTime
+  updatedAt           DateTime
+  createdBy           String
+  version             Int
+  Project_Coefficient Project_Coefficient @relation(fields: [id, idcc, projectLabel, clientId, softwareLabel], references: [id, idcc, projectLabel, clientId, softwareLabel])
+
+  @@id([id, idcc, projectLabel, clientId, softwareLabel, version])
 }
 
 model Project_Bank {
@@ -1015,95 +1059,179 @@ model Project_Establishment_Bank {
 }
 
 model Project_Qualification {
-  level         String       @default("Logiciel")
-  id            String
-  projectLabel  String
-  isApproved    Boolean      @default(false)
-  isPending     Boolean      @default(false)
-  isOpen        Boolean      @default(true)
-  slug          String       @unique
-  label         String
-  status        String       @default("En cours")
-  source        String       @default("analyse")
-  description   String?
-  idcc          String
-  clientId      String
-  softwareLabel String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  createdBy     String       @default("system")
-  Project_Idcc  Project_Idcc @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  id                             String
+  projectLabel                   String
+  isApproved                     Boolean                          @default(false)
+  isPending                      Boolean                          @default(false)
+  isOpen                         Boolean                          @default(true)
+  slug                           String                           @unique
+  label                          String
+  status                         String                           @default("En cours")
+  source                         String                           @default("analyse")
+  description                    String?
+  idcc                           String
+  clientId                       String
+  softwareLabel                  String
+  createdAt                      DateTime                         @default(now())
+  updatedAt                      DateTime                         @updatedAt
+  createdBy                      String                           @default("system")
+  Project_Idcc                   Project_Idcc                     @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  Project_Qualification_Archived Project_Qualification_Archived[]
 
   @@id([id, idcc, projectLabel, clientId, softwareLabel])
+}
+
+model Project_Qualification_Archived {
+  id                    String
+  isApproved            Boolean
+  isPending             Boolean
+  idcc                  String
+  isOpen                Boolean
+  version               Int
+  projectLabel          String
+  clientId              String
+  softwareLabel         String
+  slug                  String                @unique @default(cuid())
+  label                 String
+  status                String
+  updatedAt             DateTime              @updatedAt
+  createdAt             DateTime              @default(now())
+  createdBy             String                @default("system")
+  Project_Qualification Project_Qualification @relation(fields: [id, idcc, projectLabel, clientId, softwareLabel], references: [id, idcc, projectLabel, clientId, softwareLabel])
+
+  @@id([id, clientId, softwareLabel, projectLabel, version])
 }
 
 model Project_Niveau {
-  level         String       @default("Logiciel")
-  id            String
-  isApproved    Boolean      @default(false)
-  isPending     Boolean      @default(false)
-  isOpen        Boolean      @default(true)
-  projectLabel  String
-  slug          String       @unique
-  label         String
-  status        String       @default("En cours")
-  source        String       @default("analyse")
-  description   String?
-  idcc          String
-  clientId      String
-  softwareLabel String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  createdBy     String       @default("system")
-  Project_Idcc  Project_Idcc @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  id                      String
+  isApproved              Boolean                   @default(false)
+  isPending               Boolean                   @default(false)
+  isOpen                  Boolean                   @default(true)
+  projectLabel            String
+  slug                    String                    @unique
+  label                   String
+  status                  String                    @default("En cours")
+  source                  String                    @default("analyse")
+  description             String?
+  idcc                    String
+  clientId                String
+  softwareLabel           String
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  createdBy               String                    @default("system")
+  Project_Idcc            Project_Idcc              @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  Project_Niveau_Archived Project_Niveau_Archived[]
 
   @@id([id, idcc, projectLabel, clientId, softwareLabel])
+}
+
+model Project_Niveau_Archived {
+  id             String
+  isApproved     Boolean
+  isPending      Boolean
+  idcc           String
+  isOpen         Boolean
+  version        Int
+  projectLabel   String
+  clientId       String
+  softwareLabel  String
+  slug           String         @unique @default(cuid())
+  label          String
+  status         String
+  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime       @default(now())
+  createdBy      String         @default("system")
+  Project_Niveau Project_Niveau @relation(fields: [id, idcc, projectLabel, clientId, softwareLabel], references: [id, idcc, projectLabel, clientId, softwareLabel])
+
+  @@id([id, clientId, softwareLabel, projectLabel, version])
 }
 
 model Project_Indice {
-  level         String       @default("Logiciel")
-  id            String
-  projectLabel  String
-  isApproved    Boolean      @default(false)
-  isPending     Boolean      @default(false)
-  isOpen        Boolean      @default(true)
-  slug          String       @unique
-  label         String
-  status        String       @default("En cours")
-  source        String       @default("analyse")
-  description   String?
-  idcc          String
-  clientId      String
-  softwareLabel String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  createdBy     String       @default("system")
-  Project_Idcc  Project_Idcc @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  id                      String
+  projectLabel            String
+  isApproved              Boolean                   @default(false)
+  isPending               Boolean                   @default(false)
+  isOpen                  Boolean                   @default(true)
+  slug                    String                    @unique
+  label                   String
+  status                  String                    @default("En cours")
+  source                  String                    @default("analyse")
+  description             String?
+  idcc                    String
+  clientId                String
+  softwareLabel           String
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  createdBy               String                    @default("system")
+  Project_Idcc            Project_Idcc              @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  Project_Indice_Archived Project_Indice_Archived[]
 
   @@id([id, idcc, projectLabel, clientId, softwareLabel])
 }
 
+model Project_Indice_Archived {
+  id             String
+  isApproved     Boolean
+  isPending      Boolean
+  idcc           String
+  isOpen         Boolean
+  version        Int
+  projectLabel   String
+  clientId       String
+  softwareLabel  String
+  slug           String         @unique @default(cuid())
+  label          String
+  status         String
+  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime       @default(now())
+  createdBy      String         @default("system")
+  Project_Indice Project_Indice @relation(fields: [id, idcc, projectLabel, clientId, softwareLabel], references: [id, idcc, projectLabel, clientId, softwareLabel])
+
+  @@id([id, clientId, softwareLabel, projectLabel, version])
+}
+
 model Project_Echelon {
-  level         String       @default("Logiciel")
-  id            String
-  projectLabel  String
-  isApproved    Boolean      @default(false)
-  isPending     Boolean      @default(false)
-  isOpen        Boolean      @default(true)
-  slug          String       @unique
-  label         String
-  status        String       @default("En cours")
-  source        String       @default("analyse")
-  description   String?
-  idcc          String
-  clientId      String
-  softwareLabel String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  createdBy     String       @default("system")
-  Project_Idcc  Project_Idcc @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  id                       String
+  projectLabel             String
+  isApproved               Boolean                    @default(false)
+  isPending                Boolean                    @default(false)
+  isOpen                   Boolean                    @default(true)
+  slug                     String                     @unique
+  label                    String
+  status                   String                     @default("En cours")
+  source                   String                     @default("analyse")
+  description              String?
+  idcc                     String
+  clientId                 String
+  softwareLabel            String
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+  createdBy                String                     @default("system")
+  Project_Idcc             Project_Idcc               @relation(fields: [idcc, clientId, softwareLabel, projectLabel], references: [idcc, clientId, softwareLabel, projectLabel])
+  Project_Echelon_Archived Project_Echelon_Archived[]
 
   @@id([id, idcc, projectLabel, clientId, softwareLabel])
+}
+
+model Project_Echelon_Archived {
+  id              String
+  isApproved      Boolean
+  isPending       Boolean
+  idcc            String
+  isOpen          Boolean
+  version         Int
+  projectLabel    String
+  clientId        String
+  softwareLabel   String
+  slug            String          @unique @default(cuid())
+  label           String
+  status          String
+  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime        @default(now())
+  createdBy       String          @default("system")
+  Project_Echelon Project_Echelon @relation(fields: [id, idcc, projectLabel, clientId, softwareLabel], references: [id, idcc, projectLabel, clientId, softwareLabel])
+
+  @@id([id, clientId, softwareLabel, projectLabel, version])
 }
 
 model Project_Establishment_Paid_Leave {
@@ -1148,8 +1276,37 @@ model Project_Paid_Leave {
   updatedAt                        DateTime                           @updatedAt
   createdBy                        String
   Project_Establishment_Paid_Leave Project_Establishment_Paid_Leave[]
+  Project_Paid_Leave_Archived      Project_Paid_Leave_Archived[]
+  Project                          Project                            @relation(fields: [clientId, softwareLabel, projectLabel], references: [clientId, softwareLabel, label])
 
   @@id([id, clientId, softwareLabel, projectLabel])
+}
+
+model Project_Paid_Leave_Archived {
+  slug               String             @unique @default(cuid())
+  id                 String
+  clientId           String
+  isApproved         Boolean
+  isPending          Boolean
+  isOpen             Boolean
+  label              String
+  softwareLabel      String
+  status             String
+  projectLabel       String
+  periodEndDate      String
+  method             String
+  valuationLeave     String
+  version            Int
+  roudingMethod      String
+  roudingMethodLeave String
+  valuation          String
+  tableSeniority     String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  createdBy          String
+  Project_Paid_Leave Project_Paid_Leave @relation(fields: [id, clientId, softwareLabel, projectLabel], references: [id, clientId, softwareLabel, projectLabel])
+
+  @@id([id, clientId, softwareLabel, projectLabel, version])
 }
 
 model Project_Society_Job {

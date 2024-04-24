@@ -23,7 +23,7 @@ const prisma = new PrismaClient(
 )
 import { Seed } from "./seedModel"
 
-class FORM_V0005 extends Seed {
+class FORM_V0023 extends Seed {
     constructor(
         protected name: string,
         protected description: string,
@@ -39,25 +39,15 @@ class FORM_V0005 extends Seed {
         try {
             if (previousStatus && !seedExist) {
                 await this.seedUpdateStatus("pending")
-                await prisma.processus.create({
-                    data: {
-                        id: 'Standard_0017',
-                        label: 'Absences',
-                        theme: 'Absence',
-                        slug: 'Standard_Processus_Absences',
-                        order: 17,
-                        version: 1
-                    }
-                })
 
                 await prisma.form.create({
                     data: {
-                        id: 'Standard_Formulaire_Absence',
-                        label: 'Création de formulaire absence',
-                        isCreate: true,
-                        isEdit: false,
-                        slug: 'Standard_Formulaire_0013',
-                        description: 'Création des absences',
+                        id: 'Standard_Formulaire_Edition_Absence',
+                        label: 'Edition des absences',
+                        isCreate: false,
+                        isEdit: true,
+                        slug: 'Standard_Formulaire_0044',
+                        description: 'Edition des absences',
                         processusId: 'Standard_0017',
                         processusVersion: 1,
                         Form_Input: {
@@ -68,8 +58,10 @@ class FORM_V0005 extends Seed {
                                     label: 'Code absence',
                                     zodLabel: 'id',
                                     required: true,
+                                    disabled: true,
+                                    readOnly: true,
                                     order: 1,
-                                    slug: 'Standard_Champ_0081',
+                                    slug: 'Standard_Champ_0266',
                                 },
                                 {
                                     id: 'Standard_Champ_0002',
@@ -77,7 +69,7 @@ class FORM_V0005 extends Seed {
                                     label: 'Libellé',
                                     zodLabel: 'label',
                                     order: 2,
-                                    slug: 'Standard_Champ_0082',
+                                    slug: 'Standard_Champ_0267',
                                 },
                                 {
                                     id: 'Standard_Champ_0003',
@@ -85,7 +77,7 @@ class FORM_V0005 extends Seed {
                                     label: 'Absence sécurité sociale',
                                     zodLabel: 'isSocialSecurity',
                                     order: 3,
-                                    slug: 'Standard_Champ_0083',
+                                    slug: 'Standard_Champ_0268',
                                 },
                                 {
                                     id: 'Standard_Champ_0004',
@@ -95,7 +87,7 @@ class FORM_V0005 extends Seed {
                                     selectTableSource: 'Software_Setting',
                                     selectFieldSource: 'ABS_Méthode',
                                     order: 4,
-                                    slug: 'Standard_Champ_0084',
+                                    slug: 'Standard_Champ_0269',
                                 },
                                 {
                                     id: 'Standard_Champ_0005',
@@ -105,7 +97,7 @@ class FORM_V0005 extends Seed {
                                     selectTableSource: 'Software_Setting',
                                     selectFieldSource: 'ABS_Décompte',
                                     order: 5,
-                                    slug: 'Standard_Champ_0085',
+                                    slug: 'Standard_Champ_0270',
                                 },
                                 {
                                     id: 'Standard_Champ_0006',
@@ -115,7 +107,7 @@ class FORM_V0005 extends Seed {
                                     selectTableSource: 'Dsn_Absence',
                                     selectFieldSource: 'id',
                                     order: 6,
-                                    slug: 'Standard_Champ_0091',
+                                    slug: 'Standard_Champ_0271',
                                 },
 
 
@@ -143,5 +135,5 @@ class FORM_V0005 extends Seed {
 
 }
 
-export const formV0005 = new FORM_V0005("FORM_V0005", "Formulaire des absences", 11, "FORM_V0004")
+export const formV0023 = new FORM_V0023("FormV0023", "Formulaire édition des absences", 43, "FormV0022")
 

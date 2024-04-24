@@ -1,6 +1,5 @@
 import { Container, ContainerBreadCrumb, ContainerForm } from "@/components/layout/container";
 import CreateDynamicForm from "@/components/form/project_standard_form/createDynamicForm";
-import { Slash } from "lucide-react"
 import UploadFileDsn from "@/components/form/dsn/upload";
 import { getDsnStructure } from "@/src/query/dsn.query";
 import { Project } from "@/src/classes/project";
@@ -56,33 +55,19 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         <BreadcrumbItem>
                             <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/`}>Projets</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectDetail.label}</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus`}>Processus</BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/${params.processusSlug}`}>{processusExist.label}</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/${params.processusSlug}/form`}>{form.at(0)?.label}</BreadcrumbLink>
                         </BreadcrumbItem>

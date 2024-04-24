@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
 import { SocietyCreateSchema, SocietyEditSchema } from "@/src/helpers/definition"
 import { generateSlug } from "@/src/helpers/generateSlug"
-import { de, th } from "date-fns/locale"
 export class StandardProcessusSociety implements IProcessus {
     projectLabel: string
     softwareLabel: string
@@ -554,5 +553,6 @@ export class StandardProcessusSociety implements IProcessus {
             throw new Error(err as string)
         }
     }
+
 
 }

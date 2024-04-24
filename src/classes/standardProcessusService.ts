@@ -69,7 +69,7 @@ export class StandardProcessusService implements IProcessus {
             })
 
             //Add history
-            const countHistory = await prisma.project_Service.count({
+            const countHistory = await prisma.project_Service_Archieved.count({
                 where: {
                     id: serviceBySlug.id,
                     projectLabel,
@@ -334,5 +334,6 @@ export class StandardProcessusService implements IProcessus {
             throw new Error(err as string)
         }
     }
+
 
 }

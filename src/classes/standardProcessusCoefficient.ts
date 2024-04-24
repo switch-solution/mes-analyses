@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
-import { CreateClassificationSchema } from "@/src/helpers/definition";
+import { CreateClassificationSchema, ClassificationEditSchema } from "@/src/helpers/definition";
 import { generateSlug } from "@/src/helpers/generateSlug"
 export class StandardProcessusCoefficient implements IProcessus {
     projectLabel: string
@@ -38,7 +38,59 @@ export class StandardProcessusCoefficient implements IProcessus {
         clientId: string
 
     }): Promise<void> {
-        throw new Error("Method not implemented.")
+
+        try {
+            const { clientSlug, processusSlug, projectSlug, slug, idcc, id, label } = ClassificationEditSchema.parse(values)
+            const classifExist = await prisma.project_Coefficient.findUniqueOrThrow({
+                where: {
+                    slug
+                }
+            })
+            await prisma.project_Coefficient.update({
+                where: {
+                    slug
+                },
+                data: {
+                    id,
+                    label,
+
+                }
+            })
+            const count = await prisma.project_Coefficient_Archived.count({
+                where: {
+                    projectLabel: classifExist.projectLabel,
+                    softwareLabel: classifExist.softwareLabel,
+                    clientId: classifExist.clientId,
+                    idcc: classifExist.idcc,
+                    id: classifExist.id,
+                }
+            }
+            )
+
+            await prisma.project_Coefficient_Archived.create({
+                data: {
+                    id: classifExist.id,
+                    idcc: classifExist.idcc,
+                    isApproved: classifExist.isApproved,
+                    isPending: classifExist.isPending,
+                    isOpen: classifExist.isOpen,
+                    label: classifExist.label,
+                    clientId: classifExist.clientId,
+                    createdBy: classifExist.createdBy,
+                    projectLabel: classifExist.projectLabel,
+                    softwareLabel: classifExist.softwareLabel,
+                    status: classifExist.status,
+                    createdAt: classifExist.createdAt,
+                    updatedAt: classifExist.updatedAt,
+                    version: count + 1
+                }
+            })
+        } catch (err: unknown) {
+            console.error(err)
+            throw new Error(err as string)
+        }
+
+
 
     }
     async valueExist({
@@ -151,8 +203,146 @@ export class StandardProcessusCoefficient implements IProcessus {
 
         throw new Error("Method not implemented.")
     }
-    approve({ processusSlug, clientSlug, projectSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; }): void {
-        throw new Error("Method not implemented.")
+    async approve({ processusSlug, clientSlug, projectSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; }): Promise<void> {
+
+        try {
+            const projectExist = await prisma.project.findUniqueOrThrow({
+                where: {
+                    slug: projectSlug
+                }
+            })
+            const processusExist = await prisma.processus.findUniqueOrThrow({
+                where: {
+                    slug: processusSlug
+                }
+            })
+            try {
+                await prisma.project_Processus.update({
+                    where: {
+                        clientId_projectLabel_softwareLabel_id_version: {
+                            clientId: projectExist.clientId,
+                            projectLabel: projectExist.label,
+                            softwareLabel: projectExist.softwareLabel,
+                            id: processusExist.id,
+                            version: processusExist.version
+                        }
+                    },
+                    data: {
+                        isOpen: false,
+                        isProgress: true
+                    }
+                })
+            } catch (err) {
+                console.error(err)
+                throw new Error('Erreur lors du passage du processus sur isProgress')
+            }
+            try {
+                //Update record to is pending
+                await prisma.project_Coefficient.updateMany({
+                    where: {
+                        projectLabel: projectExist.label,
+                        softwareLabel: projectExist.softwareLabel,
+                        clientId: projectExist.clientId
+
+                    },
+                    data: {
+                        isOpen: false,
+                        isPending: true
+                    }
+                })
+            } catch (err) {
+                console.error(err)
+                throw new Error('Erreur lors de la mise à jour des DSN')
+            }
+
+
+            const userValidator = await prisma.userProject.findMany({
+                where: {
+                    projectClientId: projectExist.clientId,
+                    projectLabel: projectExist.label,
+                    projectSoftwareLabel: projectExist.softwareLabel,
+                    isValidator: true
+                },
+                include: {
+                    project: {
+                        include: {
+                            Project_Idcc: {
+                                include: {
+                                    Project_Coefficient: true
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+
+
+            const validationRow = userValidator.map((user) => {
+                return (
+                    user.project.Project_Idcc.map((idcc) => {
+                        return (
+                            idcc.Project_Coefficient.map((coeff) => {
+                                return {
+                                    userId: user.userId,
+                                    rowSlug: coeff.slug,
+                                    clientId: projectExist.clientId,
+                                    projectLabel: projectExist.label,
+                                    softwareLabel: projectExist.softwareLabel,
+                                    processusSlug: processusExist.slug,
+                                    projectSlug: projectSlug,
+                                    clientSlug: clientSlug,
+                                    label: coeff.label,
+                                    theme: 'Coefficient',
+                                    description: 'Validation du coefficient',
+                                }
+                            })
+
+                        )
+
+                    })
+                )
+
+
+            }).flat(2)
+            await prisma.project_Approve.createMany({
+                data: validationRow
+
+            })
+
+            const nextProcessus = processusExist.order + 1
+            const nextProcessusExist = await prisma.project_Processus.findFirst({
+                where: {
+                    clientId: projectExist.clientId,
+                    projectLabel: projectExist.label,
+                    softwareLabel: projectExist.softwareLabel,
+                    order: nextProcessus
+                },
+            })
+            if (nextProcessusExist) {
+                await prisma.project_Processus.update({
+                    where: {
+                        clientId_projectLabel_softwareLabel_id_version: {
+                            clientId: nextProcessusExist.clientId,
+                            projectLabel: nextProcessusExist.projectLabel,
+                            softwareLabel: nextProcessusExist.softwareLabel,
+                            id: nextProcessusExist.id,
+                            version: nextProcessusExist.version
+                        }
+
+                    },
+                    data: {
+                        isOpen: true,
+                        isPending: false
+                    }
+                })
+
+            }
+
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la validation du processus')
+        }
+
     }
     approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
         throw new Error("Method not implemented.")

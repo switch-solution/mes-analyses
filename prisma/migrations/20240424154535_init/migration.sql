@@ -503,6 +503,7 @@ CREATE TABLE "Project_Absence" (
     "population" TEXT,
     "description" TEXT,
     "clientId" TEXT NOT NULL,
+    "settlement" TEXT,
     "slug" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'En cours',
     "projectLabel" TEXT NOT NULL,
@@ -773,6 +774,7 @@ CREATE TABLE "Project_Establishment_Rate_Mobility" (
 CREATE TABLE "Project_Idcc" (
     "idcc" TEXT NOT NULL,
     "label" TEXT NOT NULL,
+    "extended" BOOLEAN NOT NULL DEFAULT false,
     "clientId" TEXT NOT NULL,
     "isApproved" BOOLEAN NOT NULL DEFAULT false,
     "isPending" BOOLEAN NOT NULL DEFAULT false,
@@ -787,6 +789,23 @@ CREATE TABLE "Project_Idcc" (
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
     CONSTRAINT "Project_Idcc_pkey" PRIMARY KEY ("idcc","clientId","softwareLabel","projectLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Idcc_Archived" (
+    "slug" TEXT NOT NULL,
+    "idcc" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "version" INTEGER NOT NULL,
+    "extended" BOOLEAN NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Idcc_Archived_pkey" PRIMARY KEY ("idcc","clientId","softwareLabel","projectLabel","version")
 );
 
 -- CreateTable
@@ -843,6 +862,28 @@ CREATE TABLE "Project_Coefficient" (
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
     CONSTRAINT "Project_Coefficient_pkey" PRIMARY KEY ("id","idcc","projectLabel","clientId","softwareLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Coefficient_Archived" (
+    "id" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL,
+    "isPending" BOOLEAN NOT NULL,
+    "isOpen" BOOLEAN NOT NULL,
+    "slug" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "description" TEXT,
+    "idcc" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "version" INTEGER NOT NULL,
+
+    CONSTRAINT "Project_Coefficient_Archived_pkey" PRIMARY KEY ("id","idcc","projectLabel","clientId","softwareLabel","version")
 );
 
 -- CreateTable
@@ -911,7 +952,6 @@ CREATE TABLE "Project_Establishment_Bank" (
 
 -- CreateTable
 CREATE TABLE "Project_Qualification" (
-    "level" TEXT NOT NULL DEFAULT 'Logiciel',
     "id" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
     "isApproved" BOOLEAN NOT NULL DEFAULT false,
@@ -933,8 +973,28 @@ CREATE TABLE "Project_Qualification" (
 );
 
 -- CreateTable
+CREATE TABLE "Project_Qualification_Archived" (
+    "id" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL,
+    "isPending" BOOLEAN NOT NULL,
+    "idcc" TEXT NOT NULL,
+    "isOpen" BOOLEAN NOT NULL,
+    "version" INTEGER NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Qualification_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel","version")
+);
+
+-- CreateTable
 CREATE TABLE "Project_Niveau" (
-    "level" TEXT NOT NULL DEFAULT 'Logiciel',
     "id" TEXT NOT NULL,
     "isApproved" BOOLEAN NOT NULL DEFAULT false,
     "isPending" BOOLEAN NOT NULL DEFAULT false,
@@ -956,8 +1016,28 @@ CREATE TABLE "Project_Niveau" (
 );
 
 -- CreateTable
+CREATE TABLE "Project_Niveau_Archived" (
+    "id" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL,
+    "isPending" BOOLEAN NOT NULL,
+    "idcc" TEXT NOT NULL,
+    "isOpen" BOOLEAN NOT NULL,
+    "version" INTEGER NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Niveau_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel","version")
+);
+
+-- CreateTable
 CREATE TABLE "Project_Indice" (
-    "level" TEXT NOT NULL DEFAULT 'Logiciel',
     "id" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
     "isApproved" BOOLEAN NOT NULL DEFAULT false,
@@ -979,8 +1059,28 @@ CREATE TABLE "Project_Indice" (
 );
 
 -- CreateTable
+CREATE TABLE "Project_Indice_Archived" (
+    "id" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL,
+    "isPending" BOOLEAN NOT NULL,
+    "idcc" TEXT NOT NULL,
+    "isOpen" BOOLEAN NOT NULL,
+    "version" INTEGER NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Indice_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel","version")
+);
+
+-- CreateTable
 CREATE TABLE "Project_Echelon" (
-    "level" TEXT NOT NULL DEFAULT 'Logiciel',
     "id" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
     "isApproved" BOOLEAN NOT NULL DEFAULT false,
@@ -999,6 +1099,27 @@ CREATE TABLE "Project_Echelon" (
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
     CONSTRAINT "Project_Echelon_pkey" PRIMARY KEY ("id","idcc","projectLabel","clientId","softwareLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Echelon_Archived" (
+    "id" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL,
+    "isPending" BOOLEAN NOT NULL,
+    "idcc" TEXT NOT NULL,
+    "isOpen" BOOLEAN NOT NULL,
+    "version" INTEGER NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Project_Echelon_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel","version")
 );
 
 -- CreateTable
@@ -1044,6 +1165,33 @@ CREATE TABLE "Project_Paid_Leave" (
     "createdBy" TEXT NOT NULL,
 
     CONSTRAINT "Project_Paid_Leave_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Paid_Leave_Archived" (
+    "slug" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "isApproved" BOOLEAN NOT NULL,
+    "isPending" BOOLEAN NOT NULL,
+    "isOpen" BOOLEAN NOT NULL,
+    "label" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "periodEndDate" TEXT NOT NULL,
+    "method" TEXT NOT NULL,
+    "valuationLeave" TEXT NOT NULL,
+    "version" INTEGER NOT NULL,
+    "roudingMethod" TEXT NOT NULL,
+    "roudingMethodLeave" TEXT NOT NULL,
+    "valuation" TEXT NOT NULL,
+    "tableSeniority" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+
+    CONSTRAINT "Project_Paid_Leave_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel","version")
 );
 
 -- CreateTable
@@ -2206,6 +2354,9 @@ CREATE UNIQUE INDEX "Project_Rate_AT_slug_key" ON "Project_Rate_AT"("slug");
 CREATE UNIQUE INDEX "Project_Idcc_slug_key" ON "Project_Idcc"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Project_Idcc_Archived_slug_key" ON "Project_Idcc_Archived"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Project_Table_Seniority_slug_key" ON "Project_Table_Seniority"("slug");
 
 -- CreateIndex
@@ -2213,6 +2364,9 @@ CREATE UNIQUE INDEX "Project_Table_Seniority_Row_slug_key" ON "Project_Table_Sen
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Coefficient_slug_key" ON "Project_Coefficient"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Coefficient_Archived_slug_key" ON "Project_Coefficient_Archived"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Bank_slug_key" ON "Project_Bank"("slug");
@@ -2227,16 +2381,31 @@ CREATE UNIQUE INDEX "Project_Establishment_Bank_slug_key" ON "Project_Establishm
 CREATE UNIQUE INDEX "Project_Qualification_slug_key" ON "Project_Qualification"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Project_Qualification_Archived_slug_key" ON "Project_Qualification_Archived"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Project_Niveau_slug_key" ON "Project_Niveau"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Niveau_Archived_slug_key" ON "Project_Niveau_Archived"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Indice_slug_key" ON "Project_Indice"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Project_Indice_Archived_slug_key" ON "Project_Indice_Archived"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Project_Echelon_slug_key" ON "Project_Echelon"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Project_Echelon_Archived_slug_key" ON "Project_Echelon_Archived"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Project_Paid_Leave_slug_key" ON "Project_Paid_Leave"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Paid_Leave_Archived_slug_key" ON "Project_Paid_Leave_Archived"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Job_slug_key" ON "Project_Job"("slug");
@@ -2404,7 +2573,7 @@ ALTER TABLE "Project_Payrool_Item" ADD CONSTRAINT "Project_Payrool_Item_projectL
 ALTER TABLE "Project_Payrool_Item" ADD CONSTRAINT "Project_Payrool_Item_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Absence" ADD CONSTRAINT "Project_Absence_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Project_Absence" ADD CONSTRAINT "Project_Absence_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "softwareLabel", "label") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Society_Absence" ADD CONSTRAINT "Society" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "societyId") REFERENCES "Project_Society"("clientId", "softwareLabel", "projectLabel", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2458,6 +2627,9 @@ ALTER TABLE "Project_Establishment_Rate_Mobility" ADD CONSTRAINT "Project_Establ
 ALTER TABLE "Project_Idcc" ADD CONSTRAINT "Project_Idcc_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "softwareLabel", "label") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Project_Idcc_Archived" ADD CONSTRAINT "Project_Idcc_Archived_idcc_clientId_softwareLabel_projectL_fkey" FOREIGN KEY ("idcc", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Idcc"("idcc", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Project_Table_Seniority" ADD CONSTRAINT "Project_Table_Seniority_idcc_clientId_softwareLabel_projec_fkey" FOREIGN KEY ("idcc", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Idcc"("idcc", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -2465,6 +2637,9 @@ ALTER TABLE "Project_Table_Seniority_Row" ADD CONSTRAINT "Project_Table_Seniorit
 
 -- AddForeignKey
 ALTER TABLE "Project_Coefficient" ADD CONSTRAINT "Project_Coefficient_idcc_clientId_softwareLabel_projectLab_fkey" FOREIGN KEY ("idcc", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Idcc"("idcc", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Coefficient_Archived" ADD CONSTRAINT "Project_Coefficient_Archived_id_idcc_projectLabel_clientId_fkey" FOREIGN KEY ("id", "idcc", "projectLabel", "clientId", "softwareLabel") REFERENCES "Project_Coefficient"("id", "idcc", "projectLabel", "clientId", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Bank" ADD CONSTRAINT "Project_Bank_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2482,19 +2657,37 @@ ALTER TABLE "Project_Establishment_Bank" ADD CONSTRAINT "Project_Establishment_B
 ALTER TABLE "Project_Qualification" ADD CONSTRAINT "Project_Qualification_idcc_clientId_softwareLabel_projectL_fkey" FOREIGN KEY ("idcc", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Idcc"("idcc", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Project_Qualification_Archived" ADD CONSTRAINT "Project_Qualification_Archived_id_idcc_projectLabel_client_fkey" FOREIGN KEY ("id", "idcc", "projectLabel", "clientId", "softwareLabel") REFERENCES "Project_Qualification"("id", "idcc", "projectLabel", "clientId", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Project_Niveau" ADD CONSTRAINT "Project_Niveau_idcc_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("idcc", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Idcc"("idcc", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Niveau_Archived" ADD CONSTRAINT "Project_Niveau_Archived_id_idcc_projectLabel_clientId_soft_fkey" FOREIGN KEY ("id", "idcc", "projectLabel", "clientId", "softwareLabel") REFERENCES "Project_Niveau"("id", "idcc", "projectLabel", "clientId", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Indice" ADD CONSTRAINT "Project_Indice_idcc_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("idcc", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Idcc"("idcc", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Project_Indice_Archived" ADD CONSTRAINT "Project_Indice_Archived_id_idcc_projectLabel_clientId_soft_fkey" FOREIGN KEY ("id", "idcc", "projectLabel", "clientId", "softwareLabel") REFERENCES "Project_Indice"("id", "idcc", "projectLabel", "clientId", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Project_Echelon" ADD CONSTRAINT "Project_Echelon_idcc_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("idcc", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Idcc"("idcc", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Echelon_Archived" ADD CONSTRAINT "Project_Echelon_Archived_id_idcc_projectLabel_clientId_sof_fkey" FOREIGN KEY ("id", "idcc", "projectLabel", "clientId", "softwareLabel") REFERENCES "Project_Echelon"("id", "idcc", "projectLabel", "clientId", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Establishment_Paid_Leave" ADD CONSTRAINT "Project_Establishment_Paid_Leave_establishmentNic_clientId_fkey" FOREIGN KEY ("establishmentNic", "clientId", "softwareLabel", "projectLabel", "societyId") REFERENCES "Project_Establishment"("nic", "clientId", "softwareLabel", "projectLabel", "societyId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Establishment_Paid_Leave" ADD CONSTRAINT "Project_Establishment_Paid_Leave_idPaidLeave_clientId_soft_fkey" FOREIGN KEY ("idPaidLeave", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Paid_Leave"("id", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Paid_Leave" ADD CONSTRAINT "Project_Paid_Leave_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "softwareLabel", "label") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Paid_Leave_Archived" ADD CONSTRAINT "Project_Paid_Leave_Archived_id_clientId_softwareLabel_proj_fkey" FOREIGN KEY ("id", "clientId", "softwareLabel", "projectLabel") REFERENCES "Project_Paid_Leave"("id", "clientId", "softwareLabel", "projectLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Society_Job" ADD CONSTRAINT "Project_Society_Job_clientId_softwareLabel_projectLabel_so_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "societyId") REFERENCES "Project_Society"("clientId", "softwareLabel", "projectLabel", "siren") ON DELETE RESTRICT ON UPDATE CASCADE;

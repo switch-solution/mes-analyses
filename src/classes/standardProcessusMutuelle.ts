@@ -464,4 +464,5 @@ export class StandardProcessusMutual implements IProcessus {
             throw new Error(err as string)
         }
     }
+
 }

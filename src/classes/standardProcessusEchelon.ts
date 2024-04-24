@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
-import { CreateClassificationSchema } from "@/src/helpers/definition";
+import { CreateClassificationSchema, ClassificationEditSchema } from "@/src/helpers/definition";
 import { generateSlug } from "@/src/helpers/generateSlug"
 export class StandardProcessusEchelon implements IProcessus {
     projectLabel: string
@@ -38,7 +38,58 @@ export class StandardProcessusEchelon implements IProcessus {
         clientId: string
 
     }): Promise<void> {
-        throw new Error("Method not implemented.")
+        try {
+            const { clientSlug, processusSlug, projectSlug, slug, idcc, id, label } = ClassificationEditSchema.parse(values)
+            const classifExist = await prisma.project_Echelon.findUniqueOrThrow({
+                where: {
+                    slug
+                }
+            })
+            await prisma.project_Echelon.update({
+                where: {
+                    slug
+                },
+                data: {
+                    id,
+                    label,
+
+                }
+            })
+            const count = await prisma.project_Echelon_Archived.count({
+                where: {
+                    projectLabel: classifExist.projectLabel,
+                    softwareLabel: classifExist.softwareLabel,
+                    clientId: classifExist.clientId,
+                    idcc: classifExist.idcc,
+                    id: classifExist.id,
+                }
+            }
+            )
+
+            await prisma.project_Echelon_Archived.create({
+                data: {
+                    id: classifExist.id,
+                    idcc: classifExist.idcc,
+                    isApproved: classifExist.isApproved,
+                    isPending: classifExist.isPending,
+                    isOpen: classifExist.isOpen,
+                    label: classifExist.label,
+                    clientId: classifExist.clientId,
+                    createdBy: classifExist.createdBy,
+                    projectLabel: classifExist.projectLabel,
+                    softwareLabel: classifExist.softwareLabel,
+                    status: classifExist.status,
+                    createdAt: classifExist.createdAt,
+                    updatedAt: classifExist.updatedAt,
+                    version: count + 1
+                }
+            })
+        } catch (err: unknown) {
+            console.error(err)
+            throw new Error(err as string)
+        }
+
+
 
     }
     async valueExist({
@@ -96,7 +147,7 @@ export class StandardProcessusEchelon implements IProcessus {
 
             try {
                 const count = await prisma.project_Echelon.count()
-                await prisma.project_Niveau.create({
+                await prisma.project_Echelon.create({
                     data: {
                         idcc,
                         id,
@@ -353,5 +404,6 @@ export class StandardProcessusEchelon implements IProcessus {
             throw new Error(err as string)
         }
     }
+
 
 }

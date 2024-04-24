@@ -198,4 +198,5 @@ export class StandardProcessusTableSeniority implements IProcessus {
     }
 
 
+
 }

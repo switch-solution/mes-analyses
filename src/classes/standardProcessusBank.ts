@@ -284,4 +284,5 @@ export class StandardProcessusBank implements IProcessus {
         }
     }
 
+
 }

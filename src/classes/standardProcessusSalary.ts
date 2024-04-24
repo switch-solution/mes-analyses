@@ -240,4 +240,5 @@ export class StandardProcessusSalary implements IProcessus {
         }
     }
 
+
 }

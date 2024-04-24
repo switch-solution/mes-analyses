@@ -2,7 +2,6 @@ import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components
 import { Processus } from "@/src/classes/processus";
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
-import { Slash } from "lucide-react"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -23,14 +22,20 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const security = new Security()
     await security.isAuthorizedInThisProject(params.projectSlug)
     const userIsAuthorized = await security.isAuthorizedInThisProject(params.projectSlug)
-    if (!userIsAuthorized) throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
+    if (!userIsAuthorized) {
+        throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
+    }
 
     const processus = new Processus(params.processusSlug)
     const processusExist = await processus.processusExist()
-    if (!processusExist) throw new Error("Processus introuvable")
+    if (!processusExist) {
+        throw new Error("Processus introuvable")
+    }
 
     const projectDetail = await project.projectDetails()
-    if (!projectDetail) throw new Error("Projet introuvable")
+    if (!projectDetail) {
+        throw new Error("Projet introuvable")
+    }
 
     const processusFactory = ProcessusFactory.create({
         processusSlug: params.processusSlug,
@@ -59,27 +64,15 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         <BreadcrumbItem>
                             <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/`}>Projets</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{projectDetail.label}</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus`}>Processus</BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus/${params.processusSlug}`}>{processusExist.label}</BreadcrumbLink>
                         </BreadcrumbItem>

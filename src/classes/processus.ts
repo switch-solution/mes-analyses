@@ -77,7 +77,6 @@ export interface IProcessus {
         isRefused?: boolean
 
     }): void
-
     extraction(): Promise<{ datas: {}[], archived: {}[], inputs: { zodLabel: string, label: string }[] }>
 
 
@@ -88,6 +87,20 @@ export class Processus {
 
     constructor(processusSlug: string) {
         this.processusSlug = processusSlug
+    }
+
+    async processusDetail() {
+        try {
+            const processus = await prisma.processus.findUniqueOrThrow({
+                where: {
+                    slug: this.processusSlug
+                }
+            })
+            return processus
+        } catch (err) {
+            console.error(err)
+            throw new Error("Erreur lors de la récupération des détails du processus")
+        }
     }
 
     async processusExist() {
