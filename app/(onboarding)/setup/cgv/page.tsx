@@ -19,11 +19,11 @@ export default async function Page() {
         throw new Error('L\'utilisateur n\'est pas authentifié')
     }
 
-    const userId = await security.userIsValid()
-    if (!userId) {
-        throw new Error('L\'utilisateur n\'est pas valide')
+    if (!session.user.id) {
+        throw new Error('L\'utilisateur n\'est pas authentifié')
+
     }
-    const user = new User(userId?.id)
+    const user = new User(session.user.id)
     const userDetail = await user.getUserDetail()
     const invitation = await getInvitation(userDetail.email)
     return (
