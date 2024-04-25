@@ -24,13 +24,11 @@ export const newExcelFile = authentifcationAction(ExcelFileSchema, async (values
                         label: project.project.label,
                         createdAt: project.project.createdAt,
                         softwareLabel: project.project.softwareLabel,
-                        isOpen: project.project.isOpen,
-                        isPending: project.project.isPending,
-                        isApproved: project.project.isApproved
+                        status: project.project.status,
                     }
                 })
                 const isOpen = excelFile.addWorksheet('En cours')
-                const isFinish = excelFile.addWorksheet('Terminés')
+                const isFinish = excelFile.addWorksheet('Archivé')
                 const isPending = excelFile.addWorksheet('En attente')
                 const columns = [
                     { header: 'Libellé', key: 'label' },
@@ -42,9 +40,9 @@ export const newExcelFile = authentifcationAction(ExcelFileSchema, async (values
                 isFinish.columns = columns
                 isPending.columns = columns
 
-                isOpen.addRows(projectsList.filter(project => project.isOpen === true))
-                isFinish.addRows(projectsList.filter(project => project.isApproved === true))
-                isPending.addRows(projectsList.filter(project => project.isPending === true))
+                isOpen.addRows(projectsList.filter(project => project.status === "Actif"))
+                isFinish.addRows(projectsList.filter(project => project.status === "Archivé"))
+                isPending.addRows(projectsList.filter(project => project.status === "En attente"))
                 const pathProjectsFile = path.join(dir, projectFileName)
                 await excelFile.xlsx.writeFile(pathProjectsFile)
                 const file = fs.readFileSync(pathProjectsFile)

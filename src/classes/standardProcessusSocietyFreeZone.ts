@@ -181,8 +181,149 @@ export class StandardProcessusSocietyFreeZone implements IProcessus {
         return free
 
     }
-    approve({ processusSlug, clientSlug, projectSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; }): void {
-        throw new Error("Method not implemented.")
+    async approve({ processusSlug, clientSlug, projectSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; }): Promise<void> {
+        try {
+            const projectExist = await prisma.project.findUniqueOrThrow({
+                where: {
+                    slug: projectSlug
+                }
+            })
+            const processusExist = await prisma.processus.findUniqueOrThrow({
+                where: {
+                    slug: processusSlug
+                }
+            })
+            try {
+                await prisma.project_Processus.update({
+                    where: {
+                        clientId_projectLabel_softwareLabel_id_version: {
+                            clientId: projectExist.clientId,
+                            projectLabel: projectExist.label,
+                            softwareLabel: projectExist.softwareLabel,
+                            id: processusExist.id,
+                            version: processusExist.version
+                        }
+                    },
+                    data: {
+                        isOpen: false,
+                        isProgress: true
+                    }
+                })
+            } catch (err) {
+                console.error(err)
+                throw new Error('Erreur lors du passage du processus sur isProgress')
+            }
+            try {
+                //Update record to is pending
+                await prisma.project_Society_Free_Zone.updateMany({
+                    where: {
+                        projectLabel: projectExist.label,
+                        softwareLabel: projectExist.softwareLabel,
+                        clientId: projectExist.clientId
+
+                    },
+                    data: {
+                        isOpen: false,
+                        isPending: true
+                    }
+                })
+            } catch (err) {
+                console.error(err)
+                throw new Error('Erreur lors de la mise à jour des DSN')
+            }
+
+
+            const userValidator = await prisma.userProject.findMany({
+                where: {
+                    projectClientId: projectExist.clientId,
+                    projectLabel: projectExist.label,
+                    projectSoftwareLabel: projectExist.softwareLabel,
+                    isValidator: true
+                },
+                include: {
+                    project: {
+                        include: {
+                            Project_Society: {
+                                include: {
+                                    Project_Society_Free_Zone: {
+                                        include: {
+                                            Project_Free_Zone: true
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+
+
+            const validationRow = userValidator.map((user) => {
+                return (
+                    user.project.Project_Society.map((society) => {
+                        return (society.Project_Society_Free_Zone.map((free) => {
+                            return {
+                                userId: user.userId,
+                                rowSlug: free.slug,
+                                clientId: projectExist.clientId,
+                                projectLabel: projectExist.label,
+                                softwareLabel: projectExist.softwareLabel,
+                                processusSlug: processusExist.slug,
+                                projectSlug: projectSlug,
+                                clientSlug: clientSlug,
+                                label: free.Project_Free_Zone.label,
+                                theme: 'Service',
+                                description: 'Validation des services',
+                            }
+                        }))
+
+                    })
+                )
+
+
+            }).flat(2)
+            await prisma.project_Approve.createMany({
+                data: validationRow
+
+            })
+
+            const nextProcessus = processusExist.order + 1
+            const nextProcessusExist = await prisma.project_Processus.findFirst({
+                where: {
+                    clientId: projectExist.clientId,
+                    projectLabel: projectExist.label,
+                    softwareLabel: projectExist.softwareLabel,
+                    order: nextProcessus
+                },
+            })
+            if (nextProcessusExist) {
+                await prisma.project_Processus.update({
+                    where: {
+                        clientId_projectLabel_softwareLabel_id_version: {
+                            clientId: nextProcessusExist.clientId,
+                            projectLabel: nextProcessusExist.projectLabel,
+                            softwareLabel: nextProcessusExist.softwareLabel,
+                            id: nextProcessusExist.id,
+                            version: nextProcessusExist.version
+                        }
+
+                    },
+                    data: {
+                        isOpen: true,
+                        isPending: false
+                    }
+                })
+
+            }
+
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la validation du processus')
+        }
+
+
+
     }
     approveRecord({ processusSlug, clientSlug, projectSlug, recordSlug }: { processusSlug: string; clientSlug: string; projectSlug: string; recordSlug: string; }): void {
         throw new Error("Method not implemented.")

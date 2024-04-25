@@ -16,7 +16,7 @@ export const projectProcesExtractionDetail = async (userId: string) => {
                 label: {
                     in: projects.map((project) => project.project.label)
                 },
-                isOpen: true
+                status: 'Actif'
             },
             include: {
                 Project_Processus: true
@@ -58,9 +58,9 @@ export const projectProcesExtraction = async (userId: string) => {
             throw new Error('L\'utilisateur n\'est pas autorisé dans ce projet')
         }
         const projects = await user.getMyProject()
-        const isOpen = projects.filter((project) => project.project.isOpen === true)
-        const isPending = projects.filter((project) => project.project.isPending === true)
-        const isApproved = projects.filter((project) => project.project.isApproved === true)
+        const isOpen = projects.filter((project) => project.project.status === 'Actif')
+        const isPending = projects.filter((project) => project.project.status === 'En attente')
+        const isApproved = projects.filter((project) => project.project.status === 'Archivé')
         const datas = [
             {
                 label: 'En cours',

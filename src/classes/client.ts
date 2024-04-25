@@ -145,6 +145,38 @@ export class Client {
         }
     }
 
+    async userClientFree() {
+
+        try {
+            const userIsBillable = await prisma.client.findMany({
+                where: {
+                    slug: this.clientSlug
+                },
+                include: {
+                    UserClient: {
+                        where: {
+                            isBillable: false,
+                            isBlocked: false
+                        },
+                        include: {
+                            user: {
+                                include: {
+                                    UserOtherData: true
+                                }
+                            }
+                        }
+
+                    }
+                }
+            })
+
+            return userIsBillable
+        } catch (err) {
+            console.log(err)
+            throw new Error(err as string)
+        }
+    }
+
     async userClientBillable() {
         try {
             const userIsBillable = await prisma.client.findMany({
@@ -257,7 +289,7 @@ export class Client {
         }
     }
 
-    async getProjects({ isOpen = true, isPending = false, isApproved = false }: { isOpen: boolean, isPending: boolean, isApproved: boolean }) {
+    async getProjects(status: string) {
         try {
             const projectsList = await prisma.client.findMany({
                 where: {
@@ -267,9 +299,7 @@ export class Client {
                 include: {
                     Project: {
                         where: {
-                            isOpen,
-                            isPending,
-                            isApproved
+                            status
                         },
                         include: {
                             Project_Processus: true

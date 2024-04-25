@@ -53,7 +53,6 @@ export default function CreateInvitation({ clientSlug, softwares }: { clientSlug
             defaultRole: "Consultant déploiement",
             isAdministrator: false,
             isEditor: false,
-            isBillable: true,
 
         },
     })
@@ -248,27 +247,6 @@ export default function CreateInvitation({ clientSlug, softwares }: { clientSlug
                                         <FormLabel className="text-base">Editeur</FormLabel>
                                         <FormDescription>
                                             L&apos;utilisateur sera editeur ce qui lui permettra de modifier les données logiciels.
-                                        </FormDescription>
-                                    </div>
-                                    <FormControl>
-                                        <Switch
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                            aria-readonly
-                                        />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="isBillable"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                    <div className="space-y-0.5">
-                                        <FormLabel className="text-base">Facturable</FormLabel>
-                                        <FormDescription>
-                                            L&apos;utilisateur est facturable. Pour rappel les utilisateurs factuables sont les collaborateurs et les sous traitants de l&apos;éditeur.
                                         </FormDescription>
                                     </div>
                                     <FormControl>

@@ -7,8 +7,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL") // uses connection pooling
-  directUrl = env("DATABASE_URL_UNPOOLED") // uses a direct connection
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 model Account {
@@ -424,13 +424,10 @@ model Project {
   logo                  String?
   label                 String
   description           String
-  status                String                  @default("actif")
+  status                String                  @default("Actif")
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   createdBy             String
-  isOpen                Boolean                 @default(true)
-  isPending             Boolean                 @default(false)
-  isApproved            Boolean                 @default(false)
   Software              Software                @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
   softwareLabel         String
   UserProject           UserProject[]
@@ -676,6 +673,7 @@ model Project_Establishment {
   Project_Establishment_Rate_Mobility Project_Establishment_Rate_Mobility[]
   Project_Establishment_Service       Project_Establishment_Service[]
   Project_Establishment_Bank          Project_Establishment_Bank[]
+  Project_Establishment_Bank_Archived Project_Establishment_Bank_Archived[]
 
   @@id([clientId, softwareLabel, societyId, projectLabel, nic])
 }
@@ -772,6 +770,9 @@ model Project_Free_Zone_Archived {
   type              String
   label             String
   clientId          String
+  isOpen            Boolean
+  isPending         Boolean
+  isApproved        Boolean
   status            String
   softwareLabel     String
   description       String?
@@ -992,24 +993,25 @@ model Project_Coefficient_Archived {
 }
 
 model Project_Bank {
-  clientId                   String
-  projectLabel               String
-  softwareLabel              String
-  id                         String
-  isApproved                 Boolean                      @default(false)
-  isPending                  Boolean                      @default(false)
-  isOpen                     Boolean                      @default(true)
-  status                     String                       @default("En cours")
-  slug                       String                       @unique
-  label                      String
-  iban                       String
-  bic                        String
-  createdAt                  DateTime                     @default(now())
-  updatedAt                  DateTime                     @updatedAt
-  createdBy                  String                       @default("system")
-  Project                    Project                      @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
-  Project_Establishment_Bank Project_Establishment_Bank[]
-  Project_Bank_Archived      Project_Bank_Archived[]
+  clientId                            String
+  projectLabel                        String
+  softwareLabel                       String
+  id                                  String
+  isApproved                          Boolean                               @default(false)
+  isPending                           Boolean                               @default(false)
+  isOpen                              Boolean                               @default(true)
+  status                              String                                @default("En cours")
+  slug                                String                                @unique
+  label                               String
+  iban                                String
+  bic                                 String
+  createdAt                           DateTime                              @default(now())
+  updatedAt                           DateTime                              @updatedAt
+  createdBy                           String                                @default("system")
+  Project                             Project                               @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
+  Project_Establishment_Bank          Project_Establishment_Bank[]
+  Project_Bank_Archived               Project_Bank_Archived[]
+  Project_Establishment_Bank_Archived Project_Establishment_Bank_Archived[]
 
   @@id([clientId, softwareLabel, projectLabel, iban])
 }
@@ -1031,6 +1033,27 @@ model Project_Bank_Archived {
   Project_Bank  Project_Bank @relation(fields: [clientId, projectLabel, softwareLabel, iban], references: [clientId, projectLabel, softwareLabel, iban])
 
   @@id([clientId, softwareLabel, projectLabel, iban, version])
+}
+
+model Project_Establishment_Bank_Archived {
+  clientId              String
+  projectLabel          String
+  softwareLabel         String
+  establishmentNic      String
+  iban                  String
+  version               Int
+  societyId             String
+  createdAt             DateTime
+  updatedAt             DateTime
+  createdBy             String
+  salary                Boolean
+  contribution          Boolean
+  deposit               Boolean
+  expsense              Boolean
+  Project_Bank          Project_Bank          @relation(fields: [clientId, softwareLabel, projectLabel, iban], references: [clientId, softwareLabel, projectLabel, iban])
+  Project_Establishment Project_Establishment @relation(fields: [establishmentNic, clientId, softwareLabel, projectLabel, societyId], references: [nic, clientId, softwareLabel, projectLabel, societyId])
+
+  @@id([clientId, softwareLabel, projectLabel, establishmentNic, iban, version])
 }
 
 model Project_Establishment_Bank {
@@ -1716,17 +1739,16 @@ model Project_Salary_Archived {
   id             String
   label          String
   description    String?
-  method         String
   status         String
-  baseType       String
-  base           String
-  rateType       String
+  baseType       String?
+  base           String?
+  rateType       String?
   version        Int
-  rate           String
-  amoutType      String
-  source         String
-  amount         String
-  slug           String
+  rate           String?
+  amoutType      String?
+  source         String?
+  amount         String?
+  slug           String         @default(cuid())
   isApproved     Boolean
   isPending      Boolean
   isOpen         Boolean
@@ -1745,14 +1767,11 @@ model Project_Contribution {
   status                        String                          @default("En cours")
   baseType                      String
   base                          String
-  employeeType                  String
-  employee                      String
-  employType                    String
-  employ                        String
-  source                        String
-  amoutType                     String
-  amount                        String
-  slug                          String
+  rateTypeEmployee              String
+  rateEmployee                  String
+  rateTypeEmployer              String
+  rateEmployer                  String
+  slug                          String                          @unique
   isApproved                    Boolean                         @default(false)
   isPending                     Boolean                         @default(false)
   isOpen                        Boolean                         @default(true)
@@ -1776,14 +1795,12 @@ model Project_Contribution_Archived {
   status               String
   baseType             String
   base                 String
-  employeeType         String
-  employee             String
-  employType           String
-  employ               String
-  source               String
-  amoutType            String
-  amount               String
-  slug                 String
+  rateTypeEmployee     String
+  version              Int
+  rateEmployee         String
+  rateTypeEmployer     String
+  rateEmployer         String
+  slug                 String               @unique @default(cuid())
   isApproved           Boolean
   isPending            Boolean
   isOpen               Boolean
@@ -1792,7 +1809,7 @@ model Project_Contribution_Archived {
   createdBy            String
   Project_Contribution Project_Contribution @relation(fields: [id, clientId, softwareLabel, projectLabel], references: [id, clientId, softwareLabel, projectLabel])
 
-  @@id([id, clientId, softwareLabel, projectLabel])
+  @@id([id, clientId, softwareLabel, projectLabel, version])
 }
 
 model Project_Society_Contribution {
@@ -2368,6 +2385,7 @@ model Software_Processus {
   Processus        Processus @relation(fields: [processusId, processusVersion], references: [id, version])
   processusId      String
   processusVersion Int
+  isArchived       Boolean   @default(false)
   order            Int
   updatedAt        DateTime  @updatedAt
   createdAt        DateTime  @default(now())

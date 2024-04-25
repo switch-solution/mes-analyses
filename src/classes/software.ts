@@ -51,7 +51,8 @@ export class Software {
                             processusId: processus.id,
                             order: processus.order,
                             processusVersion: processus.version,
-                            createdBy: userId
+                            createdBy: userId,
+                            isArchived: processus.isArchived
                         }
                     })
                 },

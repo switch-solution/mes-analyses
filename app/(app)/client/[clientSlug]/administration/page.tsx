@@ -69,6 +69,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
     const userBillable = await client.userClientBillable()
+    const userFree = await client.userClientFree()
     const clientDetail = await client.clientDetail()
     const softareClient = await client.softwareClient(clientExist.siren)
     const clientApi = await client.clientApi()
@@ -140,6 +141,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                             <div className="flex items-center">
                                 <TabsList>
                                     <TabsTrigger value="bilable">Facturable</TabsTrigger>
+                                    <TabsTrigger value="free">Non facturable</TabsTrigger>
                                     <TabsTrigger value="disable">Bloqué</TabsTrigger>
                                     <TabsTrigger value="invitation">Invitation</TabsTrigger>
                                 </TabsList>
@@ -188,7 +190,62 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                                                 </TableCell>
                                                                 <TableCell className="hidden sm:table-cell">
                                                                     <Badge className="text-xs" variant="secondary">
-                                                                        <div className="font-medium">{userClient.user.UserOtherData.at(0)?.lastname}</div>
+                                                                        <div className="font-medium">{userClient.user.UserOtherData.at(0)?.firstname}</div>
+                                                                    </Badge>
+                                                                </TableCell>
+                                                                <TableCell className="hidden md:table-cell">
+                                                                    <div className="font-medium">{userClient.isAdministrator}</div>
+                                                                </TableCell>
+                                                                <TableCell className="hidden md:table-cell">
+                                                                    <Link href={'/home'}>
+                                                                        <ArrowRight />
+                                                                    </Link>
+                                                                </TableCell>
+                                                            </TableRow>
+
+                                                        ))
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                            <TabsContent value="free">
+                                <Card x-chunk="dashboard-05-chunk-3">
+                                    <CardHeader className="px-7">
+                                        <CardTitle>Utililisateurs</CardTitle>
+                                        <CardDescription>
+                                            Mes utilisateurs facturables
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Nom</TableHead>
+                                                    <TableHead className="hidden sm:table-cell">
+                                                        Prénom
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Administrateur
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Ouvrir
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {
+                                                    userFree.map((user) => (
+                                                        user.UserClient.map((userClient) => (
+                                                            <TableRow key={userClient.userId} className="bg-accent">
+                                                                <TableCell>
+                                                                    <div className="font-medium">{userClient.user.UserOtherData.at(0)?.lastname}</div>
+                                                                </TableCell>
+                                                                <TableCell className="hidden sm:table-cell">
+                                                                    <Badge className="text-xs" variant="secondary">
+                                                                        <div className="font-medium">{userClient.user.UserOtherData.at(0)?.firstname}</div>
                                                                     </Badge>
                                                                 </TableCell>
                                                                 <TableCell className="hidden md:table-cell">

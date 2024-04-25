@@ -20,7 +20,6 @@ export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<
         }
     })
     if (!email) throw new ActionError("L'utilisateur n'existe pas.")
-    const invitation = await getInvitation(email.email)
     try {
         if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
         const { cgv, gdpr } = SetupLegalSchema.parse(values)
@@ -47,17 +46,57 @@ export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<
         throw new ActionError(err as string)
 
     }
-    if (invitation) {
-        await copyInvitation(invitation, userId)
-        revalidatePath(`/home`)
-        redirect(`/home`)
-    } else {
-        revalidatePath(`/setup/profile/`)
-        redirect(`/setup/profile/`)
-    }
+    revalidatePath(`/setup/profile/`)
+    redirect(`/setup/profile/`)
+
 
 
 })
+
+export const createSetupInvitationLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
+    if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
+    const email = await prisma.user.findFirst({
+        where: {
+            id: userId
+        }
+    })
+    if (!email) throw new ActionError("L'utilisateur n'existe pas.")
+    const invitation = await getInvitation(email.email)
+    try {
+        if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
+        const { cgv, gdpr } = SetupLegalSchema.parse(values)
+        await prisma.userOtherData.upsert({
+            where: {
+                userId: userId
+            },
+            update: {
+                userId: userId,
+                isBlocked: false,
+                cgv: cgv,
+                gdpr: gdpr,
+                isSetup: true
+            },
+            create: {
+                userId: userId,
+                isBlocked: false,
+                cgv: cgv,
+                gdpr: gdpr,
+                isSetup: true
+            }
+        })
+        await copyInvitation(invitation, userId)
+
+    } catch (err: unknown) {
+        console.error(err)
+        throw new ActionError(err as string)
+
+    }
+    revalidatePath(`/home`)
+    redirect(`/home`)
+
+})
+
+
 export const createSetupProfil = authentifcationAction(SetupProfilSchema, async (values: z.infer<typeof SetupProfilSchema>, userId) => {
     try {
         const { firstname, lastname, civility } = SetupProfilSchema.parse(values)

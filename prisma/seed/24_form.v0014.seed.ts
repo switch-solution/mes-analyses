@@ -100,6 +100,69 @@ class FormV0014 extends Seed {
                 await prisma.form.create({
                     data: {
                         id: 'Standard_Formulaire_Edition_Zone_Libre',
+                        label: 'Edition des zones libres',
+                        slug: 'Standard_Formulaire_0046',
+                        description: 'Edition des zones libres',
+                        isCreate: false,
+                        isEdit: true,
+                        processusId: 'Standard_0022',
+                        processusVersion: 1,
+                        Form_Input: {
+                            create: [
+                                {
+                                    id: 'Standard_Champ_0001',
+                                    type: 'select',
+                                    label: 'Type de zone libre',
+                                    zodLabel: 'type',
+                                    required: true,
+                                    selectTableSource: 'Software_Setting',
+                                    selectFieldSource: 'Zone_Libre',
+                                    disabled: true,
+                                    readOnly: true,
+                                    order: 1,
+                                    slug: 'Standard_Champ_0277',
+                                },
+                                {
+                                    id: 'Standard_Champ_0002',
+                                    type: 'text',
+                                    label: 'Code interne',
+                                    zodLabel: 'id',
+                                    placeholder: '0001',
+                                    required: true,
+                                    disabled: true,
+                                    readOnly: true,
+                                    order: 2,
+                                    slug: 'Standard_Champ_0278',
+                                },
+                                {
+                                    id: 'Standard_Champ_0003',
+                                    type: 'text',
+                                    zodLabel: 'label',
+                                    label: 'Libellé',
+                                    required: true,
+                                    order: 3,
+                                    slug: 'Standard_Champ_0279',
+                                },
+                                {
+                                    id: 'Standard_Champ_0004',
+                                    type: 'text',
+                                    zodLabel: 'description',
+                                    label: 'Description',
+                                    order: 4,
+                                    slug: 'Standard_Champ_0280',
+                                },
+
+                            ]
+                        }
+
+                    }
+
+                })
+
+
+                await prisma.form.create({
+                    data: {
+                        id: 'Standard_Formulaire_Etablissement_Zone_Libre',
                         label: 'Association des établissements et des zones libres',
                         slug: 'Standard_Formulaire_0037',
                         description: 'Association des établissements et des zones libres',
@@ -138,7 +201,46 @@ class FormV0014 extends Seed {
 
                 })
 
+                await prisma.form.create({
+                    data: {
+                        id: 'Standard_Formulaire_Edition_Etablissement_Zone_Libre',
+                        label: 'Association des établissements et des zones libres',
+                        slug: 'Standard_Formulaire_0049',
+                        description: 'Association des établissements et des zones libres',
+                        isCreate: true,
+                        isEdit: false,
+                        processusId: 'Standard_0023',
+                        processusVersion: 1,
+                        Form_Input: {
+                            create: [
+                                {
+                                    id: 'Standard_Champ_0001',
+                                    type: 'select',
+                                    label: 'Type de zone libre',
+                                    zodLabel: 'zoneId',
+                                    required: true,
+                                    selectTableSource: 'Project_Free_Zone',
+                                    selectFieldSource: 'id',
+                                    order: 1,
+                                    slug: 'Standard_Champ_0281',
+                                },
+                                {
+                                    id: 'Standard_Champ_0002',
+                                    type: 'select',
+                                    label: 'Code société',
+                                    selectTableSource: 'Project_Society',
+                                    selectFieldSource: 'siren',
+                                    zodLabel: 'societyId',
+                                    required: true,
+                                    order: 2,
+                                    slug: 'Standard_Champ_0282',
+                                },
+                            ]
+                        }
 
+                    }
+
+                })
 
                 await this.seedUpdateStatus("completed")
             }

@@ -71,10 +71,12 @@ export class Project {
         projectLabel: string
     }) {
         try {
+
             const softwareProcessus = await prisma.software_Processus.findMany({
                 where: {
                     softwareLabel: softwareLabel,
-                    clientId: clientId
+                    clientId: clientId,
+                    isArchived: false
                 },
                 include: {
                     Processus: {
@@ -84,14 +86,14 @@ export class Project {
                                     Form_Input: true
                                 }
                             }
-                        }
-                    },
-
+                        },
+                    }
                 },
                 orderBy: {
                     order: 'asc'
                 }
             })
+
             let count = await prisma.project_Processus.count()
             await prisma.project_Processus.createMany({
                 data: softwareProcessus.map((processus) => {
@@ -318,6 +320,35 @@ export class Project {
         } catch (err) {
             console.error(err)
             throw new Error('Erreur lors de l\'ajout de l\'utilisateur')
+        }
+    }
+
+    async update({
+        status,
+        description,
+    }: {
+        status: string,
+        description: string,
+    }) {
+        try {
+            console.log(this.projectSlug)
+            const project = await this.projetDetail()
+            if (!project) {
+                throw new Error('Projet introuvable')
+            }
+            await prisma.project.update({
+                where: {
+                    slug: this.projectSlug
+                },
+                data: {
+                    status,
+                    description
+                }
+            })
+            return
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la mise à jour du projet')
         }
     }
 

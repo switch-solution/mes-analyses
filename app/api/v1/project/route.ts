@@ -6,9 +6,7 @@ export const dynamic = 'force-dynamic' // https://nextjs.org/docs/app/api-refere
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams
-        const isOpen = searchParams.get('isOpen')
-        const isPending = searchParams.get('isPending')
-        const isApproved = searchParams.get('isApproved')
+        const status = searchParams.get('status')
         const api = request.headers.get('Authorization')
         if (!api) {
             return Response.json({ error: "Unauthorized" }, { status: 401 })
@@ -17,16 +15,14 @@ export async function GET(request: NextRequest) {
         const security = new Security()
 
         const clientSlug = await security.apiIsValid(api, request.url)
+        if (!clientSlug) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 })
+        }
         const client = new Client(clientSlug)
 
-        const isPendingBool = isPending === 'true' ? true : false
-        const isApprovedBool = isApproved === 'true' ? true : false
-        const isOpenBool = isOpen === 'true' ? true : false
-        const projects = await client.getProjects({
-            isOpen: !isOpenBool && !isPendingBool && !isApprovedBool ? true : isOpenBool,
-            isPending: isPendingBool,
-            isApproved: isApprovedBool,
-        })
+        const projects = await client.getProjects(
+            status ? status : 'Actif'
+        )
         return Response.json({ projects }, { status: 200 })
 
     } catch (err) {

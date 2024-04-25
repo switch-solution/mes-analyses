@@ -1,20 +1,28 @@
 "use server";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { EstablishmentBankCreateSchema, EstablishmentBankEditSchema } from "@/src/helpers/definition";
-import { ProcessusFactory } from "@/src/classes/processusFactory";
+import { ContributionCreateSchema, ContributionEditSchema } from "@/src/helpers/definition";
 import { authentifcationActionUserIsAuthorizeToEditProject, ActionError } from "@/lib/safe-actions";
+import { ProcessusFactory } from "@/src/classes/processusFactory";
 import z from "zod";
-
-
-export const createEstablishmentBank = authentifcationActionUserIsAuthorizeToEditProject(EstablishmentBankCreateSchema, async (values: z.infer<typeof EstablishmentBankCreateSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
-    const { iban, nic, salary, deposit, expsense, contribution, clientSlug, projectSlug, processusSlug } = EstablishmentBankCreateSchema.parse(values)
+export const createContribution = authentifcationActionUserIsAuthorizeToEditProject(ContributionCreateSchema, async (values: z.infer<typeof ContributionCreateSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
+    const { id, clientSlug, projectSlug, processusSlug } = ContributionCreateSchema.parse(values)
     const processus = ProcessusFactory.create({
         processusSlug,
         clientId,
         projectLabel,
         sofwareLabel: softwareLabel
     })
+
+    const salaryExist = await processus.valueExist({
+        value: id,
+        clientId,
+        projectLabel,
+        softwareLabel
+    })
+    if (salaryExist) {
+        throw new ActionError("La rubrique existe déjà")
+    }
     try {
         await processus.insert({
             values,
@@ -28,12 +36,14 @@ export const createEstablishmentBank = authentifcationActionUserIsAuthorizeToEdi
         console.error(err)
         throw new ActionError(err as string)
     }
+
+
     revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
     redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
 })
 
-export const updateEstablishmentBank = authentifcationActionUserIsAuthorizeToEditProject(EstablishmentBankEditSchema, async (values: z.infer<typeof EstablishmentBankEditSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
-    const { iban, clientSlug, projectSlug, processusSlug } = EstablishmentBankEditSchema.parse(values)
+export const updateContribution = authentifcationActionUserIsAuthorizeToEditProject(ContributionEditSchema, async (values: z.infer<typeof ContributionEditSchema>, { clientId, userId, softwareLabel, projectLabel }) => {
+    const { clientSlug, processusSlug, projectSlug, slug } = ContributionEditSchema.parse(values)
     const processus = ProcessusFactory.create({
         processusSlug,
         clientId,
@@ -50,10 +60,14 @@ export const updateEstablishmentBank = authentifcationActionUserIsAuthorizeToEdi
             clientId
 
         })
+
     } catch (err: unknown) {
         console.error(err)
         throw new ActionError(err as string)
+
     }
     revalidatePath(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
     redirect(`/client/${clientSlug}/project/${projectSlug}/processus/${processusSlug}`)
+
+
 })

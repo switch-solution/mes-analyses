@@ -16,7 +16,7 @@ export const createBank = authentifcationActionUserIsAuthorizeToEditProject(Bank
         sofwareLabel: softwareLabel
     })
     const bankExist = await processus.valueExist({
-        value: iban,
+        value: id,
         clientId,
         projectLabel,
         softwareLabel

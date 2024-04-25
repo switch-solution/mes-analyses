@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
-import { FreeZoneCreateSchema, BankEditSchema } from "@/src/helpers/definition";
+import { FreeZoneCreateSchema, FreeZoneEditSchema } from "@/src/helpers/definition";
 import { generateSlug } from "@/src/helpers/generateSlug"
 export class StandardProcessusFreeZone implements IProcessus {
     projectLabel: string
@@ -39,41 +39,45 @@ export class StandardProcessusFreeZone implements IProcessus {
 
     }): Promise<void> {
         try {
-            const { id, iban, label, slug } = BankEditSchema.parse(values)
-            const bankBySlug = await prisma.project_Bank.findUnique({
+            const { label, description, slug, id } = FreeZoneEditSchema.parse(values)
+            const freeZoneSlug = await prisma.project_Free_Zone.findUnique({
                 where: {
                     slug
                 }
             })
-            if (!bankBySlug) {
-                throw new Error("La banque n'existe pas")
+            if (!freeZoneSlug) {
+                throw new Error("La zone libre n'existe pas")
             }
             //update bank
-            await prisma.project_Bank.update({
+            await prisma.project_Free_Zone.update({
                 where: {
                     slug
                 },
                 data: {
-                    iban,
+                    description,
                     label,
                 }
             })
             //add history
-            const countHistory = await prisma.project_Bank_Archived.count({
+            const countHistory = await prisma.project_Free_Zone_Archived.count({
                 where: {
-                    iban: bankBySlug.iban,
+                    id,
                     projectLabel,
                     softwareLabel,
                     clientId
                 }
             })
-            await prisma.project_Bank_Archived.create({
+            console.log(countHistory)
+            await prisma.project_Free_Zone_Archived.create({
                 data: {
-                    id: bankBySlug.id,
-                    label: bankBySlug.label,
-                    iban: bankBySlug.iban,
-                    bic: bankBySlug.bic,
-                    status: bankBySlug.status,
+                    label,
+                    description,
+                    id: freeZoneSlug.id,
+                    type: freeZoneSlug.type,
+                    status: freeZoneSlug.status,
+                    isOpen: freeZoneSlug.isOpen,
+                    isPending: freeZoneSlug.isPending,
+                    isApproved: freeZoneSlug.isApproved,
                     version: countHistory + 1,
                     clientId,
                     createdBy: userId,
@@ -99,15 +103,15 @@ export class StandardProcessusFreeZone implements IProcessus {
         projectLabel: string,
         softwareLabel: string
     }) {
-        const societyExist = await prisma.project_Bank.findFirst({
+        const freeZoneExist = await prisma.project_Free_Zone.findFirst({
             where: {
-                iban: value,
+                id: value,
                 clientId,
                 projectLabel,
                 softwareLabel,
             }
         })
-        if (societyExist) {
+        if (freeZoneExist) {
             return true
         }
         return false

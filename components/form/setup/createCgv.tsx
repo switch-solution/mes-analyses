@@ -6,10 +6,10 @@ import { useForm } from "react-hook-form"
 import { Switch } from "@/components/ui/switch"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
-import { createSetupLegal } from "@/src/features/actions/setup/setup.actions"
+import { createSetupLegal, createSetupInvitationLegal } from "@/src/features/actions/setup/setup.actions"
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { toast } from "sonner"
-
+import { useRouter } from "next/navigation";
 import {
     Form,
     FormControl,
@@ -19,9 +19,9 @@ import {
     FormLabel,
 } from "@/components/ui/form"
 
-export function CreateCgv() {
+export function CreateCgv({ invitation = false }: { invitation: boolean }) {
+    const router = useRouter()
     const [loading, setLoading] = useState(false)
-
     const form = useForm<z.infer<typeof SetupLegalSchema>>({
         resolver: zodResolver(SetupLegalSchema),
         defaultValues: {
@@ -32,16 +32,33 @@ export function CreateCgv() {
     const onSubmit = async (data: z.infer<typeof SetupLegalSchema>) => {
         try {
             setLoading(true)
-            const action = await createSetupLegal(data)
-            if (action?.serverError) {
-                setLoading(false)
-                toast(`${action.serverError}`, {
-                    description: new Date().toLocaleDateString(),
-                    action: {
-                        label: "fermer",
-                        onClick: () => console.log("fermeture"),
-                    },
-                })
+            if (invitation) {
+                const action = await createSetupInvitationLegal(data)
+                console.log(action)
+                if (action?.serverError) {
+                    setLoading(false)
+                    toast(`${action.serverError}`, {
+                        description: new Date().toLocaleDateString(),
+                        action: {
+                            label: "fermer",
+                            onClick: () => console.log("fermeture"),
+                        },
+                    })
+                }
+                //Redirect to home not working
+                router.push('/home')
+            } else {
+                const action = await createSetupLegal(data)
+                if (action?.serverError) {
+                    setLoading(false)
+                    toast(`${action.serverError}`, {
+                        description: new Date().toLocaleDateString(),
+                        action: {
+                            label: "fermer",
+                            onClick: () => console.log("fermeture"),
+                        },
+                    })
+                }
             }
 
         } catch (err) {

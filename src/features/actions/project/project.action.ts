@@ -1,7 +1,7 @@
 "use server";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { ProjectCreateSchema, ProjectUserCreateSchema } from '@/src/helpers/definition';
+import { ProjectCreateSchema, ProjectUserCreateSchema, ProjectEditSchema } from '@/src/helpers/definition';
 import z from 'zod';
 import { authentificationActionUserIsEditorClient, authentifcationActionUserIsAuthorizeToAdminProject, ActionError } from "@/lib/safe-actions";
 import { getSoftwareBySlug } from '@/src/query/software.query';
@@ -47,6 +47,39 @@ export const createProjet = authentificationActionUserIsEditorClient(ProjectCrea
 
     redirect(`/client/${clientSlug}/project/${project.slug}`);
     return project.slug
+})
+
+export const updateProject = authentifcationActionUserIsAuthorizeToAdminProject(ProjectEditSchema, async (values: z.infer<typeof ProjectEditSchema>, { userId, clientId }) => {
+    const { description, clientSlug, status, label, projectSlug } = ProjectEditSchema.parse(values)
+    const user = new User(userId)
+    if (!user) {
+        throw new ActionError('Vous n\'êtes pas connecté')
+    }
+    const mySoftwareSlug = await user.getMySoftwareActive()
+    const software = await getSoftwareBySlug(mySoftwareSlug.softwareSlug)
+    const project = new Project(projectSlug)
+    const projectExist = await project.projectLabelExistForThisSoftware({
+        projectLabel: label,
+        softwareLabel: software.label,
+        clientId
+    })
+    if (!projectExist) {
+        throw new ActionError('Le projet n\'existe pas')
+    }
+    try {
+        await project.update({
+            status,
+            description
+        })
+
+    } catch (err) {
+        console.error(err)
+        throw new ActionError('Erreur lors de la mise à jour du projet')
+
+    }
+
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}`);
+    redirect(`/client/${clientSlug}/project/${projectSlug}`);
 })
 
 export const createProjetUser = authentifcationActionUserIsAuthorizeToAdminProject(ProjectUserCreateSchema, async (values: z.infer<typeof ProjectUserCreateSchema>, { userId, projectLabel, softwareLabel }) => {

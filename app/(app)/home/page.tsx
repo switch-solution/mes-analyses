@@ -49,6 +49,7 @@ import { User } from "@/src/classes/user"
 import { getAuthSession } from "@/lib/auth"
 import { redirect } from 'next/navigation'
 import ExcelButtonFile from "@/components/button/excelButtonFile"
+
 export default async function Page() {
     const today = new Date().toLocaleDateString()
     const session = await getAuthSession()
@@ -61,6 +62,7 @@ export default async function Page() {
     }
     const user = new User(userId)
     const userIsSetup = await user.userIsSetup()
+
     if (!userIsSetup) {
         redirect("/setup/cgv")
     }
@@ -70,7 +72,9 @@ export default async function Page() {
     }
     const activity = await user.getLogs()
     const projects = await user.myProject()
-    const projectsEnable = projects.filter((project) => project.project.status === "actif")
+    const projectIsOpen = projects.filter((project) => project.project.status === "Actif")
+    const projectIsAppoved = projects.filter((project) => project.project.status === "Archivé")
+    const projectIsPending = projects.filter((project) => project.project.status === "En attente")
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -131,18 +135,18 @@ export default async function Page() {
                                 </CardFooter>
                             </Card>
                         </div>
-                        <Tabs defaultValue="enable">
+                        <Tabs defaultValue="isOpen">
                             <div className="flex items-center">
                                 <TabsList>
-                                    <TabsTrigger value="enable">Actif</TabsTrigger>
-                                    <TabsTrigger value="archived">Archivé</TabsTrigger>
-                                    <TabsTrigger value="disable">En attente</TabsTrigger>
+                                    <TabsTrigger value="isOpen">Actif</TabsTrigger>
+                                    <TabsTrigger value="isPending">En attente</TabsTrigger>
+                                    <TabsTrigger value="isApproved">Finalisé</TabsTrigger>
                                 </TabsList>
                                 <div className="ml-auto flex items-center gap-2">
                                     <ExcelButtonFile query="projects" />
                                 </div>
                             </div>
-                            <TabsContent value="enable">
+                            <TabsContent value="isOpen">
                                 <Card x-chunk="dashboard-05-chunk-3">
                                     <CardHeader className="px-7">
                                         <CardTitle>Projets</CardTitle>
@@ -168,7 +172,113 @@ export default async function Page() {
                                             </TableHeader>
                                             <TableBody>
                                                 {
-                                                    projectsEnable.map((project) => (
+                                                    projectIsOpen.map((project) => (
+                                                        <TableRow key={project.project.slug} className="bg-accent">
+                                                            <TableCell>
+                                                                <div className="font-medium">{project.project.label}</div>
+                                                            </TableCell>
+                                                            <TableCell className="hidden sm:table-cell">
+                                                                <Badge className="text-xs" variant="secondary">
+                                                                    {project.project.status}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                {project.project.createdAt.toLocaleDateString()}
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                <Link href={`/client/${client.clientSlug}/project/${project.project.slug}`}>
+                                                                    <ArrowRight />
+                                                                </Link>
+                                                            </TableCell>
+                                                        </TableRow>
+
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                            <TabsContent value="isPending">
+                                <Card x-chunk="dashboard-05-chunk-3">
+                                    <CardHeader className="px-7">
+                                        <CardTitle>Projets</CardTitle>
+                                        <CardDescription>
+                                            Mes projets
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Titre</TableHead>
+                                                    <TableHead className="hidden sm:table-cell">
+                                                        Status
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Date de création
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Ouvrir
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {
+                                                    projectIsPending.map((project) => (
+                                                        <TableRow key={project.project.slug} className="bg-accent">
+                                                            <TableCell>
+                                                                <div className="font-medium">{project.project.label}</div>
+                                                            </TableCell>
+                                                            <TableCell className="hidden sm:table-cell">
+                                                                <Badge className="text-xs" variant="secondary">
+                                                                    {project.project.status}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                {project.project.createdAt.toLocaleDateString()}
+                                                            </TableCell>
+                                                            <TableCell className="hidden md:table-cell">
+                                                                <Link href={`/client/${client.clientSlug}/project/${project.project.slug}`}>
+                                                                    <ArrowRight />
+                                                                </Link>
+                                                            </TableCell>
+                                                        </TableRow>
+
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                            <TabsContent value="isApproved">
+                                <Card x-chunk="dashboard-05-chunk-3">
+                                    <CardHeader className="px-7">
+                                        <CardTitle>Projets</CardTitle>
+                                        <CardDescription>
+                                            Mes projets
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Titre</TableHead>
+                                                    <TableHead className="hidden sm:table-cell">
+                                                        Status
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Date de création
+                                                    </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Ouvrir
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {
+                                                    projectIsAppoved.map((project) => (
                                                         <TableRow key={project.project.slug} className="bg-accent">
                                                             <TableCell>
                                                                 <div className="font-medium">{project.project.label}</div>

@@ -103,6 +103,10 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                         {projectDetails?.description}
                                     </CardDescription>
                                 </CardHeader>
+
+                                <CardFooter>
+                                    <Button><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/edit`}>Editer le projet</Link></Button>
+                                </CardFooter>
                             </Card>
                             <Card x-chunk="dashboard-05-chunk-1">
                                 <CardHeader className="pb-2">

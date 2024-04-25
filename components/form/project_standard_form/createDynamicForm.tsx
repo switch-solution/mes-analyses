@@ -4,8 +4,9 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { SocietyCreateSchema, BankCreateSchema, ProjectTableCreateSchema, SocietyFreeZoneCreateSchema, SalaryCreateSchema, ProjectAbsenceCreateSchema, EstablishmentBankCreateSchema, FreeZoneCreateSchema, EstablishmentCreateSchema, CreateServiceSchema, JobCreateSchema, CreatePaidLeaveSchema, RateAtCreateSchema, OpsCreateSchema, CreateIdccSchema, CreateClassificationSchema } from "@/src/helpers/definition";
+import { SocietyCreateSchema, BankCreateSchema, ProjectTableCreateSchema, ContributionCreateSchema, SocietyFreeZoneCreateSchema, SalaryCreateSchema, ProjectAbsenceCreateSchema, EstablishmentBankCreateSchema, FreeZoneCreateSchema, EstablishmentCreateSchema, CreateServiceSchema, JobCreateSchema, CreatePaidLeaveSchema, RateAtCreateSchema, OpsCreateSchema, CreateIdccSchema, CreateClassificationSchema } from "@/src/helpers/definition";
 import { createUrssaf } from "@/src/features/actions/project_data/project_urssaf.actions";
+import { createContribution } from "@/src/features/actions/project_data/project_contribution.actions";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { createJob } from "@/src/features/actions/project_data/project_job.actions";
 import { createSociety } from "@/src/features/actions/project_data/project_society.actions";
@@ -131,6 +132,9 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
         case "Standard_Processus_Table_Seniority":
             formSchema = ProjectTableCreateSchema
             break
+        case "Standard_Processus_Contribution":
+            formSchema = ContributionCreateSchema
+            break
 
 
         default: {
@@ -220,6 +224,9 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
                     break
                 case "Standard_Processus_Table_Seniority":
                     action = await createTableSeniority(data as z.infer<typeof ProjectTableCreateSchema>)
+                    break
+                case "Standard_Processus_Contribution":
+                    action = await createContribution(data as z.infer<typeof ContributionCreateSchema>)
                     break
                 default: {
                     throw new Error("La table n'existe pas")

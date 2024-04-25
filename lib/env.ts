@@ -3,8 +3,8 @@ import { z } from "zod";
 
 export const env = createEnv({
     server: {
-        DATABASE_URL: z.string().min(1),
-        DATABASE_URL_UNPOOLED: z.string().optional(),
+        POSTGRES_PRISMA_URL: z.string().min(1),
+        POSTGRES_URL_NON_POOLING: z.string().optional(),
         GITHUB_ID: z.string().min(1),
         GITHUB_SECRET: z.string().min(1),
         GOOGLE_ID: z.string().min(1),
@@ -36,8 +36,8 @@ export const env = createEnv({
         DOMAIN: process.env.DOMAIN,
         API_KEY: process.env.API_KEY,
         RESEND_API_KEY: process.env.RESEND_API_KEY,
-        DATABASE_URL: process.env.DATABASE_URL,
-        DATABASE_URL_UNPOOLED: process.env.POSTGRES_URL_NON_POOLING,
+        POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
+        POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
         GITHUB_ID: process.env.GITHUB_ID,
         GITHUB_SECRET: process.env.GITHUB_SECRET,
         GOOGLE_ID: process.env.GOOGLE_ID,

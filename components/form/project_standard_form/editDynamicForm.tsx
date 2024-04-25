@@ -4,7 +4,7 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { SocietyEditSchema, EstablishmentEditSchema, OpsEditSchema, BankEditSchema, ProjectTableEditSchema, IdccEditSchema, ClassificationEditSchema, PaidLeaveEditSchema, ProjectAbsenceEditSchema, ServiceEditSchema } from "@/src/helpers/definition";
+import { SocietyEditSchema, SalaryEditSchema, EstablishmentEditSchema, ContributionEditSchema, OpsEditSchema, BankEditSchema, FreeZoneEditSchema, ProjectTableEditSchema, IdccEditSchema, ClassificationEditSchema, PaidLeaveEditSchema, ProjectAbsenceEditSchema, ServiceEditSchema, EstablishmentBankEditSchema } from "@/src/helpers/definition";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { updateSociety } from "@/src/features/actions/project_data/project_society.actions";
 import { updateEstablishement } from "@/src/features/actions/project_data/project_establishment.actions";
@@ -18,6 +18,10 @@ import { updateEchelon } from "@/src/features/actions/project_data/project_echel
 import { updateIndice } from "@/src/features/actions/project_data/project_indice.actions";
 import { updateQualification } from "@/src/features/actions/project_data/project_qualification.actions";
 import { updateIdcc } from "@/src/features/actions/project_data/project_idcc.actions";
+import { updateEstablishmentBank } from "@/src/features/actions/project_data/project_establishmentBank.actions";
+import { updateFreeZone } from "@/src/features/actions/project_data/project_freeZone.actions";
+import { updateSalary } from "@/src/features/actions/project_data/project_salary.actions";
+import { updateContribution } from "@/src/features/actions/project_data/project_contribution.actions";
 import {
     Card,
     CardContent,
@@ -85,8 +89,18 @@ export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug
         case "Standard_Processus_services":
             formSchema = ServiceEditSchema
             break
-
-
+        case "Standard_Processus_Establisment_Bank":
+            formSchema = EstablishmentBankEditSchema
+            break
+        case "Standard_Processus_Free_Zones":
+            formSchema = FreeZoneEditSchema
+            break
+        case "Standard_Processus_Salary":
+            formSchema = SalaryEditSchema
+            break
+        case "Standard_Processus_Contribution":
+            formSchema = ContributionEditSchema
+            break
         default: {
             throw new Error("La table n'existe pas")
         }
@@ -148,6 +162,19 @@ export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug
                 case "Standard_Processus_services":
                     action = await updateService(data as z.infer<typeof ServiceEditSchema>)
                     break
+                case "Standard_Processus_Establisment_Bank":
+                    action = await updateEstablishmentBank(data as z.infer<typeof ServiceEditSchema>)
+                    break
+                case "Standard_Processus_Free_Zones":
+                    action = await updateFreeZone(data as z.infer<typeof FreeZoneEditSchema>)
+                    break
+                case "Standard_Processus_Salary":
+                    action = await updateSalary(data as z.infer<typeof SalaryEditSchema>)
+                    break
+                case "Standard_Processus_Contribution":
+                    action = await updateContribution(data as z.infer<typeof ContributionEditSchema>)
+                    break
+
 
                 default: {
                     throw new Error("La table n'existe pas")

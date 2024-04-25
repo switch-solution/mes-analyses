@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
-import { SalaryCreateSchema, SalaryEditSchema } from "@/src/helpers/definition";
+import { ContributionCreateSchema, ContributionEditSchema } from "@/src/helpers/definition";
 import { generateSlug } from "@/src/helpers/generateSlug"
-export class StandardProcessusSalary implements IProcessus {
+export class StandardProcessusContribution implements IProcessus {
     projectLabel: string
     softwareLabel: string
     clientId: string
@@ -15,7 +15,7 @@ export class StandardProcessusSalary implements IProcessus {
     }
 
     async read<T>(slug: string): Promise<T> {
-        const bank = await prisma.project_Salary.findUniqueOrThrow({
+        const bank = await prisma.project_Contribution.findUniqueOrThrow({
             where: {
                 slug
             }
@@ -38,20 +38,20 @@ export class StandardProcessusSalary implements IProcessus {
 
     }): Promise<void> {
         try {
-            const { slug, clientSlug, processusSlug, projectSlug, id, label, description, base, baseType, rate, rateType, amoutType, amount } = SalaryEditSchema.parse(values)
+            const { slug, clientSlug, processusSlug, projectSlug, id, label, description, base, baseType, rateEmployee, rateTypeEmployer, rateEmployer, rateTypeEmployee } = ContributionEditSchema.parse(values)
 
-            const salarySlug = await prisma.project_Salary.findUnique({
+            const contributionSlug = await prisma.project_Contribution.findUnique({
                 where: {
                     slug
                 }
             })
 
-            if (!salarySlug) {
+            if (!contributionSlug) {
                 throw new Error("La rubrique n'existe pas")
             }
 
 
-            await prisma.project_Salary.update({
+            await prisma.project_Contribution.update({
                 where: {
                     slug
                 },
@@ -61,42 +61,42 @@ export class StandardProcessusSalary implements IProcessus {
                     description,
                     base,
                     baseType,
-                    rate,
-                    rateType,
-                    amount,
-                    amoutType,
+                    rateTypeEmployee,
+                    rateTypeEmployer,
+                    rateEmployer,
+                    rateEmployee,
                     projectLabel: projectLabel,
                     softwareLabel: softwareLabel,
                 }
             })
 
             //Add history
-            const countHistory = await prisma.project_Salary_Archived.count({
+            const countHistory = await prisma.project_Contribution_Archived.count({
                 where: {
-                    id: salarySlug.id,
+                    id: contributionSlug.id,
                     projectLabel,
                     softwareLabel,
                     clientId
                 }
             })
-            await prisma.project_Salary_Archived.create({
+            await prisma.project_Contribution_Archived.create({
                 data: {
-                    id: salarySlug.id,
-                    label: salarySlug.label,
-                    description: salarySlug.description,
-                    base: salarySlug.base,
-                    baseType: salarySlug.baseType,
-                    rate: salarySlug.rate,
-                    rateType: salarySlug.rateType,
-                    amount: salarySlug.amount,
-                    amoutType: salarySlug.amoutType,
-                    status: salarySlug.status,
-                    isOpen: salarySlug.isOpen,
-                    source: salarySlug.source,
-                    isApproved: salarySlug.isApproved,
-                    isPending: salarySlug.isPending,
+                    id: contributionSlug.id,
+                    label: contributionSlug.label,
+                    description: contributionSlug.description,
+                    base: contributionSlug.base,
+                    baseType: contributionSlug.baseType,
+                    rateTypeEmployee: contributionSlug.rateTypeEmployee,
+                    rateTypeEmployer: contributionSlug.rateTypeEmployer,
+                    rateEmployer: contributionSlug.rateEmployer,
+                    rateEmployee: contributionSlug.rateEmployee,
+                    isApproved: contributionSlug.isApproved,
+                    status: contributionSlug.status,
+                    isOpen: contributionSlug.isOpen,
+                    isPending: contributionSlug.isPending,
                     projectLabel: projectLabel,
                     softwareLabel: softwareLabel,
+                    createdBy: contributionSlug.createdBy,
                     clientId: clientId,
                     version: countHistory + 1
                 }
@@ -121,7 +121,7 @@ export class StandardProcessusSalary implements IProcessus {
         projectLabel: string,
         softwareLabel: string
     }) {
-        const societyExist = await prisma.project_Salary.findFirst({
+        const societyExist = await prisma.project_Contribution.findFirst({
             where: {
                 id: value,
                 clientId,
@@ -149,17 +149,17 @@ export class StandardProcessusSalary implements IProcessus {
 
     }): Promise<void> {
         try {
-            const { id, label, description, clientSlug, processusSlug, rate, rateType, amoutType, amount, base, baseType } = SalaryCreateSchema.parse(values)
+            const { id, label, description, clientSlug, processusSlug, rateEmployee, rateEmployer, rateTypeEmployee, rateTypeEmployer, base, baseType } = ContributionCreateSchema.parse(values)
             try {
-                const count = await prisma.project_Salary.count()
-                await prisma.project_Salary.create({
+                const count = await prisma.project_Contribution.count()
+                await prisma.project_Contribution.create({
                     data: {
                         id,
                         label,
-                        rate,
-                        rateType,
-                        amoutType,
-                        amount,
+                        rateEmployee,
+                        rateEmployer,
+                        rateTypeEmployee,
+                        rateTypeEmployer,
                         base,
                         baseType,
                         description,
@@ -192,19 +192,19 @@ export class StandardProcessusSalary implements IProcessus {
     }
     async dataTable() {
 
-        const salaryList = await prisma.project_Salary.findMany({
+        const contributionList = await prisma.project_Contribution.findMany({
             where: {
                 projectLabel: this.projectLabel,
                 softwareLabel: this.softwareLabel,
                 clientId: this.clientId
             }
         })
-        const salarys = salaryList.map((salary) => {
+        const salarys = contributionList.map((contribution) => {
             return {
-                id: salary.id,
-                label: salary.label,
-                slug: salary.slug,
-                status: salary.status,
+                id: contribution.id,
+                label: contribution.label,
+                slug: contribution.slug,
+                status: contribution.status,
             }
         })
         return salarys
@@ -245,7 +245,7 @@ export class StandardProcessusSalary implements IProcessus {
             }
             try {
                 //Update record to is pending
-                await prisma.project_Salary.updateMany({
+                await prisma.project_Contribution.updateMany({
                     where: {
                         projectLabel: projectExist.label,
                         softwareLabel: projectExist.softwareLabel,
@@ -259,7 +259,7 @@ export class StandardProcessusSalary implements IProcessus {
                 })
             } catch (err) {
                 console.error(err)
-                throw new Error('Erreur lors de la mise à jour des rubriques de paie')
+                throw new Error('Erreur lors de la mise à jour des rubriques de cotisation')
             }
 
 
@@ -273,7 +273,7 @@ export class StandardProcessusSalary implements IProcessus {
                 include: {
                     project: {
                         include: {
-                            Project_Salary: true
+                            Project_Contribution: true
                         }
                     }
                 }
@@ -282,19 +282,19 @@ export class StandardProcessusSalary implements IProcessus {
 
             const validationRow = userValidator.map((user) => {
                 return (
-                    user.project.Project_Salary.map((salary) => {
+                    user.project.Project_Contribution.map((contribution) => {
                         return {
                             userId: user.userId,
-                            rowSlug: salary.slug,
+                            rowSlug: contribution.slug,
                             clientId: projectExist.clientId,
                             projectLabel: projectExist.label,
                             softwareLabel: projectExist.softwareLabel,
                             processusSlug: processusExist.slug,
                             projectSlug: projectSlug,
                             clientSlug: clientSlug,
-                            label: salary.label,
-                            theme: 'Rubrique de rémunération',
-                            description: 'Validation des rubriques de rémunération',
+                            label: contribution.label,
+                            theme: 'Rubrique de cotisation',
+                            description: 'Validation des rubriques de cotisation',
                         }
                     }))
 
@@ -346,48 +346,45 @@ export class StandardProcessusSalary implements IProcessus {
     }
     async extraction(): Promise<{ datas: {}[], archived: {}[], inputs: { zodLabel: string, label: string }[] }> {
         try {
-            const salaryList = await prisma.project_Salary.findMany({
+            const salaryList = await prisma.project_Contribution.findMany({
                 where: {
                     projectLabel: this.projectLabel,
                     softwareLabel: this.softwareLabel,
                     clientId: this.clientId
                 },
                 include: {
-                    Project_Salary_Archived: true
+                    Project_Contribution_Archived: true
                 }
             })
-            const datas = salaryList.map((salary) => {
+            const datas = salaryList.map((contribution) => {
                 return {
-                    id: salary.id,
-                    label: salary.label,
-                    rate: salary.rate,
-                    rateType: salary.rateType,
-                    amoutType: salary.amoutType,
-                    amount: salary.amount,
-                    base: salary.base,
-                    baseType: salary.baseType,
-                    description: salary.description,
-                    status: salary.status,
-                    source: salary.source,
-                    createdAt: salary.createdAt,
-                    updatedAt: salary.updatedAt
+                    id: contribution.id,
+                    label: contribution.label,
+                    rateEmployee: contribution.rateEmployee,
+                    rateEmployer: contribution.rateEmployer,
+                    rateTypeEmployee: contribution.rateTypeEmployee,
+                    rateTypeEmployer: contribution.rateTypeEmployer,
+                    base: contribution.base,
+                    baseType: contribution.baseType,
+                    description: contribution.description,
+                    status: contribution.status,
+
                 }
             })
 
             const archived = salaryList.map((salary) => {
-                return salary.Project_Salary_Archived.map((archived) => {
+                return salary.Project_Contribution_Archived.map((archived) => {
                     return {
                         id: archived.id,
                         label: archived.label,
-                        rate: archived.rate,
-                        rateType: archived.rateType,
-                        amoutType: archived.amoutType,
-                        amount: archived.amount,
+                        rateEmployee: archived.rateEmployee,
+                        rateEmployer: archived.rateEmployer,
+                        rateTypeEmployee: archived.rateTypeEmployee,
+                        rateTypeEmployer: archived.rateTypeEmployer,
                         base: archived.base,
                         baseType: archived.baseType,
                         description: archived.description,
                         status: archived.status,
-                        source: archived.source,
                     }
                 })
 

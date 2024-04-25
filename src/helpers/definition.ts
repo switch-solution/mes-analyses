@@ -1,3 +1,4 @@
+import { is } from 'date-fns/locale';
 import { z } from 'zod';
 import { zfd } from "zod-form-data";
 
@@ -21,6 +22,39 @@ export const createBlockNoteSchema = z.object({
 
 })
 
+export const ContributionCreateSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    processusSlug: z.string({ required_error: "Le processus est obligatoire." }),
+    id: z.string({ required_error: "L'id est obligatoire" }).min(2, { message: "Le code doit contenir au moins 2 caractères." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(2, { message: "Le libellé doit contenir au moins 2 caractères." }),
+    description: z.string().optional(),
+    baseType: z.string({ required_error: "Le type de base est obligatoire." }),
+    base: z.string({ required_error: "Le type de base est obligatoire." }),
+    rateTypeEmployee: z.string({ required_error: "Le type de base est obligatoire." }),
+    rateTypeEmployer: z.string({ required_error: "Le type de base est obligatoire." }),
+    rateEmployee: z.string({ required_error: "Le type de base est obligatoire." }),
+    rateEmployer: z.string({ required_error: "Le type de base est obligatoire." }),
+})
+
+export const ContributionEditSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    processusSlug: z.string({ required_error: "Le processus est obligatoire." }),
+    slug: z.string({ required_error: "Le slug est obligatoire." }),
+    id: z.string({ required_error: "L'id est obligatoire" }).min(2, { message: "Le code doit contenir au moins 2 caractères." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(2, { message: "Le libellé doit contenir au moins 2 caractères." }),
+    description: z.string().optional(),
+    baseType: z.string({ required_error: "Le type de base est obligatoire." }),
+    base: z.string({ required_error: "Le type de base est obligatoire." }),
+    rateTypeEmployee: z.string({ required_error: "Le type de base est obligatoire." }),
+    rateTypeEmployer: z.string({ required_error: "Le type de base est obligatoire." }),
+    rateEmployee: z.string({ required_error: "Le type de base est obligatoire." }),
+    rateEmployer: z.string({ required_error: "Le type de base est obligatoire." }),
+})
+
+
+
 export const SalaryCreateSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
@@ -37,6 +71,24 @@ export const SalaryCreateSchema = z.object({
 
 })
 
+export const SalaryEditSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    processusSlug: z.string({ required_error: "Le processus est obligatoire." }),
+    slug: z.string({ required_error: "Le slug est obligatoire." }),
+    id: z.string({ required_error: "L'id est obligatoire" }).min(2, { message: "Le code doit contenir au moins 2 caractères." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(2, { message: "Le libellé doit contenir au moins 2 caractères." }),
+    description: z.string().optional(),
+    baseType: z.string().optional(),
+    base: z.string().optional(),
+    rateType: z.string().optional(),
+    rate: z.string().optional(),
+    amoutType: z.string({ required_error: "Le type de montant est obligatoire." }),
+    amount: z.string().optional(),
+
+})
+
+
 export const FreeZoneCreateSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
@@ -44,6 +96,17 @@ export const FreeZoneCreateSchema = z.object({
     id: z.string({ required_error: "L'id est obligatoire" }).min(2, { message: "Le code doit contenir au moins 2 caractères." }),
     label: z.string({ required_error: "Le libellé est obligatoire." }).min(2, { message: "Le libellé doit contenir au moins 2 caractères." }),
     type: z.string({ required_error: "Le type est obligatoire." }),
+    description: z.string().optional(),
+})
+
+export const FreeZoneEditSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    processusSlug: z.string({ required_error: "Le processus est obligatoire." }),
+    slug: z.string({ required_error: "Le slug est obligatoire." }),
+    id: z.string({ required_error: "L'id est obligatoire" }).min(2, { message: "Le code doit contenir au moins 2 caractères." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(2, { message: "Le libellé doit contenir au moins 2 caractères." }),
+    type: z.string().optional(),
     description: z.string().optional(),
 })
 
@@ -448,7 +511,6 @@ export const InvitationCreateSchema = z.object({
     defaultRole: z.enum(['Consultant déploiement', 'Directeur de projet', 'Chef de projet', 'Consultant technique', 'Support', 'Responsable paie']),
     isAdministrator: z.boolean().optional(),
     isEditor: z.boolean().optional(),
-    isBillable: z.boolean(),
 })
 
 
@@ -495,6 +557,13 @@ export const ProjectCreateSchema = z.object({
     description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     role: z.enum(['Consultant déploiement', 'Directeur de projet', 'Chef de projet', 'Consultant technique', 'Support']),
+})
+export const ProjectEditSchema = z.object({
+    label: z.string({ required_error: "Le nom du projet est obligatoire." }),
+    description: z.string().min(2, { message: "La description doit contenir au moins 2 caractères." }),
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    status: z.enum(['Actif', 'Archivé', 'En attente']),
 })
 
 export const ForumCreateSchema = z.object({
@@ -737,6 +806,21 @@ export const EstablishmentBankCreateSchema = z.object({
     expsense: z.coerce.boolean().optional(),
 
 })
+
+export const EstablishmentBankEditSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    processusSlug: z.string({ required_error: "Le processus est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    slug: z.string({ required_error: "Le slug est obligatoire." }),
+    nic: z.string().optional(),
+    iban: z.string().optional(),
+    salary: z.coerce.boolean().optional(),
+    contribution: z.coerce.boolean().optional(),
+    deposit: z.coerce.boolean().optional(),
+    expsense: z.coerce.boolean().optional(),
+
+})
+
 
 export const RateAtCreateSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),

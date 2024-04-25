@@ -379,13 +379,10 @@ CREATE TABLE "Project" (
     "logo" TEXT,
     "label" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'actif',
+    "status" TEXT NOT NULL DEFAULT 'Actif',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
-    "isOpen" BOOLEAN NOT NULL DEFAULT true,
-    "isPending" BOOLEAN NOT NULL DEFAULT false,
-    "isApproved" BOOLEAN NOT NULL DEFAULT false,
     "softwareLabel" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
 
@@ -682,6 +679,9 @@ CREATE TABLE "Project_Free_Zone_Archived" (
     "type" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
+    "isOpen" BOOLEAN NOT NULL,
+    "isPending" BOOLEAN NOT NULL,
+    "isApproved" BOOLEAN NOT NULL,
     "status" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "description" TEXT,
@@ -924,6 +924,26 @@ CREATE TABLE "Project_Bank_Archived" (
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
     CONSTRAINT "Project_Bank_Archived_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","iban","version")
+);
+
+-- CreateTable
+CREATE TABLE "Project_Establishment_Bank_Archived" (
+    "clientId" TEXT NOT NULL,
+    "projectLabel" TEXT NOT NULL,
+    "softwareLabel" TEXT NOT NULL,
+    "establishmentNic" TEXT NOT NULL,
+    "iban" TEXT NOT NULL,
+    "version" INTEGER NOT NULL,
+    "societyId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "salary" BOOLEAN NOT NULL,
+    "contribution" BOOLEAN NOT NULL,
+    "deposit" BOOLEAN NOT NULL,
+    "expsense" BOOLEAN NOT NULL,
+
+    CONSTRAINT "Project_Establishment_Bank_Archived_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","establishmentNic","iban","version")
 );
 
 -- CreateTable
@@ -1593,16 +1613,15 @@ CREATE TABLE "Project_Salary_Archived" (
     "id" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "description" TEXT,
-    "method" TEXT NOT NULL,
     "status" TEXT NOT NULL,
-    "baseType" TEXT NOT NULL,
-    "base" TEXT NOT NULL,
-    "rateType" TEXT NOT NULL,
+    "baseType" TEXT,
+    "base" TEXT,
+    "rateType" TEXT,
     "version" INTEGER NOT NULL,
-    "rate" TEXT NOT NULL,
-    "amoutType" TEXT NOT NULL,
-    "source" TEXT NOT NULL,
-    "amount" TEXT NOT NULL,
+    "rate" TEXT,
+    "amoutType" TEXT,
+    "source" TEXT,
+    "amount" TEXT,
     "slug" TEXT NOT NULL,
     "isApproved" BOOLEAN NOT NULL,
     "isPending" BOOLEAN NOT NULL,
@@ -1622,13 +1641,10 @@ CREATE TABLE "Project_Contribution" (
     "status" TEXT NOT NULL DEFAULT 'En cours',
     "baseType" TEXT NOT NULL,
     "base" TEXT NOT NULL,
-    "employeeType" TEXT NOT NULL,
-    "employee" TEXT NOT NULL,
-    "employType" TEXT NOT NULL,
-    "employ" TEXT NOT NULL,
-    "source" TEXT NOT NULL,
-    "amoutType" TEXT NOT NULL,
-    "amount" TEXT NOT NULL,
+    "rateTypeEmployee" TEXT NOT NULL,
+    "rateEmployee" TEXT NOT NULL,
+    "rateTypeEmployer" TEXT NOT NULL,
+    "rateEmployer" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "isApproved" BOOLEAN NOT NULL DEFAULT false,
     "isPending" BOOLEAN NOT NULL DEFAULT false,
@@ -1651,13 +1667,11 @@ CREATE TABLE "Project_Contribution_Archived" (
     "status" TEXT NOT NULL,
     "baseType" TEXT NOT NULL,
     "base" TEXT NOT NULL,
-    "employeeType" TEXT NOT NULL,
-    "employee" TEXT NOT NULL,
-    "employType" TEXT NOT NULL,
-    "employ" TEXT NOT NULL,
-    "source" TEXT NOT NULL,
-    "amoutType" TEXT NOT NULL,
-    "amount" TEXT NOT NULL,
+    "rateTypeEmployee" TEXT NOT NULL,
+    "version" INTEGER NOT NULL,
+    "rateEmployee" TEXT NOT NULL,
+    "rateTypeEmployer" TEXT NOT NULL,
+    "rateEmployer" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "isApproved" BOOLEAN NOT NULL,
     "isPending" BOOLEAN NOT NULL,
@@ -1666,7 +1680,7 @@ CREATE TABLE "Project_Contribution_Archived" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL,
 
-    CONSTRAINT "Project_Contribution_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel")
+    CONSTRAINT "Project_Contribution_Archived_pkey" PRIMARY KEY ("id","clientId","softwareLabel","projectLabel","version")
 );
 
 -- CreateTable
@@ -2255,6 +2269,7 @@ CREATE TABLE "Software_Processus" (
     "softwareLabel" TEXT NOT NULL,
     "processusId" TEXT NOT NULL,
     "processusVersion" INTEGER NOT NULL,
+    "isArchived" BOOLEAN NOT NULL DEFAULT false,
     "order" INTEGER NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2439,6 +2454,12 @@ CREATE UNIQUE INDEX "Project_Mutuelle_Archived_slug_key" ON "Project_Mutuelle_Ar
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Salary_slug_key" ON "Project_Salary"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Contribution_slug_key" ON "Project_Contribution"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Contribution_Archived_slug_key" ON "Project_Contribution_Archived"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Constant_Legal_slug_key" ON "Constant_Legal"("slug");
@@ -2646,6 +2667,12 @@ ALTER TABLE "Project_Bank" ADD CONSTRAINT "Project_Bank_clientId_projectLabel_so
 
 -- AddForeignKey
 ALTER TABLE "Project_Bank_Archived" ADD CONSTRAINT "Project_Bank_Archived_clientId_projectLabel_softwareLabel__fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel", "iban") REFERENCES "Project_Bank"("clientId", "projectLabel", "softwareLabel", "iban") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Establishment_Bank_Archived" ADD CONSTRAINT "Project_Establishment_Bank_Archived_clientId_softwareLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "iban") REFERENCES "Project_Bank"("clientId", "softwareLabel", "projectLabel", "iban") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project_Establishment_Bank_Archived" ADD CONSTRAINT "Project_Establishment_Bank_Archived_establishmentNic_clien_fkey" FOREIGN KEY ("establishmentNic", "clientId", "softwareLabel", "projectLabel", "societyId") REFERENCES "Project_Establishment"("nic", "clientId", "softwareLabel", "projectLabel", "societyId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Establishment_Bank" ADD CONSTRAINT "Project_Establishment_Bank_clientId_softwareLabel_projectL_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel", "iban") REFERENCES "Project_Bank"("clientId", "softwareLabel", "projectLabel", "iban") ON DELETE RESTRICT ON UPDATE CASCADE;

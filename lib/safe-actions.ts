@@ -107,7 +107,7 @@ export const authentifcationActionUserIsAuthorizeToAdminProject = createSafeActi
             return { clientId: user.projectClientId, userId: user.userId, projectLabel: user.projectLabel, softwareLabel: user.projectSoftwareLabel }
 
         }
-        throw new ActionError("Une erreur est survenue.")
+        throw new ActionError("Une erreur est survenue au niveau du middleware.")
     }
 })
 

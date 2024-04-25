@@ -7,7 +7,7 @@ import { sendEmail } from '@/src/helpers/api';
 import z from 'zod';
 import { authentificationActionUserIsAdminClient, ActionError } from "@/lib/safe-actions";
 export const createInvitation = authentificationActionUserIsAdminClient(InvitationCreateSchema, async (values: z.infer<typeof InvitationCreateSchema>, { userId, clientId }) => {
-    const { civility, firstname, lastname, isBillable, email, isAdministrator, isEditor, clientSlug, defaultRole, softwareLabel } = InvitationCreateSchema.parse(values)
+    const { civility, firstname, lastname, email, isAdministrator, isEditor, clientSlug, defaultRole, softwareLabel } = InvitationCreateSchema.parse(values)
     const emailExist = await prisma.user.findUnique({
         where: {
             email
@@ -20,7 +20,7 @@ export const createInvitation = authentificationActionUserIsAdminClient(Invitati
             data: {
                 clientId,
                 userId: emailExist.id,
-                isBillable,
+                isBillable: isAdministrator ? true : isEditor ? true : false,
                 isAdministrator,
                 isEditor,
                 defaultRole,
@@ -50,7 +50,8 @@ export const createInvitation = authentificationActionUserIsAdminClient(Invitati
             body: JSON.stringify({
                 to: email,
                 subject: 'Invitation to join the client',
-                text: `You have been invited to join the client ${clientSlug}. Please click on the following link to accept the invitation.`
+                text: `Vous avez été invité à rejoindre le logiciel de gestion de votre cahier d'analyse paie.`,
+                type: 'invitation'
             })
         })
         if (!send) {
@@ -69,7 +70,7 @@ export const createInvitation = authentificationActionUserIsAdminClient(Invitati
                 lastname,
                 softwareLabel,
                 email,
-                isBillable,
+                isBillable: isAdministrator ? true : isEditor ? true : false,
                 sendEmail: false,
                 isAdministratorClient: isAdministrator,
                 isEditorClient: isEditor,
@@ -82,7 +83,8 @@ export const createInvitation = authentificationActionUserIsAdminClient(Invitati
             body: JSON.stringify({
                 to: email,
                 subject: 'Invitation to join the client',
-                text: `You have been invited to join the client ${clientSlug}. Please click on the following link to accept the invitation.`
+                text: `You have been invited to join the client ${clientSlug}. Please click on the following link to accept the invitation.`,
+                type: 'invitation'
             })
         })
         if (!send) {

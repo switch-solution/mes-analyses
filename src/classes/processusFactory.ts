@@ -23,6 +23,7 @@ import { StandardProcessusAbsence } from "./standardProcessusAbsences"
 import { StandardProcessusSalary } from "./standardProcessusSalary"
 import { StandardProcessusTableSeniority } from "./standardProcessusTableSeniority"
 import { StandardProcessusTableSeniorityRow } from "./standardProcessusTableSeniorityRow"
+import { StandardProcessusContribution } from "./standardProcessusContribution"
 export class ProcessusFactory {
 
     static create({
@@ -113,6 +114,9 @@ export class ProcessusFactory {
                 break
             case 'Standard_Processus_Table_Seniority_Row':
                 return new StandardProcessusTableSeniorityRow(projectLabel, sofwareLabel, clientId, processusSlug)
+                break
+            case 'Standard_Processus_Contribution':
+                return new StandardProcessusContribution(projectLabel, sofwareLabel, clientId, processusSlug)
                 break
 
             default:

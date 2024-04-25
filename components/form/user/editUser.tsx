@@ -86,7 +86,7 @@ export default function EditUser({ user }: { user: { email: string, firstname: s
                     name="civility"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Votre role</FormLabel>
+                            <FormLabel>Civilité</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                     <SelectTrigger>

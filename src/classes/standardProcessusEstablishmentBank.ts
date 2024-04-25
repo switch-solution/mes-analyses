@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import type { IProcessus } from "@/src/classes/processus"
-import { EstablishmentBankCreateSchema } from "@/src/helpers/definition";
+import { EstablishmentBankCreateSchema, EstablishmentBankEditSchema } from "@/src/helpers/definition";
 import { generateSlug } from "@/src/helpers/generateSlug"
 export class StandardProcessusEstablishmentBank implements IProcessus {
     projectLabel: string
@@ -38,6 +38,62 @@ export class StandardProcessusEstablishmentBank implements IProcessus {
         clientId: string
 
     }): Promise<void> {
+        try {
+            const { slug, salary, expsense, contribution, deposit } = EstablishmentBankEditSchema.parse(values)
+            const bankBySlug = await prisma.project_Establishment_Bank.findUnique({
+                where: {
+                    slug
+                }
+            })
+            if (!bankBySlug) {
+                throw new Error("La banque n'existe pas")
+            }
+            //update bank
+            await prisma.project_Establishment_Bank.update({
+                where: {
+                    slug
+                },
+                data: {
+                    salary,
+                    expsense,
+                    contribution,
+                    deposit
+                }
+            })
+            //add history
+            const countHistory = await prisma.project_Establishment_Bank_Archived.count({
+                where: {
+                    iban: bankBySlug.iban,
+                    establishmentNic: bankBySlug.establishmentNic,
+                    societyId: bankBySlug.societyId,
+                    projectLabel,
+                    softwareLabel,
+                    clientId
+                }
+            })
+            await prisma.project_Establishment_Bank_Archived.create({
+                data: {
+                    iban: bankBySlug.iban,
+                    establishmentNic: bankBySlug.establishmentNic,
+                    societyId: bankBySlug.societyId,
+                    salary: bankBySlug.salary,
+                    expsense: bankBySlug.expsense,
+                    deposit: bankBySlug.deposit,
+                    contribution: bankBySlug.contribution,
+                    version: countHistory + 1,
+                    createdAt: bankBySlug.createdAt,
+                    updatedAt: bankBySlug.updatedAt,
+                    clientId,
+                    createdBy: userId,
+                    projectLabel: projectLabel,
+                    softwareLabel: softwareLabel,
+                }
+
+            })
+        } catch (err: unknown) {
+            console.error(err)
+            throw new Error(err as string)
+        }
 
 
     }
