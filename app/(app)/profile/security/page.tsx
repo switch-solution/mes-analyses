@@ -1,7 +1,6 @@
 import { Security } from "@/src/classes/security";
 import { Container } from "@/components/layout/container";
-
-import { Button } from "@/components/ui/button"
+import NavBarProfil from "@/components/layout/navBarProfil";
 import {
     Card,
     CardContent,
@@ -38,15 +37,7 @@ export default async function Page() {
                     <h1 className="text-3xl font-semibold">Profil</h1>
                 </div>
                 <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
-                    <nav
-                        className="grid gap-4 text-sm text-muted-foreground" x-chunk="dashboard-04-chunk-0"
-                    >
-                        <Link href="/profile" >
-                            Mes informations
-                        </Link>
-                        <Link href="/profile/security" className="font-semibold text-primary">Securité</Link>
-                        <Link href="/profile/default">Environnement</Link>
-                    </nav>
+                    <NavBarProfil menu='Sécurité' />
                     <div className="grid gap-6">
                         <Card x-chunk="dashboard-04-chunk-1">
                             <CardHeader>

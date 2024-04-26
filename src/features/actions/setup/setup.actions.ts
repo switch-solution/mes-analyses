@@ -9,7 +9,6 @@ import z from "zod";
 import { generateSlug } from "@/src/helpers/generateSlug";
 import { User } from "@/src/classes/user";
 import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
-import { copyInvitation, getInvitation } from "@/src/query/invitation.query";
 import { Client } from "@/src/classes/client";
 import { Software } from "@/src/classes/software";
 export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
@@ -50,49 +49,6 @@ export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<
     redirect(`/setup/profile/`)
 
 
-
-})
-
-export const createSetupInvitationLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
-    if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
-    const email = await prisma.user.findFirst({
-        where: {
-            id: userId
-        }
-    })
-    if (!email) throw new ActionError("L'utilisateur n'existe pas.")
-    const invitation = await getInvitation(email.email)
-    try {
-        if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
-        const { cgv, gdpr } = SetupLegalSchema.parse(values)
-        await prisma.userOtherData.upsert({
-            where: {
-                userId: userId
-            },
-            update: {
-                userId: userId,
-                isBlocked: false,
-                cgv: cgv,
-                gdpr: gdpr,
-                isSetup: true
-            },
-            create: {
-                userId: userId,
-                isBlocked: false,
-                cgv: cgv,
-                gdpr: gdpr,
-                isSetup: true
-            }
-        })
-        await copyInvitation(invitation, userId)
-
-    } catch (err: unknown) {
-        console.error(err)
-        throw new ActionError(err as string)
-
-    }
-    revalidatePath(`/home`)
-    redirect(`/home`)
 
 })
 

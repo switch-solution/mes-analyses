@@ -8,11 +8,9 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import Link from "next/link"
+import { EditCgv } from "@/components/form/profil/editCgv";
 import { User } from "@/src/classes/user";
 import NavBarProfile from "@/components/layout/navBarProfil";
-import EditUserEnvironnementClient from "@/components/form/user_environnement/editUserEnvironnementClient";
-import EditUserEnvironnementSoftware from "@/components/form/user_environnement/editUserEnvironnementSoftware";
 export default async function Page() {
     const security = new Security()
     const userId = await security.userIsValid()
@@ -20,10 +18,7 @@ export default async function Page() {
         throw new Error('User data not found')
     }
     const user = new User(userId.id)
-    const clients = await user.getMyClientsAll()
-    const softwares = await user.getMySoftwaresAll()
-    const clientActive = await user.getMyClientActive()
-    const softwareActive = await user.getMySoftwareActive()
+    const userDetail = await user.getUserOtherData()
     return (
         <Container>
             <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
@@ -31,31 +26,20 @@ export default async function Page() {
                     <h1 className="text-3xl font-semibold">Profil</h1>
                 </div>
                 <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
-                    <NavBarProfile menu='Environnemment' />
+                    <NavBarProfile menu='CGV' />
                     <div className="grid gap-6">
                         <Card x-chunk="dashboard-04-chunk-2">
                             <CardHeader>
-                                <CardTitle>Liste de vos organisation.</CardTitle>
+                                <CardTitle>Valider les CGV</CardTitle>
                                 <CardDescription>
                                     Vos organisations.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <EditUserEnvironnementClient clientActive={clientActive.clientSlug} clients={clients} />
+                                <EditCgv cgv={userDetail.cgv} />
                             </CardContent>
                         </Card>
-                        <Card x-chunk="dashboard-04-chunk-2">
-                            <CardHeader>
-                                <CardTitle>Liste de vos logiciels.</CardTitle>
-                                <CardDescription>
-                                    Vos logiciels.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <EditUserEnvironnementSoftware softwareActive={softwareActive.softwareSlug} softwares={softwares} />
-                            </CardContent>
 
-                        </Card>
 
                     </div>
                 </div>

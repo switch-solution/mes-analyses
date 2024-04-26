@@ -30,7 +30,7 @@ export class Project {
                     softwareLabel: softwareLabel,
                     clientId: clientId,
                     createdBy: userId,
-                    status: 'actif',
+                    status: 'Actif',
                     slug,
                     UserProject: {
                         create: {

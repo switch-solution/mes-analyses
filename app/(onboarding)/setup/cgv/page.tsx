@@ -9,7 +9,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { getInvitation } from "@/src/query/invitation.query";
 import { User } from "@/src/classes/user";
 import { Security } from "@/src/classes/security";
 export default async function Page() {
@@ -25,7 +24,6 @@ export default async function Page() {
     }
     const user = new User(session.user.id)
     const userDetail = await user.getUserDetail()
-    const invitation = await getInvitation(userDetail.email)
     return (
         <Container>
             <ContainerDataTable>
@@ -35,7 +33,7 @@ export default async function Page() {
                         <CardDescription>Valider les CGV de l&apos;application</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <CreateCgv invitation={invitation ? true : false} />
+                        <CreateCgv />
                     </CardContent>
                 </Card>
             </ContainerDataTable>

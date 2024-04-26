@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { UserDeleteSchema, UserEditSchema } from '@/src/helpers/definition';
+import { UserDeleteSchema, UserEditSchema, ProfilEditCgvSchema } from '@/src/helpers/definition';
 import z from "zod";
 import { ActionError, authentifcationAction } from "@/lib/safe-actions";
 import { faker } from '@faker-js/faker';
@@ -28,6 +28,27 @@ export const editUser = authentifcationAction(UserEditSchema, async (values: z.i
     revalidatePath(`/profile`)
     redirect(`/profile`)
 
+})
+
+export const editCgv = authentifcationAction(ProfilEditCgvSchema, async (values: z.infer<typeof ProfilEditCgvSchema>, userId) => {
+    const { cgv } = ProfilEditCgvSchema.parse(values)
+    try {
+        await prisma.userOtherData.update({
+            where: {
+                userId
+            },
+            data: {
+                cgv
+            }
+        })
+
+    } catch (err: unknown) {
+        console.error(err)
+        throw new ActionError(err as string)
+
+    }
+    revalidatePath(`/home`)
+    redirect(`/home`)
 })
 
 export const deleteUser = authentifcationAction(UserDeleteSchema, async (values: z.infer<typeof UserDeleteSchema>, userId) => {

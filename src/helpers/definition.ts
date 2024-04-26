@@ -190,6 +190,11 @@ export const SetupLegalSchema = z.object({
     gdpr: z.boolean(),
 })
 
+export const ProfilEditCgvSchema = z.object({
+    cgv: z.boolean(),
+})
+
+
 export const UploadFileSchema = zfd.formData({
     clientSlug: zfd.text(z.string({ required_error: "Le client est obligatoire." })),
     projectSlug: zfd.text(z.string({ required_error: "Le projet est obligatoire." })),

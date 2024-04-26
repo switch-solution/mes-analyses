@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card"
 import Link from "next/link"
 import EditUser from "@/components/form/user/editUser";
+import NavBarProfil from "@/components/layout/navBarProfil";
 export default async function Page() {
     const security = new Security()
     const user = await security.userIsValid()
@@ -36,15 +37,7 @@ export default async function Page() {
                     <h1 className="text-3xl font-semibold">Profil</h1>
                 </div>
                 <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
-                    <nav
-                        className="grid gap-4 text-sm text-muted-foreground" x-chunk="dashboard-04-chunk-0"
-                    >
-                        <Link href="/profile" className="font-semibold text-primary">
-                            Mes informations
-                        </Link>
-                        <Link href="/profile/security">Securité</Link>
-                        <Link href="/profile/default">Environnement</Link>
-                    </nav>
+                    <NavBarProfil menu='Information' />
                     <div className="grid gap-6">
                         <Card x-chunk="dashboard-04-chunk-1">
                             <CardHeader>

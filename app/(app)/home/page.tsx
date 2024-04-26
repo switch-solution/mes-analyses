@@ -49,6 +49,7 @@ import { User } from "@/src/classes/user"
 import { getAuthSession } from "@/lib/auth"
 import { redirect } from 'next/navigation'
 import ExcelButtonFile from "@/components/button/excelButtonFile"
+import { copyInvitation, getInvitation } from "@/src/query/invitation.query";
 
 export default async function Page() {
     const today = new Date().toLocaleDateString()
@@ -61,8 +62,19 @@ export default async function Page() {
         throw new Error("ID utilisateur manquant")
     }
     const user = new User(userId)
-    const userIsSetup = await user.userIsSetup()
+    const userDetail = await user.getUserDetail()
+    const invitation = await getInvitation(userDetail.email)
+    if (invitation) {
+        await copyInvitation(invitation, userId)
+        redirect("/cgv")
+        return
 
+    }
+    const userIsSetup = await user.userIsSetup()
+    const cgv = userDetail.UserOtherData.at(0)?.cgv
+    if (!cgv) {
+        redirect("/cgv")
+    }
     if (!userIsSetup) {
         redirect("/setup/cgv")
     }
@@ -75,6 +87,7 @@ export default async function Page() {
     const projectIsOpen = projects.filter((project) => project.project.status === "Actif")
     const projectIsAppoved = projects.filter((project) => project.project.status === "Archivé")
     const projectIsPending = projects.filter((project) => project.project.status === "En attente")
+
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
