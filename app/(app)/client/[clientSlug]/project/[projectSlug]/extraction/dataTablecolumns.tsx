@@ -2,7 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
 import { ButtonExportXlsx } from "@/components/button/excelButtonFile"
-
+import { ButtonExportCsv } from "@/components/button/csvButtonFile"
 export type Processus = {
     projectSlug: string
     clientSlug: string
@@ -10,6 +10,7 @@ export type Processus = {
     count: number
     label: string | null
     data: {}[]
+    archived: {}[]
 
 }
 
@@ -22,12 +23,20 @@ export const columns: ColumnDef<Processus>[] = [
         }
     },
     {
-        id: "excel",
-        header: "Extraction Excel",
+        id: "csv",
+        header: "Extraction au format CSV",
         cell: ({ row }) => {
             const data = row.original
-
-            const processus = row.original
+            return (
+                <ButtonExportCsv data={data.data} />
+            )
+        },
+    },
+    {
+        id: "excel",
+        header: "Extraction au format Excel (xlsx)",
+        cell: ({ row }) => {
+            const data = row.original
             return (
                 <ButtonExportXlsx data={data.data} />
             )

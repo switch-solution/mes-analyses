@@ -40,11 +40,11 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 slug: processus.processusSlug,
                 label: processus.label,
                 data: extraction.datas,
+                archived: extraction.archived,
                 count: count
 
             })
     }).flat(1))
-    console.log(processus)
     return (
         <Container>
             <ContainerBreadCrumb>
