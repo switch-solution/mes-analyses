@@ -48,7 +48,6 @@ import {
 import { User } from "@/src/classes/user"
 import { getAuthSession } from "@/lib/auth"
 import { redirect } from 'next/navigation'
-import ExcelButtonFile from "@/components/button/excelButtonFile"
 import { copyInvitation, getInvitation } from "@/src/query/invitation.query";
 
 export default async function Page() {
@@ -155,9 +154,6 @@ export default async function Page() {
                                     <TabsTrigger value="isPending">En attente</TabsTrigger>
                                     <TabsTrigger value="isApproved">Finalisé</TabsTrigger>
                                 </TabsList>
-                                <div className="ml-auto flex items-center gap-2">
-                                    <ExcelButtonFile query="projects" />
-                                </div>
                             </div>
                             <TabsContent value="isOpen">
                                 <Card x-chunk="dashboard-05-chunk-3">

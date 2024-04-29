@@ -1,46 +1,33 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { File } from "lucide-react"
-import { newExcelFile } from "@/src/features/actions/excel/excel.actions";
-import { toast } from "sonner"
-import { useRouter } from 'next/navigation'
-
-export default function ExcelButtonFile({ query }: { query: string }) {
-    const router = useRouter()
-
+import { File } from "lucide-react";
+import XLSX from "xlsx";
+export function ButtonExportXlsx({ data }: { data: any[] }) {
     const handleClick = async () => {
-        const action = await newExcelFile({ query })
-        toast(`Traitement en cours`, {
-            description: new Date().toLocaleDateString(),
-            action: {
-                label: "fermer",
-                onClick: () => console.log("fermeture"),
-            },
-        })
-        if (action?.serverError) {
-            toast(`${action.serverError}`, {
-                description: new Date().toLocaleDateString(),
-                action: {
-                    label: "fermer",
-                    onClick: () => console.log("fermeture"),
-                },
-            })
-        }
 
-        if (action.data) {
-            router.push(action.data)
-        }
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "data");
+        XLSX.writeFile(wb, "dsn_extraction.xlsx");
     }
+
     return (
-        <Button
-            size="sm"
-            variant="outline"
-            className="h-7 gap-1 text-sm"
-            onClick={handleClick}
-        >
-            <File className="size-3.5" />
-            <span className="sr-only sm:not-sr-only">Export Excel</span>
-        </Button>
+        <div className="gap-4  px-4">
+
+            <Button
+                size="sm"
+                variant="outline"
+                className="h-7 gap-1 text-sm"
+                onClick={handleClick}
+            >
+                <File className="size-3.5" />
+                <span className="sr-only sm:not-sr-only">Exporter au format Excel</span>
+            </Button>
+
+
+        </div>
+
     )
+
 
 }

@@ -2,7 +2,6 @@ import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { Project } from "@/src/classes/project"
-import { Slash } from "lucide-react"
 import { notFound } from "next/navigation"
 import {
     Breadcrumb,
@@ -12,27 +11,40 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Security } from "@/src/classes/security"
+import { ProcessusFactory } from "@/src/classes/processusFactory";
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const project = new Project(params.projectSlug)
     const projectExist = await project.projectExist()
     if (!projectExist) {
         notFound()
     }
+    const projectDetail = await project.projectDetails()
     const security = new Security()
     await security.isAuthorizedInThisProject(params.projectSlug)
 
     const processusList = await project.processus()
-    const processus = processusList.map((processus) => {
+    const processus = await Promise.all(processusList.map(async (processus) => {
+        const processusFactory = ProcessusFactory.create({
+            processusSlug: processus.processusSlug,
+            clientId: projectDetail.clientId,
+            projectLabel: projectDetail.label,
+            sofwareLabel: projectDetail.softwareLabel
+
+        });
+        const extraction = await processusFactory.extraction()
+        const count = extraction.datas.length
         return (
             {
                 clientSlug: params.clientSlug,
                 projectSlug: params.projectSlug,
                 slug: processus.processusSlug,
                 label: processus.label,
-                description: processus.description,
-                status: processus.status
+                data: extraction.datas,
+                count: count
+
             })
-    })
+    }).flat(1))
+    console.log(processus)
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -41,21 +53,15 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         <BreadcrumbItem>
                             <BreadcrumbLink href="/home">Accueil</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/`}>Projets</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{params.projectSlug}</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator>
-                            <Slash />
-                        </BreadcrumbSeparator>
+                        <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus`}>Processus</BreadcrumbLink>
                         </BreadcrumbItem>
@@ -63,7 +69,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <ContainerDataTable>
-                <DataTable columns={columns} data={processus.flat(1)} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" />
+                <DataTable columns={columns} data={processus} inputSearch="label" inputSearchPlaceholder="Chercher par libellé" />
             </ContainerDataTable>
         </Container>
     )

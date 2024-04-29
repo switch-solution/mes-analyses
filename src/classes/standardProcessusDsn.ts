@@ -476,7 +476,7 @@ export class StandardProcessusDsn implements IProcessus {
     }
     async extraction(): Promise<{ datas: {}[]; archived: {}[]; inputs: { zodLabel: string; label: string }[] }> {
         try {
-            throw new Error("Method not implemented.")
+            return { datas: [], archived: [], inputs: [] }
         } catch (err) {
             console.error(err)
             throw new Error('Erreur lors de l\'extraction')

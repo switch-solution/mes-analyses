@@ -1,15 +1,15 @@
 "use client"
 import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
-import ExcelButtonProcessusFile from "@/components/button/excelButtonProcessus"
+import { ButtonExportXlsx } from "@/components/button/excelButtonFile"
 
 export type Processus = {
     projectSlug: string
     clientSlug: string
     slug: string
+    count: number
     label: string | null
-    description: string | null
-    status: string | null
+    data: {}[]
 
 }
 
@@ -22,12 +22,14 @@ export const columns: ColumnDef<Processus>[] = [
         }
     },
     {
-        id: "extract",
+        id: "excel",
         header: "Extraction Excel",
         cell: ({ row }) => {
+            const data = row.original
+
             const processus = row.original
             return (
-                <ExcelButtonProcessusFile clientSlug={processus.clientSlug} projectSlug={processus.projectSlug} slug={processus.slug} />
+                <ButtonExportXlsx data={data.data} />
             )
         },
     },
