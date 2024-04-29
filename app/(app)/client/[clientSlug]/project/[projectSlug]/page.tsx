@@ -64,6 +64,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const processusPending = processus.filter((processus) => processus.isPending === true)
     const processusInProgress = processus.filter((processus) => processus.isProgress === true)
     const countUser = (await project.getUsers()).length
+    const countExtraction = (await project.processus()).length
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -110,12 +111,12 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                             </Card>
                             <Card x-chunk="dashboard-05-chunk-1">
                                 <CardHeader className="pb-2">
-                                    <CardDescription>Utilisateurs</CardDescription>
+                                    <CardDescription>Document joint</CardDescription>
                                     <CardTitle className="flex justify-center text-4xl">{countUser}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-xs text-muted-foreground">
-                                        <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/user`}>Consulter la liste des utilisateurs</Link>
+                                        <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/file`}>Consulter les documents</Link>
                                     </div>
                                 </CardContent>
                                 <CardFooter>
@@ -124,7 +125,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                             <Card x-chunk="dashboard-05-chunk-2">
                                 <CardHeader className="pb-2">
                                     <CardDescription>Extraction disponible</CardDescription>
-                                    <CardTitle className="flex justify-center text-4xl">50</CardTitle>
+                                    <CardTitle className="flex justify-center text-4xl">{countExtraction}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-xs text-muted-foreground">

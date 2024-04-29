@@ -7,14 +7,7 @@ import { Button } from "@/components/ui/button"
 import { updateProject } from "@/src/features/actions/project/project.action"
 import { ProjectEditSchema } from "@/src/helpers/definition";
 import { ButtonLoading } from "@/components/ui/button-loader";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+
 import {
     Form,
     FormControl,
@@ -80,105 +73,96 @@ export default function EditProject({ clientSlug, projectSlug, project }: {
         }
     }
     return (
-        <Card x-chunk="dashboard-05-chunk-3">
-            <CardHeader className="px-7">
-                <CardTitle>Formulaire</CardTitle>
-                <CardDescription>
-                    Edition de votre projet
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                        <FormField
-                            control={form.control}
-                            name="clientSlug"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Input type="hidden" required {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
 
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="projectSlug"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Input type="hidden" required {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField
+                    control={form.control}
+                    name="clientSlug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input type="hidden" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
 
-                            )}
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="projectSlug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input type="hidden" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
 
-                        />
-                        <FormField
-                            control={form.control}
-                            name="label"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Nom de votre projet</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Mon nouveau projet" readOnly disabled required {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                    )}
 
-                            )}
+                />
+                <FormField
+                    control={form.control}
+                    name="label"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Nom de votre projet</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Mon nouveau projet" readOnly disabled required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
 
-                        />
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Description de votre projet</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Mon nouveau projet" required {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                    )}
 
-                            )}
+                />
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Description de votre projet</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Mon nouveau projet" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+
+                    )}
 
 
-                        />
-                        <FormField
-                            control={form.control}
-                            name="status"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select a verified email to display" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="Actif">Actif</SelectItem>
-                                            <SelectItem value="En attente">En attente</SelectItem>
-                                            <SelectItem value="Archivé">Archivé</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                />
+                <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a verified email to display" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Actif">Actif</SelectItem>
+                                    <SelectItem value="En attente">En attente</SelectItem>
+                                    <SelectItem value="Archivé">Archivé</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
 
-                        {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
+                {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 
-                    </form>
-                </Form>
-            </CardContent>
-        </Card>
+            </form>
+        </Form>
 
 
     )

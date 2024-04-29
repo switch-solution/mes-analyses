@@ -34,14 +34,7 @@ import { createSalary } from "@/src/features/actions/project_data/project_salary
 import { createTableSeniority } from "@/src/features/actions/project_data/project_tableSeniority.actions"
 import { Form } from "@/components/ui/form"
 import type { getSelectOptions } from "@/src/query/form.query";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+
 import { createRateAt } from "@/src/features/actions/project_data/project_rateAt.actions";
 export default function CreateDynamicForm({ clientSlug, projectSlug, processusSlug, inputs, options }: {
     clientSlug: string, projectSlug: string, processusSlug: string, inputs: TypeDynamicInput, options: getSelectOptions,
@@ -250,22 +243,12 @@ export default function CreateDynamicForm({ clientSlug, projectSlug, processusSl
         }
     }
     return (
-        <Card x-chunk="dashboard-05-chunk-3">
-            <CardHeader className="px-7">
-                <CardTitle>Formulaire</CardTitle>
-                <CardDescription>
-                    Table ancienneté code
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className='gap-4 space-y-8 p-4'>
-                        <DynamicField inputs={inputs} form={form} options={options} />
-                        {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
-                    </form>
-                </Form >
-            </CardContent>
-        </Card>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='gap-4 space-y-8 p-4'>
+                <DynamicField inputs={inputs} form={form} options={options} />
+                {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
+            </form>
+        </Form >
 
     )
 

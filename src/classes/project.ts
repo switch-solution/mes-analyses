@@ -352,6 +352,26 @@ export class Project {
         }
     }
 
+    async files() {
+        try {
+            const project = await this.projetDetail()
+            if (!project) {
+                throw new Error('Projet introuvable')
+            }
+            const files = await prisma.project_Attachment.findMany({
+                where: {
+                    projectLabel: project?.label,
+                    softwareLabel: project?.softwareLabel,
+                    clientId: project?.clientId
+                }
+            })
+            return files
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la récupération des fichiers du projet')
+        }
+    }
+
 
 
 }

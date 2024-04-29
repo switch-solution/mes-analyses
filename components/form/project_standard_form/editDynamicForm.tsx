@@ -22,14 +22,6 @@ import { updateEstablishmentBank } from "@/src/features/actions/project_data/pro
 import { updateFreeZone } from "@/src/features/actions/project_data/project_freeZone.actions";
 import { updateSalary } from "@/src/features/actions/project_data/project_salary.actions";
 import { updateContribution } from "@/src/features/actions/project_data/project_contribution.actions";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
 import type { getSelectOptions } from "@/src/query/form.query";
 import { updateNiveau } from "@/src/features/actions/project_data/project_niveau.actions";
 import { updateBank } from "@/src/features/actions/project_data/project_bank.actions";
@@ -199,23 +191,12 @@ export default function EditDynamicForm({ clientSlug, projectSlug, processusSlug
     }
 
     return (
-        <Card x-chunk="dashboard-05-chunk-3">
-            <CardHeader className="px-7">
-                <CardTitle>Formulaire</CardTitle>
-                <CardDescription>
-                    Table ancienneté code
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-
-                < Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-                        <DynamicField inputs={inputs} form={form} options={options} disabled={disabled} />
-                        {disabled ? undefined : loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
-                    </form>
-                </Form >
-            </CardContent>
-        </Card>
+        < Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+                <DynamicField inputs={inputs} form={form} options={options} disabled={disabled} />
+                {disabled ? undefined : loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
+            </form>
+        </Form >
 
     )
 

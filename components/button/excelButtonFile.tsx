@@ -13,7 +13,6 @@ export function ButtonExportXlsx({ data }: { data: any[] }) {
 
     return (
         <div className="gap-4  px-4">
-
             <Button
                 size="sm"
                 variant="outline"
@@ -23,8 +22,6 @@ export function ButtonExportXlsx({ data }: { data: any[] }) {
                 <File className="size-3.5" />
                 <span className="sr-only sm:not-sr-only">Exporter au format Excel</span>
             </Button>
-
-
         </div>
 
     )

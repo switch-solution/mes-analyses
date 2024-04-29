@@ -418,6 +418,23 @@ model UserProject {
   @@id([userId, projectClientId, projectLabel, projectSoftwareLabel])
 }
 
+model Project_Attachment {
+  clientId           String
+  projectLabel       String
+  softwareLabel      String
+  url                String
+  downloadUrl        String
+  pathname           String
+  contentType        String?
+  contentDisposition String
+  updatedAt          DateTime @updatedAt
+  createdAt          DateTime @default(now())
+  createdBy          String
+  Project            Project  @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel], onDelete: Cascade)
+
+  @@id([clientId, softwareLabel, projectLabel, url])
+}
+
 model Project {
   clientId              String
   client                Client                  @relation(fields: [clientId], references: [siren], onDelete: Cascade)
@@ -450,6 +467,7 @@ model Project {
   Project_Contribution  Project_Contribution[]
   Project_Salary        Project_Salary[]
   Project_Paid_Leave    Project_Paid_Leave[]
+  Project_Attachment    Project_Attachment[]
 
   @@id([clientId, softwareLabel, label])
 }

@@ -196,9 +196,10 @@ export const ProfilEditCgvSchema = z.object({
 
 
 export const UploadFileSchema = zfd.formData({
-    clientSlug: zfd.text(z.string({ required_error: "Le client est obligatoire." })),
-    projectSlug: zfd.text(z.string({ required_error: "Le projet est obligatoire." })),
-    file: zfd.file()
+    clientSlug: zfd.text(z.string({ required_error: 'clientSlug est obligatoire' })),
+    projectSlug: zfd.text(z.string({ required_error: 'projectSlug est obligatoire' })),
+    label: zfd.text(z.string()),
+    file: zfd.file(),
 })
 
 export const StandardComposantSchema = z.object({

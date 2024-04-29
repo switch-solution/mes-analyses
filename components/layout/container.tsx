@@ -1,3 +1,11 @@
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 export const Container = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -31,7 +39,17 @@ export const ContainerDataTable = ({ children }: { children: React.ReactNode }) 
 export const ContainerForm = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className="gap-4  px-4">
-            {children}
+            <Card x-chunk="dashboard-05-chunk-3">
+                <CardHeader className="px-7">
+                    <CardTitle>Formulaire</CardTitle>
+                    <CardDescription>
+                        Table ancienneté code
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {children}
+                </CardContent>
+            </Card>
         </div>
 
     )
