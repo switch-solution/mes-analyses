@@ -1,35 +1,33 @@
 "use client";
 import { useState } from "react"
-import { dsnData } from "@/src/features/actions/dsn/dsn.actions"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import type { getDsnStructure } from "@/src/query/dsn.query";
-import type { Row } from "@/src/features/actions/dsn/dsn.actions";
+import { DsnParser } from "@fibre44/dsn-parser";
 import { toast } from "sonner"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-const getRandomInt = (min: number, max: number) => {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+import { dsnData } from "@/src/features/actions/dsn/dsn.actions"
+type Dsn = {
+    dsnId: string,
+    dsnRows: {
+        id: string,
+        value: string,
+
+    }[],
+
 }
 
-
 export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, processusSlug }: { clientSlug: string, projectSlug: string, dsnStructure: getDsnStructure, processusSlug: string }) {
+
+    const addDSnData: Dsn[] = []
+
     const [loading, setLoading] = useState(false)
-    const dsnDataWithOption = dsnData.bind(null, projectSlug, clientSlug, processusSlug)
+
     const parseFile = async (file: File, random: string) => {
         return new Promise((resolve, reject) => {
             const dsnRows: any = []
-            const dsnRowsObject: { id: string, value: string, label: string }[] = []
+            const dsnRowsObject: { id: string, value: string }[] = []
             const reader = new FileReader()
             reader.readAsText(file, 'ISO-8859-1');
             reader.onload = function (e: any) {
@@ -40,27 +38,16 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
                     const text = e.target.result as string; //Une structure DSN ressemble à ca S10.G00.00.003,'11.0.9.0.2'
                     const lines = text.split('\n'); //On split le texte en lignes
                     dsnRows.push(...lines);
-                }
-                //On utilisera un set pour éviter les doublons
-                const setRow = new Set();
-                for (let row of dsnRows) {
-                    //On split la structure et la donnée
-                    let lineSplit = row.split(`,'`);
-                    let code = lineSplit.at(0)
-                    let value = lineSplit.at(1).replace(/'/g, "").replace(/\r/g, "")
-                    let codeExist = dsnStructure.find((input) => input.id === code)
-                    let set = setRow.has(value)
-                    if (codeExist && !set) {
-                        let object = {
-                            id: codeExist.id,
-                            label: codeExist.label,
-                            value: value,
-                            random
-                        }
-                        dsnRowsObject.push(object)
-                        setRow.add(value)
+                    for (const row of dsnRows) {
+                        let lineSplit = row.split(`,'`) //On split chaque ligne en colonnes
+                        let id = lineSplit.at(0)
+                        let value = lineSplit.at(1).replace(/'/g, "").replace(/\r/g, "")
+                        dsnRowsObject.push({
+                            id,
+                            value
+                        });
                     }
-                }//Fin boucle du fichier
+                }
                 resolve(dsnRowsObject);
 
             }//Fin boucle lecture
@@ -69,26 +56,66 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
             };
         })
     }
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setLoading(true)
         const dsn = (e.target as HTMLFormElement).elements[0] as HTMLInputElement
         const files = dsn.files ? Array.from(dsn.files) : []
-        const dsnParse = []
 
         for (let file of files) {
-            let random = getRandomInt(1, 99999999999999)
-            let parse = await parseFile(file, random.toString())
-            dsnParse.push(parse)
+            const random = Math.random().toString(36).substring(7)
+            const dsnRows = await parseFile(file, random) as { id: string, value: string }[]
+            addDSnData.push({ dsnId: random, dsnRows: dsnRows })
         }
-        //Suppression des doublons
-        const flatArray = dsnParse.flat(1);
-        const set = new Set();
-        const dsnUnique: Row[] = [...flatArray] as Row[];
 
         try {
-            await dsnDataWithOption(dsnUnique);
+            const extraction = await extractionData(addDSnData)
+            const datas = {
+                processusSlug: processusSlug,
+                clientSlug: clientSlug,
+                projectSlug: projectSlug,
+                ...extraction
+            }
+            const societyList = extraction.societyList.map((society) => ({
+                siren: society.siren,
+                apen: society.apen,
+                address1: society.adress1,
+                zipCode: society.zipCode,
+                city: society.city,
+            }))
+            const establishmentList = extraction.establishmentList.map((establishment) => ({
+                siren: establishment.siren,
+                nic: establishment.establishment.nic,
+                ape: establishment.establishment.apet,
+                address1: establishment.establishment.adress1,
+                postalCode: establishment.establishment.zipCode,
+                city: establishment.establishment.city,
+                legalStatus: establishment.establishment.legalStatus
+            }))
+            const bankList = extraction.bankList.map((bank) => ({
+                contributionFundBIC: bank.contributionFundBIC,
+                contributionFundIBAN: bank.contributionFundIBAN
+            }))
+
+            const action = await dsnData({
+                clientSlug: clientSlug,
+                projectSlug: projectSlug,
+                processusSlug: processusSlug,
+                societyList,
+                establishmentList,
+                bankList
+            });
+            if (action?.serverError) {
+                setLoading(false);
+                toast(`${action.serverError}`, {
+                    description: new Date().toLocaleDateString(),
+                    action: {
+                        label: "fermer",
+                        onClick: () => console.log("fermeture"),
+                    },
+                });
+            }
+
         } catch (err) {
             setLoading(false);
             toast(`${err}`, {
@@ -103,23 +130,54 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
         setLoading(false);
 
     }
+
+    const extractionData = async (dsnData: Dsn[]) => {
+        const societySet = new Set<string>()
+        const establishmentSet = new Set<string>()
+        const bankSet = new Set<string>()
+        const societyList = []
+        const establishmentList = []
+        const bankList = []
+        for (const dsn of dsnData) {
+            const parser = new DsnParser(dsn.dsnRows)
+            const society = parser.society
+            const establishment = parser.establishment
+            const bank = parser.bank
+            if (!societySet.has(society.siren)) {
+                societySet.add(society.siren)
+                societyList.push(society)
+            }
+            if (!establishmentSet.has(establishment.nic)) {
+                establishmentSet.add(establishment.nic)
+                establishmentList.push({
+                    siren: society.siren,
+                    establishment
+                })
+            }
+
+            for (const bankObject of bank) {
+                if (!bankSet.has(bankObject.contributionFundIBAN)) {
+                    bankSet.add(bankObject.contributionFundIBAN)
+                    bankList.push(bankObject)
+                }
+            }
+
+        }
+
+        return {
+            societyList,
+            establishmentList,
+            bankList
+        }
+
+    }
+
+
     return (
-        <Card x-chunk="dashboard-05-chunk-3">
-            <CardHeader className="px-7">
-                <CardTitle>Import DSN</CardTitle>
-                <CardDescription>
-                    Importer vos fichiers DSN
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleSubmit}>
-                    <Label htmlFor="dsn">DSN</Label>
-                    <Input id="dsn" name="dsn" type="file" accept=".dsn" required multiple />
-                    {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
-                </form>
-
-
-            </CardContent>
-        </Card>
+        <form onSubmit={handleSubmit}>
+            <Label htmlFor="dsn">DSN</Label>
+            <Input id="dsn" name="dsn" type="file" accept=".dsn" required multiple />
+            {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
+        </form>
     )
 }
