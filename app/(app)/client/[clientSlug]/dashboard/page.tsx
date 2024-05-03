@@ -8,7 +8,6 @@ import {
     BreadcrumbList,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { projectProcesExtraction, projectProcesExtractionDetail } from "@/src/query/extraction.query";
 import ProjectProcessusChart from "@/components/chart/projectProcessusChart";
 export default async function Page({ params }: { params: { clientSlug: string } }) {
     const security = new Security();
@@ -16,8 +15,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     if (!user) {
         throw new Error('L\'utilisateur n\'est pas autorisé dans ce projet')
     }
-    const projectsData = await projectProcesExtraction(user.id)
-    const projectsProcessus = await projectProcesExtractionDetail(user.id)
+
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -37,10 +35,8 @@ export default async function Page({ params }: { params: { clientSlug: string } 
             <section className="my-4 flex flex-col justify-between gap-3 px-4 md:grid md:grid-cols-2">
                 <div className="ml-2 flex h-[300px] w-full flex-col items-center rounded">
                     <span>Avancement des projets</span>
-                    <ProjectChart data={projectsData} />
                 </div>
                 <div className="ml-2 flex h-[300px] w-full flex-col items-center rounded">
-                    <ProjectProcessusChart data={projectsProcessus} />
 
                 </div>
                 <div className="ml-2 flex h-[300px] w-full flex-col items-center rounded">

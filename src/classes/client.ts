@@ -226,11 +226,7 @@ export class Client {
                     clientId: client?.siren,
                 }
             })
-            const processus = await prisma.software_Processus.findMany({
-                where: {
-                    clientId: client?.siren
-                }
-            })
+
             const users = await prisma.userSoftware.findMany({
                 where: {
                     softwareClientId: client?.siren
@@ -240,12 +236,10 @@ export class Client {
             for (const software of softwares) {
                 let label = software.label
                 let countProject = projects.filter(project => project.softwareLabel === software.label).length
-                let countProcessus = processus.filter(processus => processus.softwareLabel === software.label).length
                 let countUser = users.filter(user => user.softwareLabel === software.label).length
                 softwareDataTable.push({
                     label,
                     countProject,
-                    countProcessus,
                     countUser
                 })
             }
@@ -289,7 +283,7 @@ export class Client {
         }
     }
 
-    async getProjects(status: string) {
+    async getProjects() {
         try {
             const projectsList = await prisma.client.findMany({
                 where: {
@@ -297,14 +291,8 @@ export class Client {
 
                 },
                 include: {
-                    Project: {
-                        where: {
-                            status
-                        },
-                        include: {
-                            Project_Processus: true
-                        }
-                    }
+                    Project: true
+
                 }
             })
             const projects = projectsList.map((project) => {

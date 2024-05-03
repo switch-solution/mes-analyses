@@ -36,15 +36,28 @@ export const ContainerDataTable = ({ children }: { children: React.ReactNode }) 
     )
 }
 
-export const ContainerForm = ({ children }: { children: React.ReactNode }) => {
+export const ContainerPage = ({ title, children }: { title: string, children: React.ReactNode }) => {
     return (
         <div className="gap-4  px-4">
             <Card x-chunk="dashboard-05-chunk-3">
                 <CardHeader className="px-7">
-                    <CardTitle>Formulaire</CardTitle>
-                    <CardDescription>
-                        Table ancienneté code
-                    </CardDescription>
+                    <CardTitle>{title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {children}
+                </CardContent>
+            </Card>
+        </div>
+
+    )
+}
+
+export const ContainerForm = ({ title, children }: { title?: string, children: React.ReactNode }) => {
+    return (
+        <div className="gap-4  px-4">
+            <Card x-chunk="dashboard-05-chunk-3">
+                <CardHeader className="px-7">
+                    <CardTitle>{title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {children}

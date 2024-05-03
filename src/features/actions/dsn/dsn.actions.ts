@@ -45,38 +45,7 @@ export const dsnData = authentifcationActionUserIsAuthorizeToProject(dsnDataSche
         throw new ActionError("Le projet n'existe pas")
     }
     try {
-        const countSociety = await prisma.project_Society.count()
-        await prisma.project_Society.createMany({
-            data: societyList.map((society) => ({
-                clientId: clientId,
-                projectLabel,
-                softwareLabel,
-                siren: society.siren,
-                ape: society.apen,
-                address1: society.address1,
-                postalCode: society.zipCode,
-                city: society.city,
-                slug: `Society-${countSociety}`
-            }))
 
-        })
-        const countEstablishment = await prisma.project_Establishment.count()
-
-        await prisma.project_Establishment.createMany({
-            data: establishmentList.map((establishment) => ({
-                clientId: clientId,
-                projectLabel,
-                softwareLabel,
-                nic: establishment.nic,
-                ape: establishment.ape,
-                societyId: establishment.siren,
-                address1: establishment.address1,
-                postalCode: establishment.postalCode ? establishment.postalCode : "",
-                city: establishment.city,
-                legalStatus: establishment.legalStatus ? establishment.legalStatus : "",
-                slug: `Establishment-${countEstablishment}`
-            }))
-        })
     } catch (err: unknown) {
         console.error(err)
         throw new ActionError(err as string)

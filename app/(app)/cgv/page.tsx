@@ -41,7 +41,7 @@ export default async function Page() {
                     </BreadcrumbList>
                 </Breadcrumb>
             </ContainerBreadCrumb>
-            <ContainerForm>
+            <ContainerForm title="Vaidation des CGV">
                 <Card x-chunk="dashboard-05-chunk-3">
                     <CardHeader className="px-7">
                         <CardTitle>Edition CGV</CardTitle>

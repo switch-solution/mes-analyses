@@ -54,11 +54,6 @@ export class Editor {
                     softwareLabel: this.softwareActiveLabel
                 }
             });
-            const countProcessus = await prisma.software_Processus.count({
-                where: {
-                    softwareLabel: this.softwareActiveLabel
-                }
-            })
             const countAbsence = await prisma.software_Absence.count({
                 where: {
                     softwareLabel: this.softwareActiveLabel
@@ -76,7 +71,6 @@ export class Editor {
             })
             return {
                 countSetting,
-                countProcessus,
                 countAbsence,
                 countAccumulation,
                 countItems

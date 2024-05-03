@@ -46,7 +46,6 @@ import {
 } from "@/components/ui/tabs"
 import { User } from "@/src/classes/user"
 import { Security } from "@/src/classes/security"
-import AlertApproveProcessus from "@/components/alert/alertApproveProcessus"
 import { notFound } from "next/navigation"
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const project = new Project(params.projectSlug)
@@ -59,12 +58,8 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const user = new User(security.userId)
     const client = await user.getMyClientActive()
     const projectDetails = await project.projectDetails()
-    const processus = await project.processus()
-    const processusOpen = processus.filter((processus) => processus.isOpen === true)
-    const processusPending = processus.filter((processus) => processus.isPending === true)
-    const processusInProgress = processus.filter((processus) => processus.isProgress === true)
     const countUser = (await project.getUsers()).length
-    const countExtraction = (await project.processus()).length
+    const { isApproved, isProgress, isPending, isActive } = await project.pages()
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -104,7 +99,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                         {projectDetails?.description}
                                     </CardDescription>
                                 </CardHeader>
-
                                 <CardFooter>
                                     <Button><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/edit`}>Editer le projet</Link></Button>
                                 </CardFooter>
@@ -125,7 +119,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                             <Card x-chunk="dashboard-05-chunk-2">
                                 <CardHeader className="pb-2">
                                     <CardDescription>Extraction disponible</CardDescription>
-                                    <CardTitle className="flex justify-center text-4xl">{countExtraction}</CardTitle>
+                                    <CardTitle className="flex justify-center text-4xl">{0}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-xs text-muted-foreground">
@@ -136,10 +130,10 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                 </CardFooter>
                             </Card>
                         </div>
-                        <Tabs defaultValue="isOpen">
+                        <Tabs defaultValue="isActive">
                             <div className="flex items-center">
                                 <TabsList>
-                                    <TabsTrigger value="isOpen">Actif</TabsTrigger>
+                                    <TabsTrigger value="isActive">Actif</TabsTrigger>
                                     <TabsTrigger value="isPending">En attente</TabsTrigger>
                                     <TabsTrigger value="isProgress">En cours de validation</TabsTrigger>
                                     <TabsTrigger value="isFinish">Validé</TabsTrigger>
@@ -156,7 +150,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                     </Button>
                                 </div>
                             </div>
-                            <TabsContent value="isOpen">
+                            <TabsContent value="isActive">
                                 <Card x-chunk="dashboard-05-chunk-3">
                                     <CardHeader className="px-7">
                                         <CardTitle>Etape</CardTitle>
@@ -184,31 +178,17 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {
-                                                    processusOpen.map((processus) => (
-                                                        <TableRow key={processus.id} className="bg-accent">
-                                                            <TableCell>
-                                                                <div className="font-medium">{processus.label}</div>
-                                                            </TableCell>
-                                                            <TableCell className="hidden md:table-cell">
-                                                                {processus.createdAt.toLocaleDateString()}
-                                                            </TableCell>
-                                                            <TableCell className="hidden md:table-cell">
-                                                                <Link href={`/client/${client.clientSlug}/project/${params.projectSlug}/processus/${processus.processusSlug}/pdf`}>
-                                                                    <Printer />
-                                                                </Link>
-                                                            </TableCell>
-                                                            <TableCell className="hidden md:table-cell">
-                                                                <Link href={`/client/${client.clientSlug}/project/${params.projectSlug}/processus/${processus.processusSlug}`}>
-                                                                    <ArrowRight />
-                                                                </Link>
-                                                            </TableCell>
-                                                            <TableCell className="hidden md:table-cell">
-                                                                <AlertApproveProcessus processusSlug={processus.processusSlug} clientSlug={client.clientSlug} projectSlug={params.projectSlug} />
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))
-                                                }
+                                                {isActive.map((row) => {
+                                                    return (<TableRow key={row.pageId}>
+                                                        <TableCell className="font-medium">{row.Page.label}</TableCell>
+                                                        <TableCell>{row.createdAt.toLocaleDateString()}</TableCell>
+                                                        <TableCell>{'Imprimer'}</TableCell>
+                                                        <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.Page.slug}`}><ArrowRight /></Link></TableCell>
+                                                        <TableCell className="text-right">{'valider'}</TableCell>
+                                                    </TableRow>
+                                                    )
+                                                })}
+
                                             </TableBody>
                                         </Table>
                                     </CardContent>
@@ -240,27 +220,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                             </TableHeader>
                                             <TableBody>
                                                 {
-                                                    processusPending.map((processus) => (
-                                                        <TableRow key={processus.id} className="bg-accent">
-                                                            <TableCell>
-                                                                <div className="font-medium">{processus.label}</div>
-                                                            </TableCell>
-                                                            <TableCell className="hidden sm:table-cell">
-                                                                <Badge className="text-xs" variant="secondary">
-                                                                    {processus.status}
-                                                                </Badge>
-                                                            </TableCell>
-                                                            <TableCell className="hidden md:table-cell">
-                                                                {processus.createdAt.toLocaleDateString()}
-                                                            </TableCell>
-                                                            <TableCell className="hidden md:table-cell">
-                                                                <Link href={`/client/${client.clientSlug}/project/${params.projectSlug}/processus/${processus.processusSlug}`}>
-                                                                    <ArrowRight />
-                                                                </Link>
-                                                            </TableCell>
-                                                        </TableRow>
 
-                                                    ))
                                                 }
                                             </TableBody>
                                         </Table>
@@ -293,27 +253,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                             </TableHeader>
                                             <TableBody>
                                                 {
-                                                    processusInProgress.map((processus) => (
-                                                        <TableRow key={processus.id} className="bg-accent">
-                                                            <TableCell>
-                                                                <div className="font-medium">{processus.label}</div>
-                                                            </TableCell>
-                                                            <TableCell className="hidden sm:table-cell">
-                                                                <Badge className="text-xs" variant="secondary">
-                                                                    {processus.status}
-                                                                </Badge>
-                                                            </TableCell>
-                                                            <TableCell className="hidden md:table-cell">
-                                                                {processus.createdAt.toLocaleDateString()}
-                                                            </TableCell>
-                                                            <TableCell className="hidden md:table-cell">
-                                                                <Link href={`/client/${client.clientSlug}/project/${params.projectSlug}/processus/${processus.processusSlug}`}>
-                                                                    <ArrowRight />
-                                                                </Link>
-                                                            </TableCell>
-                                                        </TableRow>
 
-                                                    ))
                                                 }
                                             </TableBody>
                                         </Table>

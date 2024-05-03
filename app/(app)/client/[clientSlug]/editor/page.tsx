@@ -63,7 +63,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     const softwareActive = await user.getMySoftwareActive()
     const editor = new Editor(clientActive.clientId, softwareActive.softwareLabel)
     const { countDsn, countIdcc, countOps, countRateAt } = await editor.getCountStandardElement()
-    const { countSetting, countAbsence, countAccumulation, countItems, countProcessus } = await editor.getCountSoftwareElement()
+    const { countSetting, countAbsence } = await editor.getCountSoftwareElement()
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -230,9 +230,9 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                                     <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/setting`}><ArrowRight /></Link></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell className="font-medium">Zone de texte</TableCell>
+                                                    <TableCell className="font-medium">Pages</TableCell>
                                                     <TableCell>10</TableCell>
-                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/textarea`}><ArrowRight /></Link></TableCell>
+                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/page`}><ArrowRight /></Link></TableCell>
                                                 </TableRow>
                                                 <TableRow>
                                                     <TableCell className="font-medium">Absences</TableCell>
@@ -253,11 +253,6 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                                     <TableCell className="font-medium">Rubriques</TableCell>
                                                     <TableCell>10</TableCell>
                                                     <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/item}`}><ArrowRight /></Link></TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell className="font-medium">Processus</TableCell>
-                                                    <TableCell>{countProcessus}</TableCell>
-                                                    <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/processus`}><ArrowRight /></Link></TableCell>
                                                 </TableRow>
 
                                             </TableBody>

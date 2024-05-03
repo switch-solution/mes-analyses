@@ -9,7 +9,6 @@ import Link from "next/link"
 export type ClientSoftware = {
     label: string | null
     countProject: number | null
-    countProcessus: number | null
     countUser: number | null
 }
 import {
@@ -31,10 +30,6 @@ export const columns: ColumnDef<ClientSoftware>[] = [
     {
         accessorKey: "countProject",
         header: "Nombre de projets",
-    },
-    {
-        accessorKey: "countProcessus",
-        header: "Nombre de formulaires",
     },
     {
         accessorKey: "countUser",

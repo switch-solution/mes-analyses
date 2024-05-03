@@ -28,7 +28,6 @@ export class Software {
         userId: string,
         clientId: string
     }) {
-        const processus = await this.processus()
         const defaultSetting = await prisma.default_Setting.findMany()
         const software = await prisma.software.create({
             data: {
@@ -45,17 +44,7 @@ export class Software {
                         isActivated: true,
                     }
                 },
-                Software_Processus: {
-                    create: processus.map((processus) => {
-                        return {
-                            processusId: processus.id,
-                            order: processus.order,
-                            processusVersion: processus.version,
-                            createdBy: userId,
-                            isArchived: processus.isArchived
-                        }
-                    })
-                },
+
                 Software_Setting: {
                     create: defaultSetting.map((setting) => {
                         return {
@@ -74,17 +63,6 @@ export class Software {
     }
 
 
-    private async processus() {
-        try {
-            const processus = await prisma.processus.findMany()
-            return processus
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la récupération des processus.`)
-        }
-
-
-    }
 
     async softwareLabelExistForThisClient(label: string, clientId: string) {
         const softwareLabelExist = await prisma.software.findFirst({
@@ -96,46 +74,7 @@ export class Software {
         return softwareLabelExist
     }
 
-    async getProcessus() {
-        try {
-            const processusList = await prisma.software.findMany({
-                where: {
-                    slug: this.softwareSlug
-                },
-                include: {
-                    Software_Processus: {
-                        include: {
-                            Processus: true
 
-                        },
-                        orderBy: {
-                            order: 'asc'
-                        }
-                    }
-                }
-
-            })
-            const processus = processusList.map((software) => {
-                return software.Software_Processus.map((processus) => {
-                    return {
-                        id: processus.Processus.id,
-                        label: processus.Processus.label,
-                        version: processus.processusVersion,
-                        slug: processus.Processus.slug,
-                        order: processus.order
-                    }
-                })
-            }).flat(1)
-
-            return processus
-
-        } catch (err) {
-            console.error(err)
-            throw new Error(`Une erreur est survenue lors de la récupération des processus.`)
-        }
-
-
-    }
 
 
 

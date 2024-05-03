@@ -23,6 +23,13 @@ export class Project {
     }) {
         try {
             const slug = await this.makeSlug()
+            const pages = await prisma.page.findMany({
+                where: {
+                    softwareLabel: softwareLabel,
+                    clientId: clientId,
+                    isApproved: true
+                }
+            })
             const project = await prisma.project.create({
                 data: {
                     label: label,
@@ -42,6 +49,16 @@ export class Project {
                             role
                         }
                     },
+                    Project_Page: {
+                        create: pages.map(page => {
+                            return {
+                                pageId: page.id,
+                                order: page.order,
+                                pageVersion: page.version,
+                                createdBy: userId
+                            }
+                        })
+                    }
                 },
             })
             await this.initProject({
@@ -72,65 +89,9 @@ export class Project {
     }) {
         try {
 
-            const softwareProcessus = await prisma.software_Processus.findMany({
-                where: {
-                    softwareLabel: softwareLabel,
-                    clientId: clientId,
-                    isArchived: false
-                },
-                include: {
-                    Processus: {
-                        include: {
-                            Form: {
-                                include: {
-                                    Form_Input: true
-                                }
-                            }
-                        },
-                    }
-                },
-                orderBy: {
-                    order: 'asc'
-                }
-            })
 
-            let count = await prisma.project_Processus.count()
-            await prisma.project_Processus.createMany({
-                data: softwareProcessus.map((processus) => {
-                    count = count + 1
-                    return {
-                        id: processus.processusId,
-                        label: processus.Processus.label,
-                        version: processus.processusVersion,
-                        clientId,
-                        processusSlug: processus.Processus.slug,
-                        order: processus.order,
-                        projectLabel,
-                        softwareLabel,
-                        slug: generateSlug(`processus-${count}`),
-                        createdBy: "system"
-                    }
-                })
-            })
 
-            await prisma.project_Processus.update({
-                where: {
-                    clientId_projectLabel_softwareLabel_id_version: {
-                        clientId,
-                        projectLabel,
-                        softwareLabel,
-                        id: softwareProcessus[0].processusId,
-                        version: softwareProcessus[0].processusVersion
-                    },
-                    order: 1
 
-                },
-                data: {
-                    status: 'Actif',
-                    isOpen: true,
-                    isPending: false
-                }
-            })
 
         } catch (err) {
             console.error(err)
@@ -174,24 +135,6 @@ export class Project {
         }
     }
 
-    async processus() {
-        try {
-            const projectProcessus = await prisma.project.findUnique({
-                where: {
-                    slug: this.projectSlug
-                },
-                include: {
-                    Project_Processus: true
-                }
-            })
-            if (!projectProcessus) throw new Error('Projet introuvable')
-            return projectProcessus?.Project_Processus
-        } catch (err) {
-            console.log(err)
-            throw new Error('Erreur lors de la récupération des processus du projet')
-        }
-
-    }
 
     async projectLabelExistForThisSoftware({
         projectLabel,
@@ -369,6 +312,41 @@ export class Project {
         } catch (err) {
             console.error(err)
             throw new Error('Erreur lors de la récupération des fichiers du projet')
+        }
+    }
+
+    async pages() {
+        try {
+            const project = await this.projetDetail()
+            if (!project) {
+                throw new Error('Projet introuvable')
+            }
+            const projets = await prisma.project_Page.findMany({
+                where: {
+                    projectLabel: project.label,
+                    softwareLabel: project.softwareLabel,
+                    clientId: project.clientId,
+                },
+                include: {
+                    Page: true
+                }
+
+
+            })
+            const isActive = projets.filter(projet => projet.isActive)
+            const isPending = projets.filter(projet => projet.isPending)
+            const isApproved = projets.filter(projet => projet.isApproved)
+            const isProgress = projets.filter(projet => projet.isProgress)
+            return {
+                isActive,
+                isPending,
+                isApproved,
+                isProgress
+
+            }
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la récupération des pages du projet')
         }
     }
 
