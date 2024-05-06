@@ -250,9 +250,9 @@ export const deletePageBlock = authentificationActionUserIsEditorClient(BlockPag
         throw new ActionError('Erreur lors de la suppression du block')
     }
 
-    revalidatePath(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
 
-    redirect(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
 
 })
 
@@ -315,8 +315,8 @@ export const editBlock = authentificationActionUserIsEditorClient(BlockEditSchem
         throw new ActionError('Erreur lors de la modification du block')
     }
 
-    revalidatePath(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
-    redirect(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
 })
 
 
