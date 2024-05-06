@@ -213,7 +213,7 @@ export const createPageData = async (values: { [key: string]: string }) => {
 }
 
 export const createPageBlock = authentificationActionUserIsEditorClient(BlockPageCreateSchema, async (values: z.infer<typeof BlockPageCreateSchema>, { userId, clientId, softwareLabel }) => {
-    const { html, clientSlug, pageSlug, blockMasterId } = BlockPageCreateSchema.parse(values)
+    const { html, clientSlug, pageSlug, blockMasterId, softwareSlug } = BlockPageCreateSchema.parse(values)
     const page = new DynamicPage(pageSlug)
     const pageExist = await page.pageExist()
     if (!pageExist) {
@@ -231,9 +231,9 @@ export const createPageBlock = authentificationActionUserIsEditorClient(BlockPag
         throw new ActionError('Erreur lors de la création du block')
     }
 
-    revalidatePath(`/client/${clientSlug}/editor/page/${pageSlug}/edit`);
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
 
-    redirect(`/client/${clientSlug}/editor/page/${pageSlug}/edit`);
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
 })
 
 export const deletePageBlock = authentificationActionUserIsEditorClient(BlockPageEditSchema, async (values: z.infer<typeof BlockPageEditSchema>, { userId, clientId, softwareLabel }) => {
@@ -250,9 +250,9 @@ export const deletePageBlock = authentificationActionUserIsEditorClient(BlockPag
         throw new ActionError('Erreur lors de la suppression du block')
     }
 
-    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
+    revalidatePath(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
 
-    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
+    redirect(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
 
 })
 
@@ -283,8 +283,8 @@ export const editPageBlock = authentificationActionUserIsEditorClient(BlockPageE
         throw new ActionError('Erreur lors de la modification du block')
     }
 
-    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
-    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
+    revalidatePath(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
+    redirect(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
 
 })
 
@@ -315,8 +315,8 @@ export const editBlock = authentificationActionUserIsEditorClient(BlockEditSchem
         throw new ActionError('Erreur lors de la modification du block')
     }
 
-    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
-    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
+    revalidatePath(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
+    redirect(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
 })
 
 

@@ -27,14 +27,15 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "sonner"
 import { BlockPageCreateSchema } from "@/src/helpers/definition"
-export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement, placeholder = "Utiliser la touche / pour créer un nouveau bloc", blockMasterId }: { clientSlug: string, pageSlug: string, htmlElement: 'text' | 'ul' | 'form' | 'select', placeholder?: string, blockMasterId?: string }) {
+export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement, placeholder = "Utiliser la touche / pour créer un nouveau bloc", blockMasterId, softwareSlug }: { clientSlug: string, pageSlug: string, htmlElement: 'text' | 'ul' | 'form' | 'select', placeholder?: string, blockMasterId?: string, softwareSlug: string }) {
     const form = useForm<z.infer<typeof BlockPageCreateSchema>>({
         resolver: zodResolver(BlockPageCreateSchema),
         defaultValues: {
             html: "h1",
             clientSlug,
             pageSlug,
-            blockMasterId
+            blockMasterId,
+            softwareSlug
         }
     })
     const [open, setOpen] = React.useState(false)
@@ -92,6 +93,18 @@ export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement,
                         <FormField
                             control={form.control}
                             name="clientSlug"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input type='hidden' {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="softwareSlug"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>

@@ -746,6 +746,7 @@ export const CreateApiKeysSchema = z.object({
 export const BlockPageCreateSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     pageSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
     blockMasterId: z.string().optional(),
     html: z.enum(["h1", "h2", "h3", "h4", "h5", "h6", "p", "ul", "form", "input", "select", "switch", "li", "ol", "option", "img"]),
 })

@@ -54,7 +54,7 @@ export default function DynamicPageAnalyse({
                                         type={input.type}
                                     />
                                 ))}
-                                <DynamicPageCommande key={`addChildform-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='form' blockMasterId={block.id} placeholder="Ajouter un champ dans le formulaire avec la touche /" />
+                                <DynamicPageCommande key={`addChildform-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='form' blockMasterId={block.id} placeholder="Ajouter un champ dans le formulaire avec la touche /" softwareSlug={softwareSlug} />
                             </div >
                             <div className="ml-8">
                                 <div>
@@ -79,7 +79,7 @@ export default function DynamicPageAnalyse({
                                                 softwareSlug={softwareSlug}
                                                 type={option.type}
                                             />))))}
-                                    <DynamicPageCommande key={`addOption-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='select' blockMasterId={block.id} placeholder="Ajouter une valeur dans la liste à choix multiple /" />
+                                    <DynamicPageCommande key={`addOption-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='select' blockMasterId={block.id} placeholder="Ajouter une valeur dans la liste à choix multiple /" softwareSlug={softwareSlug} />
 
                                 </div>
                             </div>
@@ -99,7 +99,7 @@ export default function DynamicPageAnalyse({
                                     softwareSlug={softwareSlug}
                                     type={input.type}
                                 />))}
-                            <DynamicPageCommande key={`addChildform-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='ul' blockMasterId={block.id} placeholder="Ajouter un élément à la liste avec la touche /" />
+                            <DynamicPageCommande key={`addChildform-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='ul' blockMasterId={block.id} placeholder="Ajouter un élément à la liste avec la touche /" softwareSlug={softwareSlug} />
                         </div >
 
                     )}
@@ -110,7 +110,7 @@ export default function DynamicPageAnalyse({
             ))
             }
 
-            <DynamicPageCommande key="addBlock" clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='text' />
+            <DynamicPageCommande key="addBlock" clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='text' softwareSlug={softwareSlug} />
         </div >
     );
 }
