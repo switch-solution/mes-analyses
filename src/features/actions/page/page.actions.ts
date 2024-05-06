@@ -283,8 +283,8 @@ export const editPageBlock = authentificationActionUserIsEditorClient(BlockPageE
         throw new ActionError('Erreur lors de la modification du block')
     }
 
-    revalidatePath(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
-    redirect(`/ client / ${clientSlug} / editor / ${softwareSlug} / page / ${pageSlug} / edit`);
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
 
 })
 
