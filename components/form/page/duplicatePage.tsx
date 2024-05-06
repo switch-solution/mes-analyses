@@ -4,8 +4,8 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { createPage } from "@/src/features/actions/page/page.actions";
-import { PageCreateSchema } from "@/src/helpers/definition";
+import { duplicatePage } from "@/src/features/actions/page/page.actions";
+import { PageDuplicateSchema } from "@/src/helpers/definition";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import {
     Form,
@@ -17,22 +17,22 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-export default function CreatePage({ clientSlug, softwareSlug }: { clientSlug: string, softwareSlug: string }) {
+export default function DuplicatePage({ clientSlug, pageSlug, projectSlug }: { clientSlug: string, pageSlug: string, projectSlug: string }) {
     const [loading, setLoading] = useState(false)
-    const form = useForm<z.infer<typeof PageCreateSchema>>({
-        resolver: zodResolver(PageCreateSchema),
+    const form = useForm<z.infer<typeof PageDuplicateSchema>>({
+        resolver: zodResolver(PageDuplicateSchema),
         defaultValues: {
             clientSlug: clientSlug,
-            softwareSlug: softwareSlug,
+            pageSlug: pageSlug,
+            projectSlug: projectSlug,
             label: "",
-            internalId: "",
         },
     })
 
-    const onSubmit = async (data: z.infer<typeof PageCreateSchema>) => {
+    const onSubmit = async (data: z.infer<typeof PageDuplicateSchema>) => {
         try {
             setLoading(true)
-            const action = await createPage(data)
+            const action = await duplicatePage(data)
             if (action?.serverError) {
                 setLoading(false)
                 toast(`${action.serverError}`, {
@@ -43,7 +43,9 @@ export default function CreatePage({ clientSlug, softwareSlug }: { clientSlug: s
                     },
                 })
             }
+
             setLoading(false)
+
         } catch (err) {
             setLoading(false)
             console.error(err)
@@ -69,7 +71,7 @@ export default function CreatePage({ clientSlug, softwareSlug }: { clientSlug: s
                 />
                 <FormField
                     control={form.control}
-                    name="softwareSlug"
+                    name="pageSlug"
                     render={({ field }) => (
                         <FormItem>
                             <FormControl>
@@ -83,17 +85,17 @@ export default function CreatePage({ clientSlug, softwareSlug }: { clientSlug: s
                 />
                 <FormField
                     control={form.control}
-                    name="internalId"
+                    name="projectSlug"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Code de votre page</FormLabel>
                             <FormControl>
-                                <Input placeholder="STD_001" required {...field} />
+                                <Input type="hidden" required {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
 
                     )}
+
                 />
                 <FormField
                     control={form.control}

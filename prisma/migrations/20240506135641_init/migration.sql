@@ -756,9 +756,7 @@ CREATE TABLE "Page" (
     "level" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "order" INTEGER NOT NULL,
-    "isApproved" BOOLEAN NOT NULL DEFAULT false,
-    "isPending" BOOLEAN NOT NULL DEFAULT true,
-    "isArchived" BOOLEAN NOT NULL DEFAULT false,
+    "status" TEXT NOT NULL DEFAULT 'En attente',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
@@ -780,6 +778,16 @@ CREATE TABLE "Page_Block" (
     "htmlElement" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "label" TEXT NOT NULL,
+    "imageUrl" TEXT,
+    "placeholder" TEXT,
+    "buttonLabel" TEXT,
+    "min" INTEGER NOT NULL DEFAULT 0,
+    "max" INTEGER NOT NULL DEFAULT 9999999,
+    "minLength" INTEGER NOT NULL DEFAULT 1,
+    "maxLength" INTEGER NOT NULL DEFAULT 255,
+    "typeInput" TEXT NOT NULL DEFAULT 'text',
+    "required" BOOLEAN NOT NULL DEFAULT false,
+    "readonly" BOOLEAN NOT NULL DEFAULT false,
     "order" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -792,23 +800,19 @@ CREATE TABLE "Page_Block" (
 
 -- CreateTable
 CREATE TABLE "Project_Page" (
-    "id" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
     "pageId" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
     "pageVersion" INTEGER NOT NULL,
     "order" INTEGER NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT false,
-    "isApproved" BOOLEAN NOT NULL DEFAULT false,
-    "isPending" BOOLEAN NOT NULL DEFAULT true,
-    "isProgress" BOOLEAN NOT NULL DEFAULT false,
-    "reOpen" BOOLEAN NOT NULL DEFAULT false,
+    "status" TEXT NOT NULL DEFAULT 'En cours de rédaction',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
-    CONSTRAINT "Project_Page_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Project_Page_pkey" PRIMARY KEY ("projectLabel","softwareLabel","clientId","pageId","label","pageVersion")
 );
 
 -- CreateTable

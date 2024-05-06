@@ -4,7 +4,9 @@ import {
     ChevronRight,
     File,
     ArrowRight,
-    Printer
+    Printer,
+    Import,
+    Check
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -46,6 +48,7 @@ import {
 } from "@/components/ui/tabs"
 import { User } from "@/src/classes/user"
 import { Security } from "@/src/classes/security"
+import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const project = new Project(params.projectSlug)
@@ -58,13 +61,24 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const user = new User(security.userId)
     const client = await user.getMyClientActive()
     const projectDetails = await project.projectDetails()
+    if (!projectDetails) {
+        notFound()
+    }
     const countUser = (await project.getUsers()).length
-    const { isApproved, isProgress, isPending, isActive } = await project.pages()
+    const pages = await project.pages()
+    const allPages = await prisma.page.findMany({
+        where: {
+            softwareLabel: projectDetails.softwareLabel,
+            clientId: client.clientId,
+            status: 'Actif'
+        }
+    })
+    const countForms = await project.countForms()
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
                 <div className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-                    <Breadcrumb className="hidden md:flex">
+                    <Breadcrumb className="flex">
                         <BreadcrumbList>
                             <BreadcrumbItem>
                                 <BreadcrumbLink asChild>
@@ -119,7 +133,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                             <Card x-chunk="dashboard-05-chunk-2">
                                 <CardHeader className="pb-2">
                                     <CardDescription>Extraction disponible</CardDescription>
-                                    <CardTitle className="flex justify-center text-4xl">{0}</CardTitle>
+                                    <CardTitle className="flex justify-center text-4xl">{countForms}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-xs text-muted-foreground">
@@ -130,14 +144,12 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                 </CardFooter>
                             </Card>
                         </div>
-                        <Tabs defaultValue="isActive">
+                        <Tabs defaultValue="page">
                             <div className="flex items-center">
                                 <TabsList>
-                                    <TabsTrigger value="isActive">Actif</TabsTrigger>
-                                    <TabsTrigger value="isPending">En attente</TabsTrigger>
-                                    <TabsTrigger value="isProgress">En cours de validation</TabsTrigger>
-                                    <TabsTrigger value="isFinish">Validé</TabsTrigger>
-                                    <TabsTrigger value="isReopn">Réouverture</TabsTrigger>
+                                    <TabsTrigger value="page">Pages</TabsTrigger>
+                                    <TabsTrigger value="duplicate">Copier des pages</TabsTrigger>
+                                    <TabsTrigger value="import">Import des données</TabsTrigger>
                                 </TabsList>
                                 <div className="ml-auto flex items-center gap-2">
                                     <Button
@@ -150,12 +162,12 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                     </Button>
                                 </div>
                             </div>
-                            <TabsContent value="isActive">
+                            <TabsContent value="page">
                                 <Card x-chunk="dashboard-05-chunk-3">
                                     <CardHeader className="px-7">
-                                        <CardTitle>Etape</CardTitle>
+                                        <CardTitle>Page</CardTitle>
                                         <CardDescription>
-                                            Liste des étapes à réaliser
+                                            Les pages de mon projet.
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
@@ -166,25 +178,25 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                     <TableHead className="hidden md:table-cell">
                                                         Date de création
                                                     </TableHead>
-                                                    <TableHead className="hidden md:table-cell">
+                                                    <TableHead className="md:table-cell">
                                                         Imprimer
                                                     </TableHead>
-                                                    <TableHead className="hidden md:table-cell">
+                                                    <TableHead className="md:table-cell">
                                                         Ouvrir
                                                     </TableHead>
-                                                    <TableHead className="hidden md:table-cell">
+                                                    <TableHead className="md:table-cell">
                                                         Valider
                                                     </TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {isActive.map((row) => {
+                                                {pages.map((row) => {
                                                     return (<TableRow key={row.pageId}>
-                                                        <TableCell className="font-medium">{row.Page.label}</TableCell>
-                                                        <TableCell>{row.createdAt.toLocaleDateString()}</TableCell>
+                                                        <TableCell className="font-medium">{row.label}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{row.createdAt.toLocaleDateString()}</TableCell>
                                                         <TableCell>{'Imprimer'}</TableCell>
                                                         <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.Page.slug}`}><ArrowRight /></Link></TableCell>
-                                                        <TableCell className="text-right">{'valider'}</TableCell>
+                                                        <TableCell className="text-right"><Check /></TableCell>
                                                     </TableRow>
                                                     )
                                                 })}
@@ -194,12 +206,12 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                     </CardContent>
                                 </Card>
                             </TabsContent>
-                            <TabsContent value="isPending">
+                            <TabsContent value="duplicate">
                                 <Card x-chunk="dashboard-05-chunk-3">
                                     <CardHeader className="px-7">
-                                        <CardTitle>Etape</CardTitle>
+                                        <CardTitle>Import page</CardTitle>
                                         <CardDescription>
-                                            Liste des étapes en attente
+                                            Liste des pages disponibles
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
@@ -208,31 +220,39 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                 <TableRow>
                                                     <TableHead>Titre</TableHead>
                                                     <TableHead className="hidden sm:table-cell">
-                                                        Thême
+                                                        Version
                                                     </TableHead>
                                                     <TableHead className="hidden md:table-cell">
                                                         Date de création
                                                     </TableHead>
                                                     <TableHead className="hidden md:table-cell">
-                                                        Ouvrir
+                                                        Importer
                                                     </TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
                                                 {
-
+                                                    allPages.map((row) => {
+                                                        return (<TableRow key={row.id}>
+                                                            <TableCell className="font-medium">{row.label}</TableCell>
+                                                            <TableCell>{row.version}</TableCell>
+                                                            <TableCell>{row.createdAt.toLocaleDateString()}</TableCell>
+                                                            <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}/import`}><Import /></Link></TableCell>
+                                                        </TableRow>
+                                                        )
+                                                    })
                                                 }
                                             </TableBody>
                                         </Table>
                                     </CardContent>
                                 </Card>
                             </TabsContent>
-                            <TabsContent value="isProgress">
+                            <TabsContent value="import">
                                 <Card x-chunk="dashboard-05-chunk-3">
                                     <CardHeader className="px-7">
-                                        <CardTitle>Etape</CardTitle>
+                                        <CardTitle>Import des données</CardTitle>
                                         <CardDescription>
-                                            Liste des étapes en attente
+                                            Liste des imports disponibles
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
@@ -241,20 +261,29 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                 <TableRow>
                                                     <TableHead>Titre</TableHead>
                                                     <TableHead className="hidden sm:table-cell">
-                                                        Thême
+                                                        Description
                                                     </TableHead>
                                                     <TableHead className="hidden md:table-cell">
-                                                        Date de création
-                                                    </TableHead>
-                                                    <TableHead className="hidden md:table-cell">
-                                                        Ouvrir
+                                                        Importer
                                                     </TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {
-
-                                                }
+                                                <TableRow>
+                                                    <TableCell className="font-medium">DSN</TableCell>
+                                                    <TableCell>Importer les données à partir de vos fichiers DSN</TableCell>
+                                                    <TableCell><Import /></TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell className="font-medium">Convention colletive</TableCell>
+                                                    <TableCell>Importer les données à partir du référentiel CCN</TableCell>
+                                                    <TableCell><Import /></TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell className="font-medium">Rubriques</TableCell>
+                                                    <TableCell>Importer les données à partir du référentiel CCN</TableCell>
+                                                    <TableCell><Import /></TableCell>
+                                                </TableRow>
                                             </TableBody>
                                         </Table>
                                     </CardContent>

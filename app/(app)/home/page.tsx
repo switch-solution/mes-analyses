@@ -91,7 +91,7 @@ export default async function Page() {
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
                 <div className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-                    <Breadcrumb className="hidden md:flex">
+                    <Breadcrumb className="flex">
                         <BreadcrumbList>
                             <BreadcrumbItem>
                                 <BreadcrumbLink asChild>
@@ -184,10 +184,10 @@ export default async function Page() {
                                                     projectIsOpen.map((project) => (
                                                         <TableRow key={project.project.slug} className="bg-accent">
                                                             <TableCell>
-                                                                <div className="font-medium">{project.project.label}</div>
+                                                                <div className="font-medium"><Link href={`/client/${client.clientSlug}/project/${project.project.slug}`}>{project.project.label}</Link></div>
                                                             </TableCell>
-                                                            <TableCell className="hidden sm:table-cell">
-                                                                <Badge className="text-xs" variant="secondary">
+                                                            <TableCell className="sm:table-cell">
+                                                                <Badge className="text-xs" >
                                                                     {project.project.status}
                                                                 </Badge>
                                                             </TableCell>

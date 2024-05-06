@@ -66,14 +66,22 @@ export class Editor {
             })
             const countItems = await prisma.software_Items.count({
                 where: {
-                    softwareLabel: this.softwareActiveLabel
+                    softwareLabel: this.softwareActiveLabel,
+                    clientId: this.clientActiveLabel
+                }
+            })
+            const countPage = await prisma.page.count({
+                where: {
+                    softwareLabel: this.softwareActiveLabel,
+                    clientId: this.clientActiveLabel
                 }
             })
             return {
                 countSetting,
                 countAbsence,
                 countAccumulation,
-                countItems
+                countItems,
+                countPage
             }
 
         } catch (err) {

@@ -27,7 +27,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "sonner"
 import { BlockPageCreateSchema } from "@/src/helpers/definition"
-export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement, placeholder = "Utiliser la touche / pour créer un nouveau bloc", blockMasterId }: { clientSlug: string, pageSlug: string, htmlElement: 'text' | 'ul' | 'form', placeholder?: string, blockMasterId?: string }) {
+export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement, placeholder = "Utiliser la touche / pour créer un nouveau bloc", blockMasterId }: { clientSlug: string, pageSlug: string, htmlElement: 'text' | 'ul' | 'form' | 'select', placeholder?: string, blockMasterId?: string }) {
     const form = useForm<z.infer<typeof BlockPageCreateSchema>>({
         resolver: zodResolver(BlockPageCreateSchema),
         defaultValues: {
@@ -58,14 +58,16 @@ export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement,
                     onClick: () => console.log("fermeture"),
                 },
             })
+        } else {
+            toast('Création du bloc', {
+                description: new Date().toLocaleDateString(),
+                action: {
+                    label: "fermer",
+                    onClick: () => console.log("fermeture"),
+                },
+            })
+
         }
-        toast('Création du bloc', {
-            description: new Date().toLocaleDateString(),
-            action: {
-                label: "fermer",
-                onClick: () => console.log("fermeture"),
-            },
-        })
 
     }
 
@@ -134,6 +136,7 @@ export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement,
                                                 <SelectItem value="p">Paragraphe</SelectItem>
                                                 <SelectItem value="ul">Liste à puce</SelectItem>
                                                 <SelectItem value="form">Formulaire</SelectItem>
+                                                <SelectItem value="img">Image</SelectItem>
 
                                             </SelectGroup>
                                             }
@@ -148,8 +151,14 @@ export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement,
                                             {htmlElement === 'ul' &&
                                                 <SelectGroup>
                                                     <SelectLabel>Liste</SelectLabel>
-                                                    <SelectItem value="li">Liste à puce</SelectItem>
-                                                    <SelectItem value="ol">Liste numérique</SelectItem>
+                                                    <SelectItem value="li">Puce</SelectItem>
+                                                    <SelectItem value="ol">Nombre</SelectItem>
+                                                </SelectGroup>
+                                            }
+                                            {htmlElement === 'select' &&
+                                                <SelectGroup>
+                                                    <SelectLabel>Liste</SelectLabel>
+                                                    <SelectItem value="option">Valeur</SelectItem>
                                                 </SelectGroup>
                                             }
 

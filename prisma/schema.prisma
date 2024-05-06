@@ -789,9 +789,7 @@ model Page {
   level         String
   label         String
   order         Int
-  isApproved    Boolean        @default(false)
-  isPending     Boolean        @default(true)
-  isArchived    Boolean        @default(false)
+  status        String         @default("En attente")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   createdBy     String         @default("system")
@@ -817,6 +815,16 @@ model Page_Block {
   htmlElement         String
   type                String
   label               String
+  imageUrl            String?
+  placeholder         String?
+  buttonLabel         String?
+  min                 Int                   @default(0)
+  max                 Int                   @default(9999999)
+  minLength           Int                   @default(1)
+  maxLength           Int                   @default(255)
+  typeInput           String                @default("text")
+  required            Boolean               @default(false)
+  readonly            Boolean               @default(false)
   order               Int
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
@@ -830,23 +838,21 @@ model Page_Block {
 }
 
 model Project_Page {
-  id            String   @id @default(cuid())
   projectLabel  String
   softwareLabel String
   clientId      String
   pageId        String
+  label         String
   pageVersion   Int
   order         Int
-  isActive      Boolean  @default(false)
-  isApproved    Boolean  @default(false)
-  isPending     Boolean  @default(true)
-  isProgress    Boolean  @default(false)
-  reOpen        Boolean  @default(false)
+  status        String   @default("En cours de rédaction")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   createdBy     String   @default("system")
   Project       Project  @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
   Page          Page     @relation(fields: [pageId, pageVersion], references: [id, version])
+
+  @@id([projectLabel, softwareLabel, clientId, pageId, label, pageVersion])
 }
 
 model Project_Block_Value {

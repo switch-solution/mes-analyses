@@ -63,7 +63,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
     const softwareActive = await user.getMySoftwareActive()
     const editor = new Editor(clientActive.clientId, softwareActive.softwareLabel)
     const { countDsn, countIdcc, countOps, countRateAt } = await editor.getCountStandardElement()
-    const { countSetting, countAbsence } = await editor.getCountSoftwareElement()
+    const { countSetting, countAbsence, countPage } = await editor.getCountSoftwareElement()
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -231,7 +231,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                                 </TableRow>
                                                 <TableRow>
                                                     <TableCell className="font-medium">Pages</TableCell>
-                                                    <TableCell>10</TableCell>
+                                                    <TableCell>{countPage}</TableCell>
                                                     <TableCell className="text-right"><Link href={`/client/${client.clientSlug}/editor/${softwareActive.softwareSlug}/page`}><ArrowRight /></Link></TableCell>
                                                 </TableRow>
                                                 <TableRow>

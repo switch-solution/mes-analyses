@@ -1,7 +1,10 @@
 "use client";
-import { useState } from "react";
 import DynamicPageViewBlock from "@/components/dynamicPageAnalyse/dynamicPageViewBlock";
 import DynamicPageForm from "@/components/dynamicPageAnalyse/dynamicPageForm";
+import { Button } from "@/components/ui/button";
+import { createForm } from "@/src/features/actions/page/page.actions";
+import { toast } from "sonner"
+
 export default function DynamicPageView({
     clientSlug,
     label,
@@ -9,7 +12,8 @@ export default function DynamicPageView({
     projectSlug,
     pageSlug,
     blocks,
-    datas
+    datas,
+    options
 
 }: {
     clientSlug: string,
@@ -24,6 +28,13 @@ export default function DynamicPageView({
         label: string,
         slug: string,
         level1: boolean,
+        min: number,
+        max: number,
+        minLength: number,
+        maxLength: number,
+        required: boolean,
+        readonly: boolean,
+        buttonLabel?: string | null | undefined,
         blockMasterId?: string | null | undefined
         htmlElement: string,
         Project_Block_Value: {
@@ -51,9 +62,39 @@ export default function DynamicPageView({
             createdBy: string
         }[]
 
+    }[],
+    options?: {
+        label: string,
+        htmlElement: string,
+        blockMasterId: string,
     }[]
 }) {
-    const [formGroup, setFormGroup] = useState<{}[]>([])
+    const handleClick = async (formId: string) => {
+        const action = await createForm({
+            clientSlug: clientSlug,
+            projectSlug: projectSlug,
+            pageSlug: pageSlug,
+            formId: formId,
+
+        })
+        if (action?.serverError) {
+            toast.error(`${action.serverError}`, {
+                description: new Date().toLocaleDateString(),
+                action: {
+                    label: "fermer",
+                    onClick: () => console.log("fermeture"),
+                },
+            })
+        } else {
+            toast.success(`Création du formulaire`, {
+                description: new Date().toLocaleDateString(),
+                action: {
+                    label: "fermer",
+                    onClick: () => console.log("fermeture"),
+                },
+            })
+        }
+    }
 
     return (
         <div className="flex w-full flex-col justify-center">
@@ -80,28 +121,31 @@ export default function DynamicPageView({
                                             formTitle={formGroup.formTitle ? formGroup.formTitle : 'Edition'}
                                             blockSlug={block.slug}
                                             formId={block.id}
-                                            fields={blocks.filter(input => input.blockMasterId === block.id).map(input => input.label)}
+                                            fields={blocks.filter(input => input.blockMasterId === block.id).map(input => {
+                                                return ({
+                                                    min: input.min,
+                                                    max: input.max,
+                                                    minLenght: input.minLength,
+                                                    maxLenght: input.maxLength,
+                                                    label: input.label,
+                                                    type: input.type,
+                                                    required: input.required,
+                                                    htmlElement: input.htmlElement,
+                                                    blockMasterId: input.blockMasterId ? input.blockMasterId : null
+
+                                                })
+                                            })}
                                             datas={datas}
                                             formGroup={formGroup.formGroup}
+                                            options={options}
                                         />
 
                                     </div>
                                 )
 
                             })}
-                            <div className="mt-2">
-                                < DynamicPageForm
-                                    clientSlug={clientSlug}
-                                    projectSlug={projectSlug}
-                                    pageSlug={pageSlug}
-                                    formTitle={'Création'}
-                                    blockSlug={block.slug}
-                                    formId={block.id}
-                                    fields={blocks.filter(input => input.blockMasterId === block.id).map(input => input.label)}
+                            {block.htmlElement === 'form' && <Button onClick={(event) => { handleClick(block.id); }}>{block.buttonLabel ? block.buttonLabel : 'Ajouter une nouvelle valeur'}</Button>}
 
-                                />
-
-                            </div>
                         </div >
 
                     )}
@@ -124,11 +168,11 @@ export default function DynamicPageView({
 
                     )}
 
-
-
                 </div>
+
             ))
             }
+
 
         </div >
     );

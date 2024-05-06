@@ -1,9 +1,9 @@
 "use server";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { PageCreateSchema, BlockPageCreateSchema, BlockPageEditSchema, FormBaseSchema, AddDynamicFormFields } from '@/src/helpers/definition';
+import { PageCreateSchema, BlockPageCreateSchema, BlockPageEditSchema, FormBaseSchema, FormCreateSchema, PageDuplicateSchema, BlockEditSchema } from '@/src/helpers/definition';
 import z from 'zod';
-import { authentificationActionUserIsEditorClient, ActionError, authentifcationActionUserIsAuthorizeToProject } from "@/lib/safe-actions";
+import { authentificationActionUserIsEditorClient, ActionError, authentifcationActionUserIsAuthorizeToProject, authentifcationActionUserIsAuthorizeToEditProject } from "@/lib/safe-actions";
 import { User } from '@/src/classes/user'
 import { Project } from '@/src/classes/project';
 import { Security } from '@/src/classes/security';
@@ -39,6 +39,77 @@ export const createPage = authentificationActionUserIsEditorClient(PageCreateSch
 
     revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page`);
     redirect(`/client/${clientSlug}/editor/${softwareSlug}/page`);
+})
+
+export const duplicatePage = authentifcationActionUserIsAuthorizeToEditProject(PageDuplicateSchema, async (values: z.infer<typeof PageDuplicateSchema>, { userId, clientId, softwareLabel, projectLabel }) => {
+    const { clientSlug, pageSlug, projectSlug, label } = PageDuplicateSchema.parse(values)
+    const page = new DynamicPage(pageSlug)
+    const pageExist = await page.pageExist()
+    if (!pageExist) {
+        throw new ActionError('La page n\'existe pas')
+    }
+    try {
+        await page.duplicatePage({
+            label,
+            projectLabel,
+            softwareLabel,
+            clientId
+
+        })
+    } catch (err) {
+        console.error(err)
+        throw new ActionError('Erreur lors de la duplication de la page')
+    }
+
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/`);
+    redirect(`/client/${clientSlug}/project/${projectSlug}/`);
+})
+
+export const deleteForm = authentifcationActionUserIsAuthorizeToProject(FormBaseSchema, async (values: z.infer<typeof FormBaseSchema>, { userId, clientId, softwareLabel, projectLabel }) => {
+    const { clientSlug, pageSlug, projectSlug, formGroup } = FormBaseSchema.parse(values)
+    const page = new DynamicPage(pageSlug)
+    const pageExist = await page.pageExist()
+    if (!pageExist) {
+        throw new ActionError('La page n\'existe pas')
+    }
+    try {
+        await page.deleteForm({
+            clientId,
+            projectLabel,
+            softwareLabel,
+            formGroup,
+            userId
+        })
+    } catch (err) {
+        console.error(err)
+        throw new ActionError('Erreur lors de la suppression du formulaire')
+    }
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/page/${pageSlug}`);
+    redirect(`/client/${clientSlug}/project/${projectSlug}/page/${pageSlug}`);
+
+})
+
+
+export const createForm = authentifcationActionUserIsAuthorizeToProject(FormCreateSchema, async (values: z.infer<typeof FormCreateSchema>, { userId, clientId, softwareLabel }) => {
+    const { clientSlug, pageSlug, projectSlug, formId } = FormCreateSchema.parse(values)
+    const project = new Project(projectSlug)
+    const projectDetail = await project.projectDetails()
+    try {
+        const page = new DynamicPage(pageSlug)
+        await page.createForm({
+            clientId,
+            softwareLabel,
+            formId,
+            userId,
+            projectLabel: projectDetail.label
+
+        })
+    } catch (err) {
+        console.error(err)
+        throw new ActionError('Erreur lors de la création du formulaire')
+    }
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/page/${pageSlug}`);
+    redirect(`/client/${clientSlug}/project/${projectSlug}/page/${pageSlug}`);
 })
 
 /**
@@ -165,6 +236,26 @@ export const createPageBlock = authentificationActionUserIsEditorClient(BlockPag
     redirect(`/client/${clientSlug}/editor/page/${pageSlug}/edit`);
 })
 
+export const deletePageBlock = authentificationActionUserIsEditorClient(BlockPageEditSchema, async (values: z.infer<typeof BlockPageEditSchema>, { userId, clientId, softwareLabel }) => {
+    const { clientSlug, blockSlug, pageSlug, softwareSlug } = BlockPageEditSchema.parse(values)
+    const page = new DynamicPage(pageSlug)
+    const pageExist = await page.pageExist()
+    if (!pageExist) {
+        throw new ActionError('La page n\'existe pas')
+    }
+    try {
+        await page.deletePageBlock(blockSlug)
+    } catch (err) {
+        console.error(err)
+        throw new ActionError('Erreur lors de la suppression du block')
+    }
+
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
+
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
+
+})
+
 export const editPageBlock = authentificationActionUserIsEditorClient(BlockPageEditSchema, async (values: z.infer<typeof BlockPageEditSchema>, { userId, clientId, softwareLabel }) => {
     const { clientSlug, blockSlug, pageSlug, label, softwareSlug } = BlockPageEditSchema.parse(values)
     const page = new DynamicPage(pageSlug)
@@ -178,16 +269,54 @@ export const editPageBlock = authentificationActionUserIsEditorClient(BlockPageE
             throw new ActionError('Un block avec ce label existe déjà')
         }
 
-        await page.editBlock(blockSlug, label)
+        await prisma.page_Block.update({
+            where: {
+                slug: blockSlug
+
+            },
+            data: {
+                label
+            }
+        })
     } catch (err) {
         console.error(err)
         throw new ActionError('Erreur lors de la modification du block')
     }
 
     revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
-
     redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
 
+})
+
+export const editBlock = authentificationActionUserIsEditorClient(BlockEditSchema, async (values: z.infer<typeof BlockEditSchema>, { userId, clientId, softwareLabel }) => {
+    const { clientSlug, pageSlug, blockSlug, min, max, maxLength, minLength, readonly, required, softwareSlug, label } = BlockEditSchema.parse(values)
+    try {
+        const page = new DynamicPage(pageSlug)
+        const pageExist = await page.pageExist()
+        if (!pageExist) {
+            throw new ActionError('La page n\'existe pas')
+        }
+        const blockExist = await page.blockExist(blockSlug)
+        if (!blockExist) {
+            throw new ActionError('Le block n\'existe pas')
+        }
+        await page.editBlock({
+            min,
+            max,
+            label: label ? label : 'Donner un libellé au bloc',
+            maxLength,
+            minLength,
+            readonly: readonly ? true : false,
+            required: required ? true : false,
+            blockSlug
+        })
+    } catch (err) {
+        console.error(err)
+        throw new ActionError('Erreur lors de la modification du block')
+    }
+
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
 })
 
 

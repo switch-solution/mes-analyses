@@ -115,18 +115,6 @@ export default async function NavBar() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link
-                                    href={`/client/${client.clientSlug}/dashboard`}
-                                    className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
-                                >
-                                    <LineChart className="size-5" />
-                                    <span className="sr-only">Requetes</span>
-                                </Link>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">Requetes</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Link
                                     href={`/client/${client.clientSlug}/administration/invitation`}
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
                                 >
@@ -187,25 +175,18 @@ export default async function NavBar() {
                 <SheetContent side="left" className="sm:max-w-xs">
                     <nav className="grid gap-6 text-lg font-medium">
                         <Link
-                            href="#"
+                            href="/home"
                             className="group flex size-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                         >
-                            <Package2 className="size-5 transition-all group-hover:scale-110" />
-                            <span className="sr-only">Acme Inc</span>
+                            <Home className="size-5 transition-all group-hover:scale-110" />
+                            <span className="sr-only">Accueil</span>
                         </Link>
                         <Link
-                            href="#"
-                            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                        >
-                            <Home className="size-5" />
-                            Dashboard
-                        </Link>
-                        <Link
-                            href="#"
+                            href={`/client/${client.clientSlug}/administration`}
                             className="flex items-center gap-4 px-2.5 text-foreground"
                         >
-                            <ShoppingCart className="size-5" />
-                            Orders
+                            <Building2 className="size-5" />
+                            Client
                         </Link>
                         <Link
                             href="#"
@@ -222,11 +203,11 @@ export default async function NavBar() {
                             Customers
                         </Link>
                         <Link
-                            href="#"
+                            href="/profile/"
                             className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                         >
                             <LineChart className="size-5" />
-                            Settings
+                            Profil
                         </Link>
                     </nav>
                 </SheetContent>

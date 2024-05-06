@@ -27,7 +27,7 @@ export class Project {
                 where: {
                     softwareLabel: softwareLabel,
                     clientId: clientId,
-                    isApproved: true
+                    status: 'Validé'
                 }
             })
             const project = await prisma.project.create({
@@ -55,17 +55,14 @@ export class Project {
                                 pageId: page.id,
                                 order: page.order,
                                 pageVersion: page.version,
+                                label: page.label,
                                 createdBy: userId
                             }
                         })
                     }
                 },
             })
-            await this.initProject({
-                clientId: clientId,
-                projectLabel: project.label,
-                softwareLabel: project.softwareLabel
-            })
+
             return project
         } catch (err) {
             console.log(err)
@@ -78,36 +75,7 @@ export class Project {
     async countProjects() {
         return await prisma.project.count()
     }
-    private async initProject({
-        clientId,
-        softwareLabel,
-        projectLabel
-    }: {
-        clientId: string,
-        softwareLabel: string,
-        projectLabel: string
-    }) {
-        try {
 
-
-
-
-
-        } catch (err) {
-            console.error(err)
-            await prisma.logger.create({
-                data: {
-                    level: "error",
-                    message: `Erreur lors de la création du projet ${projectLabel} ${softwareLabel} ${clientId}`,
-                    scope: "project",
-                    createdBy: "system"
-                }
-            })
-            throw new Error('Une erreur est survenue lors de l\'initialisation du projet')
-        }
-
-
-    }
 
     async getUsers() {
         try {
@@ -200,7 +168,7 @@ export class Project {
             const project = await prisma.project.findUniqueOrThrow({
                 where: {
                     slug: this.projectSlug
-                }
+                },
             })
             return project
         } catch (err) {
@@ -208,6 +176,130 @@ export class Project {
             throw new Error('Erreur lors de la récupération des détails du projet')
         }
 
+    }
+
+    async getFormDataToObject({
+        formId,
+        projectLabel,
+        softwareLabel,
+        clientId,
+    }: {
+        formId: string,
+        projectLabel: string,
+        softwareLabel: string,
+        clientId: string,
+    }) {
+        try {
+            const formValues = await prisma.project_Block_Value.findMany({
+                select: {
+                    label: true,
+                    value: true,
+                    formGroup: true
+                },
+                where: {
+                    formId,
+                    projectLabel,
+                    softwareLabel,
+                    clientId
+                }
+            })
+            const formTitle = await prisma.page_Block.findFirstOrThrow({
+                where: {
+                    id: formId
+
+                },
+                select: {
+                    label: true,
+                    pageVersion: true
+                }
+            })
+            const groupByFormId = await prisma.project_Block_Value.groupBy({
+                by: ['formGroup'],
+                where: {
+                    formId,
+                    projectLabel,
+                    softwareLabel,
+                    clientId
+                }
+            })
+            const datas: { [key: string]: any }[] = []
+            for (const formGroup of groupByFormId) {
+                const formData = formValues.filter(formValue => formValue.formGroup === formGroup.formGroup)
+                const object: { [key: string]: any } = {} // Explicitly define the type of object
+                for (const formValue of formData) {
+                    object[formValue.label] = formValue.value;
+                }
+                datas.push(object)
+            }
+
+            return {
+                formTitle: formTitle.label,
+                version: formTitle.pageVersion,
+                datas: datas
+            }
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la récupération des données du formulaire')
+        }
+    }
+
+
+    async projectDatas() {
+        try {
+            const projectDetail = await this.projectDetails()
+            if (!projectDetail) {
+                throw new Error('Projet introuvable')
+            }
+            const pages = await prisma.project.findUniqueOrThrow({
+                where: {
+                    slug: this.projectSlug
+                },
+                include: {
+                    Project_Page: {
+                        include: {
+                            Page: {
+                                include: {
+                                    Page_Block: {
+                                        where: {
+                                            htmlElement: 'form'
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            const datas: {
+                formTitle: string,
+                version: number,
+                datas:
+                {
+                    [key: string]: string,
+                }[]
+
+            }[] = []
+            for (const page of pages.Project_Page) {
+                const forms = page.Page.Page_Block
+                for (const form of forms) {
+                    const formObject = await this.getFormDataToObject({
+                        formId: form.id,
+                        projectLabel: projectDetail.label,
+                        softwareLabel: projectDetail.softwareLabel,
+                        clientId: projectDetail.clientId,
+                    })
+                    datas.push(formObject)
+
+                }
+
+
+            }
+            return datas
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la récupération des détails du projet')
+        }
     }
 
     async validatorProjet() {
@@ -321,7 +413,7 @@ export class Project {
             if (!project) {
                 throw new Error('Projet introuvable')
             }
-            const projets = await prisma.project_Page.findMany({
+            const pages = await prisma.project_Page.findMany({
                 where: {
                     projectLabel: project.label,
                     softwareLabel: project.softwareLabel,
@@ -329,24 +421,38 @@ export class Project {
                 },
                 include: {
                     Page: true
+
                 }
-
-
             })
-            const isActive = projets.filter(projet => projet.isActive)
-            const isPending = projets.filter(projet => projet.isPending)
-            const isApproved = projets.filter(projet => projet.isApproved)
-            const isProgress = projets.filter(projet => projet.isProgress)
-            return {
-                isActive,
-                isPending,
-                isApproved,
-                isProgress
 
-            }
+
+
+            return pages
         } catch (err) {
             console.error(err)
             throw new Error('Erreur lors de la récupération des pages du projet')
+        }
+    }
+
+    async countForms() {
+        try {
+            const project = await this.projetDetail()
+            if (!project) {
+                throw new Error('Projet introuvable')
+            }
+            const groupBy = await prisma.project_Block_Value.groupBy({
+                by: ['formId'],
+                where: {
+                    projectLabel: project.label,
+                    softwareLabel: project.softwareLabel,
+                    clientId: project.clientId
+                }
+            })
+
+            return groupBy.length
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors du comptage des formulaires')
         }
     }
 

@@ -4,13 +4,11 @@ import { File } from "lucide-react";
 import XLSX from "xlsx";
 export function ButtonExportXlsx({ data }: { data: any[] }) {
     const handleClick = async () => {
-
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "data");
-        XLSX.writeFile(wb, "dsn_extraction.xlsx");
+        XLSX.writeFile(wb, "datas.xlsx");
     }
-
     return (
         <div className="gap-4  px-4">
             <Button
