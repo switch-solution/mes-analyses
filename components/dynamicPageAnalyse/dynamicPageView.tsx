@@ -2,7 +2,7 @@
 import DynamicPageViewBlock from "@/components/dynamicPageAnalyse/dynamicPageViewBlock";
 import DynamicPageForm from "@/components/dynamicPageAnalyse/dynamicPageForm";
 import { Button } from "@/components/ui/button";
-import { createForm } from "@/src/features/actions/page/page.actions";
+import { createForm } from "@/src/features/actions/pageData/page.data.actions";
 import { toast } from "sonner"
 
 export default function DynamicPageView({
@@ -11,16 +11,17 @@ export default function DynamicPageView({
     internalId,
     projectSlug,
     pageSlug,
+    projectPageSlug,
     blocks,
     datas,
-    options
-
+    options,
 }: {
     clientSlug: string,
     label: string,
     internalId: string,
     pageSlug: string,
     projectSlug: string,
+    projectPageSlug: string,
     blocks: {
         id: string,
         pageId: string,
@@ -54,7 +55,7 @@ export default function DynamicPageView({
             clientId: string,
             blockId: string,
             formId: string,
-            blockVersion: number,
+            pageVersion: number,
             value: string,
             formGroup: string,
             createdAt: Date,
@@ -64,9 +65,12 @@ export default function DynamicPageView({
 
     }[],
     options?: {
+        id: string,
         label: string,
-        htmlElement: string,
-        blockMasterId: string,
+        options: string[],
+        blockId: string | null | undefined,
+        blockMasterId: string
+
     }[]
 }) {
     const handleClick = async (formId: string) => {
@@ -75,6 +79,7 @@ export default function DynamicPageView({
             projectSlug: projectSlug,
             pageSlug: pageSlug,
             formId: formId,
+            projectPageSlug: projectPageSlug,
 
         })
         if (action?.serverError) {
@@ -118,11 +123,13 @@ export default function DynamicPageView({
                                             clientSlug={clientSlug}
                                             projectSlug={projectSlug}
                                             pageSlug={pageSlug}
+                                            projectPageSlug={projectPageSlug}
                                             formTitle={formGroup.formTitle ? formGroup.formTitle : 'Edition'}
                                             blockSlug={block.slug}
                                             formId={block.id}
                                             fields={blocks.filter(input => input.blockMasterId === block.id).map(input => {
                                                 return ({
+                                                    id: input.id,
                                                     min: input.min,
                                                     max: input.max,
                                                     minLenght: input.minLength,

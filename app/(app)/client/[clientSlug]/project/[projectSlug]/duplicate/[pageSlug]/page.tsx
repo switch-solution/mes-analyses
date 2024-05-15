@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Security } from "@/src/classes/security";
 import { Project } from "@/src/classes/project";
 import { Container, ContainerBreadCrumb, ContainerPage } from "@/components/layout/container"
-import DynamicPageView from "@/components/dynamicPageAnalyse/dynamicPageView";
+import DuplicatePage from "@/components/form/page/duplicatePage"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -25,25 +25,16 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         notFound()
     }
 
-    const projectDetail = await project.projectDetails()
-
     const dynamicPage = new DynamicPage(params.pageSlug)
     const pageExist = await dynamicPage.pageExist()
     if (!pageExist) {
         notFound()
     }
 
-    const pageBlock = await dynamicPage.getblocks()
-    const datas = await dynamicPage.datas({
-        projectLabel: projectDetail.label,
-        softwareLabel: projectDetail.softwareLabel,
-        clientId: projectDetail.clientId
-    })
-    const options = await dynamicPage.getOptions()
     return (
         <Container>
             <ContainerBreadCrumb>
-                <Breadcrumb className="flex">
+                <Breadcrumb className="hidden md:flex">
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink asChild>
@@ -63,20 +54,17 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink asChild>
+                                <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${params.pageSlug}/import`}>Copier la page</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
                     </BreadcrumbList>
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <ContainerPage title={`${pageExist.internalId} ${pageExist.label} `}>
-                <DynamicPageView
-                    blocks={pageBlock}
-                    clientSlug={params.clientSlug}
-                    pageSlug={params.pageSlug}
-                    internalId={pageExist.internalId}
-                    label={pageExist.label}
-                    projectSlug={params.projectSlug}
-                    datas={datas}
-                    options={options}
-                />
+                <DuplicatePage clientSlug={params.clientSlug} pageSlug={params.pageSlug} projectSlug={params.projectSlug} />
             </ContainerPage>
         </Container>
     )

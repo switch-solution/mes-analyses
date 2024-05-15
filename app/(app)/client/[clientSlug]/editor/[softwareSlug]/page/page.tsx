@@ -31,24 +31,20 @@ export default async function Page({ params }: { params: { clientSlug: string, s
         throw new Error('Vous devez etre editor pour acceder a cette page');
     }
     const user = new User(security.userId);
-    const standardPage = await prisma.page.findMany({
-        where: {
-            level: 'Standard'
-        }
-    })
+
+
     const softwareActive = await new Software(params.softwareSlug).softwareExist()
     if (!softwareActive) {
         notFound()
     }
     const softwarePage = await prisma.page.findMany({
         where: {
-            level: 'Software',
+            level: 'Logiciel',
             clientId: clientDetail.siren,
             softwareLabel: softwareActive.label
         }
     })
-
-    const pages = [...standardPage, ...softwarePage].map((page) => {
+    const pages = [...softwarePage].map((page) => {
         return {
             internalId: page.internalId,
             level: page.level,

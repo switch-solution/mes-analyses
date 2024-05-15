@@ -778,6 +778,10 @@ CREATE TABLE "Page_Block" (
     "htmlElement" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "label" TEXT NOT NULL,
+    "options" TEXT DEFAULT '',
+    "sourceDsnId" TEXT,
+    "optionsFormId" TEXT,
+    "optionsBlockId" TEXT,
     "imageUrl" TEXT,
     "placeholder" TEXT,
     "buttonLabel" TEXT,
@@ -800,6 +804,7 @@ CREATE TABLE "Page_Block" (
 
 -- CreateTable
 CREATE TABLE "Project_Page" (
+    "id" TEXT NOT NULL,
     "projectLabel" TEXT NOT NULL,
     "softwareLabel" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
@@ -807,12 +812,13 @@ CREATE TABLE "Project_Page" (
     "label" TEXT NOT NULL,
     "pageVersion" INTEGER NOT NULL,
     "order" INTEGER NOT NULL,
+    "slug" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'En cours de rédaction',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
-    CONSTRAINT "Project_Page_pkey" PRIMARY KEY ("projectLabel","softwareLabel","clientId","pageId","label","pageVersion")
+    CONSTRAINT "Project_Page_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -823,9 +829,10 @@ CREATE TABLE "Project_Block_Value" (
     "clientId" TEXT NOT NULL,
     "blockId" TEXT NOT NULL,
     "formId" TEXT NOT NULL,
+    "projectPageId" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "order" INTEGER NOT NULL,
-    "blockVersion" INTEGER NOT NULL,
+    "pageVersion" INTEGER NOT NULL,
     "value" TEXT NOT NULL,
     "formGroup" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -918,6 +925,9 @@ CREATE UNIQUE INDEX "Page_Block_slug_key" ON "Page_Block"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Page_Block_pageId_pageVersion_label_key" ON "Page_Block"("pageId", "pageVersion", "label");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_Page_slug_key" ON "Project_Page"("slug");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -1052,6 +1062,9 @@ ALTER TABLE "Page" ADD CONSTRAINT "Page_softwareLabel_clientId_fkey" FOREIGN KEY
 ALTER TABLE "Page_Block" ADD CONSTRAINT "Page_Block_blockMasterId_fkey" FOREIGN KEY ("blockMasterId") REFERENCES "Page_Block"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Page_Block" ADD CONSTRAINT "Page_Block_sourceDsnId_fkey" FOREIGN KEY ("sourceDsnId") REFERENCES "Dsn_Structure"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Page_Block" ADD CONSTRAINT "Page_Block_pageId_pageVersion_fkey" FOREIGN KEY ("pageId", "pageVersion") REFERENCES "Page"("id", "version") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -1061,7 +1074,7 @@ ALTER TABLE "Project_Page" ADD CONSTRAINT "Project_Page_clientId_projectLabel_so
 ALTER TABLE "Project_Page" ADD CONSTRAINT "Project_Page_pageId_pageVersion_fkey" FOREIGN KEY ("pageId", "pageVersion") REFERENCES "Page"("id", "version") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Block_Value" ADD CONSTRAINT "Project_Block_Value_clientId_projectLabel_softwareLabel_fkey" FOREIGN KEY ("clientId", "projectLabel", "softwareLabel") REFERENCES "Project"("clientId", "label", "softwareLabel") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Project_Block_Value" ADD CONSTRAINT "Project_Block_Value_projectPageId_fkey" FOREIGN KEY ("projectPageId") REFERENCES "Project_Page"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project_Block_Value" ADD CONSTRAINT "Project_Block_Value_blockId_fkey" FOREIGN KEY ("blockId") REFERENCES "Page_Block"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

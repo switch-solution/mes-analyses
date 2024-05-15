@@ -3,8 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useForm } from "react-hook-form"
 import { AddDynamicFormFields } from "@/src/helpers/definition"
-import { ContainerForm } from "@/components/layout/container";
-import { createPageData } from "@/src/features/actions/page/page.actions";
+import { createPageData } from "@/src/features/actions/pageData/page.data.actions";
 import { useDebouncedCallback } from 'use-debounce';
 import { generateUUID } from "@/src/helpers/generateUuid";
 import {
@@ -42,7 +41,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { deleteForm } from "@/src/features/actions/page/page.actions";
+import { deleteForm } from "@/src/features/actions/pageData/page.data.actions";
 import { Button } from "@/components/ui/button"
 import { Trash } from "lucide-react";
 import { Input } from "@/components/ui/input"
@@ -52,6 +51,7 @@ export default function DynamicPageForm({ clientSlug,
     projectSlug,
     pageSlug,
     blockSlug,
+    projectPageSlug,
     fields,
     formId,
     datas,
@@ -64,7 +64,9 @@ export default function DynamicPageForm({ clientSlug,
     pageSlug: string,
     blockSlug: string,
     formId: string,
+    projectPageSlug: string,
     fields: {
+        id: string,
         min: number,
         max: number,
         minLenght: number,
@@ -83,7 +85,7 @@ export default function DynamicPageForm({ clientSlug,
         clientId: string;
         blockId: string;
         formId: string;
-        blockVersion: number;
+        pageVersion: number;
         value: string;
         formGroup: string;
         createdAt: Date;
@@ -93,13 +95,17 @@ export default function DynamicPageForm({ clientSlug,
     formGroup?: string,
     formTitle: string,
     options?: {
+        id: string,
         label: string,
-        htmlElement: string,
-        blockMasterId: string,
+        options: string[],
+        blockId: string | null | undefined,
+        blockMasterId: string
+
     }[]
 }
 
 ) {
+    console.log(options)
     if (!formGroup) {
         formGroup = generateUUID()
     }
@@ -110,6 +116,7 @@ export default function DynamicPageForm({ clientSlug,
         pageSlug: pageSlug,
         blockSlug: blockSlug,
         formId: formId,
+        projectPageSlug: projectPageSlug,
         formGroup: formGroup,
     }
     if (datas) {
@@ -143,7 +150,6 @@ export default function DynamicPageForm({ clientSlug,
         })
 
     }, 500)
-
     return (
 
         <Card>
@@ -169,7 +175,8 @@ export default function DynamicPageForm({ clientSlug,
                                         projectSlug,
                                         pageSlug,
                                         formId,
-                                        formGroup
+                                        formGroup,
+                                        projectPageSlug
                                     })
                                     if (action?.serverError) {
                                         toast.error(`${action.serverError}`, {
@@ -212,6 +219,17 @@ export default function DynamicPageForm({ clientSlug,
                         <FormField
                             control={form.control}
                             name="formGroup"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input type="hidden" placeholder="shadcn" {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="projectPageSlug"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
@@ -297,8 +315,9 @@ export default function DynamicPageForm({ clientSlug,
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
-                                                        {options?.filter(option => option.blockMasterId === input.blockMasterId).map(option =>
-                                                            <SelectItem key={option.label} value={option.label}>{option.label}</SelectItem>
+                                                        {options?.filter(option => option.blockMasterId === input.blockMasterId && option.id === input.id).map(option =>
+                                                            option.options.map(option => <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                            )
                                                         )}
                                                     </SelectContent>
                                                 </Select>

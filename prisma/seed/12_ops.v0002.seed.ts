@@ -205,4 +205,4 @@ class OpsV00002Seed extends Seed {
 
 
 }
-export const opsV00002 = new OpsV00002Seed("OPS_V0002", "Création des organismes de retraite complémentaire", 12, "LEGAL_V0005")
+export const opsV00002Seed = new OpsV00002Seed("OPS_V0002", "Création des organismes de retraite complémentaire", 12, "LEGAL_V0005")

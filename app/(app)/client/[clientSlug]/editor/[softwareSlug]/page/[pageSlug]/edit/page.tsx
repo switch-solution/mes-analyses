@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import Link from "next/link";
 import { DynamicPage } from "@/src/classes/dynamicPage";
+import { Software } from "@/src/classes/software";
 import { Container, ContainerBreadCrumb, ContainerForm, } from "@/components/layout/container";
 export default async function Page({ params }: { params: { clientSlug: string, pageSlug: string, softwareSlug: string } }) {
     const client = new Client(params.clientSlug);
@@ -31,6 +32,11 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const userIsAuthorized = await security.isEditorClient(clientDetail.siren);
     if (!userIsAuthorized) {
         throw new Error('Vous devez etre editor pour acceder a cette page');
+    }
+    const software = new Software(params.softwareSlug);
+    const softwareExist = await software.softwareExist();
+    if (!softwareExist) {
+        notFound();
     }
     const blocks = await page.getblocks();
     return (

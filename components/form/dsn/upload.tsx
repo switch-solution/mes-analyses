@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button";
 import { ButtonLoading } from "@/components/ui/button-loader";
-import type { getDsnStructure } from "@/src/query/dsn.query";
 import { DsnParser } from "@fibre44/dsn-parser";
 import { toast } from "sonner"
 import { dsnData } from "@/src/features/actions/dsn/dsn.actions"
@@ -18,7 +17,7 @@ type Dsn = {
 
 }
 
-export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, processusSlug }: { clientSlug: string, projectSlug: string, dsnStructure: getDsnStructure, processusSlug: string }) {
+export default function UploadFileDsn({ clientSlug, projectSlug }: { clientSlug: string, projectSlug: string }) {
 
     const addDSnData: Dsn[] = []
 
@@ -70,16 +69,10 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
 
         try {
             const extraction = await extractionData(addDSnData)
-            const datas = {
-                processusSlug: processusSlug,
-                clientSlug: clientSlug,
-                projectSlug: projectSlug,
-                ...extraction
-            }
             const societyList = extraction.societyList.map((society) => ({
                 siren: society.siren,
                 apen: society.apen,
-                address1: society.adress1,
+                adress1: society.adress1,
                 zipCode: society.zipCode,
                 city: society.city,
             }))
@@ -96,15 +89,21 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
                 contributionFundBIC: bank.contributionFundBIC,
                 contributionFundIBAN: bank.contributionFundIBAN
             }))
-
+            const jobList = extraction.jobList.map((job) => ({
+                label: job.employmentLabel,
+            }))
+            const idccList = extraction.idccList.map((idcc) => ({
+                idcc: idcc.idcc,
+            }))
             const action = await dsnData({
                 clientSlug: clientSlug,
                 projectSlug: projectSlug,
-                processusSlug: processusSlug,
                 societyList,
                 establishmentList,
-                bankList
-            });
+                bankList,
+                jobList,
+                idccList
+            })
             if (action?.serverError) {
                 setLoading(false);
                 toast(`${action.serverError}`, {
@@ -135,14 +134,20 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
         const societySet = new Set<string>()
         const establishmentSet = new Set<string>()
         const bankSet = new Set<string>()
+        const jobSet = new Set<string>()
+        const idccSet = new Set<string>()
         const societyList = []
         const establishmentList = []
         const bankList = []
+        const jobList = []
+        const idccList = []
         for (const dsn of dsnData) {
             const parser = new DsnParser(dsn.dsnRows)
             const society = parser.society
             const establishment = parser.establishment
             const bank = parser.bank
+            const jobs = parser.job
+            const idcc = parser.idcc
             if (!societySet.has(society.siren)) {
                 societySet.add(society.siren)
                 societyList.push(society)
@@ -154,11 +159,22 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
                     establishment
                 })
             }
-
             for (const bankObject of bank) {
                 if (!bankSet.has(bankObject.contributionFundIBAN)) {
                     bankSet.add(bankObject.contributionFundIBAN)
                     bankList.push(bankObject)
+                }
+            }
+            for (const jobObject of jobs) {
+                if (!jobSet.has(jobObject.employmentLabel)) {
+                    jobSet.add(jobObject.employmentLabel)
+                    jobList.push(jobObject)
+                }
+            }
+            for (const idccObject of idcc) {
+                if (!idccSet.has(idccObject.idcc)) {
+                    idccSet.add(idccObject.idcc)
+                    idccList.push(idccObject)
                 }
             }
 
@@ -167,7 +183,9 @@ export default function UploadFileDsn({ clientSlug, projectSlug, dsnStructure, p
         return {
             societyList,
             establishmentList,
-            bankList
+            bankList,
+            jobList,
+            idccList
         }
 
     }

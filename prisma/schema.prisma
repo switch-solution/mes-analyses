@@ -435,26 +435,25 @@ model Project_Attachment {
 }
 
 model Project {
-  clientId            String
-  client              Client                @relation(fields: [clientId], references: [siren], onDelete: Cascade)
-  logo                String?
-  label               String
-  description         String
-  status              String                @default("Actif")
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  createdBy           String
-  Software            Software              @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
-  softwareLabel       String
-  UserProject         UserProject[]
-  Logger              Logger[]
-  slug                String                @unique
-  Project_DSN         Project_DSN[]
-  Project_Approve     Project_Approve[]
-  Project_Attachment  Project_Attachment[]
-  Project_Invitation  Project_Invitation[]
-  Project_Page        Project_Page[]
-  Project_Block_Value Project_Block_Value[]
+  clientId           String
+  client             Client               @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  logo               String?
+  label              String
+  description        String
+  status             String               @default("Actif")
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  createdBy          String
+  Software           Software             @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+  softwareLabel      String
+  UserProject        UserProject[]
+  Logger             Logger[]
+  slug               String               @unique
+  Project_DSN        Project_DSN[]
+  Project_Approve    Project_Approve[]
+  Project_Attachment Project_Attachment[]
+  Project_Invitation Project_Invitation[]
+  Project_Page       Project_Page[]
 
   @@id([clientId, softwareLabel, label])
 }
@@ -742,9 +741,10 @@ model Classification {
 }
 
 model Dsn_Structure {
-  id    String @id
-  label String
-  type  String
+  id         String       @id
+  label      String
+  type       String
+  Page_Block Page_Block[]
 }
 
 model Project_Approve {
@@ -815,6 +815,11 @@ model Page_Block {
   htmlElement         String
   type                String
   label               String
+  options             String?               @default("")
+  sourceDsnId         String?
+  optionsFormId       String?
+  optionsBlockId      String?
+  Dsn_Stucture        Dsn_Structure?        @relation(fields: [sourceDsnId], references: [id])
   imageUrl            String?
   placeholder         String?
   buttonLabel         String?
@@ -831,45 +836,47 @@ model Page_Block {
   createdBy           String                @default("system")
   slug                String                @unique
   Page                Page                  @relation(fields: [pageId, pageVersion], references: [id, version])
-  page_BlockId        String?
   Project_Block_Value Project_Block_Value[]
+  blockIdSource       String?
 
   @@unique([pageId, pageVersion, label])
 }
 
 model Project_Page {
-  projectLabel  String
-  softwareLabel String
-  clientId      String
-  pageId        String
-  label         String
-  pageVersion   Int
-  order         Int
-  status        String   @default("En cours de rédaction")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdBy     String   @default("system")
-  Project       Project  @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
-  Page          Page     @relation(fields: [pageId, pageVersion], references: [id, version])
-
-  @@id([projectLabel, softwareLabel, clientId, pageId, label, pageVersion])
+  id                  String                @id @default(cuid())
+  projectLabel        String
+  softwareLabel       String
+  clientId            String
+  pageId              String
+  label               String
+  pageVersion         Int
+  order               Int
+  slug                String                @unique
+  status              String                @default("En cours de rédaction")
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  createdBy           String                @default("system")
+  Project             Project               @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
+  Page                Page                  @relation(fields: [pageId, pageVersion], references: [id, version])
+  Project_Block_Value Project_Block_Value[]
 }
 
 model Project_Block_Value {
-  id            String     @id @default(cuid())
+  id            String       @id @default(cuid())
   projectLabel  String
   softwareLabel String
   clientId      String
   blockId       String
   formId        String
+  projectPageId String
+  Project_Page  Project_Page @relation(fields: [projectPageId], references: [id])
   label         String
   order         Int
-  blockVersion  Int
+  pageVersion   Int
   value         String
   formGroup     String
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  createdBy     String     @default("system")
-  Project       Project    @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
-  Page_Block    Page_Block @relation(fields: [blockId], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  createdBy     String       @default("system")
+  Page_Block    Page_Block   @relation(fields: [blockId], references: [id])
 }

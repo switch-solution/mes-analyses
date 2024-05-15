@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { generateSlug } from "../helpers/generateSlug"
 import { generateUUID } from "../helpers/generateUuid"
-import { th } from "@faker-js/faker"
+import { it } from "node:test"
 export class DynamicPage {
     pageSlug: string
     constructor(pageSlug: string) {
@@ -220,8 +220,15 @@ export class DynamicPage {
                     level1: true
                 },
                 {
-                    html: 'input',
-                    label: 'Champ',
+                    html: 'input_text',
+                    label: 'Champ texte',
+                    typeInput: 'text',
+                    level1: false
+                },
+                {
+                    html: 'input_number',
+                    label: 'Champ numérique',
+                    typeInput: 'number',
                     level1: false
 
                 },
@@ -270,7 +277,7 @@ export class DynamicPage {
             const htmlLabel = htmlTitle.find((title) => title.html === htmlElement)
             const block = await prisma.page_Block.create({
                 data: {
-                    htmlElement,
+                    htmlElement: htmlElement.split("_").at(0) as string,
                     pageVersion,
                     label: `Saisir la valeur pour le champ ${countBlock + 1}`,
                     createdBy: user,
@@ -279,7 +286,8 @@ export class DynamicPage {
                     order: blockOrder + 1,
                     pageId: page.id,
                     type: htmlLabel ? htmlLabel.label : 'Pas de type',
-                    slug: generateSlug(`block-${countBlock}`)
+                    slug: generateSlug(`block-${countBlock}`),
+                    typeInput: htmlLabel ? htmlLabel.typeInput : 'text'
                 }
             })
             if (!block) {
@@ -296,7 +304,7 @@ export class DynamicPage {
         try {
             const blocks = await prisma.page.findMany({
                 where: {
-                    slug: this.pageSlug
+                    slug: this.pageSlug,
                 },
                 include: {
                     Page_Block: {
@@ -306,8 +314,13 @@ export class DynamicPage {
                         include: {
                             Project_Block_Value: true
                         }
-                    }
 
+                    },
+
+
+                },
+                orderBy: {
+                    order: 'asc'
                 }
             })
             const blocksExist = blocks.map((block) => {
@@ -319,6 +332,7 @@ export class DynamicPage {
             throw new Error('Erreur lors de la recherche des blocks')
         }
     }
+
 
     async editBlock({
         label,
@@ -422,214 +436,6 @@ export class DynamicPage {
 
     }
 
-    async createForm({
-        clientId,
-        softwareLabel,
-        projectLabel,
-        formId,
-        userId
-    }: {
-        clientId: string,
-        softwareLabel: string,
-        projectLabel: string,
-        formId: string,
-        userId: string
-
-    }) {
-        try {
-            const form = await this.formExist(formId)
-            if (!form) {
-                throw new Error('Le formulaire n\'existe pas')
-            }
-            const fieldsList = await prisma.page_Block.findMany({
-                where: {
-                    blockMasterId: formId
-                }
-            })
-            if (!fieldsList) {
-                throw new Error('Aucun champ trouvé')
-            }
-            const formGroup = generateUUID()
-            const fields = fieldsList.map((field) => {
-                return {
-                    formId: formId,
-                    blockId: field.id,
-                    clientId,
-                    label: field.label,
-                    blockVersion: field.pageVersion,
-                    order: field.order,
-                    formGroup,
-                    projectLabel,
-                    softwareLabel,
-                    value: '',
-                    createdBy: userId
-                }
-            })
-            await prisma.project_Block_Value.createMany({
-                data: fields
-            })
-
-
-        } catch (err) {
-            console.error(err)
-            throw new Error('Erreur lors de la création du formulaire')
-        }
-    }
-
-    async datas({
-        clientId,
-        softwareLabel,
-        projectLabel,
-    }: {
-        clientId: string,
-        softwareLabel: string,
-        projectLabel: string
-
-    }) {
-        try {
-            const pageDetail = await this.pageExist()
-            if (!pageDetail) {
-                throw new Error('La page n\'existe pas')
-            }
-            const forms = await prisma.page_Block.findMany({
-                where: {
-                    pageId: pageDetail.id,
-                    htmlElement: 'form'
-                },
-                orderBy: {
-                    order: 'asc'
-                }
-
-            })
-            if (!forms) {
-                throw new Error('Aucun formulaire trouvé')
-            }
-            const datas: {
-                id: string,
-                projectLabel: string,
-                softwareLabel: string,
-                clientId: string,
-                blockId: string,
-                formId: string,
-                blockVersion: number,
-                value: string,
-                formGroup: string,
-                createdAt: Date,
-                updatedAt: Date,
-                label: string,
-                createdBy: string
-
-            }[] = []
-            for (const form of forms) {
-                const data = await prisma.project_Block_Value.findMany({
-                    where: {
-                        clientId,
-                        softwareLabel,
-                        projectLabel,
-                        formId: form.id
-                    },
-
-
-                })
-                datas.push(...data)
-            }
-            const formGroupBy = await this.dataGroupByForm({
-                clientId,
-                softwareLabel,
-                projectLabel
-            })
-            const formTitle = await prisma.page_Block.findMany({
-                select: {
-                    id: true,
-                    label: true,
-                },
-                where: {
-                    pageId: pageDetail.id,
-                    htmlElement: 'form'
-                },
-                orderBy: {
-                    order: 'asc'
-                }
-            })
-            const datasGroupBy = formGroupBy.map((form) => {
-                const data = datas.filter((data) => data.formId === form.formId)
-                const title = formTitle.find((title) => title.id === form.formId)
-                return {
-                    formGroup: form.formGroup,
-                    formId: form.formId,
-                    formTitle: title ? title.label : 'Pas de titre',
-                    data
-                }
-            })
-            return datasGroupBy
-
-        } catch (err) {
-            console.error(err)
-            throw new Error('Erreur lors de la recherche des données du formulaire')
-        }
-    }
-
-    async getOptions() {
-        try {
-            const page = await this.pageExist()
-            if (!page) {
-                throw new Error('La page n\'existe pas')
-            }
-            const options = await prisma.page_Block.findMany({
-                select: {
-                    blockMasterId: true,
-                    label: true,
-                    htmlElement: true
-                },
-                where: {
-                    pageId: page.id,
-                    htmlElement: 'option',
-                    blockMasterId: {
-                        not: null
-                    }
-                }
-            })
-            return options as {
-                label: string,
-                htmlElement: string,
-                blockMasterId: string
-            }[]
-
-        } catch (err) {
-            console.error(err)
-            throw new Error('Erreur lors de la recherche des options')
-        }
-
-    }
-
-    private async dataGroupByForm({
-        clientId,
-        softwareLabel,
-        projectLabel,
-    }: {
-        clientId: string,
-        softwareLabel: string,
-        projectLabel: string
-
-    }) {
-        try {
-            const formGroup = await prisma.project_Block_Value.groupBy({
-                by: ['formGroup', 'formId'],
-                where: {
-                    clientId,
-                    softwareLabel,
-                    projectLabel
-
-                }
-            })
-            return formGroup
-
-
-        } catch (err) {
-            console.error(err)
-            throw new Error('Erreur lors de la recherche des données')
-        }
-    }
 
     async duplicatePage({
         projectLabel,
@@ -647,7 +453,7 @@ export class DynamicPage {
             if (!pageExist) {
                 throw new Error('La page n\'existe pas')
             }
-
+            const countPage = await prisma.project_Page.count()
             await prisma.project_Page.create({
                 data: {
                     projectLabel,
@@ -656,7 +462,8 @@ export class DynamicPage {
                     label,
                     order: pageExist.order,
                     pageId: pageExist.id,
-                    pageVersion: pageExist.version
+                    pageVersion: pageExist.version,
+                    slug: generateSlug(`${label}-${countPage}`),
 
                 }
             })
@@ -666,33 +473,152 @@ export class DynamicPage {
         }
     }
 
-    async deleteForm({
-        formGroup,
-        clientId,
-        softwareLabel,
-        projectLabel,
-        userId
-    }: {
-        formGroup: string,
-        clientId: string,
-        softwareLabel: string,
-        projectLabel: string,
-        userId: string
-    }) {
+    async createOption(blockSlug: string, label: string) {
         try {
-            await prisma.project_Block_Value.deleteMany({
+            const block = await this.blockExist(blockSlug)
+            if (!block) {
+                throw new Error('Le block n\'existe pas')
+            }
+            const options = block.options
+            const mergeOptions = `${options};${label.replace(";", "")}`
+            await prisma.page_Block.update({
                 where: {
-                    formGroup,
-                    clientId,
-                    softwareLabel,
-                    projectLabel
+                    slug: blockSlug
+                },
+                data: {
+                    options: mergeOptions
                 }
             })
         } catch (err) {
             console.error(err)
-            throw new Error('Erreur lors de la suppression du formulaire')
+            throw new Error('Erreur lors de la création de l\'option')
         }
     }
 
+
+    async duplicate({
+        clientId,
+        softwareLabel,
+        userId
+    }: {
+        clientId: string,
+        softwareLabel: string,
+        userId: string
+    }) {
+        try {
+            const pageExist = await this.pageExist()
+            if (!pageExist) {
+                throw new Error('La page n\'existe pas')
+            }
+            const countPage = await prisma.page.count()
+            const newPage = await prisma.page.create({
+                data: {
+                    id: `LOG_PAGE_${countPage}`,
+                    level: 'Logiciel',
+                    internalId: `LOG_PAGE_${countPage}`,
+                    label: pageExist.label,
+                    clientId,
+                    softwareLabel,
+                    version: pageExist.version,
+                    order: pageExist.order,
+                    createdBy: userId,
+                    status: 'En attente',
+                    slug: generateSlug(`LOG_PAGE_${countPage}`),
+                }
+            })
+            const blocks = await this.getblocks()
+            let countPageBlock = await prisma.page_Block.count()
+            const newPageBlockId: {
+                standardId: string,
+                softwareId: string
+            }[] = []
+            const newPageFormId: {
+                standardId: string,
+                softwareId: string
+            }[] = []
+            const newDatas = []
+            for (const block of blocks) {
+                countPageBlock++
+                newPageBlockId.push({
+                    standardId: block.id,
+                    softwareId: `LOG_BLOCK_${countPageBlock}`
+                })
+                if (block.htmlElement === 'select') {
+                    newPageFormId.push({
+                        standardId: block.id,
+                        softwareId: `LOG_BLOCK_${countPageBlock}`
+                    })
+                }
+
+                newDatas.push(await prisma.page_Block.create({
+                    data: {
+                        htmlElement: block.htmlElement,
+                        pageVersion: newPage.version,
+                        label: block.label,
+                        createdBy: userId,
+                        order: block.order,
+                        level1: block.level1,
+                        id: `LOG_BLOCK_${countPageBlock}`,
+                        sourceDsnId: block.sourceDsnId,
+                        options: block.options,
+                        optionsBlockId: block.optionsBlockId,
+                        optionsFormId: block.optionsFormId,
+                        blockMasterId: block.blockMasterId ? newPageBlockId.find((blockId) => blockId.standardId === block.blockMasterId)?.softwareId : null,
+                        pageId: newPage.id,
+                        type: block.type,
+                        slug: generateSlug(`LOG_BLOCK_${countPageBlock}`),
+                        typeInput: block.typeInput,
+                        blockIdSource: block.id,
+                        min: block.min,
+                        max: block.max,
+                        minLength: block.minLength,
+                        maxLength: block.maxLength,
+                        readonly: block.readonly,
+                        required: block.required
+                    }
+                }))
+
+            }
+            //Update optionsBlockId and optionsFormId
+            const selects = newDatas.filter((data) => data.htmlElement === 'select' && data.optionsBlockId !== null)
+            const otherPage = await prisma.page.findMany({
+                where: {
+                    level: 'Logiciel',
+                    clientId,
+                    softwareLabel,
+                    id: {
+                        not: newPage.id
+                    },
+
+                },
+                include: {
+                    Page_Block: true
+                }
+            })
+            newDatas.push(...otherPage.map((page) => page.Page_Block).flat(1))
+            for (const select of selects) {
+                const optionsBlockId = select.optionsBlockId
+                const optionsFormId = select.optionsFormId
+                const newOptionsBlockId = newDatas.find(data => data.blockIdSource === optionsBlockId)?.id
+                const newOptionsFormId = newDatas.find(data => data.blockIdSource === optionsFormId)?.id
+                if (newOptionsBlockId && newOptionsFormId) {
+                    await prisma.page_Block.update({
+                        where: {
+                            id: select.id
+                        },
+                        data: {
+                            optionsBlockId: newOptionsBlockId,
+                            optionsFormId: newOptionsFormId
+                        }
+                    })
+                }
+            }
+
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la duplication de la page')
+
+        }
+    }
 
 }

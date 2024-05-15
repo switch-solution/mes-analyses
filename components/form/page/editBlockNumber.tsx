@@ -18,7 +18,24 @@ import { Input } from "@/components/ui/input";
 import { BlockEditSchema } from "@/src/helpers/definition";
 import { Button } from "@/components/ui/button";
 import { editBlock } from "@/src/features/actions/page/page.actions";
-export default function EditBlock({ blockSlug, clientSlug, pageSlug, softwareSlug }: { blockSlug: string, clientSlug: string, pageSlug: string, softwareSlug: string }) {
+export default function EditBlockNumber({ blockSlug,
+    clientSlug,
+    pageSlug,
+    softwareSlug,
+    block }:
+    {
+        blockSlug: string,
+        clientSlug: string,
+        pageSlug: string,
+        softwareSlug: string
+        block: {
+            label: string,
+            min: number,
+            max: number,
+            required: boolean,
+            readonly: boolean
+        }
+    }) {
     const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof BlockEditSchema>>({
         resolver: zodResolver(BlockEditSchema),
@@ -27,13 +44,14 @@ export default function EditBlock({ blockSlug, clientSlug, pageSlug, softwareSlu
             clientSlug,
             softwareSlug,
             pageSlug,
-            min: 1,
-            max: 99999,
+            min: block.min,
+            max: block.max,
+            label: block.label,
             minLength: 1,
             maxLength: 255,
             buttonLabel: 'Valider',
-            required: false,
-            readonly: false,
+            required: block.required,
+            readonly: block.readonly,
 
 
         }
@@ -109,7 +127,7 @@ export default function EditBlock({ blockSlug, clientSlug, pageSlug, softwareSlu
                                 <Input type="text" placeholder="shadcn" {...field} />
                             </FormControl>
                             <FormDescription>
-                                This is your public display name.
+                                Saisir le libellé de votre champ.
                             </FormDescription>
                             <FormMessage />
                         </FormItem>
@@ -125,7 +143,7 @@ export default function EditBlock({ blockSlug, clientSlug, pageSlug, softwareSlu
                                 <Input type="number" placeholder="shadcn" {...field} />
                             </FormControl>
                             <FormDescription>
-                                This is your public display name.
+                                Préciser la valeur minimum à saisir par default 1.
                             </FormDescription>
                             <FormMessage />
                         </FormItem>
@@ -141,39 +159,7 @@ export default function EditBlock({ blockSlug, clientSlug, pageSlug, softwareSlu
                                 <Input type="number" placeholder="shadcn" {...field} />
                             </FormControl>
                             <FormDescription>
-                                This is your public display name.
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="minLength"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nombre minimum de caractère</FormLabel>
-                            <FormControl>
-                                <Input type="number" placeholder="shadcn" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                                This is your public display name.
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="maxLength"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nombre minimum de caractère</FormLabel>
-                            <FormControl>
-                                <Input type="number" placeholder="shadcn" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                                This is your public display name.
+                                Préciser la valeur maximum à saisir par default 9999.
                             </FormDescription>
                             <FormMessage />
                         </FormItem>

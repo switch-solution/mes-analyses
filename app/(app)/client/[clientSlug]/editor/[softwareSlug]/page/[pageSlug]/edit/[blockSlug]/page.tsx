@@ -1,7 +1,6 @@
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
 import { notFound } from "next/navigation";
-import DynamicPageAnalyse from "@/components/dynamicPageAnalyse/dynamicPageAnalyse";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -12,8 +11,11 @@ import {
 import Link from "next/link";
 import { DynamicPage } from "@/src/classes/dynamicPage";
 import { Container, ContainerBreadCrumb, ContainerForm, } from "@/components/layout/container";
-import EditBlock from "@/components/form/page/editBlock";
+import EditBlockText from "@/components/form/page/editBlockText";
+import EditBlockNumber from "@/components/form/page/editBlockNumber";
+import EditBlockSelect from "@/components/form/page/editBlockSelect";
 export default async function Page({ params }: { params: { clientSlug: string, pageSlug: string, softwareSlug: string, blockSlug: string } }) {
+
     const client = new Client(params.clientSlug);
     const clientExist = await client.clientExist();
     if (!clientExist) {
@@ -33,7 +35,10 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     if (!userIsAuthorized) {
         throw new Error('Vous devez etre editor pour acceder a cette page');
     }
-    const blocks = await page.getblocks();
+    const block = await page.blockExist(params.blockSlug);
+    if (!block) {
+        notFound();
+    }
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -67,7 +72,52 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <ContainerForm title={`${pageExist.internalId} ${pageExist.label}`}>
-                <EditBlock clientSlug={params.clientSlug} pageSlug={params.pageSlug} blockSlug={params.blockSlug} softwareSlug={params.softwareSlug} />
+                {block.typeInput === 'text' && block.htmlElement === 'input' && <EditBlockText
+                    clientSlug={params.clientSlug}
+                    pageSlug={params.pageSlug}
+                    blockSlug={params.blockSlug}
+                    softwareSlug={params.softwareSlug}
+                    block={
+                        {
+                            label: block.label,
+                            minLength: block.minLength,
+                            maxLength: block.maxLength,
+                            required: block.required,
+                            readonly: block.readonly
+                        }
+                    }
+                />}
+                {block.typeInput === 'number' && block.htmlElement === 'input' && <EditBlockNumber
+                    clientSlug={params.clientSlug}
+                    pageSlug={params.pageSlug}
+                    blockSlug={params.blockSlug}
+                    softwareSlug={params.softwareSlug}
+                    block={
+                        {
+                            label: block.label,
+                            min: block.min,
+                            max: block.max,
+                            required: block.required,
+                            readonly: block.readonly
+                        }
+                    }
+                />}
+                {block.htmlElement === 'select' && <EditBlockSelect
+                    clientSlug={params.clientSlug}
+                    pageSlug={params.pageSlug}
+                    blockSlug={params.blockSlug}
+                    softwareSlug={params.softwareSlug}
+                    block={
+                        {
+                            label: block.label,
+                            min: block.min,
+                            max: block.max,
+                            required: block.required,
+                            readonly: block.readonly
+                        }
+                    }
+                />}
+
             </ContainerForm>
         </Container>
     )

@@ -63,7 +63,6 @@ export class Software {
     }
 
 
-
     async softwareLabelExistForThisClient(label: string, clientId: string) {
         const softwareLabelExist = await prisma.software.findFirst({
             where: {

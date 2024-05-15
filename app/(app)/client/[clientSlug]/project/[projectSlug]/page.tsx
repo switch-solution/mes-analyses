@@ -8,7 +8,6 @@ import {
     Import,
     Check
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -70,7 +69,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
         where: {
             softwareLabel: projectDetails.softwareLabel,
             clientId: client.clientId,
-            status: 'Actif'
+            status: 'Validé'
         }
     })
     const countForms = await project.countForms()
@@ -195,7 +194,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                         <TableCell className="font-medium">{row.label}</TableCell>
                                                         <TableCell className="hidden md:table-cell">{row.createdAt.toLocaleDateString()}</TableCell>
                                                         <TableCell>{'Imprimer'}</TableCell>
-                                                        <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.Page.slug}`}><ArrowRight /></Link></TableCell>
+                                                        <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}`}><ArrowRight /></Link></TableCell>
                                                         <TableCell className="text-right"><Check /></TableCell>
                                                     </TableRow>
                                                     )
@@ -237,7 +236,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                             <TableCell className="font-medium">{row.label}</TableCell>
                                                             <TableCell>{row.version}</TableCell>
                                                             <TableCell>{row.createdAt.toLocaleDateString()}</TableCell>
-                                                            <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}/import`}><Import /></Link></TableCell>
+                                                            <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/duplicate/${row.slug}`}><Import /></Link></TableCell>
                                                         </TableRow>
                                                         )
                                                     })
@@ -272,7 +271,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                 <TableRow>
                                                     <TableCell className="font-medium">DSN</TableCell>
                                                     <TableCell>Importer les données à partir de vos fichiers DSN</TableCell>
-                                                    <TableCell><Import /></TableCell>
+                                                    <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/dsn`}><Import /></Link></TableCell>
                                                 </TableRow>
                                                 <TableRow>
                                                     <TableCell className="font-medium">Convention colletive</TableCell>

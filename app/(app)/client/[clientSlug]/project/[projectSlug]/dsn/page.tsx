@@ -1,39 +1,33 @@
-import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
-import { columns } from "./dataTablecolumns"
-import { DataTable } from "@/components/layout/dataTable";
+import { Security } from "@/src/classes/security"
 import { Project } from "@/src/classes/project"
 import { notFound } from "next/navigation"
+import { User } from "@/src/classes/user"
+import { Container, ContainerBreadCrumb, ContainerForm } from "@/components/layout/container"
+import UploadFileDsn from "@/components/form/dsn/upload"
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
+    BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Security } from "@/src/classes/security"
-import { DynamicPage } from "@/src/classes/dynamicPage"
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const project = new Project(params.projectSlug)
     const projectExist = await project.projectExist()
     if (!projectExist) {
         notFound()
     }
+
     const security = new Security()
     await security.isAuthorizedInThisProject(params.projectSlug)
+    const user = new User(security.userId)
+    const client = await user.getMyClientActive()
+    const projectDetails = await project.projectDetails()
+    if (!projectDetails) {
+        notFound()
+    }
 
-    const filesList = await project.files()
-
-    const pages = await project.pages()
-    const projectDetail = await project.projectDetails()
-    const extraction = await project.projectDatas()
-    const dataTable = extraction.map((data) => {
-        return {
-            ...data,
-            formTitle: data.formTitle,
-            projectSlug: params.projectSlug,
-            clientSlug: params.clientSlug,
-        }
-    })
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -48,19 +42,15 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}`}>{params.projectSlug}</BreadcrumbLink>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/dsn`}>DSN</BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbLink href={`/client/${params.clientSlug}/project/${params.projectSlug}/processus`}>Processus</BreadcrumbLink>
-                        </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
             </ContainerBreadCrumb>
-            <ContainerDataTable>
-                <DataTable columns={columns} data={dataTable} inputSearch="formTitle" inputSearchPlaceholder="Chercher par formulaire" href={`/client/${params.clientSlug}/project/${params.projectSlug}/file/create`} buttonLabel="Envoyer un nouveau fichier" />
-            </ContainerDataTable>
+            <ContainerForm>
+                <UploadFileDsn clientSlug={params.clientSlug} projectSlug={params.projectSlug} />
+            </ContainerForm>
         </Container>
     )
-
 }

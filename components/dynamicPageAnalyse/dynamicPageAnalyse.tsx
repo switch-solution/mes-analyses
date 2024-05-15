@@ -43,7 +43,7 @@ export default function DynamicPageAnalyse({
                     {block.htmlElement === 'form' && (
                         <div>
                             < div className="ml-8">
-                                {blocks.filter(input => input.blockMasterId === block.id && input.htmlElement === 'input').map((input) => (
+                                {blocks.filter(input => input.blockMasterId === block.id).map((input) => (
                                     <DynamicPageEditBlock
                                         key={input.id}
                                         clientSlug={clientSlug}
@@ -56,33 +56,6 @@ export default function DynamicPageAnalyse({
                                 ))}
                                 <DynamicPageCommande key={`addChildform-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='form' blockMasterId={block.id} placeholder="Ajouter un champ dans le formulaire avec la touche /" softwareSlug={softwareSlug} />
                             </div >
-                            <div className="ml-8">
-                                <div>
-                                    {blocks.filter(input => input.blockMasterId === block.id && input.htmlElement === 'select').map((select) => (
-                                        <DynamicPageEditBlock key={select.id}
-                                            clientSlug={clientSlug}
-                                            blockSlug={select.slug}
-                                            pageSlug={pageSlug}
-                                            label={select.label}
-                                            softwareSlug={softwareSlug}
-                                            type={select.type}
-                                        />))}
-                                </div>
-                                <div className="ml-12">
-                                    {blocks.filter(input => input.blockMasterId === block.id && input.htmlElement === 'select').map((select) => (
-                                        blocks.filter(input => input.blockMasterId === select.id && input.htmlElement === 'option').map((option) => (
-                                            <DynamicPageEditBlock key={option.id}
-                                                clientSlug={clientSlug}
-                                                blockSlug={option.slug}
-                                                pageSlug={pageSlug}
-                                                label={option.label}
-                                                softwareSlug={softwareSlug}
-                                                type={option.type}
-                                            />))))}
-                                    <DynamicPageCommande key={`addOption-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='select' blockMasterId={block.id} placeholder="Ajouter une valeur dans la liste à choix multiple /" softwareSlug={softwareSlug} />
-
-                                </div>
-                            </div>
 
                         </div>
 

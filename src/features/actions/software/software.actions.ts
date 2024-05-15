@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { SoftwaresSchema, CreateUserSoftwareSchema } from "@/src/helpers/definition";
 import { createLog } from "@/src/query/logger.query";
 import type { Logger } from "@/src/helpers/type";
-import { User } from "@/src/classes/user";
+import { DynamicPage } from "@/src/classes/dynamicPage";
 import { getClientSirenBySlug } from "@/src/query/client.query";
 import { authentificationActionUserIsAdminClient, ActionError } from "@/lib/safe-actions";
 import z from "zod";
@@ -129,6 +129,20 @@ export const createSoftware = authentificationActionUserIsAdminClient(SoftwaresS
             label,
             userId
         })
+        //Duplicate page
+        const pages = await prisma.page.findMany({
+            where: {
+                level: 'Standard'
+            }
+        })
+        for (const page of pages) {
+            const newPage = new DynamicPage(page.slug)
+            await newPage.duplicate({
+                softwareLabel: soft.label,
+                clientId,
+                userId
+            })
+        }
         if (!soft) {
             throw new ActionError("Une erreur est survenue lors de la création du logiciel.")
         }

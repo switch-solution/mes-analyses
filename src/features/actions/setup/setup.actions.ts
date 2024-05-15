@@ -11,6 +11,7 @@ import { User } from "@/src/classes/user";
 import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
 import { Client } from "@/src/classes/client";
 import { Software } from "@/src/classes/software";
+import { DynamicPage } from "@/src/classes/dynamicPage";
 export const createSetupLegal = action(SetupLegalSchema, async (values: z.infer<typeof SetupLegalSchema>, userId) => {
     if (!userId) throw new ActionError("Vous devez être connecté pour accéder à cette page.")
     const email = await prisma.user.findFirst({
@@ -111,6 +112,32 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
                 isSetup: false
             }
         })
+        await prisma.userOtherData.update({
+            where: {
+                userId: userId
+            },
+            data: {
+                isSetup: true
+            }
+        })
+
+        //Duplicate page
+        const pages = await prisma.page.findMany({
+            where: {
+                level: 'Standard'
+            }
+        })
+        for (const page of pages) {
+            const newPage = new DynamicPage(page.slug)
+            await newPage.duplicate({
+                softwareLabel: soft.label,
+                clientId,
+                userId
+            })
+        }
+        if (!soft) {
+            throw new ActionError("Une erreur est survenue lors de la création du logiciel.")
+        }
         await prisma.userOtherData.update({
             where: {
                 userId: userId

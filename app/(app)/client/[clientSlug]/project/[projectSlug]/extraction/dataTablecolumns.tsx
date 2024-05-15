@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ButtonExportCsv } from "@/components/button/csvButtonFile"
 import { ButtonExportXlsx } from "@/components/button/excelButtonFile"
 export type Extraction = {
+    pageTitle: string
     projectSlug: string
     clientSlug: string
     formTitle: string
@@ -11,6 +12,10 @@ export type Extraction = {
 }
 
 export const columns: ColumnDef<Extraction>[] = [
+    {
+        accessorKey: "pageTitle",
+        header: "Libellé page",
+    },
     {
         accessorKey: "formTitle",
         header: "Libellé",

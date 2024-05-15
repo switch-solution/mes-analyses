@@ -748,7 +748,7 @@ export const BlockPageCreateSchema = z.object({
     pageSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
     softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
     blockMasterId: z.string().optional(),
-    html: z.enum(["h1", "h2", "h3", "h4", "h5", "h6", "p", "ul", "form", "input", "select", "switch", "li", "ol", "option", "img"]),
+    html: z.enum(["h1", "h2", "h3", "h4", "h5", "h6", "p", "ul", "form", "input_text", "input_number", "select", "switch", "li", "ol", "option", "img"]),
 })
 
 export const BlockEditSchema = z.object({
@@ -767,6 +767,14 @@ export const BlockEditSchema = z.object({
     label: z.string().optional(),
 })
 
+export const BlockOptionCreateSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    blockSlug: z.string({ required_error: "Le block est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
+    pageSlug: z.string({ required_error: "La page est obligatoire." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(1, { message: "Le libellé doit contenir au moins 1 caractère." }),
+})
+
 export const BlockPageEditSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     blockSlug: z.string({ required_error: "Le block est obligatoire." }),
@@ -780,7 +788,7 @@ export const FormCreateSchema = z.object({
     projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
     pageSlug: z.string({ required_error: "La page est obligatoire." }),
     formId: z.string({ required_error: "Le formulaire est obligatoire." }),
-
+    projectPageSlug: z.string({ required_error: "La page du projet est obligatoire." }),
 })
 
 export const FormAddChildSchema = z.object({
@@ -795,6 +803,7 @@ export const FormBaseSchema = z.object({
     projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
     pageSlug: z.string({ required_error: "La page est obligatoire." }),
     formId: z.string({ required_error: "Le formulaire est obligatoire." }),
+    projectPageSlug: z.string({ required_error: "La page du projet est obligatoire." }),
     formGroup: z.string({ required_error: "Le groupe est obligatoire." }),
     blockSlug: z.string({ required_error: "Le block est obligatoire." }),
 })

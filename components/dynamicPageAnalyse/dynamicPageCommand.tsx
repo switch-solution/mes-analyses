@@ -156,7 +156,8 @@ export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement,
                                             {htmlElement === 'form' &&
                                                 <SelectGroup>
                                                     <SelectLabel>Zone de type formulaire</SelectLabel>
-                                                    <SelectItem value="input">Champ</SelectItem>
+                                                    <SelectItem value="input_text">Champ texte</SelectItem>
+                                                    <SelectItem value="input_number">Champ numérique</SelectItem>
                                                     <SelectItem value="select">Liste déroulante</SelectItem>
                                                     <SelectItem value="switch">Switch</SelectItem>
                                                 </SelectGroup>

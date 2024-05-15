@@ -30,6 +30,7 @@ export class Project {
                     status: 'Validé'
                 }
             })
+            let countPageProject = await prisma.project_Page.count()
             const project = await prisma.project.create({
                 data: {
                     label: label,
@@ -56,7 +57,8 @@ export class Project {
                                 order: page.order,
                                 pageVersion: page.version,
                                 label: page.label,
-                                createdBy: userId
+                                createdBy: userId,
+                                slug: generateSlug(`${label}-${countPageProject++}`)
                             }
                         })
                     }
@@ -183,11 +185,13 @@ export class Project {
         projectLabel,
         softwareLabel,
         clientId,
+        pageTitle
     }: {
         formId: string,
         projectLabel: string,
         softwareLabel: string,
         clientId: string,
+        pageTitle: string
     }) {
         try {
             const formValues = await prisma.project_Block_Value.findMany({
@@ -233,6 +237,7 @@ export class Project {
             }
 
             return {
+                pageTitle,
                 formTitle: formTitle.label,
                 version: formTitle.pageVersion,
                 datas: datas
@@ -272,6 +277,7 @@ export class Project {
                 }
             })
             const datas: {
+                pageTitle: string,
                 formTitle: string,
                 version: number,
                 datas:
@@ -284,6 +290,7 @@ export class Project {
                 const forms = page.Page.Page_Block
                 for (const form of forms) {
                     const formObject = await this.getFormDataToObject({
+                        pageTitle: page.label,
                         formId: form.id,
                         projectLabel: projectDetail.label,
                         softwareLabel: projectDetail.softwareLabel,
@@ -421,7 +428,6 @@ export class Project {
                 },
                 include: {
                     Page: true
-
                 }
             })
 
