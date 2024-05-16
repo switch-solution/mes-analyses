@@ -312,9 +312,13 @@ export class Project {
     async validatorProjet() {
         try {
             const project = await this.projetDetail()
+            if (!project) {
+                throw new Error('Projet introuvable')
+            }
             const validator = await prisma.userProject.findMany({
                 where: {
-                    projectLabel: project?.label,
+                    projectLabel: project.label,
+                    projectClientId: project.clientId,
                     isValidator: true
                 }
             })

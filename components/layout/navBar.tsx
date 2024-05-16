@@ -16,9 +16,6 @@ import {
     Building2,
     Users2,
     PanelLeft,
-    Package2,
-    ShoppingCart,
-    Package,
     MessageCircle,
     Pencil,
     Workflow,
@@ -187,20 +184,6 @@ export default async function NavBar() {
                         >
                             <Building2 className="size-5" />
                             Client
-                        </Link>
-                        <Link
-                            href="#"
-                            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                        >
-                            <Package className="size-5" />
-                            Products
-                        </Link>
-                        <Link
-                            href="#"
-                            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                        >
-                            <Users2 className="size-5" />
-                            Customers
                         </Link>
                         <Link
                             href="/profile/"

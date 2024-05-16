@@ -323,6 +323,49 @@ export class ProjectData {
 
     }
 
+    async workflow() {
+        try {
+            const workflow = await prisma.project_Page.findUniqueOrThrow({
+                where: {
+                    slug: this.slug,
+                },
+                include: {
+                    Page_Validation: {
+                        include: {
+                            User: {
+                                select: {
+                                    UserOtherData: {
+                                        select: {
+                                            firstname: true,
+                                            lastname: true
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
+                }
+            })
+            const workflowList = workflow.Page_Validation.map((w) => {
+                return {
+                    pageLabel: workflow.label,
+                    firstname: w.User.UserOtherData[0].firstname,
+                    lastname: w.User.UserOtherData[0].lastname,
+                    response: w.response
+                }
+
+            })
+
+            return workflowList
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la récupération du workflow')
+        }
+
+    }
+
 
 
 

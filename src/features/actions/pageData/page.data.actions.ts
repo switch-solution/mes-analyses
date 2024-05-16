@@ -6,7 +6,7 @@ import { FormCreateSchema, } from '@/src/helpers/definition';
 import z from 'zod';
 import { ActionError, authentifcationActionUserIsAuthorizeToProject } from "@/lib/safe-actions";
 import { DynamicPage } from '@/src/classes/dynamicPage';
-import { ProjectData } from "@/src/classes/pageData"
+import { ProjectData } from "@/src/classes/projectData"
 import { prisma } from '@/lib/prisma';
 import { Project } from '@/src/classes/project';
 import { Security } from '@/src/classes/security';

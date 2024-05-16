@@ -13,6 +13,7 @@ import { legalV0005Seed } from './seed/11_legal.v0005.seed'
 import { opsV00002Seed } from './seed/12_ops.v0002.seed'
 import { pageV0001Seed } from './seed/13_page.v0001.seed'
 import { pageV0002Seed } from './seed/14_page.v0002.seed'
+import { pageV0003Seed } from './seed/15_page.v0003.seed'
 
 const prisma = new PrismaClient(
     {
@@ -86,9 +87,6 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-
-
-
     await dsnAbsenceV0001.run()
         .then(async () => {
             await prisma.$disconnect()
@@ -171,10 +169,15 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-
-
-
-
+    await pageV0003Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
 
 
 }

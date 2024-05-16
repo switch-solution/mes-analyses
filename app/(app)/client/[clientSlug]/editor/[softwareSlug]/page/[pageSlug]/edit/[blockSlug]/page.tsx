@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/prisma"
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
 import { notFound } from "next/navigation";
@@ -39,6 +40,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     if (!block) {
         notFound();
     }
+    const dsn = await prisma.dsn_Structure.findMany()
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -73,6 +75,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
             </ContainerBreadCrumb>
             <ContainerForm title={`${pageExist.internalId} ${pageExist.label}`}>
                 {block.typeInput === 'text' && block.htmlElement === 'input' && <EditBlockText
+                    dsn={dsn}
                     clientSlug={params.clientSlug}
                     pageSlug={params.pageSlug}
                     blockSlug={params.blockSlug}
@@ -83,7 +86,8 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                             minLength: block.minLength,
                             maxLength: block.maxLength,
                             required: block.required,
-                            readonly: block.readonly
+                            readonly: block.readonly,
+                            sourceDsnId: block.sourceDsnId ? block.sourceDsnId : ''
                         }
                     }
                 />}

@@ -1,12 +1,14 @@
 import Link from "next/link"
+import AlertPageValidation from "@/components/alert/alertPageValidation"
 import {
     ChevronLeft,
     ChevronRight,
-    File,
+    Unlock,
+    Lock,
     ArrowRight,
-    Printer,
     Import,
-    Check
+    Check,
+    PrinterIcon
 } from "lucide-react"
 import {
     Breadcrumb,
@@ -49,6 +51,19 @@ import { User } from "@/src/classes/user"
 import { Security } from "@/src/classes/security"
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
+
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const project = new Project(params.projectSlug)
     const projectExist = await project.projectExist()
@@ -150,16 +165,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                     <TabsTrigger value="duplicate">Copier des pages</TabsTrigger>
                                     <TabsTrigger value="import">Import des données</TabsTrigger>
                                 </TabsList>
-                                <div className="ml-auto flex items-center gap-2">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="h-7 gap-1 text-sm"
-                                    >
-                                        <File className="size-3.5" />
-                                        <span className="sr-only sm:not-sr-only">Export</span>
-                                    </Button>
-                                </div>
                             </div>
                             <TabsContent value="page">
                                 <Card x-chunk="dashboard-05-chunk-3">
@@ -177,10 +182,13 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                     <TableHead className="hidden md:table-cell">
                                                         Date de création
                                                     </TableHead>
+                                                    <TableHead className="hidden md:table-cell">
+                                                        Status
+                                                    </TableHead>
                                                     <TableHead className="md:table-cell">
                                                         Imprimer
                                                     </TableHead>
-                                                    <TableHead className="md:table-cell">
+                                                    <TableHead className="hidden md:table-cell">
                                                         Ouvrir
                                                     </TableHead>
                                                     <TableHead className="md:table-cell">
@@ -191,11 +199,14 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                             <TableBody>
                                                 {pages.map((row) => {
                                                     return (<TableRow key={row.pageId}>
-                                                        <TableCell className="font-medium">{row.label}</TableCell>
+                                                        <TableCell className="font-medium"><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}`}>{row.label}</Link></TableCell>
                                                         <TableCell className="hidden md:table-cell">{row.createdAt.toLocaleDateString()}</TableCell>
-                                                        <TableCell>{'Imprimer'}</TableCell>
-                                                        <TableCell><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}`}><ArrowRight /></Link></TableCell>
-                                                        <TableCell className="text-right"><Check /></TableCell>
+                                                        <TableCell className="hidden md:table-cell">{row.status === 'En cours de rédaction' ? <Unlock /> : <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}/workflow`}><Lock /></Link>}</TableCell>
+                                                        <TableCell><PrinterIcon /></TableCell>
+                                                        <TableCell className="hidden md:table-cell"><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}`}><ArrowRight /></Link></TableCell>
+                                                        <TableCell>
+                                                            <AlertPageValidation clientSlug={params.clientSlug} projectSlug={params.projectSlug} projectPageSlug={row.slug} />
+                                                        </TableCell>
                                                     </TableRow>
                                                     )
                                                 })}

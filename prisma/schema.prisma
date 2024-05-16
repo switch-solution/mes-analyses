@@ -59,8 +59,8 @@ model User {
   UserClient      UserClient[]
   UserProject     UserProject[]
   UserSoftware    UserSoftware[]
-  Project_Approve Project_Approve[]
   Logger          Logger[]
+  Page_Validation Page_Validation[]
 }
 
 model UserOtherData {
@@ -120,6 +120,10 @@ model Client_API_Activity {
   clientId   String
   uuidApi    String
   url        String
+  ip         String?
+  country    String?
+  city       String?
+  method     String
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   createdBy  String     @default("system")
@@ -450,7 +454,6 @@ model Project {
   Logger             Logger[]
   slug               String               @unique
   Project_DSN        Project_DSN[]
-  Project_Approve    Project_Approve[]
   Project_Attachment Project_Attachment[]
   Project_Invitation Project_Invitation[]
   Project_Page       Project_Page[]
@@ -747,32 +750,6 @@ model Dsn_Structure {
   Page_Block Page_Block[]
 }
 
-model Project_Approve {
-  clientId      String
-  softwareLabel String
-  projectLabel  String
-  processusSlug String
-  rowSlug       String
-  userId        String
-  projectSlug   String
-  clientSlug    String
-  label         String
-  description   String
-  theme         String
-  isApproved    Boolean  @default(false)
-  isRefused     Boolean  @default(false)
-  comment       String?
-  slug          String   @unique @default(cuid())
-  response      String   @default("En attente")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdBy     String   @default("system")
-  User          User     @relation(fields: [userId], references: [id])
-  Project       Project  @relation(fields: [clientId, softwareLabel, projectLabel], references: [clientId, softwareLabel, label])
-
-  @@id([clientId, softwareLabel, projectLabel, rowSlug, processusSlug, userId])
-}
-
 model Rate_At {
   id        String   @id
   label     String
@@ -859,6 +836,7 @@ model Project_Page {
   Project             Project               @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
   Page                Page                  @relation(fields: [pageId, pageVersion], references: [id, version])
   Project_Block_Value Project_Block_Value[]
+  Page_Validation     Page_Validation[]
 }
 
 model Project_Block_Value {
@@ -879,4 +857,20 @@ model Project_Block_Value {
   updatedAt     DateTime     @updatedAt
   createdBy     String       @default("system")
   Page_Block    Page_Block   @relation(fields: [blockId], references: [id])
+}
+
+model Page_Validation {
+  projectPageId String
+  Project_Page  Project_Page @relation(fields: [projectPageId], references: [id])
+  userId        String
+  User          User         @relation(fields: [userId], references: [id])
+  response      String       @default("En attente")
+  comment       String?
+  deadline      DateTime     @default("4000-01-01T00:00:00Z")
+  slug          String       @unique
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  createdBy     String       @default("system")
+
+  @@id([projectPageId, userId])
 }

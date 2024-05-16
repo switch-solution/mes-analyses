@@ -33,7 +33,7 @@ export function ButtonExportCsv({ data }: { data: any[] }) {
                 onClick={handleClick}
             >
                 <File className="size-3.5" />
-                <span className="sr-only sm:not-sr-only">Exporter au format csv</span>
+                <span className="sr-only sm:not-sr-only sm:hidden">Exporter au format csv</span>
             </Button>
         </div>
     )

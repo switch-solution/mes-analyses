@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Security } from "@/src/classes/security";
 import { Project } from "@/src/classes/project";
 import { Container, ContainerBreadCrumb, ContainerPage } from "@/components/layout/container"
-import { ProjectData } from "@/src/classes/pageData";
+import { ProjectData } from "@/src/classes/projectData";
 import DynamicPageView from "@/components/dynamicPageAnalyse/dynamicPageView";
 import {
     Breadcrumb,
@@ -74,19 +74,21 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     </BreadcrumbList>
                 </Breadcrumb>
             </ContainerBreadCrumb>
-            <ContainerPage title={`${pageExist.internalId} ${pageExist.label} `}>
-                <DynamicPageView
-                    blocks={pageBlock}
-                    clientSlug={params.clientSlug}
-                    projectPageSlug={params.projectPageSlug}
-                    pageSlug={pageSlug}
-                    internalId={pageExist.internalId}
-                    label={pageExist.label}
-                    projectSlug={params.projectSlug}
-                    datas={datas}
-                    options={options}
-                />
-            </ContainerPage>
+            <div className="mt-2 md:mt-0">
+                <ContainerPage title={`${pageExist.internalId} ${pageExist.label}`}>
+                    <DynamicPageView
+                        blocks={pageBlock}
+                        clientSlug={params.clientSlug}
+                        projectPageSlug={params.projectPageSlug}
+                        pageSlug={pageSlug}
+                        internalId={pageExist.internalId}
+                        label={pageExist.label}
+                        projectSlug={params.projectSlug}
+                        datas={datas}
+                        options={options}
+                    />
+                </ContainerPage>
+            </div>
         </Container>
     )
 

@@ -2,9 +2,6 @@ import { prisma } from '@/lib/prisma'
 import { getAuthSession } from '@/lib/auth'
 export class Security {
     private _userId: string = ''
-    constructor() {
-    }
-
     private async isAuthentificated() {
         const user = await getAuthSession()
         if (!user?.user.id) {
@@ -51,7 +48,22 @@ export class Security {
      * @param apiKey 
      * @returns 
      */
-    async apiIsValid(apiKey: string, url: string) {
+    async apiIsValid({
+        apiKey,
+        url,
+        country,
+        city,
+        ip,
+        method
+    }: {
+        apiKey: string,
+        url: string,
+        country?: string,
+        city?: string,
+        ip?: string
+        method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+
+    }) {
         try {
             const splitApi = apiKey.split('Bearer ')
             if (splitApi.length !== 2) {
@@ -74,7 +86,11 @@ export class Security {
                 data: {
                     url,
                     clientId: apiExist.clientId,
-                    uuidApi: apiExist.uuid
+                    uuidApi: apiExist.uuid,
+                    country,
+                    city,
+                    ip,
+                    method
 
                 }
             })

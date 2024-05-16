@@ -22,7 +22,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function middleware(request: NextRequest) {
     //Application is only available in France 
     if (request.geo?.country !== "FR" && env.NODE_ENV === "production") {
-        return new Response('Blocked for legal reasons', { status: 451 })
+        return new Response(`Blocked for legal reasons this service is not available in ${request.geo?.country}`, { status: 451 })
     }
 
     //Application maintenance mode

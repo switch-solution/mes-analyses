@@ -4,10 +4,9 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { updateProject } from "@/src/features/actions/project/project.action"
-import { ProjectEditSchema } from "@/src/helpers/definition";
+import { editPage } from "@/src/features/actions/page/page.actions";
+import { PageEditSchema } from "@/src/helpers/definition";
 import { ButtonLoading } from "@/components/ui/button-loader";
-
 import {
     Form,
     FormControl,
@@ -17,6 +16,7 @@ import {
     FormMessage,
     FormDescription
 } from "@/components/ui/form"
+
 import {
     Select,
     SelectContent,
@@ -26,30 +26,40 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-export default function EditProject({ clientSlug, projectSlug, project }: {
-    clientSlug: string, projectSlug: string, project: {
+export default function EditPage({
+    clientSlug,
+    softwareSlug,
+    pageSlug,
+    page
+
+}: {
+    clientSlug: string,
+    softwareSlug: string,
+    pageSlug: string,
+    page: {
         label: string,
-        description: string,
-        status: 'Actif' | 'Archivé' | 'En attente'
+        status: 'Actif' | 'Archivé' | 'En attente',
+        order: number
 
     }
 }) {
     const [loading, setLoading] = useState(false)
-    const form = useForm<z.infer<typeof ProjectEditSchema>>({
-        resolver: zodResolver(ProjectEditSchema),
+    const form = useForm<z.infer<typeof PageEditSchema>>({
+        resolver: zodResolver(PageEditSchema),
         defaultValues: {
-            projectSlug: projectSlug,
             clientSlug: clientSlug,
-            label: project.label,
-            description: project.description,
-            status: project.status
+            pageSlug: pageSlug,
+            softwareSlug: softwareSlug,
+            label: page.label,
+            order: page.order,
+            status: page.status as 'Archivé' | 'En attente' | 'Validé' // Update the type of status
         },
     })
 
-    const onSubmit = async (data: z.infer<typeof ProjectEditSchema>) => {
+    const onSubmit = async (data: z.infer<typeof PageEditSchema>) => {
         try {
             setLoading(true)
-            const action = await updateProject(data)
+            const action = await editPage(data)
             if (action?.serverError) {
                 setLoading(false)
                 toast(`${action.serverError}`, {
@@ -87,7 +97,7 @@ export default function EditProject({ clientSlug, projectSlug, project }: {
                 />
                 <FormField
                     control={form.control}
-                    name="projectSlug"
+                    name="softwareSlug"
                     render={({ field }) => (
                         <FormItem>
                             <FormControl>
@@ -97,16 +107,28 @@ export default function EditProject({ clientSlug, projectSlug, project }: {
                         </FormItem>
 
                     )}
+                />
+                <FormField
+                    control={form.control}
+                    name="pageSlug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input type="hidden" required {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
 
+                    )}
                 />
                 <FormField
                     control={form.control}
                     name="label"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Nom de votre projet</FormLabel>
+                            <FormLabel>Libellé de la page</FormLabel>
                             <FormControl>
-                                <Input placeholder="Mon nouveau projet" readOnly disabled required {...field} />
+                                <Input type='text' required {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -115,19 +137,17 @@ export default function EditProject({ clientSlug, projectSlug, project }: {
                 />
                 <FormField
                     control={form.control}
-                    name="description"
+                    name="order"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Description de votre projet</FormLabel>
+                            <FormLabel>Ordre de la page</FormLabel>
                             <FormControl>
-                                <Input placeholder="Mon nouveau projet" required {...field} />
+                                <Input type='number' required {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
 
                     )}
-
-
                 />
                 <FormField
                     control={form.control}
@@ -142,20 +162,20 @@ export default function EditProject({ clientSlug, projectSlug, project }: {
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="Actif">Actif</SelectItem>
+                                    <SelectItem value="Validé">Validé</SelectItem>
                                     <SelectItem value="En attente">En attente</SelectItem>
                                     <SelectItem value="Archivé">Archivé</SelectItem>
                                 </SelectContent>
                             </Select>
+
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-
-
                 {loading ? <ButtonLoading /> : <Button type="submit">Envoyer</Button>}
 
             </form>
+
         </Form>
 
 

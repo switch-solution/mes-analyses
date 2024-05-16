@@ -37,7 +37,7 @@ const dsnDataSchema = z.object({
 
     })),
     jobList: z.array(z.object({
-        label: z.string(),
+        employmentLabel: z.string(),
     })),
     idccList: z.array(z.object({
         idcc: z.string(),
@@ -67,7 +67,7 @@ const inputs = async ({
                             in: dsnStructure
                         }
                     }
-                }
+                },
             },
             include: {
                 Page_Block: {
@@ -148,13 +148,13 @@ export const dsnData = authentifcationActionUserIsAuthorizeToProject(dsnDataSche
         const allPages = [...societyInput, ...establishementsInput, ...jobsInput]
         //Check page exist
         for (const page of allPages) {
-            const countSocietyPage = await projectPageExist({
+            const countPage = await projectPageExist({
                 clientId,
                 softwareLabel,
                 pageId: page.id
             })
             //Create page if not exist
-            if (!countSocietyPage) {
+            if (!countPage) {
                 const duplicate = new DynamicPage(page.slug)
                 await duplicate.duplicatePage({
                     label: page.label,
@@ -216,6 +216,24 @@ export const dsnData = authentifcationActionUserIsAuthorizeToProject(dsnDataSche
             }
         })
 
+        const formWithJobInput = jobsInput.map((job) =>
+            job.Page_Block.map((block) => {
+                return {
+                    formId: block.blockMasterId
+                }
+            })
+        ).flat(1)
+
+        const formsJob = await prisma.page_Block.findMany({
+            where: {
+                id: {
+                    in: formWithJobInput
+                        .map((form) => form.formId)
+                        .filter((formId) => formId !== null) // Filter out null values
+                        .map((formId) => formId as string) // Cast to string
+                }
+            }
+        })
 
         //Add data in forms
 
@@ -233,6 +251,16 @@ export const dsnData = authentifcationActionUserIsAuthorizeToProject(dsnDataSche
         await saveDatas({
             datas: establishmentList,
             forms: formsEstablishemnt,
+            projectPage,
+            projectLabel,
+            clientId,
+            softwareLabel,
+            userId
+        })
+
+        await saveDatas({
+            datas: jobList,
+            forms: formsJob,
             projectPage,
             projectLabel,
             clientId,
@@ -282,10 +310,11 @@ const saveDatas = async ({
                 })
                 for (const input of inputs) {
                     const projectPageId = projectPage.find((page) => page.pageId === input.pageId)?.id
+                    const status = projectPage.find((page) => page.pageId === input.pageId)?.status
                     if (input.sourceDsnId) {
                         const fields = extractionsList.find((field) => field.dsnStructure === input.sourceDsnId)
                         const value = data[fields?.field as keyof typeof data];
-                        if (value) {
+                        if (value && status === "En cours de rédaction") {
                             if (projectPageId) {
                                 await prisma.project_Block_Value.create({
                                     data: {
@@ -307,7 +336,7 @@ const saveDatas = async ({
                             }
                         }
                     } else {
-                        if (projectPageId) {
+                        if (projectPageId && status === "En cours de rédaction") {
                             await prisma.project_Block_Value.create({
                                 data: {
                                     projectLabel,

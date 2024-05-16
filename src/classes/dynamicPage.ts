@@ -343,6 +343,7 @@ export class DynamicPage {
         maxLength,
         required,
         readonly,
+        dsn
     }: {
         label: string,
         blockSlug: string,
@@ -351,7 +352,8 @@ export class DynamicPage {
         minLength: number,
         maxLength: number,
         required: boolean,
-        readonly: boolean
+        readonly: boolean,
+        dsn: string | null
     }) {
         try {
             await prisma.page_Block.update({
@@ -365,7 +367,8 @@ export class DynamicPage {
                     minLength,
                     maxLength,
                     required,
-                    readonly
+                    readonly,
+                    sourceDsnId: dsn
                 }
             })
         } catch (err) {

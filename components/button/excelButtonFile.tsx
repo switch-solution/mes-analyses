@@ -18,7 +18,7 @@ export function ButtonExportXlsx({ data }: { data: any[] }) {
                 onClick={handleClick}
             >
                 <File className="size-3.5" />
-                <span className="sr-only sm:not-sr-only">Exporter au format Excel</span>
+                <span className="sr-only sm:not-sr-only sm:hidden">Exporter au format Excel</span>
             </Button>
         </div>
 

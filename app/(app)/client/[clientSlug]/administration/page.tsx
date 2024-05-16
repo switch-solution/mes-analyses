@@ -78,7 +78,7 @@ export default async function Page({ params }: { params: { clientSlug: string } 
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
                 <div className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-                    <Breadcrumb className="hidden md:flex">
+                    <Breadcrumb className="flex">
                         <BreadcrumbList>
                             <BreadcrumbItem>
                                 <BreadcrumbLink asChild>
@@ -145,16 +145,6 @@ export default async function Page({ params }: { params: { clientSlug: string } 
                                     <TabsTrigger value="disable">Bloqué</TabsTrigger>
                                     <TabsTrigger value="invitation">Invitation</TabsTrigger>
                                 </TabsList>
-                                <div className="ml-auto flex items-center gap-2">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="h-7 gap-1 text-sm"
-                                    >
-                                        <File className="size-3.5" />
-                                        <span className="sr-only sm:not-sr-only">Export</span>
-                                    </Button>
-                                </div>
                             </div>
                             <TabsContent value="bilable">
                                 <Card x-chunk="dashboard-05-chunk-3">

@@ -10,7 +10,15 @@ export async function GET(request: NextRequest) {
         }
         const security = new Security()
         try {
-            const clientSlug = await security.apiIsValid(api, request.url)
+            const clientSlug = await security.apiIsValid({
+                apiKey: api,
+                url: request.url,
+                country: request.geo?.country,
+                city: request.geo?.city,
+                ip: request.ip,
+                method: 'GET'
+
+            })
             if (!clientSlug) {
                 return Response.json({ error: "Unauthorized" })
             }

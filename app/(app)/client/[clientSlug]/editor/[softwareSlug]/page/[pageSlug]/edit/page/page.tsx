@@ -1,8 +1,8 @@
+import { Container, ContainerBreadCrumb, ContainerForm } from "@/components/layout/container"
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
-import { columns } from "./dataTablecolumns"
 import { notFound } from "next/navigation";
-import { DataTable } from "@/components/layout/dataTable";
+import EditPage from "@/components/form/page/editPage";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -11,11 +11,9 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { User } from "@/src/classes/user";
 import { Software } from "@/src/classes/software";
-import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
-export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
+import { DynamicPage } from "@/src/classes/dynamicPage";
+export default async function Page({ params }: { params: { clientSlug: string, pageSlug: string, softwareSlug: string } }) {
     const client = new Client(params.clientSlug);
     const clientExist = await client.clientExist();
     if (!clientExist) {
@@ -25,36 +23,21 @@ export default async function Page({ params }: { params: { clientSlug: string, s
     if (!clientDetail) {
         notFound();
     }
+    const page = new DynamicPage(params.pageSlug);
+    const pageExist = await page.pageExist();
+    if (!pageExist) {
+        notFound();
+    }
     const security = new Security();
     const userIsAuthorized = await security.isEditorClient(clientDetail.siren);
     if (!userIsAuthorized) {
         throw new Error('Vous devez etre editor pour acceder a cette page');
     }
-    const user = new User(security.userId);
-
-
-    const softwareActive = await new Software(params.softwareSlug).softwareExist()
-    if (!softwareActive) {
-        notFound()
+    const software = new Software(params.softwareSlug);
+    const softwareExist = await software.softwareExist();
+    if (!softwareExist) {
+        notFound();
     }
-    const softwarePage = await prisma.page.findMany({
-        where: {
-            level: 'Logiciel',
-            clientId: clientDetail.siren,
-            softwareLabel: softwareActive.label
-        }
-    })
-    const pages = [...softwarePage].map((page) => {
-        return {
-            internalId: page.internalId,
-            level: page.level,
-            label: page.label,
-            slug: page.slug,
-            clientSlug: params.clientSlug,
-            softwareSlug: params.softwareSlug,
-            status: page.status
-        }
-    })
 
     return (
         <Container>
@@ -82,9 +65,18 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                     </BreadcrumbList>
                 </Breadcrumb>
             </ContainerBreadCrumb>
-            <ContainerDataTable>
-                <DataTable columns={columns} data={pages} inputSearch="internalId" inputSearchPlaceholder="Chercher par identifiant" href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/page/create`} buttonLabel="Créer une nouvelle page" />
-            </ContainerDataTable>
+            <ContainerForm>
+                <EditPage
+                    clientSlug={params.clientSlug}
+                    softwareSlug={params.softwareSlug}
+                    pageSlug={params.pageSlug}
+                    page={{
+                        label: pageExist.label,
+                        status: pageExist.status as 'Actif' | 'Archivé' | 'En attente',
+                        order: pageExist.order
+                    }}
+                />
+            </ContainerForm>
         </Container>
     )
 

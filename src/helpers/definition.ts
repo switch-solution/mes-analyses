@@ -765,6 +765,7 @@ export const BlockEditSchema = z.object({
     placeholder: z.string().optional(),
     buttonLabel: z.string().optional(),
     label: z.string().optional(),
+    dsn: z.string().optional(),
 })
 
 export const BlockOptionCreateSchema = z.object({
@@ -791,6 +792,15 @@ export const FormCreateSchema = z.object({
     projectPageSlug: z.string({ required_error: "La page du projet est obligatoire." }),
 })
 
+export const PageEditSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
+    pageSlug: z.string({ required_error: "La page est obligatoire." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(1, { message: "Le libellé doit contenir au moins 1 caractère." }),
+    status: z.enum(['Validé', 'Archivé', 'En attente']),
+    order: z.coerce.number().int().positive(),
+})
+
 export const FormAddChildSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     blockSlug: z.string({ required_error: "Le block est obligatoire." }),
@@ -806,6 +816,12 @@ export const FormBaseSchema = z.object({
     projectPageSlug: z.string({ required_error: "La page du projet est obligatoire." }),
     formGroup: z.string({ required_error: "Le groupe est obligatoire." }),
     blockSlug: z.string({ required_error: "Le block est obligatoire." }),
+})
+
+export const PageValidationCreateSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    projectPageSlug: z.string({ required_error: "La page du projet est obligatoire." }),
 })
 
 export const AddDynamicFormFields = (fields: string[]) => {

@@ -1,12 +1,15 @@
 "use server";
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { PageCreateSchema, BlockPageCreateSchema, BlockPageEditSchema, FormBaseSchema, FormCreateSchema, PageDuplicateSchema, BlockEditSchema, BlockOptionCreateSchema } from '@/src/helpers/definition';
+import { Project } from '@/src/classes/project';
+import { PageCreateSchema, BlockPageCreateSchema, BlockPageEditSchema, PageValidationCreateSchema, PageEditSchema, PageDuplicateSchema, BlockEditSchema, BlockOptionCreateSchema } from '@/src/helpers/definition';
 import z from 'zod';
-import { authentificationActionUserIsEditorClient, ActionError, authentifcationActionUserIsAuthorizeToProject, authentifcationActionUserIsAuthorizeToEditProject } from "@/lib/safe-actions";
+import { authentificationActionUserIsEditorClient, ActionError, authentifcationActionUserIsAuthorizeToEditProject, authentifcationActionUserIValidatorProject } from "@/lib/safe-actions";
 import { User } from '@/src/classes/user'
 import { DynamicPage } from '@/src/classes/dynamicPage';
 import { prisma } from '@/lib/prisma';
+import { ProjectData } from '@/src/classes/projectData';
+import { generateSlug } from '@/src/helpers/generateSlug';
 export const createPage = authentificationActionUserIsEditorClient(PageCreateSchema, async (values: z.infer<typeof PageCreateSchema>, { userId, clientId, softwareLabel }) => {
     const { label, clientSlug, internalId, softwareSlug } = PageCreateSchema.parse(values)
     const user = new User(userId)
@@ -25,7 +28,7 @@ export const createPage = authentificationActionUserIsEditorClient(PageCreateSch
             userId,
             softwareLabel,
             internalId,
-            level: 'Software'
+            level: 'Logiciel'
         })
 
     } catch (err) {
@@ -140,7 +143,7 @@ export const editPageBlock = authentificationActionUserIsEditorClient(BlockPageE
 })
 
 export const editBlock = authentificationActionUserIsEditorClient(BlockEditSchema, async (values: z.infer<typeof BlockEditSchema>, { userId, clientId, softwareLabel }) => {
-    const { clientSlug, pageSlug, blockSlug, min, max, maxLength, minLength, readonly, required, softwareSlug, label } = BlockEditSchema.parse(values)
+    const { clientSlug, pageSlug, blockSlug, min, max, maxLength, minLength, readonly, required, softwareSlug, label, dsn } = BlockEditSchema.parse(values)
     try {
         const page = new DynamicPage(pageSlug)
         const pageExist = await page.pageExist()
@@ -159,7 +162,8 @@ export const editBlock = authentificationActionUserIsEditorClient(BlockEditSchem
             minLength,
             readonly: readonly ? true : false,
             required: required ? true : false,
-            blockSlug
+            blockSlug,
+            dsn: dsn ? dsn : null
         })
     } catch (err) {
         console.error(err)
@@ -190,8 +194,83 @@ export const createBlockOption = authentificationActionUserIsEditorClient(BlockO
     }
 
     revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
-
     redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/${pageSlug}/edit`);
 })
+
+export const editPage = authentificationActionUserIsEditorClient(PageEditSchema, async (values: z.infer<typeof PageEditSchema>, { userId, clientId, softwareLabel }) => {
+    const { clientSlug, label, status, pageSlug, softwareSlug } = PageEditSchema.parse(values)
+    try {
+        const page = new DynamicPage(pageSlug)
+        const pageExist = await page.pageExist()
+        if (!pageExist) {
+            throw new ActionError('La page n\'existe pas')
+        }
+        await prisma.page.update({
+            where: {
+                slug: pageSlug
+
+            },
+            data: {
+                label,
+                status
+            }
+
+        })
+    } catch (err) {
+        console.error(err)
+        throw new ActionError('Erreur lors de la modification de la page')
+    }
+    revalidatePath(`/client/${clientSlug}/editor/${softwareSlug}/page/`);
+    redirect(`/client/${clientSlug}/editor/${softwareSlug}/page/`);
+})
+
+export const pageValidation = authentifcationActionUserIValidatorProject(PageValidationCreateSchema, async (values: z.infer<typeof PageValidationCreateSchema>, { userId, clientId, softwareLabel, projectLabel }) => {
+    const { clientSlug, projectSlug, projectPageSlug } = PageValidationCreateSchema.parse(values)
+    try {
+        const project = new Project(projectSlug)
+        const projectPage = new ProjectData({
+            slug: projectPageSlug,
+            clientId,
+            softwareLabel,
+            projectLabel
+
+        })
+        const pageDetail = await projectPage.projectDataExist()
+        if (!pageDetail) {
+            throw new ActionError('La page n\'existe pas')
+        }
+        const validators = await project.validatorProjet()
+        let countPageValidation = await prisma.page_Validation.count()
+        await prisma.page_Validation.createMany({
+            data: validators.map((validator) => {
+                return {
+                    projectPageId: pageDetail.id,
+                    userId: validator.userId,
+                    slug: generateSlug(`validation-${countPageValidation++}`),
+                    createdBy: userId
+                }
+            })
+
+        })
+        await prisma.project_Page.update({
+            where: {
+                slug: projectPageSlug
+            },
+            data: {
+                status: 'Validé'
+            }
+
+        })
+    } catch (err) {
+        console.error(err)
+        throw new ActionError('Erreur lors de la validation de la page')
+
+    }
+
+    revalidatePath(`/client/${clientSlug}/project/${projectSlug}/`);
+    redirect(`/client/${clientSlug}/project/${projectSlug}/`);
+})
+
+
 
 

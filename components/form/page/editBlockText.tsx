@@ -13,6 +13,13 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input";
 import { BlockEditSchema } from "@/src/helpers/definition";
@@ -22,18 +29,26 @@ export default function EditBlockSelect({ blockSlug,
     clientSlug,
     pageSlug,
     softwareSlug,
-    block }:
+    dsn,
+    block
+}:
     {
         blockSlug: string,
         clientSlug: string,
         pageSlug: string,
         softwareSlug: string
+        dsn: {
+            id: string;
+            label: string;
+            type: string;
+        }[],
         block: {
             label: string,
             minLength: number,
             maxLength: number,
             required: boolean,
-            readonly: boolean
+            readonly: boolean,
+            sourceDsnId: string
         }
     }) {
     const [loading, setLoading] = useState(false)
@@ -52,6 +67,7 @@ export default function EditBlockSelect({ blockSlug,
             buttonLabel: 'Valider',
             required: block.required,
             readonly: block.readonly,
+            dsn: block.sourceDsnId
 
 
         }
@@ -182,6 +198,31 @@ export default function EditBlockSelect({ blockSlug,
                                         onCheckedChange={field.onChange}
                                     />
                                 </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="dsn"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Structure DSN</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="DSN" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {dsn.map((item) => (
+                                            <SelectItem key={item.id} value={item.id}>
+                                                {item.id}-{item.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                <FormMessage />
                             </FormItem>
                         )}
                     />

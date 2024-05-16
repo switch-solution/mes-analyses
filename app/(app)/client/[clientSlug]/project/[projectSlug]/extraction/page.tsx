@@ -58,7 +58,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <ContainerDataTable>
-                <DataTable columns={columns} data={dataTable} inputSearch="formTitle" inputSearchPlaceholder="Chercher par formulaire" href={`/client/${params.clientSlug}/project/${params.projectSlug}/file/create`} buttonLabel="Envoyer un nouveau fichier" />
+                <DataTable columns={columns} data={dataTable} inputSearch="formTitle" inputSearchPlaceholder="Chercher par formulaire" />
             </ContainerDataTable>
         </Container>
     )

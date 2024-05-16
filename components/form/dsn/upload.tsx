@@ -90,7 +90,7 @@ export default function UploadFileDsn({ clientSlug, projectSlug }: { clientSlug:
                 contributionFundIBAN: bank.contributionFundIBAN
             }))
             const jobList = extraction.jobList.map((job) => ({
-                label: job.employmentLabel,
+                employmentLabel: job.employmentLabel,
             }))
             const idccList = extraction.idccList.map((idcc) => ({
                 idcc: idcc.idcc,

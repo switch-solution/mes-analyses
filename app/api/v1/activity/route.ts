@@ -1,5 +1,5 @@
 import { Security } from "@/src/classes/security"
-import { Client } from "@/src/classes/client"
+import { ClientApi } from "@/src/classes/clientApi"
 import { type NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -9,20 +9,18 @@ export async function GET(request: NextRequest) {
             return Response.json({ error: "Unauthorized" })
         }
         const security = new Security()
+        security.apiIsValid({
+            apiKey: api,
+            url: request.url,
+            country: request.geo?.country,
+            city: request.geo?.city,
+            ip: request.ip,
+            method: 'GET'
+        })
         try {
-            const clientSlug = await security.apiIsValid({
-                apiKey: api,
-                url: request.url,
-                country: request.geo?.country,
-                city: request.geo?.city,
-                ip: request.ip,
-                method: 'GET'
-
-            })
-            const client = new Client(clientSlug)
-            const clientDetail = await client.clientDetail()
-            const projects = await client.getProjects()
-            return Response.json({ projects })
+            const clientApi = new ClientApi(api)
+            const activity = await clientApi.actvity()
+            return Response.json({ activity })
         } catch (err) {
             console.error(err)
             return Response.json(

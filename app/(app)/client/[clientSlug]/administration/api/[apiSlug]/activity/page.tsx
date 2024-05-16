@@ -9,7 +9,8 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { getApiActivityByUuid } from "@/src/query/client_api.query";
+import { prisma } from "@/lib/prisma";
+import { ClientApi } from "@/src/classes/clientApi";
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
 type API = {
@@ -29,12 +30,26 @@ export default async function Page({ params }: { params: { clientSlug: string, a
         throw new Error("Unauthorized")
     }
 
-    const apiList = await getApiActivityByUuid(params.apiSlug)
-    const api = apiList.map((apiDetail: API) => {
+    const apiKey = await prisma.client_API.findUniqueOrThrow({
+        select: {
+            apiKey: true
+        },
+        where: {
+            slug: params.apiSlug
+        }
+    })
+    const clientApi = new ClientApi(`Bearer ${apiKey.apiKey}`)
+    const activityList = await clientApi.actvity()
+    const activity = activityList.map((apiDetail) => {
         return {
             url: apiDetail.url,
-            createdAt: apiDetail.createdAt.toTimeString(),
-            clientSlug: params.clientSlug
+            createdAt: apiDetail.createdAt.toLocaleDateString(),
+            clientSlug: params.clientSlug,
+            apiSlug: params.apiSlug,
+            country: apiDetail.country,
+            city: apiDetail.city,
+            method: apiDetail.method,
+            ip: apiDetail.ip
         }
     })
     return (
@@ -61,7 +76,7 @@ export default async function Page({ params }: { params: { clientSlug: string, a
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <ContainerDataTable>
-                <DataTable columns={columns} data={api} inputSearch="url" inputSearchPlaceholder="Chercher par url" />
+                <DataTable columns={columns} data={activity} inputSearch="url" inputSearchPlaceholder="Chercher par url" />
             </ContainerDataTable>
 
         </Container>

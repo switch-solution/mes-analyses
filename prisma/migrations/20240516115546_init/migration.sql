@@ -101,6 +101,10 @@ CREATE TABLE "Client_API_Activity" (
     "clientId" TEXT NOT NULL,
     "uuidApi" TEXT NOT NULL,
     "url" TEXT NOT NULL,
+    "ip" TEXT,
+    "country" TEXT,
+    "city" TEXT,
+    "method" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
@@ -712,31 +716,6 @@ CREATE TABLE "Dsn_Structure" (
 );
 
 -- CreateTable
-CREATE TABLE "Project_Approve" (
-    "clientId" TEXT NOT NULL,
-    "softwareLabel" TEXT NOT NULL,
-    "projectLabel" TEXT NOT NULL,
-    "processusSlug" TEXT NOT NULL,
-    "rowSlug" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "projectSlug" TEXT NOT NULL,
-    "clientSlug" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "theme" TEXT NOT NULL,
-    "isApproved" BOOLEAN NOT NULL DEFAULT false,
-    "isRefused" BOOLEAN NOT NULL DEFAULT false,
-    "comment" TEXT,
-    "slug" TEXT NOT NULL,
-    "response" TEXT NOT NULL DEFAULT 'En attente',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL DEFAULT 'system',
-
-    CONSTRAINT "Project_Approve_pkey" PRIMARY KEY ("clientId","softwareLabel","projectLabel","rowSlug","processusSlug","userId")
-);
-
--- CreateTable
 CREATE TABLE "Rate_At" (
     "id" TEXT NOT NULL,
     "label" TEXT NOT NULL,
@@ -797,7 +776,7 @@ CREATE TABLE "Page_Block" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT NOT NULL DEFAULT 'system',
     "slug" TEXT NOT NULL,
-    "page_BlockId" TEXT,
+    "blockIdSource" TEXT,
 
     CONSTRAINT "Page_Block_pkey" PRIMARY KEY ("id")
 );
@@ -840,6 +819,21 @@ CREATE TABLE "Project_Block_Value" (
     "createdBy" TEXT NOT NULL DEFAULT 'system',
 
     CONSTRAINT "Project_Block_Value_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Page_Validation" (
+    "projectPageId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "response" TEXT NOT NULL DEFAULT 'En attente',
+    "comment" TEXT,
+    "deadline" TIMESTAMP(3) NOT NULL DEFAULT '4000-01-01 00:00:00 +00:00',
+    "slug" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT NOT NULL DEFAULT 'system',
+
+    CONSTRAINT "Page_Validation_pkey" PRIMARY KEY ("projectPageId","userId")
 );
 
 -- CreateIndex
@@ -915,9 +909,6 @@ CREATE UNIQUE INDEX "Software_Accumulation_slug_key" ON "Software_Accumulation"(
 CREATE UNIQUE INDEX "Classification_slug_key" ON "Classification"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Project_Approve_slug_key" ON "Project_Approve"("slug");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Page_slug_key" ON "Page"("slug");
 
 -- CreateIndex
@@ -928,6 +919,9 @@ CREATE UNIQUE INDEX "Page_Block_pageId_pageVersion_label_key" ON "Page_Block"("p
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_Page_slug_key" ON "Project_Page"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Page_Validation_slug_key" ON "Page_Validation"("slug");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -1050,12 +1044,6 @@ ALTER TABLE "Software_Accumulation" ADD CONSTRAINT "Software_Accumulation_softwa
 ALTER TABLE "Classification" ADD CONSTRAINT "Classification_idcc_fkey" FOREIGN KEY ("idcc") REFERENCES "Idcc"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project_Approve" ADD CONSTRAINT "Project_Approve_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Project_Approve" ADD CONSTRAINT "Project_Approve_clientId_softwareLabel_projectLabel_fkey" FOREIGN KEY ("clientId", "softwareLabel", "projectLabel") REFERENCES "Project"("clientId", "softwareLabel", "label") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Page" ADD CONSTRAINT "Page_softwareLabel_clientId_fkey" FOREIGN KEY ("softwareLabel", "clientId") REFERENCES "Software"("label", "clientId") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -1078,3 +1066,9 @@ ALTER TABLE "Project_Block_Value" ADD CONSTRAINT "Project_Block_Value_projectPag
 
 -- AddForeignKey
 ALTER TABLE "Project_Block_Value" ADD CONSTRAINT "Project_Block_Value_blockId_fkey" FOREIGN KEY ("blockId") REFERENCES "Page_Block"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Page_Validation" ADD CONSTRAINT "Page_Validation_projectPageId_fkey" FOREIGN KEY ("projectPageId") REFERENCES "Project_Page"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Page_Validation" ADD CONSTRAINT "Page_Validation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
