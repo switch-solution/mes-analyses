@@ -15,6 +15,7 @@ export default function DynamicPageView({
     blocks,
     datas,
     options,
+    pageStatus
 }: {
     clientSlug: string,
     label: string,
@@ -22,6 +23,7 @@ export default function DynamicPageView({
     pageSlug: string,
     projectSlug: string,
     projectPageSlug: string,
+    pageStatus: 'En cours de rédaction' | 'Validé'
     blocks: {
         id: string,
         pageId: string,
@@ -54,6 +56,7 @@ export default function DynamicPageView({
             softwareLabel: string,
             clientId: string,
             blockId: string,
+            readOnly: boolean,
             formId: string,
             pageVersion: number,
             value: string,
@@ -120,6 +123,7 @@ export default function DynamicPageView({
                                 return (
                                     <div key={formGroup.formGroup} className="mt-2">
                                         < DynamicPageForm
+                                            pageStatus={pageStatus}
                                             clientSlug={clientSlug}
                                             projectSlug={projectSlug}
                                             pageSlug={pageSlug}
@@ -151,7 +155,7 @@ export default function DynamicPageView({
                                 )
 
                             })}
-                            {block.htmlElement === 'form' && <Button onClick={(event) => { handleClick(block.id); }}>{block.buttonLabel ? block.buttonLabel : 'Ajouter une nouvelle valeur'}</Button>}
+                            {block.htmlElement === 'form' && pageStatus === 'En cours de rédaction' && <Button onClick={() => { handleClick(block.id); }}>{block.buttonLabel ? block.buttonLabel : 'Ajouter une nouvelle valeur'}</Button>}
 
                         </div >
 

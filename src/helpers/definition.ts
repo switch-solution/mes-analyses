@@ -837,3 +837,12 @@ export const AddDynamicFormFields = (fields: string[]) => {
 
 }
 
+export const UserValidationPage = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    pageSlug: z.string({ required_error: "La page est obligatoire." }),
+    validationSlug: z.string({ required_error: "La validation est obligatoire." }),
+    response: z.enum(['Valid', 'Refused']),
+
+})
+

@@ -68,7 +68,8 @@ export class ProjectData {
                 createdAt: Date,
                 updatedAt: Date,
                 label: string,
-                createdBy: string
+                createdBy: string,
+                readOnly: boolean,
 
             }[] = []
             for (const form of forms) {
@@ -166,6 +167,11 @@ export class ProjectData {
             if (!projectPage) {
                 throw new Error('La page n\'existe pas')
             }
+            const status = projectPage.status
+            if (status !== 'En cours de rédaction') {
+                throw new Error('La page n\'est pas en cours de rédaction')
+            }
+
             const form = await prisma.page_Block.findFirst({
                 where: {
                     id: formId

@@ -23,14 +23,6 @@ export class Project {
     }) {
         try {
             const slug = await this.makeSlug()
-            const pages = await prisma.page.findMany({
-                where: {
-                    softwareLabel: softwareLabel,
-                    clientId: clientId,
-                    status: 'Validé'
-                }
-            })
-            let countPageProject = await prisma.project_Page.count()
             const project = await prisma.project.create({
                 data: {
                     label: label,
@@ -50,18 +42,6 @@ export class Project {
                             role
                         }
                     },
-                    Project_Page: {
-                        create: pages.map(page => {
-                            return {
-                                pageId: page.id,
-                                order: page.order,
-                                pageVersion: page.version,
-                                label: page.label,
-                                createdBy: userId,
-                                slug: generateSlug(`${label}-${countPageProject++}`)
-                            }
-                        })
-                    }
                 },
             })
 

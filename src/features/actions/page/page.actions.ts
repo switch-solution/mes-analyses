@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { Project } from '@/src/classes/project';
-import { PageCreateSchema, BlockPageCreateSchema, BlockPageEditSchema, PageValidationCreateSchema, PageEditSchema, PageDuplicateSchema, BlockEditSchema, BlockOptionCreateSchema } from '@/src/helpers/definition';
+import { PageCreateSchema, BlockPageCreateSchema, UserValidationPage, BlockPageEditSchema, PageValidationCreateSchema, PageEditSchema, PageDuplicateSchema, BlockEditSchema, BlockOptionCreateSchema } from '@/src/helpers/definition';
 import z from 'zod';
 import { authentificationActionUserIsEditorClient, ActionError, authentifcationActionUserIsAuthorizeToEditProject, authentifcationActionUserIValidatorProject } from "@/lib/safe-actions";
 import { User } from '@/src/classes/user'
@@ -10,6 +10,8 @@ import { DynamicPage } from '@/src/classes/dynamicPage';
 import { prisma } from '@/lib/prisma';
 import { ProjectData } from '@/src/classes/projectData';
 import { generateSlug } from '@/src/helpers/generateSlug';
+import { ca } from 'date-fns/locale';
+import Page from '@/app/(app)/about/page';
 export const createPage = authentificationActionUserIsEditorClient(PageCreateSchema, async (values: z.infer<typeof PageCreateSchema>, { userId, clientId, softwareLabel }) => {
     const { label, clientSlug, internalId, softwareSlug } = PageCreateSchema.parse(values)
     const user = new User(userId)
@@ -252,6 +254,18 @@ export const pageValidation = authentifcationActionUserIValidatorProject(PageVal
             })
 
         })
+        await prisma.project_Block_Value.updateMany({
+            where: {
+                projectPageId: pageDetail.id,
+                clientId: clientId,
+                softwareLabel: softwareLabel,
+                projectLabel: projectLabel
+
+            },
+            data: {
+                readOnly: true
+            }
+        })
         await prisma.project_Page.update({
             where: {
                 slug: projectPageSlug
@@ -270,6 +284,29 @@ export const pageValidation = authentifcationActionUserIValidatorProject(PageVal
     revalidatePath(`/client/${clientSlug}/project/${projectSlug}/`);
     redirect(`/client/${clientSlug}/project/${projectSlug}/`);
 })
+
+export const validationUserPage = authentifcationActionUserIValidatorProject(UserValidationPage, async (values: z.infer<typeof UserValidationPage>, { userId, clientId, softwareLabel, projectLabel }) => {
+    const { clientSlug, validationSlug, response } = UserValidationPage.parse(values)
+    try {
+
+        await prisma.page_Validation.update({
+            where: {
+                slug: validationSlug
+            },
+            data: {
+                response
+            }
+        })
+    } catch (err) {
+        console.error(err)
+        throw new ActionError('Erreur lors de la validation de la page')
+
+    }
+
+    revalidatePath(`/client/${clientSlug}/workflow/`);
+    redirect(`/client/${clientSlug}/workflow`);
+})
+
 
 
 

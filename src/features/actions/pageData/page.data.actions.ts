@@ -41,7 +41,6 @@ export const createForm = authentifcationActionUserIsAuthorizeToProject(FormCrea
  */
 export const createPageData = async (values: { [key: string]: string }) => {
     const { clientSlug, projectSlug, formGroup, pageSlug, blockSlug, formId, projectPageSlug } = values
-
     try {
         const security = new Security()
         const userIsAuthorize = await security.isAuthorizedInThisProject(values.projectSlug)
@@ -73,6 +72,10 @@ export const createPageData = async (values: { [key: string]: string }) => {
         const formExist = await page.formExist(formId)
         if (!formExist) {
             throw new ActionError('Le formulaire n\'existe pas')
+        }
+        const status = projectPageExist.status
+        if (status !== 'En cours de rédaction') {
+            throw new ActionError('La page n\'est pas en cours de rédaction')
         }
 
         const fields = await page.formField(values.formId)
@@ -165,6 +168,10 @@ export const deleteForm = authentifcationActionUserIsAuthorizeToProject(FormBase
     const pageExist = await page.projectDataExist()
     if (!pageExist) {
         throw new ActionError('La page n\'existe pas')
+    }
+    const status = pageExist.status
+    if (status !== 'En cours de rédaction') {
+        throw new ActionError('La page n\'est pas en cours de rédaction')
     }
     try {
         await page.deleteForm({

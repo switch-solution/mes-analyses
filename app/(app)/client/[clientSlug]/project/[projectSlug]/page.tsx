@@ -51,18 +51,6 @@ import { User } from "@/src/classes/user"
 import { Security } from "@/src/classes/security"
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { toast } from "sonner"
 
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const project = new Project(params.projectSlug)
@@ -191,9 +179,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                     <TableHead className="hidden md:table-cell">
                                                         Ouvrir
                                                     </TableHead>
-                                                    <TableHead className="md:table-cell">
-                                                        Valider
-                                                    </TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
@@ -201,12 +186,10 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                                                     return (<TableRow key={row.pageId}>
                                                         <TableCell className="font-medium"><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}`}>{row.label}</Link></TableCell>
                                                         <TableCell className="hidden md:table-cell">{row.createdAt.toLocaleDateString()}</TableCell>
-                                                        <TableCell className="hidden md:table-cell">{row.status === 'En cours de rédaction' ? <Unlock /> : <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}/workflow`}><Lock /></Link>}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{row.status === 'En cours de rédaction' ? <AlertPageValidation clientSlug={params.clientSlug} projectSlug={params.projectSlug} projectPageSlug={row.slug} />
+                                                            : <Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}/workflow`}><Lock /></Link>}</TableCell>
                                                         <TableCell><PrinterIcon /></TableCell>
                                                         <TableCell className="hidden md:table-cell"><Link href={`/client/${params.clientSlug}/project/${params.projectSlug}/page/${row.slug}`}><ArrowRight /></Link></TableCell>
-                                                        <TableCell>
-                                                            <AlertPageValidation clientSlug={params.clientSlug} projectSlug={params.projectSlug} projectPageSlug={row.slug} />
-                                                        </TableCell>
                                                     </TableRow>
                                                     )
                                                 })}

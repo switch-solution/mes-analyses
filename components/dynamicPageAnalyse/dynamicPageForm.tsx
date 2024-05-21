@@ -57,7 +57,8 @@ export default function DynamicPageForm({ clientSlug,
     datas,
     formGroup,
     formTitle,
-    options
+    options,
+    pageStatus
 }: {
     clientSlug: string,
     projectSlug: string,
@@ -65,6 +66,7 @@ export default function DynamicPageForm({ clientSlug,
     blockSlug: string,
     formId: string,
     projectPageSlug: string,
+    pageStatus: 'En cours de rédaction' | 'Validé',
     fields: {
         id: string,
         min: number,
@@ -85,6 +87,7 @@ export default function DynamicPageForm({ clientSlug,
         clientId: string;
         blockId: string;
         formId: string;
+        readOnly: boolean,
         pageVersion: number;
         value: string;
         formGroup: string;
@@ -105,7 +108,6 @@ export default function DynamicPageForm({ clientSlug,
 }
 
 ) {
-    console.log(options)
     if (!formGroup) {
         formGroup = generateUUID()
     }
@@ -151,11 +153,10 @@ export default function DynamicPageForm({ clientSlug,
 
     }, 500)
     return (
-
         <Card>
             <CardHeader>
                 <CardTitle className="flex flex-row items-center justify-between">{formTitle}
-                    <AlertDialog>
+                    {pageStatus === 'En cours de rédaction' ? <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button variant="outline"> <Trash /></Button>
                         </AlertDialogTrigger>
@@ -199,7 +200,8 @@ export default function DynamicPageForm({ clientSlug,
                                 }}>Confirmer </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog></CardTitle>
+                    </AlertDialog> : <span>Mode lecture seul</span>}
+                </CardTitle>
                 <CardDescription></CardDescription>
             </CardHeader>
             <CardContent>
@@ -294,7 +296,7 @@ export default function DynamicPageForm({ clientSlug,
                                             <FormItem>
                                                 <FormLabel>{input.label}</FormLabel>
                                                 <FormControl>
-                                                    <Input type={input.type} max={input.max} min={input.min} minLength={input.minLenght} maxLength={input.maxLenght} required={input.required} placeholder={''} {...field} />
+                                                    <Input type={input.type} max={input.max} min={input.min} minLength={input.minLenght} maxLength={input.maxLenght} required={input.required} placeholder={''} readOnly={pageStatus === 'Validé' && true} {...field} />
                                                 </FormControl>
                                             </FormItem>
                                         )}

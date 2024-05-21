@@ -1,6 +1,5 @@
 "use client"
-import { pageValidation } from "@/src/features/actions/page/page.actions"
-import { Unlock } from "lucide-react"
+import { validationUserPage } from "@/src/features/actions/page/page.actions"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -13,14 +12,32 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
+import { Check, Ban } from "lucide-react"
+export default function AlertUserPageValidation({ clientSlug,
+    projectSlug,
+    validationSlug,
+    projectPageSlug,
+    alertProps }: {
+        clientSlug: string,
+        validationSlug: string,
+        projectSlug: string,
+        projectPageSlug: string
+        alertProps: {
+            title: string,
+            response: 'Valid' | 'Refused',
+            dialog: string
+        }
 
-export default function AlertPageValidation({ clientSlug, projectSlug, projectPageSlug }: { clientSlug: string, projectSlug: string, projectPageSlug: string }) {
+
+    }) {
     const handleClick = async () => {
         try {
-            const action = await pageValidation({
+            const action = await validationUserPage({
                 clientSlug: clientSlug,
                 projectSlug: projectSlug,
-                projectPageSlug: projectPageSlug
+                pageSlug: projectPageSlug,
+                validationSlug: validationSlug,
+                response: alertProps.response
             })
             if (action?.serverError) {
                 toast(`${action.serverError}`, {
@@ -48,13 +65,13 @@ export default function AlertPageValidation({ clientSlug, projectSlug, projectPa
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <div aria-label="Validation de la page" className="hover:cursor-pointer"><Unlock /></div>
+                <div aria-label={alertProps.dialog} className="hover:cursor-pointer">{alertProps.response === 'Valid' ? <Check /> : <Ban />}</div>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Validation de la page</AlertDialogTitle>
+                    <AlertDialogTitle>{alertProps.title}</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Cette action va valider la page et la rendre inaccessible le temps de la validation.
+                        {alertProps.dialog}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

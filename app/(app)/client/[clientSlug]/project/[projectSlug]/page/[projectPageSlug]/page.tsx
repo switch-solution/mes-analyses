@@ -48,6 +48,10 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const pageBlock = await dynamicPage.getblocks()
     const datas = await projectDatas.datas()
     const options = await projectDatas.getOptions()
+    const pageStatus = projectsDatasExist.status
+    if (pageStatus !== 'Validé' && pageStatus !== 'En cours de rédaction') {
+        throw new Error('Le statut de la page est incorrect')
+    }
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -77,6 +81,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
             <div className="mt-2 md:mt-0">
                 <ContainerPage title={`${pageExist.internalId} ${pageExist.label}`}>
                     <DynamicPageView
+                        pageStatus={pageStatus}
                         blocks={pageBlock}
                         clientSlug={params.clientSlug}
                         projectPageSlug={params.projectPageSlug}
