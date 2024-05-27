@@ -52,59 +52,31 @@ class PageV0003 extends Seed {
                         Page_Block: {
                             create: [
                                 {
-                                    id: 'STD_BLOCK_0026',
+                                    id: 'STD_BLOCK_0007',
                                     htmlElement: 'h1',
                                     type: 'Titre 1',
                                     label: 'Emploi',
                                     order: 1,
-                                    slug: 'STD_BLOCK_0026',
+                                    slug: 'STD_BLOCK_0007',
                                     level1: true
                                 },
                                 {
-                                    id: 'STD_BLOCK_0027',
+                                    id: 'STD_BLOCK_0008',
                                     htmlElement: 'p',
                                     type: 'Paragraphe',
                                     label: 'Cette page permet de visualiser les informations relatives aux emplois.',
                                     order: 2,
-                                    slug: 'STD_BLOCK_0027',
+                                    slug: 'STD_BLOCK_0008',
                                     level1: true
                                 },
                                 {
-                                    id: 'STD_BLOCK_0028',
+                                    id: 'STD_BLOCK_0009',
                                     htmlElement: 'form',
-                                    type: 'Formulaire',
+                                    type: 'form',
                                     label: 'Formulaire création emplois',
                                     order: 3,
-                                    slug: 'STD_BLOCK_0028',
-                                    buttonLabel: 'Mettre à jour les emplois',
+                                    slug: 'STD_BLOCK_0009',
                                     level1: true
-                                },
-                                {
-                                    id: 'STD_BLOCK_0029',
-                                    blockMasterId: 'STD_BLOCK_0028',
-                                    htmlElement: 'input',
-                                    type: 'Champ texte',
-                                    label: 'Code emploi',
-                                    placeholder: '001',
-                                    minLength: 1,
-                                    maxLength: 99,
-                                    required: true,
-                                    order: 6,
-                                    slug: 'STD_BLOCK_0029',
-                                },
-                                {
-                                    id: 'STD_BLOCK_0030',
-                                    blockMasterId: 'STD_BLOCK_0028',
-                                    htmlElement: 'input',
-                                    type: 'Champ texte',
-                                    label: 'Libellé emploi',
-                                    placeholder: '12345',
-                                    sourceDsnId: 'S21.G00.40.006',
-                                    minLength: 1,
-                                    maxLength: 255,
-                                    required: true,
-                                    order: 7,
-                                    slug: 'STD_BLOCK_0030',
                                 },
 
                             ]

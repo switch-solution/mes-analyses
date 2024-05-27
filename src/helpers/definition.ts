@@ -174,6 +174,7 @@ export const EventSchema = z.object({
 
 export const SoftwareItemCreateSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
     id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
     label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
     type: z.string().min(1, { message: "Le type doit contenir au moins 2 caractères." }),
@@ -353,9 +354,15 @@ export const SettingCreateSchema = z.object({
     label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
     id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
     description: z.string().optional(),
-    value: z.string().min(1, { message: "La valeur doit contenir au moins 2 caractères." }),
     softwareSlug: z.string().min(1, { message: "Le logiciel est obligatoire." }),
-
+})
+export const SettingCreatValueSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }).min(1, { message: "Le client est obligatoire." }),
+    settingSlug: z.string({ required_error: "Le paramètre est obligatoire." }).min(1, { message: "Le paramètre est obligatoire." }),
+    softwareSlug: z.string().min(1, { message: "Le logiciel est obligatoire." }),
+    label: z.string().min(2, { message: "Le label doit contenir au moins 2 caractères." }),
+    id: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
+    value: z.string().min(1, { message: "La valeur doit contenir au moins 2 caractères." }),
 })
 
 export const EnvironnementUserEditClientSchema = z.object({
@@ -500,8 +507,9 @@ export const PageCreateSchema = z.object({
     softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
     internalId: z.string().min(2, { message: "Le code doit contenir au moins 2 caractères." }),
     label: z.string().min(2, { message: "Le nom de la page doit contenir au moins 2 caractères." }),
-
 })
+
+
 
 export const PageDuplicateSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
@@ -751,11 +759,11 @@ export const BlockPageCreateSchema = z.object({
     html: z.enum(["h1", "h2", "h3", "h4", "h5", "h6", "p", "ul", "form", "input_text", "input_number", "select", "switch", "li", "ol", "option", "img"]),
 })
 
-export const BlockEditSchema = z.object({
+export const FieldEditSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
-    blockSlug: z.string({ required_error: "Le block est obligatoire." }),
+    formSlug: z.string({ required_error: "Le formulaire est obligatoire." }),
     softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
-    pageSlug: z.string({ required_error: "La page est obligatoire." }),
+    fieldSlug: z.string({ required_error: "Le champ est obligatoire." }),
     max: z.coerce.number().int().positive(),
     min: z.coerce.number().int().positive(),
     maxLength: z.coerce.number().int().positive(),
@@ -765,7 +773,15 @@ export const BlockEditSchema = z.object({
     placeholder: z.string().optional(),
     buttonLabel: z.string().optional(),
     label: z.string().optional(),
-    dsn: z.string().optional(),
+    sourceDsnId: z.string().optional(),
+})
+
+export const FieldDeleleteSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    formSlug: z.string({ required_error: "Le formulaire est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
+    fieldSlug: z.string({ required_error: "Le champ est obligatoire." }),
+
 })
 
 export const BlockOptionCreateSchema = z.object({
@@ -786,10 +802,19 @@ export const BlockPageEditSchema = z.object({
 
 export const FormCreateSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
-    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
+    internalId: z.string({ required_error: "Le formulaire est obligatoire." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(1, { message: "Le libellé doit contenir au moins 1 caractère." }),
+    description: z.string().optional(),
+    repository: z.string().optional(),
+})
+
+export const BlockEditFormSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    blockSlug: z.string({ required_error: "Le block est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
     pageSlug: z.string({ required_error: "La page est obligatoire." }),
-    formId: z.string({ required_error: "Le formulaire est obligatoire." }),
-    projectPageSlug: z.string({ required_error: "La page du projet est obligatoire." }),
+    formSlug: z.string({ required_error: "Le formulaire est obligatoire." }),
 })
 
 export const PageEditSchema = z.object({
@@ -801,6 +826,16 @@ export const PageEditSchema = z.object({
     order: z.coerce.number().int().positive(),
 })
 
+export const FormEditSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
+    formSlug: z.string({ required_error: "Le formulaire est obligatoire." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(1, { message: "Le libellé doit contenir au moins 1 caractère." }),
+    status: z.enum(['Validé', 'Archivé', 'En attente']),
+    description: z.string().optional(),
+    repository: z.string().optional(),
+})
+
 export const FormAddChildSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
     blockSlug: z.string({ required_error: "Le block est obligatoire." }),
@@ -810,12 +845,12 @@ export const FormAddChildSchema = z.object({
 
 export const FormBaseSchema = z.object({
     clientSlug: z.string({ required_error: "Le client est obligatoire." }),
-    projectSlug: z.string({ required_error: "Le projet est obligatoire." }),
-    pageSlug: z.string({ required_error: "La page est obligatoire." }),
-    formId: z.string({ required_error: "Le formulaire est obligatoire." }),
-    projectPageSlug: z.string({ required_error: "La page du projet est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
     formGroup: z.string({ required_error: "Le groupe est obligatoire." }),
-    blockSlug: z.string({ required_error: "Le block est obligatoire." }),
+    formSlug: z.string({ required_error: "Le formulaire est obligatoire." }),
+    settingSlug: z.string().optional(),
+    projectSlug: z.string().optional(),
+    pageSlug: z.string().optional(),
 })
 
 export const PageValidationCreateSchema = z.object({
@@ -830,7 +865,6 @@ export const AddDynamicFormFields = (fields: string[]) => {
         schema = schema.merge(z.object({
             [field]: z.string().optional()
         }))
-
     }
     const finalSchema = schema.merge(FormBaseSchema)
     return finalSchema
@@ -846,3 +880,35 @@ export const UserValidationPage = z.object({
 
 })
 
+export const FieldCreatSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
+    formSlug: z.string({ required_error: "Le formulaire est obligatoire." }),
+    label: z.string({ required_error: "Le libellé est obligatoire." }).min(1, { message: "Le libellé doit contenir au moins 1 caractère." }),
+    type: z.enum(["Champ texte", "Champ numérique", "Boite à cocher", "Liste déroulante"]),
+
+})
+
+export const ValueInitSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
+    formSlug: z.string({ required_error: "Le formulaire est obligatoire." }),
+    settingSlug: z.string().optional(),
+    projectPageSlug: z.string().optional(),
+    pageSlug: z.string().optional(),
+    mode: z.enum(["Project", "Editeur"]),
+    projectSlug: z.string().optional(),
+
+})
+
+export const ValueDeleteSchema = z.object({
+    clientSlug: z.string({ required_error: "Le client est obligatoire." }),
+    softwareSlug: z.string({ required_error: "Le logiciel est obligatoire." }),
+    formSlug: z.string({ required_error: "Le formulaire est obligatoire." }),
+    formGroup: z.string({ required_error: "Le groupe est obligatoire." }),
+    settingSlug: z.string().optional(),
+    mode: z.enum(["Project", "Editeur"]),
+    projectSlug: z.string().optional(),
+    pageSlug: z.string().optional(),
+
+})

@@ -62,7 +62,7 @@ export class Project {
     async getUsers() {
         try {
             const project = await this.projetDetail()
-            const users = await prisma.userProject.findMany({
+            const usersList = await prisma.userProject.findMany({
                 where: {
                     projectLabel: project?.label,
                     projectSoftwareLabel: project?.softwareLabel,
@@ -73,9 +73,20 @@ export class Project {
                     user: {
                         include: {
                             UserOtherData: true
-
                         }
                     }
+                }
+            })
+            const users = usersList.map((user) => {
+                return {
+                    email: user.user.email,
+                    firstName: user.user.UserOtherData.at(0)?.firstname,
+                    lastName: user.user.UserOtherData.at(0.)?.lastname,
+                    civility: user.user.UserOtherData.at(0)?.civility,
+                    role: user.role,
+                    isAdmin: user.isAdmin,
+                    isEditor: user.isEditor,
+                    isValidator: user.isValidator
                 }
             })
             return users
@@ -160,134 +171,6 @@ export class Project {
 
     }
 
-    async getFormDataToObject({
-        formId,
-        projectLabel,
-        softwareLabel,
-        clientId,
-        pageTitle
-    }: {
-        formId: string,
-        projectLabel: string,
-        softwareLabel: string,
-        clientId: string,
-        pageTitle: string
-    }) {
-        try {
-            const formValues = await prisma.project_Block_Value.findMany({
-                select: {
-                    label: true,
-                    value: true,
-                    formGroup: true
-                },
-                where: {
-                    formId,
-                    projectLabel,
-                    softwareLabel,
-                    clientId
-                }
-            })
-            const formTitle = await prisma.page_Block.findFirstOrThrow({
-                where: {
-                    id: formId
-
-                },
-                select: {
-                    label: true,
-                    pageVersion: true
-                }
-            })
-            const groupByFormId = await prisma.project_Block_Value.groupBy({
-                by: ['formGroup'],
-                where: {
-                    formId,
-                    projectLabel,
-                    softwareLabel,
-                    clientId
-                }
-            })
-            const datas: { [key: string]: any }[] = []
-            for (const formGroup of groupByFormId) {
-                const formData = formValues.filter(formValue => formValue.formGroup === formGroup.formGroup)
-                const object: { [key: string]: any } = {} // Explicitly define the type of object
-                for (const formValue of formData) {
-                    object[formValue.label] = formValue.value;
-                }
-                datas.push(object)
-            }
-
-            return {
-                pageTitle,
-                formTitle: formTitle.label,
-                version: formTitle.pageVersion,
-                datas: datas
-            }
-        } catch (err) {
-            console.error(err)
-            throw new Error('Erreur lors de la récupération des données du formulaire')
-        }
-    }
-
-
-    async projectDatas() {
-        try {
-            const projectDetail = await this.projectDetails()
-            if (!projectDetail) {
-                throw new Error('Projet introuvable')
-            }
-            const pages = await prisma.project.findUniqueOrThrow({
-                where: {
-                    slug: this.projectSlug
-                },
-                include: {
-                    Project_Page: {
-                        include: {
-                            Page: {
-                                include: {
-                                    Page_Block: {
-                                        where: {
-                                            htmlElement: 'form'
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                }
-            })
-            const datas: {
-                pageTitle: string,
-                formTitle: string,
-                version: number,
-                datas:
-                {
-                    [key: string]: string,
-                }[]
-
-            }[] = []
-            for (const page of pages.Project_Page) {
-                const forms = page.Page.Page_Block
-                for (const form of forms) {
-                    const formObject = await this.getFormDataToObject({
-                        pageTitle: page.label,
-                        formId: form.id,
-                        projectLabel: projectDetail.label,
-                        softwareLabel: projectDetail.softwareLabel,
-                        clientId: projectDetail.clientId,
-                    })
-                    datas.push(formObject)
-
-                }
-
-
-            }
-            return datas
-        } catch (err) {
-            console.error(err)
-            throw new Error('Erreur lors de la récupération des détails du projet')
-        }
-    }
 
     async validatorProjet() {
         try {
@@ -398,6 +281,104 @@ export class Project {
         }
     }
 
+    async getDatas() {
+        try {
+            const projectDetail = await this.projetDetail()
+            if (!projectDetail) {
+                throw new Error('Projet introuvable')
+            }
+            const datas = await prisma.project.findUnique({
+                where: {
+                    slug: this.projectSlug,
+                },
+                include: {
+                    Form_Group: {
+                        where: {
+                            pageId: {
+                                not: null
+                            }
+                        },
+                        include: {
+                            Form_Value: {
+                                orderBy: {
+                                    order: 'asc'
+                                }
+                            }
+                        }
+                    }
+                }
+
+            })
+            if (!datas?.Form_Group) {
+                return []
+            }
+            const groupByForm = await prisma.form_Group.groupBy({
+                by: ['formId'],
+                where: {
+                    clientId: projectDetail?.clientId,
+                    projectLabel: projectDetail?.label,
+                    softwareLabel: projectDetail?.softwareLabel,
+                    mode: 'Project'
+                }
+            })
+            const fields = await prisma.formField.findMany({
+                where: {
+                    formId: {
+                        in: groupByForm.map((form) => form.formId)
+                    }
+
+                }
+            })
+            const forms = await prisma.form.findMany({
+                where: {
+                    id: {
+                        in: groupByForm.map((form) => form.formId)
+                    }
+                }
+            })
+            const pages = await prisma.page.findMany({
+                where: {
+                    softwareLabel: projectDetail.softwareLabel,
+                    clientId: projectDetail.clientId
+                }
+            })
+            const datasList: {
+                formTitle: string,
+                datas: { [key: string]: string }[]
+
+            }[] = []
+            for (const form of groupByForm) {
+                let formTitle = forms.find((findForm) => findForm.id === form.formId)?.label
+                let formDataFilter = datas.Form_Group.filter((data) => data.formId === form.formId)
+                let formFieldsFilter = fields.filter((field) => field.formId === form.formId)
+                if (formTitle) {
+                    let dynamicDataList: { [key: string]: string }[] = []
+                    for (const formData of formDataFilter) {
+                        let dynamicData: { [key: string]: string } = {};
+                        for (const data of formData.Form_Value) {
+                            let fieldLabel = formFieldsFilter.find((field) => field.id === data.fieldId)?.label;
+                            let value = data.value;
+                            if (fieldLabel) {
+                                dynamicData[fieldLabel] = value;
+                            }
+                        }
+                        dynamicDataList.push(dynamicData)
+                    }
+                    datasList.push({
+                        formTitle: formTitle,
+                        datas: dynamicDataList,
+                    });
+                }
+
+            }
+            return datasList
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la récupération des données du projet')
+        }
+    }
+
+
     async pages() {
         try {
             const project = await this.projetDetail()
@@ -424,27 +405,8 @@ export class Project {
         }
     }
 
-    async countForms() {
-        try {
-            const project = await this.projetDetail()
-            if (!project) {
-                throw new Error('Projet introuvable')
-            }
-            const groupBy = await prisma.project_Block_Value.groupBy({
-                by: ['formId'],
-                where: {
-                    projectLabel: project.label,
-                    softwareLabel: project.softwareLabel,
-                    clientId: project.clientId
-                }
-            })
 
-            return groupBy.length
-        } catch (err) {
-            console.error(err)
-            throw new Error('Erreur lors du comptage des formulaires')
-        }
-    }
+
 
 
 

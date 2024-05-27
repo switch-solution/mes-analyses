@@ -11,7 +11,6 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Security } from "@/src/classes/security"
-import { DynamicPage } from "@/src/classes/dynamicPage"
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string } }) {
     const project = new Project(params.projectSlug)
     const projectExist = await project.projectExist()
@@ -21,19 +20,17 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     const security = new Security()
     await security.isAuthorizedInThisProject(params.projectSlug)
 
-    const filesList = await project.files()
+    const datasList = await project.getDatas()
 
-    const pages = await project.pages()
-    const projectDetail = await project.projectDetails()
-    const extraction = await project.projectDatas()
-    const dataTable = extraction.map((data) => {
+    const datas = datasList.map(data => {
         return {
-            ...data,
-            formTitle: data.formTitle,
-            projectSlug: params.projectSlug,
             clientSlug: params.clientSlug,
+            projectSlug: params.projectSlug,
+            formTitle: data.formTitle,
+            datas: data.datas
         }
     })
+    console.log(datas)
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -58,7 +55,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <ContainerDataTable>
-                <DataTable columns={columns} data={dataTable} inputSearch="formTitle" inputSearchPlaceholder="Chercher par formulaire" />
+                <DataTable columns={columns} data={datas} inputSearch="formTitle" inputSearchPlaceholder="Chercher par formulaire" />
             </ContainerDataTable>
         </Container>
     )

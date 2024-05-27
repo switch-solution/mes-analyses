@@ -1,9 +1,10 @@
 import Link from "next/link"
 import { Security } from "@/src/classes/security";
 import { Project } from "@/src/classes/project";
+import { Client } from "@/src/classes/client";
+import { ProjectPage } from "@/src/classes/projectPage";
+import { Form } from "@/src/classes/form";
 import { Container, ContainerBreadCrumb, ContainerPage } from "@/components/layout/container"
-import { ProjectData } from "@/src/classes/projectData";
-import DynamicPageView from "@/components/dynamicPageAnalyse/dynamicPageView";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -12,46 +13,146 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation";
 import { DynamicPage } from "@/src/classes/dynamicPage"
+import ButtonAddFormValue from "@/components/form/form/buttonAddFormValue";
+import DynamicForms from "@/components/form/form/dynamicForms";
+
+type DynamicForm = {
+    form: {
+        id: string,
+        repository: string | null | undefined,
+        internalId: string,
+        version: number,
+        level: string,
+        description: string | null | undefined,
+        status: string,
+        label: string,
+        slug: string,
+        softwareLabel: string | null | undefined,
+        clientId: string | null | undefined,
+        originalFormId: string | null,
+        originalFormVersion: number | null,
+        buttonLabel: string,
+        isArchived: boolean
+    },
+    fields: {
+        id: string,
+        label: string,
+        type: string,
+        htmlElement: string,
+        order: number,
+        min: number,
+        max: number,
+        required: boolean,
+        slug: string,
+        sourceDsnId: string | null,
+        optionsFormId: string | null,
+        optionsInputId: string | null,
+        options: string | null,
+        minLength: number,
+        maxLength: number,
+        placeholder: string | null
+    }[],
+    formGroup: {
+        id: string,
+        repository: string,
+        internalId: string,
+        version: number,
+        level: string,
+        description: string,
+        status: string,
+        label: string,
+        slug: string,
+        softwareLabel: string,
+        clientId: string,
+        originalFormId: string | null,
+        originalFormVersion: string | null,
+        buttonLabel: string,
+        isArchived: boolean
+        Form_Group: {
+            formId: string,
+            formVersion: number,
+            formGroup: string,
+            mode: string,
+            softwareLabel: string,
+            clientId: string,
+            pageId: string | null,
+            projectLabel: string | null,
+
+
+        }[] | null
+    },
+    datas: { formGroup: string, [key: string]: string }[]
+}
+
+
 export default async function Page({ params }: { params: { clientSlug: string, projectSlug: string, projectPageSlug: string } }) {
-    const security = new Security()
-    const userIsAuthorize = await security.isAdministratorInThisProject(params.projectSlug)
-    if (!userIsAuthorize) {
-        throw new Error('L\'utilisateur n\'est pas autorisé à accéder à ce projet')
+    const client = new Client(params.clientSlug);
+    const clientExist = await client.clientExist();
+    if (!clientExist) {
+        notFound();
     }
-    const project = new Project(params.projectSlug)
-    const projectExist = await project.projectExist()
+    const clientDetail = await client.clientDetail();
+    if (!clientDetail) {
+        notFound();
+    }
+    const security = new Security();
+    const userIsAuthorized = await security.isEditorClient(clientDetail.siren);
+    if (!userIsAuthorized) {
+        throw new Error('Vous devez etre editor pour acceder a cette page');
+    }
+    const project = new Project(params.projectSlug);
+    const projectExist = await project.projectExist();
     if (!projectExist) {
-        notFound()
+        notFound();
     }
-
-    const projectDetail = await project.projectDetails()
-    const projectDatas = new ProjectData({
-        slug: params.projectPageSlug,
-        projectLabel: projectDetail.label,
-        softwareLabel: projectDetail.softwareLabel,
-        clientId: projectDetail.clientId
+    const projectPage = new ProjectPage(params.projectPageSlug);
+    const projectPageExist = await projectPage.projectPageExist();
+    if (!projectPageExist) {
+        notFound();
+    }
+    const projectDetail = await project.projetDetail();
+    if (!projectDetail) {
+        notFound();
+    }
+    const softwareLabel = projectDetail.softwareLabel
+    const softwareSlug = await prisma.software.findFirstOrThrow({
+        where: {
+            label: softwareLabel,
+            clientId: clientDetail.siren
+        },
+        select: {
+            slug: true
+        }
     })
-    const projectsDatasExist = await projectDatas.projectDataExist()
-    if (!projectsDatasExist) {
-        notFound()
-    }
-    const pageSlug = projectsDatasExist.Page.slug
-
-    const dynamicPage = new DynamicPage(projectsDatasExist.Page.slug)
-    const pageExist = await dynamicPage.pageExist()
+    const pageSlug = await projectPage.getPageSlug();
+    const page = new DynamicPage(pageSlug);
+    const pageExist = await page.pageExist();
     if (!pageExist) {
-        notFound()
+        notFound();
+    }
+    const dynamicPage = new DynamicPage(pageSlug);
+    const forms = await dynamicPage.getForms();
+    const blocks = await dynamicPage.getBlocks();
+    const formsList: DynamicForm[] = [];
+    for (const form of forms) {
+        const projectForm = new Form(form.slug)
+        const dynamicForm = await projectForm.getDynamicFormElements({
+            clientId: clientDetail.siren,
+            softwareLabel: projectDetail.softwareLabel,
+            mode: 'Project',
+            projectLabel: projectDetail.label,
+            pageId: pageExist.id,
+        })
+
+        if (dynamicForm) {
+            formsList.push(dynamicForm as DynamicForm)
+        }
     }
 
-    const pageBlock = await dynamicPage.getblocks()
-    const datas = await projectDatas.datas()
-    const options = await projectDatas.getOptions()
-    const pageStatus = projectsDatasExist.status
-    if (pageStatus !== 'Validé' && pageStatus !== 'En cours de rédaction') {
-        throw new Error('Le statut de la page est incorrect')
-    }
+
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -79,19 +180,47 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <div className="mt-2 md:mt-0">
-                <ContainerPage title={`${pageExist.internalId} ${pageExist.label}`}>
-                    <DynamicPageView
-                        pageStatus={pageStatus}
-                        blocks={pageBlock}
-                        clientSlug={params.clientSlug}
-                        projectPageSlug={params.projectPageSlug}
-                        pageSlug={pageSlug}
-                        internalId={pageExist.internalId}
-                        label={pageExist.label}
-                        projectSlug={params.projectSlug}
-                        datas={datas}
-                        options={options}
-                    />
+                <ContainerPage title="">
+                    {blocks.map(block => {
+                        const dynamicForm = formsList.find(form => form.form.id === block.Page_Block_Form.at(0)?.formId)
+                        const formSlug = formsList.find(form => form.form.id === block.Page_Block_Form.at(0)?.formId)?.form.slug
+                        return (
+                            <>
+                                {block.htmlElement === 'h1' && <h1 key={block.slug}>{block.label}</h1>}
+                                {block.htmlElement === 'h2' && <h2 key={block.slug}>{block.label}</h2>}
+                                {block.htmlElement === 'h3' && <h3 key={block.slug}>{block.label}</h3>}
+                                {block.htmlElement === 'h4' && <h4 key={block.slug}>{block.label}</h4>}
+                                {block.htmlElement === 'h5' && <h5 key={block.slug}>{block.label}</h5>}
+                                {block.htmlElement === 'h6' && <h6 key={block.slug}>{block.label}</h6>}
+                                {block.htmlElement === 'p' && <p key={block.slug}>{block.label}</p>}
+                                {block.htmlElement === 'form' && dynamicForm && formSlug &&
+                                    <div key={block.slug}>
+                                        <ButtonAddFormValue
+                                            clientSlug={params.clientSlug}
+                                            softwareSlug={softwareSlug.slug}
+                                            formSlug={formSlug}
+                                            mode="Project"
+                                            projectSlug={params.projectSlug}
+                                            pageSlug={pageSlug}
+                                            buttonLabel={dynamicForm.form.buttonLabel}
+                                            projectPageSlug={params.projectPageSlug}
+                                        />
+                                        <DynamicForms
+                                            clientSlug={params.clientSlug}
+                                            formSlug={formSlug}
+                                            softwareSlug={softwareSlug.slug}
+                                            pageSlug={params.projectPageSlug}
+                                            formGroup={dynamicForm.formGroup?.Form_Group ? dynamicForm.formGroup.Form_Group : null}
+                                            projectSlug={params.projectSlug}
+                                            formProps={dynamicForm.form}
+                                            datas={dynamicForm.datas}
+                                            fields={dynamicForm.fields}
+                                        />
+                                    </div>
+                                }
+                            </>
+                        )
+                    })}
                 </ContainerPage>
             </div>
         </Container>

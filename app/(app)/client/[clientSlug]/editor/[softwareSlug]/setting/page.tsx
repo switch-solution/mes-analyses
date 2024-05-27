@@ -1,9 +1,9 @@
-import { getSoftwareSettingFilterByUserSoftware } from "@/src/query/software_setting.query";
 import { columns } from "./dataTablecolumns"
 import { DataTable } from "@/components/layout/dataTable";
 import { Container, ContainerBreadCrumb, ContainerDataTable } from "@/components/layout/container";
 import { Client } from "@/src/classes/client";
 import { Security } from "@/src/classes/security";
+import { Software } from "@/src/classes/software";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -12,6 +12,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { User } from "@/src/classes/user";
+import { notFound } from "next/navigation";
 export default async function Page({ params }: { params: { clientSlug: string, softwareSlug: string } }) {
     const client = new Client(params.clientSlug)
     const clientExist = await client.clientExist()
@@ -22,23 +23,25 @@ export default async function Page({ params }: { params: { clientSlug: string, s
     const userIsEditor = await security.isEditorClient(clientExist.siren)
     if (!userIsEditor) throw new Error("Vous n'êtes pas autorisé à accéder à cette page.")
     const user = new User(security.userId)
-    const softwareActive = await user.getMySoftwareActive()
-    const clientActive = await user.getMyClientActive()
-    const settingList = await getSoftwareSettingFilterByUserSoftware({
-        clientId: clientActive.clientId,
-        softwareLabel: softwareActive.softwareLabel
-    })
-    const settings = settingList.map((setting) => {
+
+    const software = new Software(params.softwareSlug)
+    const softwareExist = await software.softwareExist()
+    if (!softwareExist) {
+        notFound()
+    }
+    const settingList = await software.getSoftwareSettingType()
+    const settings = settingList.groupBySetting.map((setting) => {
+        const label = settingList.settings.find((s) => s.id === setting.id)?.label
+        const slug = settingList.settings.find((s) => s.id === setting.id)?.slug
         return {
             clientSlug: params.clientSlug,
-            code: setting.id,
-            label: setting.label,
-            value: setting.value,
-            softwareLabel: setting.softwareLabel,
-            slug: setting.slug,
-            description: setting.description,
-            softwareSlug: params.softwareSlug
+            id: setting.id,
+            label,
+            softwareSlug: params.softwareSlug,
+            slug
         }
+
+
     })
 
     return (
@@ -51,7 +54,7 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/`}>Editeur</BreadcrumbLink>
+                            <BreadcrumbLink href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
@@ -61,9 +64,9 @@ export default async function Page({ params }: { params: { clientSlug: string, s
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <ContainerDataTable>
-                <DataTable columns={columns} data={settings} inputSearch="code" inputSearchPlaceholder="Chercher par code" href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/setting/create`} buttonLabel="Ajouter un paramétre" />
+                <DataTable columns={columns} data={settings} inputSearch="code" inputSearchPlaceholder="Chercher par code" href={`/client/${params.clientSlug}/editor/${params.softwareSlug}/setting/create`} buttonLabel="Ajouter une liste déroulante" />
             </ContainerDataTable>
-        </Container>
+        </Container >
     )
 
 }

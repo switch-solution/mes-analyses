@@ -30,7 +30,7 @@ export default function EditPage({
     clientSlug,
     softwareSlug,
     pageSlug,
-    page
+    page,
 
 }: {
     clientSlug: string,
@@ -154,11 +154,11 @@ export default function EditPage({
                     name="status"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel>Status</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select a verified email to display" />
+                                        <SelectValue placeholder="Séléctionner un status" />
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>

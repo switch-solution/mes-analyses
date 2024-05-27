@@ -14,7 +14,9 @@ import { opsV00002Seed } from './seed/12_ops.v0002.seed'
 import { pageV0001Seed } from './seed/13_page.v0001.seed'
 import { pageV0002Seed } from './seed/14_page.v0002.seed'
 import { pageV0003Seed } from './seed/15_page.v0003.seed'
-
+import { settingV0002 } from './seed/16_setting.v0002.seed'
+import { formV0001Seed } from './seed/17_form.v0001.seed'
+import { settingV0003 } from './seed/18_setting.v0003.seed'
 const prisma = new PrismaClient(
     {
         log: [
@@ -178,7 +180,33 @@ const main = async () => {
             await prisma.$disconnect()
             process.exit(1)
         })
-
+    await settingV0002.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await formV0001Seed.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
+    await settingV0003.run()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
 
 }
 

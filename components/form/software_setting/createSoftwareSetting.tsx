@@ -5,8 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SettingCreateSchema } from '@/src/helpers/definition'
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { Calendar } from "@/components/ui/calendar"
 import { ButtonLoading } from "@/components/ui/button-loader";
 import {
     Form,
@@ -17,21 +15,8 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
+
 import { createSoftwareSetting } from "@/src/features/actions/software_setting/software_setting.actions"
 import { Input } from '@/components/ui/input'
 import { toast } from "sonner"
@@ -45,7 +30,6 @@ export default function CreateSoftwareSetting({ clientSlug, softwareSlug }: { cl
             clientSlug: clientSlug,
             label: "",
             id: "",
-            value: "",
             description: "",
             softwareSlug: softwareSlug,
 
@@ -119,20 +103,6 @@ export default function CreateSoftwareSetting({ clientSlug, softwareSlug }: { cl
                             <FormControl>
                                 <Input type="text" placeholder="" {...field} required />
                             </FormControl>
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="value"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Valeur</FormLabel>
-                            <FormControl>
-                                <Input placeholder="" {...field} required />
-                            </FormControl>
-                            <FormMessage />
                         </FormItem>
                     )}
                 />

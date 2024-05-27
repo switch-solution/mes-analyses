@@ -43,6 +43,7 @@ export default async function NavBar() {
     if (!client) {
         throw new Error("Client manquant")
     }
+    const software = await user.getMySoftwareActive()
 
     return (
         <>
@@ -76,7 +77,7 @@ export default async function NavBar() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link
-                                    href={`/client/${client.clientSlug}/editor`}
+                                    href={`/client/${client.clientSlug}/editor/${software.softwareSlug}`}
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
                                 >
                                     <Pencil className="size-5" />

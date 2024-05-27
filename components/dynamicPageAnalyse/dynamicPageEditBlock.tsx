@@ -16,7 +16,7 @@ import { deletePageBlock, editPageBlock, } from "@/src/features/actions/page/pag
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "sonner"
-import { BlockPageEditSchema, BlockEditSchema } from "@/src/helpers/definition"
+import { BlockPageEditSchema } from "@/src/helpers/definition"
 import { Pencil, Trash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -90,8 +90,8 @@ export default function DynamicPageEditBlock({ clientSlug, blockSlug, softwareSl
                     label,
                 })} />
             </div>
-
             <Form {...form} key={blockSlug}>
+
                 <form onChange={form.handleSubmit(handleChange)} className="w-2/3 space-y-6">
                     <FormField
                         control={form.control}
@@ -129,6 +129,7 @@ export default function DynamicPageEditBlock({ clientSlug, blockSlug, softwareSl
                             </FormItem>
                         )}
                     />
+
                     <FormField
                         control={form.control}
                         name="label"

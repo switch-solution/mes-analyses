@@ -3,7 +3,6 @@ import { Client } from "@/src/classes/client"
 import { Security } from "@/src/classes/security"
 import { notFound } from "next/navigation"
 import { Project } from "@/src/classes/project"
-import { ProjectData } from "@/src/classes/projectData"
 import Link from "next/link"
 import { DataTable } from "@/components/layout/dataTable";
 import { columns } from "./dataTablecolumns"
@@ -32,16 +31,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     }
     const security = new Security()
     const userIsValid = await security.isAuthorizedInThisProject(params.projectSlug)
-    const projectData = new ProjectData({
-        projectLabel: projectDetail.label,
-        softwareLabel: projectDetail.softwareLabel,
-        clientId: projectDetail.clientId,
-        slug: params.projectPageSlug
-    })
-    const workflow = await projectData.workflow()
-    if (!userIsValid) {
-        throw new Error("Vous n'êtes pas autorisé à accéder à ce projet.")
-    }
+
 
     return (
 
@@ -71,7 +61,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <ContainerDataTable>
-                <DataTable columns={columns} data={workflow} inputSearch="lastname" inputSearchPlaceholder="Chercher par nom" />
+                <DataTable columns={columns} data={[]} inputSearch="lastname" inputSearchPlaceholder="Chercher par nom" />
             </ContainerDataTable>
         </Container>
     )

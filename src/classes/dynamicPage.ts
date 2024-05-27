@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { generateSlug } from "../helpers/generateSlug"
-import { generateUUID } from "../helpers/generateUuid"
-import { it } from "node:test"
+import { tr } from "@faker-js/faker"
 export class DynamicPage {
     pageSlug: string
     constructor(pageSlug: string) {
@@ -287,7 +286,6 @@ export class DynamicPage {
                     pageId: page.id,
                     type: htmlLabel ? htmlLabel.label : 'Pas de type',
                     slug: generateSlug(`block-${countBlock}`),
-                    typeInput: htmlLabel ? htmlLabel.typeInput : 'text'
                 }
             })
             if (!block) {
@@ -300,7 +298,47 @@ export class DynamicPage {
         }
     }
 
-    async getblocks() {
+    async getForms() {
+        try {
+            const pageForms = await prisma.page.findMany({
+                where: {
+                    slug: this.pageSlug,
+                    Page_Block: {
+                        some: {
+                            htmlElement: 'form'
+                        }
+                    }
+                },
+                include: {
+                    Page_Block: {
+                        include: {
+                            Page_Block_Form: {
+                                include: {
+                                    Form: true
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            const forms = pageForms.map((page) => {
+                return page.Page_Block.filter((block) => block.htmlElement === 'form').map((block) => {
+                    return block.Page_Block_Form.map((form) => {
+                        return {
+                            ...form.Form,
+                            blockId: block.id,
+                        }
+                    })
+                })
+            }).flat(2)
+            return forms
+        } catch (err) {
+            console.error(err)
+            throw new Error('Erreur lors de la récupération des formulaires')
+        }
+    }
+
+    async getBlocks() {
         try {
             const blocks = await prisma.page.findMany({
                 where: {
@@ -312,12 +350,10 @@ export class DynamicPage {
                             order: 'asc'
                         },
                         include: {
-                            Project_Block_Value: true
+                            Page_Block_Form: true
                         }
 
                     },
-
-
                 },
                 orderBy: {
                     order: 'asc'
@@ -337,23 +373,10 @@ export class DynamicPage {
     async editBlock({
         label,
         blockSlug,
-        min,
-        max,
-        minLength,
-        maxLength,
-        required,
-        readonly,
-        dsn
+
     }: {
         label: string,
         blockSlug: string,
-        min: number,
-        max: number,
-        minLength: number,
-        maxLength: number,
-        required: boolean,
-        readonly: boolean,
-        dsn: string | null
     }) {
         try {
             await prisma.page_Block.update({
@@ -362,13 +385,6 @@ export class DynamicPage {
                 },
                 data: {
                     label,
-                    min,
-                    max,
-                    minLength,
-                    maxLength,
-                    required,
-                    readonly,
-                    sourceDsnId: dsn
                 }
             })
         } catch (err) {
@@ -476,28 +492,6 @@ export class DynamicPage {
         }
     }
 
-    async createOption(blockSlug: string, label: string) {
-        try {
-            const block = await this.blockExist(blockSlug)
-            if (!block) {
-                throw new Error('Le block n\'existe pas')
-            }
-            const options = block.options
-            const mergeOptions = `${options};${label.replace(";", "")}`
-            await prisma.page_Block.update({
-                where: {
-                    slug: blockSlug
-                },
-                data: {
-                    options: mergeOptions
-                }
-            })
-        } catch (err) {
-            console.error(err)
-            throw new Error('Erreur lors de la création de l\'option')
-        }
-    }
-
 
     async duplicate({
         clientId,
@@ -529,30 +523,15 @@ export class DynamicPage {
                     slug: generateSlug(`LOG_PAGE_${countPage}`),
                 }
             })
-            const blocks = await this.getblocks()
+            const blocks = await this.getBlocks()
             let countPageBlock = await prisma.page_Block.count()
             const newPageBlockId: {
-                standardId: string,
-                softwareId: string
-            }[] = []
-            const newPageFormId: {
                 standardId: string,
                 softwareId: string
             }[] = []
             const newDatas = []
             for (const block of blocks) {
                 countPageBlock++
-                newPageBlockId.push({
-                    standardId: block.id,
-                    softwareId: `LOG_BLOCK_${countPageBlock}`
-                })
-                if (block.htmlElement === 'select') {
-                    newPageFormId.push({
-                        standardId: block.id,
-                        softwareId: `LOG_BLOCK_${countPageBlock}`
-                    })
-                }
-
                 newDatas.push(await prisma.page_Block.create({
                     data: {
                         htmlElement: block.htmlElement,
@@ -562,60 +541,27 @@ export class DynamicPage {
                         order: block.order,
                         level1: block.level1,
                         id: `LOG_BLOCK_${countPageBlock}`,
-                        sourceDsnId: block.sourceDsnId,
-                        options: block.options,
-                        optionsBlockId: block.optionsBlockId,
-                        optionsFormId: block.optionsFormId,
                         blockMasterId: block.blockMasterId ? newPageBlockId.find((blockId) => blockId.standardId === block.blockMasterId)?.softwareId : null,
                         pageId: newPage.id,
                         type: block.type,
                         slug: generateSlug(`LOG_BLOCK_${countPageBlock}`),
-                        typeInput: block.typeInput,
                         blockIdSource: block.id,
-                        min: block.min,
-                        max: block.max,
-                        minLength: block.minLength,
-                        maxLength: block.maxLength,
-                        readonly: block.readonly,
-                        required: block.required
                     }
                 }))
-
             }
-            //Update optionsBlockId and optionsFormId
-            const selects = newDatas.filter((data) => data.htmlElement === 'select' && data.optionsBlockId !== null)
-            const otherPage = await prisma.page.findMany({
+
+            const pageDuplicate = await prisma.page.findFirst({
                 where: {
-                    level: 'Logiciel',
                     clientId,
                     softwareLabel,
-                    id: {
-                        not: newPage.id
-                    },
-
+                    id: `LOG_PAGE_${countPage}`
                 },
                 include: {
                     Page_Block: true
+
                 }
             })
-            newDatas.push(...otherPage.map((page) => page.Page_Block).flat(1))
-            for (const select of selects) {
-                const optionsBlockId = select.optionsBlockId
-                const optionsFormId = select.optionsFormId
-                const newOptionsBlockId = newDatas.find(data => data.blockIdSource === optionsBlockId)?.id
-                const newOptionsFormId = newDatas.find(data => data.blockIdSource === optionsFormId)?.id
-                if (newOptionsBlockId && newOptionsFormId) {
-                    await prisma.page_Block.update({
-                        where: {
-                            id: select.id
-                        },
-                        data: {
-                            optionsBlockId: newOptionsBlockId,
-                            optionsFormId: newOptionsFormId
-                        }
-                    })
-                }
-            }
+            return pageDuplicate
 
         } catch (err) {
             console.error(err)

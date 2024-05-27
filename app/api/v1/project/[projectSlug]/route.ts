@@ -26,10 +26,12 @@ export async function GET(request: NextRequest, { params }: { params: { projectS
             const projectExist = await projectSlug.projectExist()
             if (!projectExist) {
                 return Response.json({ error: "Project not found" }, { status: 404 })
-
             }
-            const project = await projectSlug.projectDatas()
-            return Response.json({ project })
+
+            const datas = await projectSlug.getDatas()
+            const users = await projectSlug.getUsers()
+            const project = await projectSlug.projectDetails()
+            return Response.json({ project, datas, users })
         } catch (err) {
             console.error(err)
             return Response.json(

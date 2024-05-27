@@ -75,7 +75,6 @@ export default async function Page({ params }: { params: { clientSlug: string, p
             status: 'Validé'
         }
     })
-    const countForms = await project.countForms()
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -135,7 +134,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                             <Card x-chunk="dashboard-05-chunk-2">
                                 <CardHeader className="pb-2">
                                     <CardDescription>Extraction disponible</CardDescription>
-                                    <CardTitle className="flex justify-center text-4xl">{countForms}</CardTitle>
+                                    <CardTitle className="flex justify-center text-4xl"></CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-xs text-muted-foreground">

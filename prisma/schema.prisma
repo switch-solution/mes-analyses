@@ -195,24 +195,24 @@ model Project_Invitation {
 }
 
 model Software {
-  label                 String
-  slug                  String                  @unique
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  createdBy             String
-  clientId              String
-  client                Client                  @relation(fields: [clientId], references: [siren], onDelete: Cascade)
-  SoftwareItems         Software_Items[]
-  UserSoftware          UserSoftware[]
-  Software_Setting      Software_Setting[]
-  Project               Project[]
-  Software_Absence      Software_Absence[]
-  Software_Counter      Software_Counter[]
-  Software_Profile      Software_Profile[]
-  isArchived            Boolean                 @default(false)
-  Software_Accumulation Software_Accumulation[]
-  Invitation            Invitation[]
-  Page                  Page[]
+  label            String
+  slug             String             @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  createdBy        String
+  clientId         String
+  client           Client             @relation(fields: [clientId], references: [siren], onDelete: Cascade)
+  SoftwareItems    Software_Items[]
+  UserSoftware     UserSoftware[]
+  Software_Setting Software_Setting[]
+  Project          Project[]
+  isArchived       Boolean            @default(false)
+  Invitation       Invitation[]
+  Page             Page[]
+  Form             Form[]
+  Page_Block_Form  Page_Block_Form[]
+  Form_Value       Form_Value[]
+  Form_Group       Form_Group[]
 
   @@id([label, clientId])
 }
@@ -235,47 +235,70 @@ model UserSoftware {
 // Tables editor
 
 model Software_Items {
-  id                   String // id de l'item standard ou id du logiciel si création par l'utilisateur
-  idSoftware           String? // id du logiciel
-  slug                 String   @unique
-  software             Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
-  softwareLabel        String
-  clientId             String
-  type                 String
-  label                String
-  description          String
-  idccCode             String
-  Idcc                 Idcc?    @relation(fields: [idccCode], references: [code])
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  createdBy            String
-  base                 String?
-  rate                 String?
-  amount               String?
-  status               String?
-  employeeContribution String?
-  employerContribution String?
-  dateStart            DateTime
-  isArchived           Boolean  @default(false)
+  id                       String // id de l'item standard ou id du logiciel si création par l'utilisateur
+  idSoftware               String? // id du logiciel
+  slug                     String   @unique
+  software                 Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+  softwareLabel            String
+  clientId                 String
+  type                     String
+  label                    String
+  description              String
+  idccCode                 String
+  Idcc                     Idcc?    @relation(fields: [idccCode], references: [code])
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  createdBy                String
+  baseType                 String?
+  rateType                 String?
+  coeffType                String?
+  amountType               String?
+  employeeContributionType String?
+  employerContributionType String?
+  base                     String?
+  rate                     String?
+  amount                   String?
+  status                   String?
+  employeeContribution     String?
+  employerContribution     String?
+  dateStart                DateTime
+  isArchived               Boolean  @default(false)
 
   @@id([id, type, softwareLabel, clientId, dateStart])
 }
 
 model Software_Setting {
-  id            String
-  label         String
-  description   String?
-  value         String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdBy     String
-  softwareLabel String
-  clientId      String
-  slug          String   @unique @default(cuid())
-  comment       String?
-  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+  id                     String
+  label                  String
+  description            String?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  createdBy              String
+  softwareLabel          String
+  clientId               String
+  slug                   String                   @unique @default(cuid())
+  comment                String?
+  Software               Software                 @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+  Software_Setting_Value Software_Setting_Value[]
 
-  @@id([id, label, value, clientId, softwareLabel])
+  @@id([id, clientId, softwareLabel])
+  @@unique([clientId, softwareLabel, label])
+}
+
+model Software_Setting_Value {
+  id                String
+  clientId          String
+  softwareLabel     String
+  softwareSettingId String
+  label             String
+  value             String
+  slug              String           @unique
+  Software_Setting  Software_Setting @relation(fields: [softwareLabel, clientId, softwareSettingId], references: [softwareLabel, clientId, id])
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  createdBy         String           @default("system")
+
+  @@id([id, clientId, softwareLabel, softwareSettingId])
 }
 
 model Table_Seniority {
@@ -457,6 +480,8 @@ model Project {
   Project_Attachment Project_Attachment[]
   Project_Invitation Project_Invitation[]
   Project_Page       Project_Page[]
+  Form_Value         Form_Value[]
+  Form_Group         Form_Group[]
 
   @@id([clientId, softwareLabel, label])
 }
@@ -563,73 +588,25 @@ model Counter {
   isArchived  Boolean  @default(false)
 }
 
-model Software_Counter {
-  id            String
-  label         String
-  description   String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdBy     String   @default("system")
-  softwareLabel String
-  clientId      String
-  inHours       Boolean  @default(false)
-  inDays        Boolean  @default(false)
-  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
-  isArchived    Boolean  @default(false)
-
-  @@id([id, label, clientId, softwareLabel])
-}
-
-model Software_Profile {
-  id            String
-  label         String
-  description   String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdBy     String   @default("system")
-  softwareLabel String
-  clientId      String
-  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
-  isArchived    Boolean  @default(false)
-
-  @@id([id, label, clientId, softwareLabel])
-}
-
-model Software_Absence {
-  label            String
-  id               String
-  description      String?
-  isSocialSecurity Boolean  @default(false)
-  softwareLabel    String
-  slug             String   @unique
-  clientId         String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  createdBy        String   @default("system")
-  dsnCode          String?
-  dsnLabel         String?
-  Software         Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
-  methodOfCalcul   String
-  population       String?
-  itemHour         String?
-  itemDay          String?
-  counter          String?
-  isPrintable      Boolean  @default(false)
-  isArchived       Boolean  @default(false)
-
-  @@id([label, id, clientId, softwareLabel])
-}
-
 model Default_Setting {
-  id          String
-  label       String
-  description String?
-  value       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String   @default("system")
+  id                    String                  @id
+  label                 String
+  description           String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  createdBy             String                  @default("system")
+  Default_Setting_Value Default_Setting_Value[]
+}
 
-  @@id([id, label, value])
+model Default_Setting_Value {
+  id               String          @id
+  label            String
+  value            String
+  defaultSettingId String
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  createdBy        String          @default("system")
+  defaultSetting   Default_Setting @relation(fields: [defaultSettingId], references: [id])
 }
 
 model Dsn_OPS {
@@ -712,22 +689,6 @@ model Accumulation {
   createdBy   String   @default("system")
 }
 
-model Software_Accumulation {
-  id            String
-  label         String
-  description   String?
-  clientId      String
-  softwareLabel String
-  Software      Software @relation(fields: [softwareLabel, clientId], references: [label, clientId])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdBy     String   @default("system")
-  isArchived    Boolean  @default(false)
-  slug          String   @unique
-
-  @@id([id, label, clientId, softwareLabel])
-}
-
 model Classification {
   id        String
   type      String
@@ -744,10 +705,10 @@ model Classification {
 }
 
 model Dsn_Structure {
-  id         String       @id
-  label      String
-  type       String
-  Page_Block Page_Block[]
+  id        String      @id
+  label     String
+  type      String
+  FormField FormField[]
 }
 
 model Rate_At {
@@ -761,103 +722,187 @@ model Rate_At {
 }
 
 model Page {
-  id            String         @default(cuid())
-  internalId    String
-  level         String
-  label         String
-  order         Int
-  status        String         @default("En attente")
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  createdBy     String         @default("system")
-  slug          String         @unique
-  version       Int
-  clientId      String?
-  softwareLabel String?
-  Software      Software?      @relation(fields: [softwareLabel, clientId], references: [label, clientId])
-  Page_Block    Page_Block[]
-  Project_Page  Project_Page[]
+  id              String         @default(cuid())
+  internalId      String
+  level           String         @default("Standard")
+  label           String
+  order           Int
+  status          String         @default("En attente")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  createdBy       String         @default("system")
+  slug            String         @unique
+  version         Int
+  isArchived      Boolean        @default(false)
+  originalVersion Int?
+  originalPageId  String?
+  clientId        String?
+  softwareLabel   String?
+  Software        Software?      @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  Page_Block      Page_Block[]
+  Project_Page    Project_Page[]
 
   @@id([id, version])
 }
 
-model Page_Block {
-  id                  String                @id @default(cuid())
-  pageId              String
-  pageVersion         Int
-  level1              Boolean               @default(false)
-  blockMasterId       String?
-  block               Page_Block?           @relation("BlockChild", fields: [blockMasterId], references: [id])
-  blocks              Page_Block[]          @relation("BlockChild")
-  htmlElement         String
-  type                String
+model Form {
+  id                  String
+  repository          String?
+  internalId          String
+  version             Int
+  level               String            @default("Standard")
+  description         String?
+  status              String            @default("En attente")
   label               String
-  options             String?               @default("")
-  sourceDsnId         String?
-  optionsFormId       String?
-  optionsBlockId      String?
-  Dsn_Stucture        Dsn_Structure?        @relation(fields: [sourceDsnId], references: [id])
-  imageUrl            String?
-  placeholder         String?
-  buttonLabel         String?
-  min                 Int                   @default(0)
-  max                 Int                   @default(9999999)
-  minLength           Int                   @default(1)
-  maxLength           Int                   @default(255)
-  typeInput           String                @default("text")
-  required            Boolean               @default(false)
-  readonly            Boolean               @default(false)
-  order               Int
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  createdBy           String                @default("system")
-  slug                String                @unique
-  Page                Page                  @relation(fields: [pageId, pageVersion], references: [id, version])
-  Project_Block_Value Project_Block_Value[]
-  blockIdSource       String?
+  slug                String            @unique
+  softwareLabel       String?
+  clientId            String?
+  originalFormId      String?
+  originalFormVersion Int?
+  Software            Software?         @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  buttonLabel         String            @default("Valider")
+  updatedAt           DateTime          @updatedAt
+  createdAt           DateTime          @default(now())
+  createdBy           String            @default("system")
+  isArchived          Boolean           @default(false)
+  FormField           FormField[]
+  Page_Block_Form     Page_Block_Form[]
+  Form_Group          Form_Group[]
+
+  @@id([id, version])
+  @@unique([clientId, softwareLabel, repository])
+}
+
+model Form_Group {
+  formId        String
+  formVersion   Int
+  formGroup     String       @default(cuid())
+  Form          Form         @relation(fields: [formId, formVersion], references: [id, version])
+  mode          String
+  Form_Value    Form_Value[]
+  softwareLabel String
+  clientId      String
+  pageId        String?
+  projectLabel  String?
+  Project       Project?     @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
+  Software      Software     @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  createdBy     String       @default("system")
+
+  @@id([formId, formVersion, formGroup])
+}
+
+model Form_Value {
+  id            String      @id @default(cuid())
+  type          String
+  projectLabel  String?
+  softwareLabel String
+  clientId      String
+  formId        String
+  formVersion   Int
+  formGroupId   String
+  fieldId       String
+  Project       Project?    @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
+  Form_Group    Form_Group? @relation(fields: [formId, formVersion, formGroupId], references: [formId, formVersion, formGroup], onDelete: Cascade)
+  Software      Software    @relation(fields: [softwareLabel, clientId], references: [label, clientId])
+  label         String
+  order         Int
+  value         String
+  readOnly      Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  createdBy     String      @default("system")
+}
+
+model FormField {
+  htmlElement     String
+  id              String         @id
+  formId          String
+  type            String
+  order           Int
+  label           String
+  formVersion     Int
+  optionsFormId   String?
+  options         String?
+  optionsInputId  String?
+  slug            String         @unique
+  placeholder     String?
+  sourceDsnId     String?
+  originalFieldId String?
+  originalFormId  String?
+  DSN_Structure   Dsn_Structure? @relation(fields: [sourceDsnId], references: [id])
+  min             Int            @default(0)
+  max             Int            @default(9999999)
+  minLength       Int            @default(1)
+  maxLength       Int            @default(255)
+  typeInput       String         @default("text")
+  required        Boolean        @default(false)
+  readonly        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  createdBy       String         @default("system")
+  form            Form           @relation(fields: [formId, formVersion], references: [id, version], onDelete: Cascade)
+}
+
+model Page_Block_Form {
+  pageBlockId   String
+  formId        String
+  formVersion   Int
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  createdBy     String     @default("system")
+  Page_Block    Page_Block @relation(fields: [pageBlockId], references: [id], onDelete: Cascade)
+  Form          Form       @relation(fields: [formId, formVersion], references: [id, version], onDelete: Cascade)
+  softwareLabel String?
+  clientId      String?
+  Software      Software?  @relation(fields: [softwareLabel, clientId], references: [label, clientId], onDelete: Cascade)
+
+  @@id([formId, formVersion, pageBlockId])
+  @@unique([pageBlockId])
+}
+
+model Page_Block {
+  id              String            @id @default(cuid())
+  pageId          String
+  pageVersion     Int
+  level1          Boolean           @default(false)
+  blockMasterId   String?
+  block           Page_Block?       @relation("BlockChild", fields: [blockMasterId], references: [id])
+  blocks          Page_Block[]      @relation("BlockChild")
+  htmlElement     String
+  type            String
+  label           String
+  imageUrl        String?
+  order           Int
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  createdBy       String            @default("system")
+  slug            String            @unique
+  Page            Page              @relation(fields: [pageId, pageVersion], references: [id, version])
+  blockIdSource   String?
+  Page_Block_Form Page_Block_Form[]
 
   @@unique([pageId, pageVersion, label])
 }
 
 model Project_Page {
-  id                  String                @id @default(cuid())
-  projectLabel        String
-  softwareLabel       String
-  clientId            String
-  pageId              String
-  label               String
-  pageVersion         Int
-  order               Int
-  slug                String                @unique
-  status              String                @default("En cours de rédaction")
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  createdBy           String                @default("system")
-  Project             Project               @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
-  Page                Page                  @relation(fields: [pageId, pageVersion], references: [id, version])
-  Project_Block_Value Project_Block_Value[]
-  Page_Validation     Page_Validation[]
-}
-
-model Project_Block_Value {
-  id            String       @id @default(cuid())
-  projectLabel  String
-  softwareLabel String
-  clientId      String
-  blockId       String
-  formId        String
-  projectPageId String
-  Project_Page  Project_Page @relation(fields: [projectPageId], references: [id])
-  label         String
-  order         Int
-  pageVersion   Int
-  value         String
-  formGroup     String
-  readOnly      Boolean      @default(false)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  createdBy     String       @default("system")
-  Page_Block    Page_Block   @relation(fields: [blockId], references: [id])
+  id              String            @id @default(cuid())
+  projectLabel    String
+  softwareLabel   String
+  clientId        String
+  pageId          String
+  label           String
+  pageVersion     Int
+  order           Int
+  slug            String            @unique
+  status          String            @default("En cours de rédaction")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  createdBy       String            @default("system")
+  Project         Project           @relation(fields: [clientId, projectLabel, softwareLabel], references: [clientId, label, softwareLabel])
+  Page            Page              @relation(fields: [pageId, pageVersion], references: [id, version])
+  Page_Validation Page_Validation[]
 }
 
 model Page_Validation {

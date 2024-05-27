@@ -39,56 +39,90 @@ class SettingV0001 extends Seed {
         try {
             if (previousStatus && !seedExist) {
                 await this.seedUpdateStatus("pending")
-                const defaultSetting = [
-                    {
-                        id: 'ABS_Décompte',
-                        label: 'Décompte des absences',
-                        value: 'Heures ouvrés'
-                    },
-                    {
-                        id: 'ABS_Décompte',
-                        label: 'Décompte des absences',
-                        value: 'Heures ouvrables'
-                    },
-                    {
-                        id: 'CP_Méthode',
-                        label: 'Méthode de calcul des CP',
-                        value: 'Jour ouvré'
-                    },
-                    {
-                        id: 'CP_Méthode',
-                        label: 'Méthode de calcul des CP',
-                        value: 'Jour ouvrable'
-                    },
-                    {
-                        id: 'CP_Valorisation',
-                        label: 'Valorisation des CP',
-                        value: 'Maintien de salaire'
-                    },
-                    {
-                        id: 'CP_Valorisation',
-                        label: 'Valorisation des CP',
-                        value: '10ème'
-                    },
-                    {
-                        id: 'CP_arrondi',
-                        label: 'Méthode d\'arrondi des CP',
-                        value: 'Entier supérieur'
-                    },
-                    {
-                        id: 'CP_arrondi',
-                        label: 'Méthode d\'arrondi des CP',
-                        value: 'Entier inférieur'
-                    },
-                    {
-                        id: 'ABS_Méthode',
-                        label: 'Méthode valorisation des absences',
-                        value: 'Base*Taux'
-                    },
-
-                ]
                 await prisma.default_Setting.createMany({
-                    data: defaultSetting
+                    data: [
+                        {
+                            id: 'ABS_Décompte',
+                            label: 'Décompte des absences',
+                        },
+                        {
+                            id: 'CP_Méthode',
+                            label: 'Méthode de calcul des CP',
+                        },
+                        {
+                            id: 'CP_Valorisation',
+                            label: 'Valorisation des CP',
+                        },
+                        {
+                            id: 'CP_arrondi',
+                            label: 'Méthode d\'arrondi des CP',
+                        },
+                        {
+                            id: 'ABS_Méthode',
+                            label: 'Méthode de calcul des absences',
+                        },
+
+                    ]
+                })
+                await prisma.default_Setting_Value.createMany({
+                    data: [
+                        {
+                            id: 'STD_001',
+                            defaultSettingId: 'ABS_Décompte',
+                            label: 'Heures ouvrés',
+                            value: 'Heures ouvrés'
+                        },
+                        {
+                            id: 'STD_002',
+                            defaultSettingId: 'ABS_Décompte',
+                            label: 'Heures ouvrables',
+                            value: 'Heures ouvrables'
+                        },
+                        {
+                            id: 'STD_003',
+                            defaultSettingId: 'CP_Méthode',
+                            label: 'Jour ouvré',
+                            value: 'Jour ouvré'
+                        },
+                        {
+                            id: 'STD_004',
+                            defaultSettingId: 'CP_Méthode',
+                            label: 'Jour ouvrable',
+                            value: 'Jour ouvrable'
+                        },
+                        {
+                            id: 'STD_005',
+                            defaultSettingId: 'CP_Valorisation',
+                            label: 'Maintien de salaire',
+                            value: 'Maintien de salaire'
+                        },
+                        {
+                            id: 'STD_006',
+                            defaultSettingId: 'CP_Valorisation',
+                            label: '10ème',
+                            value: '10ème'
+                        },
+                        {
+                            id: 'STD_007',
+                            defaultSettingId: 'CP_arrondi',
+                            label: 'Entier supérieur',
+                            value: 'Entier supérieur'
+                        },
+                        {
+                            id: 'STD_008',
+                            defaultSettingId: 'CP_arrondi',
+                            label: 'Entier inférieur',
+                            value: 'Entier inférieur'
+                        },
+                        {
+                            id: 'STD_009',
+                            defaultSettingId: 'ABS_Méthode',
+                            label: 'Base*Taux',
+                            value: 'Base*Taux'
+                        },
+
+                    ],
+
                 })
                 await this.seedUpdateStatus("completed")
             }

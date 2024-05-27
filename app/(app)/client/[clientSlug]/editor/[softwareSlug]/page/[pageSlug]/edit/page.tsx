@@ -38,7 +38,9 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     if (!softwareExist) {
         notFound();
     }
-    const blocks = await page.getblocks();
+    const blocks = await page.getBlocks();
+    const forms = await software.getForms();
+
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -52,7 +54,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink asChild>
-                                <Link href={`/client/${params.clientSlug}/editor`}>Editeur</Link>
+                                <Link href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</Link>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
@@ -72,7 +74,15 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                 </Breadcrumb>
             </ContainerBreadCrumb>
             <ContainerForm title={`${pageExist.internalId} ${pageExist.label}`}>
-                <DynamicPageAnalyse clientSlug={params.clientSlug} label={pageExist.label} internalId={pageExist.internalId} pageSlug={params.pageSlug} softwareSlug={params.softwareSlug} blocks={blocks} />
+                <DynamicPageAnalyse
+                    clientSlug={params.clientSlug}
+                    label={pageExist.label}
+                    internalId={pageExist.internalId}
+                    pageSlug={params.pageSlug}
+                    softwareSlug={params.softwareSlug}
+                    blocks={blocks}
+                    forms={forms}
+                />
             </ContainerForm>
         </Container>
     )

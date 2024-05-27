@@ -5,8 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SettingEditSchema } from '@/src/helpers/definition'
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { Calendar } from "@/components/ui/calendar"
 import { ButtonLoading } from "@/components/ui/button-loader";
 import {
     Form,
@@ -17,22 +15,8 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
 import type { getSoftwareSettingBySlug } from "@/src/query/software_setting.query"
-import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
 import { editSoftwareSetting } from "@/src/features/actions/software_setting/software_setting.actions"
 import { Input } from '@/components/ui/input'
 import { toast } from "sonner"
@@ -47,7 +31,7 @@ export default function EditSoftwareSetting({ clientSlug, softwareSlug, setting 
             slug: setting?.slug,
             label: setting?.label,
             id: setting?.id,
-            value: setting?.value,
+            value: '',
             description: setting?.description ?? '',
             softwareSlug: softwareSlug
 

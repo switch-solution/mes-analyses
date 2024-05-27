@@ -27,7 +27,24 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "sonner"
 import { BlockPageCreateSchema } from "@/src/helpers/definition"
-export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement, placeholder = "Utiliser la touche / pour créer un nouveau bloc", blockMasterId, softwareSlug }: { clientSlug: string, pageSlug: string, htmlElement: 'text' | 'ul' | 'form' | 'select', placeholder?: string, blockMasterId?: string, softwareSlug: string }) {
+export default function DynamicPageCommande({
+    clientSlug,
+    pageSlug,
+    htmlElement,
+    placeholder = "Utiliser la touche / pour créer un nouveau bloc",
+    blockMasterId,
+    softwareSlug }: {
+        clientSlug: string,
+        pageSlug: string,
+        htmlElement: 'text' | 'ul' | 'form' | 'select',
+        placeholder?: string, blockMasterId?: string,
+        softwareSlug: string
+        forms: {
+            id: string,
+            label: string,
+            slug: string
+        }[]
+    }) {
     const form = useForm<z.infer<typeof BlockPageCreateSchema>>({
         resolver: zodResolver(BlockPageCreateSchema),
         defaultValues: {
@@ -153,30 +170,6 @@ export default function DynamicPageCommande({ clientSlug, pageSlug, htmlElement,
 
                                             </SelectGroup>
                                             }
-                                            {htmlElement === 'form' &&
-                                                <SelectGroup>
-                                                    <SelectLabel>Zone de type formulaire</SelectLabel>
-                                                    <SelectItem value="input_text">Champ texte</SelectItem>
-                                                    <SelectItem value="input_number">Champ numérique</SelectItem>
-                                                    <SelectItem value="select">Liste déroulante</SelectItem>
-                                                    <SelectItem value="switch">Switch</SelectItem>
-                                                </SelectGroup>
-                                            }
-                                            {htmlElement === 'ul' &&
-                                                <SelectGroup>
-                                                    <SelectLabel>Liste</SelectLabel>
-                                                    <SelectItem value="li">Puce</SelectItem>
-                                                    <SelectItem value="ol">Nombre</SelectItem>
-                                                </SelectGroup>
-                                            }
-                                            {htmlElement === 'select' &&
-                                                <SelectGroup>
-                                                    <SelectLabel>Liste</SelectLabel>
-                                                    <SelectItem value="option">Valeur</SelectItem>
-                                                </SelectGroup>
-                                            }
-
-
                                         </SelectContent>
                                     </Select>
 

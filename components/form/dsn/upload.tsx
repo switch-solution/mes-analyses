@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonLoading } from "@/components/ui/button-loader";
 import { DsnParser } from "@fibre44/dsn-parser";
 import { toast } from "sonner"
-import { dsnData } from "@/src/features/actions/dsn/dsn.actions"
+//import { dsnData } from "@/src/features/actions/dsn/dsn.actions"
 type Dsn = {
     dsnId: string,
     dsnRows: {
@@ -95,6 +95,7 @@ export default function UploadFileDsn({ clientSlug, projectSlug }: { clientSlug:
             const idccList = extraction.idccList.map((idcc) => ({
                 idcc: idcc.idcc,
             }))
+            /**
             const action = await dsnData({
                 clientSlug: clientSlug,
                 projectSlug: projectSlug,
@@ -114,6 +115,7 @@ export default function UploadFileDsn({ clientSlug, projectSlug }: { clientSlug:
                     },
                 });
             }
+             */
 
         } catch (err) {
             setLoading(false);

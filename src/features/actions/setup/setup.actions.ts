@@ -8,6 +8,7 @@ import { createLog } from "@/src/query/logger.query";
 import z from "zod";
 import { generateSlug } from "@/src/helpers/generateSlug";
 import { User } from "@/src/classes/user";
+import { Form } from "@/src/classes/form";
 import { authentifcationAction, ActionError, action } from "@/lib/safe-actions";
 import { Client } from "@/src/classes/client";
 import { Software } from "@/src/classes/software";
@@ -129,11 +130,25 @@ export const createSetupSoftware = authentifcationAction(SetupSoftwareSchema, as
         })
         for (const page of pages) {
             const newPage = new DynamicPage(page.slug)
-            await newPage.duplicate({
+            const duplicatePage = await newPage.duplicate({
                 softwareLabel: soft.label,
                 clientId,
                 userId
             })
+            const forms = await newPage.getForms()
+            for (const form of forms) {
+                const newForm = new Form(form.slug)
+                const pageBlockId = duplicatePage?.Page_Block.find((pageBlock) => pageBlock.blockIdSource === form.blockId)?.id
+                if (pageBlockId) {
+                    await newForm.duplicate({
+                        softwareLabel: soft.label,
+                        clientId,
+                        pageBlockId: pageBlockId
+                    })
+                }
+
+            }
+
         }
         if (!soft) {
             throw new ActionError("Une erreur est survenue lors de la création du logiciel.")

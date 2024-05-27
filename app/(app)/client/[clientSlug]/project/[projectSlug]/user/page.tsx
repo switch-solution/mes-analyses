@@ -38,9 +38,9 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     }
     const users = usersList.map(user => {
         return {
-            civility: user.user.UserOtherData.at(0)?.civility,
-            lastname: user.user.UserOtherData.at(0)?.lastname,
-            firstname: user.user.UserOtherData.at(0)?.firstname,
+            civility: user.civility,
+            lastname: user.lastName,
+            firstname: user.firstName,
             status: user.isAdmin ? 'Administrateur' : 'Utilisateur'
         }
 

@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/prisma"
 import { Security } from "@/src/classes/security";
 import { Client } from "@/src/classes/client";
 import { notFound } from "next/navigation";
+import EditBlockForm from "@/components/form/block/editBockForm";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -11,12 +11,10 @@ import {
 } from "@/components/ui/breadcrumb"
 import Link from "next/link";
 import { DynamicPage } from "@/src/classes/dynamicPage";
+import { Software } from "@/src/classes/software";
+import { Block } from "@/src/classes/block";
 import { Container, ContainerBreadCrumb, ContainerForm, } from "@/components/layout/container";
-import EditBlockText from "@/components/form/page/editBlockText";
-import EditBlockNumber from "@/components/form/page/editBlockNumber";
-import EditBlockSelect from "@/components/form/page/editBlockSelect";
 export default async function Page({ params }: { params: { clientSlug: string, pageSlug: string, softwareSlug: string, blockSlug: string } }) {
-
     const client = new Client(params.clientSlug);
     const clientExist = await client.clientExist();
     if (!clientExist) {
@@ -36,11 +34,18 @@ export default async function Page({ params }: { params: { clientSlug: string, p
     if (!userIsAuthorized) {
         throw new Error('Vous devez etre editor pour acceder a cette page');
     }
-    const block = await page.blockExist(params.blockSlug);
-    if (!block) {
+    const software = new Software(params.softwareSlug);
+    const softwareExist = await software.softwareExist();
+    if (!softwareExist) {
         notFound();
     }
-    const dsn = await prisma.dsn_Structure.findMany()
+    const block = new Block(params.blockSlug);
+    const blockExist = await block.blockExist();
+    if (!blockExist) {
+        notFound();
+    }
+    const forms = await software.getForms();
+    const formSlug = await block.getFormSlug();
     return (
         <Container>
             <ContainerBreadCrumb>
@@ -54,7 +59,7 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink asChild>
-                                <Link href={`/client/${params.clientSlug}/editor`}>Editeur</Link>
+                                <Link href={`/client/${params.clientSlug}/editor/${params.softwareSlug}`}>Editeur</Link>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
@@ -73,55 +78,19 @@ export default async function Page({ params }: { params: { clientSlug: string, p
                     </BreadcrumbList>
                 </Breadcrumb>
             </ContainerBreadCrumb>
-            <ContainerForm title={`${pageExist.internalId} ${pageExist.label}`}>
-                {block.typeInput === 'text' && block.htmlElement === 'input' && <EditBlockText
-                    dsn={dsn}
-                    clientSlug={params.clientSlug}
-                    pageSlug={params.pageSlug}
-                    blockSlug={params.blockSlug}
-                    softwareSlug={params.softwareSlug}
-                    block={
-                        {
-                            label: block.label,
-                            minLength: block.minLength,
-                            maxLength: block.maxLength,
-                            required: block.required,
-                            readonly: block.readonly,
-                            sourceDsnId: block.sourceDsnId ? block.sourceDsnId : ''
-                        }
-                    }
-                />}
-                {block.typeInput === 'number' && block.htmlElement === 'input' && <EditBlockNumber
-                    clientSlug={params.clientSlug}
-                    pageSlug={params.pageSlug}
-                    blockSlug={params.blockSlug}
-                    softwareSlug={params.softwareSlug}
-                    block={
-                        {
-                            label: block.label,
-                            min: block.min,
-                            max: block.max,
-                            required: block.required,
-                            readonly: block.readonly
-                        }
-                    }
-                />}
-                {block.htmlElement === 'select' && <EditBlockSelect
-                    clientSlug={params.clientSlug}
-                    pageSlug={params.pageSlug}
-                    blockSlug={params.blockSlug}
-                    softwareSlug={params.softwareSlug}
-                    block={
-                        {
-                            label: block.label,
-                            min: block.min,
-                            max: block.max,
-                            required: block.required,
-                            readonly: block.readonly
-                        }
-                    }
-                />}
+            <ContainerForm>
+                {blockExist.htmlElement === 'form' &&
+                    <EditBlockForm
+                        clientSlug={params.clientSlug}
+                        softwareSlug={params.softwareSlug}
+                        pageSlug={params.pageSlug}
+                        blockSlug={params.blockSlug}
+                        forms={forms}
+                        data={{
+                            formSlug: formSlug ? formSlug : ''
 
+                        }}
+                    />}
             </ContainerForm>
         </Container>
     )

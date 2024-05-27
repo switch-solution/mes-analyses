@@ -7,7 +7,8 @@ export default function DynamicPageAnalyse({
     internalId,
     pageSlug,
     blocks,
-    softwareSlug
+    softwareSlug,
+    forms
 
 }: {
     clientSlug: string,
@@ -25,6 +26,11 @@ export default function DynamicPageAnalyse({
         blockMasterId?: string | null | undefined
         htmlElement: string,
 
+    }[],
+    forms: {
+        id: string,
+        label: string,
+        slug: string,
     }[]
 }) {
     return (
@@ -54,7 +60,6 @@ export default function DynamicPageAnalyse({
                                         type={input.type}
                                     />
                                 ))}
-                                <DynamicPageCommande key={`addChildform-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='form' blockMasterId={block.id} placeholder="Ajouter un champ dans le formulaire avec la touche /" softwareSlug={softwareSlug} />
                             </div >
 
                         </div>
@@ -72,7 +77,6 @@ export default function DynamicPageAnalyse({
                                     softwareSlug={softwareSlug}
                                     type={input.type}
                                 />))}
-                            <DynamicPageCommande key={`addChildform-${block.id}`} clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='ul' blockMasterId={block.id} placeholder="Ajouter un élément à la liste avec la touche /" softwareSlug={softwareSlug} />
                         </div >
 
                     )}
@@ -83,7 +87,7 @@ export default function DynamicPageAnalyse({
             ))
             }
 
-            <DynamicPageCommande key="addBlock" clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='text' softwareSlug={softwareSlug} />
+            <DynamicPageCommande key="addBlock" clientSlug={clientSlug} pageSlug={pageSlug} htmlElement='text' softwareSlug={softwareSlug} forms={forms} />
         </div >
     );
 }
